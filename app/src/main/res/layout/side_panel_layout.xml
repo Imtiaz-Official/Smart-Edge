@@ -1,41 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Main side panel container.
-    The outer FrameLayout is click-transparent (no background), so outside taps
-    pass through to the WindowManager FLAG_WATCH_OUTSIDE_TOUCH handler.
-    The inner 'panelCard' is the visible frosted-glass pill.
--->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="130dp"
     android:layout_height="match_parent"
     android:background="@android:color/transparent"
     android:clipChildren="false">
 
     <!-- Glass pill panel -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/panelCard"
-        android:layout_width="104dp"
+        android:layout_width="72dp"
         android:layout_height="wrap_content"
         android:layout_gravity="end|center_vertical"
         android:layout_marginEnd="12dp"
         android:background="@drawable/bg_panel"
-        android:clipChildren="false"
-        android:clipToPadding="false"
         android:elevation="32dp"
-        android:gravity="center_horizontal"
-        android:minHeight="220dp"
-        android:orientation="vertical"
-        android:paddingTop="24dp"
-        android:paddingBottom="24dp">
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        app:layout_constraintHeight_max="520dp">
+
+        <!-- AI Button -->
+        <LinearLayout
+            android:id="@+id/btnAI"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_ai_button"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="AI"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="32dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="12dp"
+            android:background="#26FFFFFF"
+            app:layout_constraintTop_toBottomOf="@id/btnAI"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- Scrollable app list -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvPanelApps"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:clipToPadding="false"
-            android:overScrollMode="never"
-            android:paddingBottom="12dp" />
+            android:overScrollMode="ifContentScrolls"
+            android:paddingBottom="8dp"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            app:layout_constraintBottom_toTopOf="@id/btnClose"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- Empty state label -->
         <TextView
@@ -43,54 +71,29 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:paddingHorizontal="8dp"
             android:paddingVertical="16dp"
             android:text="@string/no_apps"
             android:textColor="@color/text_secondary"
             android:textSize="10sp"
-            android:visibility="gone" />
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            app:layout_constraintBottom_toTopOf="@id/btnClose" />
 
-        <!-- Divider -->
-        <View
-            android:layout_width="32dp"
-            android:layout_height="1dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginVertical="12dp"
-            android:background="#26FFFFFF" />
-
-        <!-- AI Button (Sleek Circle) -->
-        <LinearLayout
-            android:id="@+id/btnAI"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_ai_button"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:text="AI"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-
-        <!-- Close / collapse button (Minimal Arrow) -->
+        <!-- Close / collapse button -->
         <ImageButton
             android:id="@+id/btnClose"
             android:layout_width="48dp"
             android:layout_height="32dp"
-            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:contentDescription="Close panel"
             android:src="@drawable/ic_chevron_right"
-            android:tint="#80FFFFFF" />
+            android:tint="#80FFFFFF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rvPanelApps" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

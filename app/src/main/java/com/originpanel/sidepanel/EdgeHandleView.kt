@@ -64,7 +64,17 @@ class EdgeHandleView @JvmOverloads constructor(
     private val gestureDetector = GestureDetectorCompat(context,
         object : GestureDetector.SimpleOnGestureListener() {
 
-            override fun onDown(e: MotionEvent): Boolean = true
+            override fun onDown(e: MotionEvent): Boolean {
+                if (showPill) {
+                    animate().scaleX(0.9f).scaleY(0.9f).setDuration(100).start()
+                }
+                return true
+            }
+
+            override fun onSingleTapUp(e: MotionEvent): Boolean {
+                triggerPanel()
+                return true
+            }
 
             override fun onFling(
                 e1: MotionEvent?,
@@ -75,8 +85,7 @@ class EdgeHandleView @JvmOverloads constructor(
                 val startX = e1?.rawX ?: return false
                 val endX   = e2.rawX
                 
-                // For Right side: inward is swiping LEFT (negative velocityX, positive startX - endX)
-                // For Left side:  inward is swiping RIGHT (positive velocityX, positive endX - startX)
+                // Use raw coordinates to avoid issues with local coordinates in a 24dp window
                 val dx = if (isRightSide) (startX - endX) else (endX - startX)
 
                 val isFastEnough = Math.abs(velocityX) >= MIN_FLING_VELOCITY
@@ -95,7 +104,13 @@ class EdgeHandleView @JvmOverloads constructor(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        return gestureDetector.onTouchEvent(event)
+        val result = gestureDetector.onTouchEvent(event)
+        if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
+            if (showPill) {
+                animate().scaleX(1f).scaleY(1f).setDuration(150).start()
+            }
+        }
+        return result
     }
 
     /**

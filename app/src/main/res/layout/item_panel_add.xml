@@ -7,12 +7,16 @@
     android:paddingHorizontal="4dp"
     android:paddingVertical="12dp">
 
-    <!-- App icon -->
+    <!-- Plus icon in a subtle circle -->
     <ImageView
-        android:id="@+id/ivAppIcon"
+        android:id="@+id/ivAddIcon"
         android:layout_width="42dp"
         android:layout_height="42dp"
-        android:contentDescription="App icon"
-        android:scaleType="centerCrop" />
+        android:background="@drawable/bg_close_btn"
+        android:backgroundTint="#26FFFFFF"
+        android:contentDescription="Add apps"
+        android:padding="10dp"
+        android:src="@android:drawable/ic_input_add"
+        android:tint="#D9FFFFFF" />
 
 </LinearLayout>

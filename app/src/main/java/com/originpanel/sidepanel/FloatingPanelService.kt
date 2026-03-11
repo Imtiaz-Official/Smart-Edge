@@ -9,32 +9,19 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.IBinder
 import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import androidx.core.app.NotificationCompat
 
-/**
- * The core foreground service that manages all overlay windows.
- *
- * Research-backed WindowManager flags:
- * - TYPE_APPLICATION_OVERLAY  : correct type for Android 8+ (replaces deprecated TYPE_SYSTEM_OVERLAY)
- * - FLAG_NOT_FOCUSABLE        : prevents stealing keyboard/IME focus from foreground app
- * - FLAG_NOT_TOUCH_MODAL      : only intercept touches within the view's bounds
- * - FLAG_LAYOUT_IN_SCREEN     : draw within the full screen including status bar area
- * - FLAG_WATCH_OUTSIDE_TOUCH  : panel gets ACTION_OUTSIDE so we can auto-dismiss on outside tap
- *
- * Android 14 note: The service is started only after the edge handle overlay is already visible,
- * satisfying the requirement that a SYSTEM_ALERT_WINDOW app must have a visible overlay before
- * starting a foreground service from the background.
- */
 class FloatingPanelService : Service() {
 
     private lateinit var windowManager: WindowManager
     private var edgeHandleView: EdgeHandleView? = null
     private var sidePanelView: SidePanelView? = null
+    private var pickerPanelView: AppPickerPanelView? = null
 
     private var isPanelOpen = false
+    private var isPickerOpen = false
     private lateinit var panelPrefs: PanelPreferences
 
     companion object {
@@ -60,13 +47,14 @@ class FloatingPanelService : Service() {
             ACTION_STOP -> stopSelf()
             ACTION_OPEN -> openPanel()
         }
-        return START_STICKY // Auto-restart if killed by system
+        return START_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
         removeEdgeHandle()
         removeSidePanel()
+        removePickerPanel()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -83,15 +71,13 @@ class FloatingPanelService : Service() {
             showPill = isPillVisible
         }
 
-        // 8dp for invisible, maybe 12dp if visible pill to make it more obvious
-        val handleWidth = if (isPillVisible) 10 else 8
-
+        val handleWidth = 24
         val screenHeight = resources.displayMetrics.heightPixels
         val stripHeight  = if (isPillVisible) dpToPx(80) else (screenHeight * 0.60f).toInt()
 
         val params = WindowManager.LayoutParams(
             dpToPx(handleWidth),
-            stripHeight,        // Fixed height for pill, 60% for invisible
+            stripHeight,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
@@ -123,6 +109,7 @@ class FloatingPanelService : Service() {
         sidePanelView = SidePanelView(this).apply {
             onClose = { closePanel() }
             onAppsChanged = { refreshApps() }
+            onAddClick = { togglePicker() }
         }
 
         val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
@@ -130,8 +117,6 @@ class FloatingPanelService : Service() {
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            // FLAG_NOT_TOUCH_MODAL: taps outside the panel's actual bounds → dismissed
-            // FLAG_WATCH_OUTSIDE_TOUCH: gives us ACTION_OUTSIDE events for backdrop dismiss
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
@@ -144,7 +129,6 @@ class FloatingPanelService : Service() {
 
         windowManager.addView(sidePanelView, params)
 
-        // Slide in with spring animation
         sidePanelView?.let { panel ->
             panel.post {
                 val panelWidth = panel.width.toFloat()
@@ -152,24 +136,23 @@ class FloatingPanelService : Service() {
             }
         }
 
-        // Hide edge handle while panel is open (cleaner UX)
         edgeHandleView?.visibility = View.GONE
 
-        // Intercept outside taps to close panel
         sidePanelView?.setOnTouchListener { _, event ->
             if (event.action == android.view.MotionEvent.ACTION_OUTSIDE) {
-                closePanel()
+                if (isPickerOpen) closePicker() else closePanel()
                 true
             } else false
         }
 
-        // Load apps into the panel
         refreshApps()
     }
 
     fun closePanel() {
         if (!isPanelOpen) return
         isPanelOpen = false
+
+        if (isPickerOpen) closePicker()
 
         sidePanelView?.let { panel ->
             val panelWidth = panel.width.toFloat()
@@ -192,13 +175,79 @@ class FloatingPanelService : Service() {
         sidePanelView?.setApps(apps)
     }
 
-    // ── Notification (required for Android 8+ foreground service) ────────────
+    // ── Picker Panel ─────────────────────────────────────────────────────────
+
+    private fun togglePicker() {
+        if (isPickerOpen) closePicker() else openPicker()
+    }
+
+    private fun openPicker() {
+        if (isPickerOpen) return
+        isPickerOpen = true
+
+        pickerPanelView = AppPickerPanelView(this).apply {
+            onClose = { closePicker() }
+            onToggleApp = { app, isSelected ->
+                if (isSelected) panelPrefs.addApp(app.packageName)
+                else panelPrefs.removeApp(app.packageName)
+                refreshApps()
+            }
+        }
+
+        val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
+        val params = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL
+                      else Gravity.START or Gravity.CENTER_VERTICAL
+            
+            val offsetPx = (84 * resources.displayMetrics.density).toInt()
+            x = offsetPx
+        }
+
+        windowManager.addView(pickerPanelView, params)
+
+        pickerPanelView?.let { picker ->
+            picker.post {
+                val pickerWidth = picker.width.toFloat()
+                SpringAnimator.animateOpen(picker, if (isRight) pickerWidth else -pickerWidth)
+            }
+        }
+    }
+
+    private fun closePicker() {
+        if (!isPickerOpen) return
+        isPickerOpen = false
+
+        pickerPanelView?.let { picker ->
+            val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
+            val pickerWidth = picker.width.toFloat()
+            SpringAnimator.animateClose(picker, if (isRight) pickerWidth else -pickerWidth) {
+                removePickerPanel()
+            }
+        }
+    }
+
+    private fun removePickerPanel() {
+        pickerPanelView?.let {
+            if (it.isAttachedToWindow) windowManager.removeView(it)
+        }
+        pickerPanelView = null
+    }
+
+    // ── Notification ──────────────────────────────────────────────────────────
 
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
             getString(R.string.panel_notification_channel),
-            NotificationManager.IMPORTANCE_MIN  // Silent, collapsed
+            NotificationManager.IMPORTANCE_MIN
         ).apply {
             description = getString(R.string.panel_notification_desc)
             setShowBadge(false)
@@ -207,7 +256,7 @@ class FloatingPanelService : Service() {
         manager.createNotificationChannel(channel)
     }
 
-    private fun buildNotification(): Notification {
+    private fun buildNotification(): android.app.Notification {
         val stopIntent = Intent(this, FloatingPanelService::class.java).apply {
             action = ACTION_STOP
         }
@@ -233,8 +282,6 @@ class FloatingPanelService : Service() {
             .setOngoing(true)
             .build()
     }
-
-    // ── Utilities ────────────────────────────────────────────────────────────
 
     private fun dpToPx(dp: Int): Int =
         (dp * resources.displayMetrics.density).toInt()

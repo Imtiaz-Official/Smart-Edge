@@ -20,48 +20,73 @@ import androidx.recyclerview.widget.RecyclerView
  */
 class PanelAppsAdapter(
     private val context: Context,
-    private val onRemove: (AppInfo) -> Unit
-) : ListAdapter<AppInfo, PanelAppsAdapter.AppViewHolder>(AppDiffCallback()) {
+    private val onRemove: (AppInfo) -> Unit,
+    private val onAddClick: () -> Unit
+) : ListAdapter<AppInfo, RecyclerView.ViewHolder>(AppDiffCallback()) {
+
+    companion object {
+        private const val VIEW_TYPE_APP = 0
+        private const val VIEW_TYPE_ADD = 1
+    }
 
     inner class AppViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val ivIcon: ImageView = itemView.findViewById(R.id.ivAppIcon)
-        val tvName: TextView = itemView.findViewById(R.id.tvAppName)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_panel_app, parent, false)
-        return AppViewHolder(view)
+    inner class AddViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val ivAdd: ImageView = itemView.findViewById(R.id.ivAddIcon)
     }
 
-    override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
-        val app = getItem(position)
+    override fun getItemViewType(position: Int): Int {
+        return if (position < currentList.size) VIEW_TYPE_APP else VIEW_TYPE_ADD
+    }
 
-        // App icon — loaded directly from PackageManager (already resolved in AppInfo)
-        holder.ivIcon.setImageDrawable(app.icon)
-        holder.tvName.text = app.appName
+    override fun getItemCount(): Int {
+        // Return apps + 1 for the 'Add' button
+        return currentList.size + 1
+    }
 
-        // Tap → launch app
-        holder.itemView.setOnClickListener {
-            SpringAnimator.scalePulse(holder.itemView)
-            val launchIntent = context.packageManager
-                .getLaunchIntentForPackage(app.packageName)
-            if (launchIntent != null) {
-                launchIntent.addFlags(
-                    android.content.Intent.FLAG_ACTIVITY_NEW_TASK or
-                    android.content.Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-                )
-                context.startActivity(launchIntent)
-            } else {
-                Toast.makeText(context, "Can't open ${app.appName}", Toast.LENGTH_SHORT).show()
-            }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == VIEW_TYPE_APP) {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_panel_app, parent, false)
+            AppViewHolder(view)
+        } else {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_panel_add, parent, false)
+            AddViewHolder(view)
         }
+    }
 
-        // Long-press → remove from panel
-        holder.itemView.setOnLongClickListener {
-            SpringAnimator.scalePulse(holder.itemView)
-            onRemove(app)
-            true
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder is AppViewHolder) {
+            val app = getItem(position)
+            holder.ivIcon.setImageDrawable(app.icon)
+
+            holder.itemView.setOnClickListener {
+                SpringAnimator.scalePulse(holder.itemView)
+                val launchIntent = context.packageManager
+                    .getLaunchIntentForPackage(app.packageName)
+                if (launchIntent != null) {
+                    launchIntent.addFlags(
+                        android.content.Intent.FLAG_ACTIVITY_NEW_TASK or
+                        android.content.Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+                    )
+                    context.startActivity(launchIntent)
+                    // Close the panel via intent if possible, or just let it be
+                }
+            }
+
+            holder.itemView.setOnLongClickListener {
+                SpringAnimator.scalePulse(holder.itemView)
+                onRemove(app)
+                true
+            }
+        } else if (holder is AddViewHolder) {
+            holder.itemView.setOnClickListener {
+                SpringAnimator.scalePulse(holder.itemView)
+                onAddClick()
+            }
         }
     }
 

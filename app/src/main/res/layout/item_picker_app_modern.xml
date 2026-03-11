@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/ivPickerAppIcon"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/tvPickerAppName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#D9FFFFFF"
+            android:textSize="10sp" />
+
+    </LinearLayout>
+
+    <!-- Selection Checkmark -->
+    <ImageView
+        android:id="@+id/ivPickerCheck"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="2dp"
+        android:src="@android:drawable/checkbox_on_background"
+        android:tint="#4A9EFF"
+        android:visibility="gone" />
+
+</FrameLayout>

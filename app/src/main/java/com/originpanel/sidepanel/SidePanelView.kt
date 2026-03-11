@@ -29,6 +29,9 @@ class SidePanelView @JvmOverloads constructor(
     /** Called when an app is removed (so FloatingPanelService can refresh). */
     var onAppsChanged: (() -> Unit)? = null
 
+    /** Called when the plus button is tapped to open the picker panel. */
+    var onAddClick: (() -> Unit)? = null
+
     private val binding: SidePanelLayoutBinding
     private val adapter: PanelAppsAdapter
     private val panelPrefs = PanelPreferences(context)
@@ -38,16 +41,20 @@ class SidePanelView @JvmOverloads constructor(
         binding = SidePanelLayoutBinding.inflate(LayoutInflater.from(context), this, true)
 
         // Setup RecyclerView
-        adapter = PanelAppsAdapter(context) { removedApp ->
-            panelPrefs.removeApp(removedApp.packageName)
-            onAppsChanged?.invoke()
-            Toast.makeText(context, "${removedApp.appName} removed from panel",
-                Toast.LENGTH_SHORT).show()
-        }
+        adapter = PanelAppsAdapter(
+            context,
+            onRemove = { removedApp ->
+                panelPrefs.removeApp(removedApp.packageName)
+                onAppsChanged?.invoke()
+                Toast.makeText(context, "${removedApp.appName} removed from panel",
+                    Toast.LENGTH_SHORT).show()
+            },
+            onAddClick = { onAddClick?.invoke() }
+        )
 
         binding.rvPanelApps.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = this@SidePanelView.adapter
+            this.adapter = this@SidePanelView.adapter
             itemAnimator = null  // Disable default animation (spring handles it)
         }
 
@@ -70,7 +77,8 @@ class SidePanelView @JvmOverloads constructor(
      */
     fun setApps(apps: List<AppInfo>) {
         adapter.submitList(apps)
-        binding.tvEmptyPanel.visibility = if (apps.isEmpty()) View.VISIBLE else View.GONE
-        binding.rvPanelApps.visibility = if (apps.isEmpty()) View.GONE else View.VISIBLE
+        // RecyclerView always visible now because it contains the '+' button
+        binding.rvPanelApps.visibility = View.VISIBLE
+        binding.tvEmptyPanel.visibility = View.GONE
     }
 }

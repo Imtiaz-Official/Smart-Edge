@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pickerPanelCard"
+    android:layout_width="180dp"
+    android:layout_height="500dp"
+    android:layout_gravity="center_vertical"
+    android:background="@drawable/bg_panel"
+    android:elevation="40dp"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Header & Close -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="Add Apps"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btnPickerClose"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:tint="#80FFFFFF" />
+    </RelativeLayout>
+
+    <!-- Simple Search Bar -->
+    <EditText
+        android:id="@+id/etPickerSearch"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:background="@drawable/bg_close_btn"
+        android:backgroundTint="#1AFFFFFF"
+        android:hint="Search..."
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:maxLines="1"
+        android:paddingHorizontal="12dp"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#66FFFFFF"
+        android:textSize="12sp" />
+
+    <!-- App Grid -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPickerGrid"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:overScrollMode="ifContentScrolls"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbars="vertical" />
+
+</LinearLayout>
