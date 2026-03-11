@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Main side panel container.
+    The outer FrameLayout is click-transparent (no background), so outside taps
+    pass through to the WindowManager FLAG_WATCH_OUTSIDE_TOUCH handler.
+    The inner 'panelCard' is the visible frosted-glass pill.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="130dp"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:clipChildren="false">
+
+    <!-- Glass pill panel -->
+    <LinearLayout
+        android:id="@+id/panelCard"
+        android:layout_width="104dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginEnd="12dp"
+        android:background="@drawable/bg_panel"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:elevation="32dp"
+        android:gravity="center_horizontal"
+        android:minHeight="220dp"
+        android:orientation="vertical"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp">
+
+        <!-- Scrollable app list -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvPanelApps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:overScrollMode="never"
+            android:paddingBottom="12dp" />
+
+        <!-- Empty state label -->
+        <TextView
+            android:id="@+id/tvEmptyPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="16dp"
+            android:text="@string/no_apps"
+            android:textColor="@color/text_secondary"
+            android:textSize="10sp"
+            android:visibility="gone" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="32dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginVertical="12dp"
+            android:background="#26FFFFFF" />
+
+        <!-- AI Button (Sleek Circle) -->
+        <LinearLayout
+            android:id="@+id/btnAI"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_ai_button"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="AI"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <!-- Close / collapse button (Minimal Arrow) -->
+        <ImageButton
+            android:id="@+id/btnClose"
+            android:layout_width="48dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_horizontal"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Close panel"
+            android:src="@drawable/ic_chevron_right"
+            android:tint="#80FFFFFF" />
+
+    </LinearLayout>
+
+</FrameLayout>

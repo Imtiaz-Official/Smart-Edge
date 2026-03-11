@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Panel backgrounds -->
+    <color name="panel_bg_dark">#CC0D1A14</color>
+    <color name="panel_bg_gradient_start">#CC1A2830</color>
+    <color name="panel_bg_gradient_end">#E60D1A14</color>
+
+    <!-- Accent -->
+    <color name="accent_blue">#4A9EFF</color>
+    <color name="accent_blue_dark">#1A6FCC</color>
+    <color name="accent_gradient_start">#60B4FF</color>
+    <color name="accent_gradient_end">#3B5BDB</color>
+
+    <!-- Text -->
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#99FFFFFF</color>
+    <color name="text_tertiary">#55FFFFFF</color>
+
+    <!-- Surface -->
+    <color name="surface_white_10">#1AFFFFFF</color>
+    <color name="surface_white_20">#33FFFFFF</color>
+    <color name="surface_white_05">#0DFFFFFF</color>
+
+    <!-- Edge handle -->
+    <color name="edge_handle">#66FFFFFF</color>
+    <color name="edge_handle_pressed">#99FFFFFF</color>
+
+    <!-- App background -->
+    <color name="bg_main">#0A0F0D</color>
+
+    <!-- Material -->
+    <color name="seed">#4A9EFF</color>
+    <color name="md_theme_dark_primary">#4A9EFF</color>
+    <color name="md_theme_dark_onPrimary">#FFFFFF</color>
+    <color name="md_theme_dark_background">#0A0F0D</color>
+    <color name="md_theme_dark_onBackground">#FFFFFF</color>
+    <color name="md_theme_dark_surface">#0D1A14</color>
+    <color name="md_theme_dark_onSurface">#FFFFFF</color>
+</resources>

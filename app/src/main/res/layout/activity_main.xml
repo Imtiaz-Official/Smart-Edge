@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_main"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Header -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/app_name"
+            android:textColor="@color/text_primary"
+            android:textSize="32sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="40dp"
+            android:text="OriginOS-style floating panel"
+            android:textColor="@color/text_tertiary"
+            android:textSize="13sp" />
+
+        <!-- Permission warning card (only shown if permission not granted) -->
+        <LinearLayout
+            android:id="@+id/cardPermission"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_warning_card"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⚠  Permission Required"
+                android:textColor="#FFFFA726"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/permission_rationale"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGrantPermission"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="#FFFFA726"
+                android:text="@string/grant_permission"
+                android:textColor="@color/bg_main"
+                style="@style/Widget.Material3.Button" />
+
+        </LinearLayout>
+
+        <!-- Status indicator -->
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:text="Panel is stopped"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+
+        <!-- Start / Stop button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnStartStop"
+            android:layout_width="200dp"
+            android:layout_height="56dp"
+            android:backgroundTint="@color/accent_blue"
+            android:text="@string/start_panel"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            style="@style/Widget.Material3.Button" />
+
+        <!-- Toggle Panel button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTogglePanel"
+            android:layout_width="200dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/surface_white_10"
+            android:text="Toggle Side Panel"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            style="@style/Widget.Material3.Button" />
+
+        <!-- Manage Apps -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnManageApps"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/surface_white_10"
+            android:text="@string/add_apps"
+            android:textColor="@color/text_primary"
+            style="@style/Widget.Material3.Button.OutlinedButton" />
+
+        <!-- Settings -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSettings"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/surface_white_10"
+            android:text="@string/settings"
+            android:textColor="@color/text_secondary"
+            style="@style/Widget.Material3.Button.TextButton" />
+
+        <!-- Android 13 sideload note -->
+        <TextView
+            android:id="@+id/tvSideloadNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:text='If you installed via APK, go to Settings → Apps → ⋮ → Allow restricted settings'
+            android:textColor="@color/text_tertiary"
+            android:textSize="11sp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</ScrollView>
