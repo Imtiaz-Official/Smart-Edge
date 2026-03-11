@@ -7,26 +7,17 @@
     android:paddingHorizontal="4dp"
     android:paddingVertical="12dp">
 
-    <!-- Edit Icon (Pencil) -->
+    <!-- Chevron Down Icon -->
     <ImageView
-        android:id="@+id/ivAddIcon"
+        android:id="@+id/ivMoreIcon"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:background="@drawable/bg_close_btn"
         android:backgroundTint="#1AFFFFFF"
-        android:contentDescription="Edit apps"
-        android:padding="8dp"
-        android:src="@android:drawable/ic_menu_edit"
-        android:tint="#D9FFFFFF" />
-
-    <!-- Tiny Label -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:gravity="center"
-        android:text="Edit"
-        android:textColor="#B3FFFFFF"
-        android:textSize="8sp" />
+        android:contentDescription="Show more"
+        android:padding="6dp"
+        android:src="@drawable/ic_chevron_right"
+        android:rotation="90"
+        android:tint="#80FFFFFF" />
 
 </LinearLayout>

@@ -79,6 +79,5 @@ class SidePanelView @JvmOverloads constructor(
         adapter.submitList(apps)
         // RecyclerView always visible now because it contains the '+' button
         binding.rvPanelApps.visibility = View.VISIBLE
-        binding.tvEmptyPanel.visibility = View.GONE
     }
 }

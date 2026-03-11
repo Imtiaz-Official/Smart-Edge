@@ -2,13 +2,26 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp">
+    android:layout_marginBottom="12dp">
+
+    <!-- Background highlight for selected state -->
+    <View
+        android:id="@+id/vPickerBgHighlight"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/bg_close_btn"
+        android:backgroundTint="#26FFFFFF"
+        android:visibility="gone" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingTop="8dp"
+        android:paddingBottom="4dp">
 
         <ImageView
             android:id="@+id/ivPickerAppIcon"
@@ -18,26 +31,28 @@
 
         <TextView
             android:id="@+id/tvPickerAppName"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="8dp"
             android:ellipsize="end"
-            android:maxLines="1"
+            android:gravity="center"
+            android:maxLines="2"
             android:textColor="#D9FFFFFF"
-            android:textSize="10sp" />
+            android:textSize="10sp"
+            android:lineSpacingExtra="2dp" />
 
     </LinearLayout>
 
-    <!-- Selection Checkmark -->
-    <ImageView
+    <!-- Selection Blue Dot -->
+    <View
         android:id="@+id/ivPickerCheck"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
         android:layout_gravity="top|end"
         android:layout_marginTop="2dp"
-        android:layout_marginEnd="2dp"
-        android:src="@android:drawable/checkbox_on_background"
-        android:tint="#4A9EFF"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/bg_ai_button"
+        android:backgroundTint="#4A9EFF"
         android:visibility="gone" />
 
 </FrameLayout>

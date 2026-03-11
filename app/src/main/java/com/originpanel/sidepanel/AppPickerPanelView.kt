@@ -89,9 +89,13 @@ class AppPickerPanelView @JvmOverloads constructor(
             val app = items[position]
             holder.ivIcon.setImageDrawable(app.icon)
             holder.tvName.text = app.appName
-            holder.ivCheck.visibility = if (app.isInPanel) View.VISIBLE else View.GONE
+            
+            val isSelected = app.isInPanel
+            holder.ivCheck.visibility = if (isSelected) View.VISIBLE else View.GONE
+            holder.vHighlight.visibility = if (isSelected) View.VISIBLE else View.GONE
 
             holder.itemView.setOnClickListener {
+                SpringAnimator.scalePulse(holder.itemView)
                 val newState = !app.isInPanel
                 app.isInPanel = newState
                 onToggleApp?.invoke(app, newState)
@@ -105,6 +109,7 @@ class AppPickerPanelView @JvmOverloads constructor(
     inner class PickerViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val ivIcon: ImageView = view.findViewById(R.id.ivPickerAppIcon)
         val tvName: TextView = view.findViewById(R.id.tvPickerAppName)
-        val ivCheck: ImageView = view.findViewById(R.id.ivPickerCheck)
+        val ivCheck: View = view.findViewById(R.id.ivPickerCheck)
+        val vHighlight: View = view.findViewById(R.id.vPickerBgHighlight)
     }
 }

@@ -204,10 +204,12 @@ class FloatingPanelService : Service() {
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSLUCENT
         ).apply {
-            gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL
-                      else Gravity.START or Gravity.CENTER_VERTICAL
+            // Gravity CENTER to make it look like a large card in the middle-ish
+            gravity = if (isRight) Gravity.CENTER_VERTICAL or Gravity.END
+                      else Gravity.CENTER_VERTICAL or Gravity.START
             
-            val offsetPx = (84 * resources.displayMetrics.density).toInt()
+            // Large offset to the side of the bar
+            val offsetPx = (100 * resources.displayMetrics.density).toInt()
             x = offsetPx
         }
 

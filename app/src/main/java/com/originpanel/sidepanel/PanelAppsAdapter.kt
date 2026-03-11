@@ -6,18 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
-/**
- * RecyclerView adapter for apps displayed inside the side panel.
- *
- * Interactions:
- * - Tap  → launch the app
- * - Long-press → remove from panel
- */
 class PanelAppsAdapter(
     private val context: Context,
     private val onRemove: (AppInfo) -> Unit,
@@ -31,6 +23,7 @@ class PanelAppsAdapter(
 
     inner class AppViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val ivIcon: ImageView = itemView.findViewById(R.id.ivAppIcon)
+        val tvName: TextView = itemView.findViewById(R.id.tvAppName)
     }
 
     inner class AddViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -42,7 +35,6 @@ class PanelAppsAdapter(
     }
 
     override fun getItemCount(): Int {
-        // Return apps + 1 for the 'Add' button
         return currentList.size + 1
     }
 
@@ -62,6 +54,7 @@ class PanelAppsAdapter(
         if (holder is AppViewHolder) {
             val app = getItem(position)
             holder.ivIcon.setImageDrawable(app.icon)
+            holder.tvName.text = app.appName
 
             holder.itemView.setOnClickListener {
                 SpringAnimator.scalePulse(holder.itemView)
@@ -73,7 +66,6 @@ class PanelAppsAdapter(
                         android.content.Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
                     )
                     context.startActivity(launchIntent)
-                    // Close the panel via intent if possible, or just let it be
                 }
             }
 
