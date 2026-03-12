@@ -581,6 +581,50 @@
 
         </RadioGroup>
 
+        <!-- Icon Pack (Premium) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="External Icon Pack (Premium)"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/tvCurrentIconPack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="System Default"
+                    android:textColor="@color/text_tertiary"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnSelectIconPack"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:backgroundTint="#1AFFFFFF"
+                android:text="Change"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                app:cornerRadius="8dp"
+                android:enabled="false" />
+
+        </LinearLayout>
+
         <!-- Custom Accent Color (Premium) -->
         <LinearLayout
             android:layout_width="match_parent"

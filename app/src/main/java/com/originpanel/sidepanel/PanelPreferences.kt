@@ -39,6 +39,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_PILL_WIDTH = "pill_width"
         private const val KEY_PILL_COLOR = "pill_color"
         private const val KEY_TAP_TO_OPEN = "tap_to_open"
+        private const val KEY_ICON_PACK = "selected_icon_pack"
         
         private const val DELIMITER = ","
 
@@ -76,6 +77,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_PILL_WIDTH = 3
         const val DEFAULT_PILL_COLOR = "#FFFFFF"
         const val DEFAULT_TAP_TO_OPEN = true
+        const val DEFAULT_ICON_PACK = "none"
     }
 
     /** Resets all configuration to perfect defaults. */
@@ -101,11 +103,15 @@ class PanelPreferences(context: Context) {
             putInt(KEY_PILL_WIDTH, DEFAULT_PILL_WIDTH)
             putString(KEY_PILL_COLOR, DEFAULT_PILL_COLOR)
             putBoolean(KEY_TAP_TO_OPEN, DEFAULT_TAP_TO_OPEN)
-            
-            // CLEAR APPS SO SMART SETUP RE-POPULATES
+            putString(KEY_ICON_PACK, DEFAULT_ICON_PACK)
             putString(KEY_PANEL_APPS, "")
         }
     }
+
+    /** Selected Icon Pack package name. "none" for system default. */
+    var selectedIconPack: String
+        get() = prefs.getString(KEY_ICON_PACK, DEFAULT_ICON_PACK) ?: DEFAULT_ICON_PACK
+        set(value) = prefs.edit { putString(KEY_ICON_PACK, value) }
 
     /** Whether tapping the pill should open the panel. */
     var tapToOpen: Boolean

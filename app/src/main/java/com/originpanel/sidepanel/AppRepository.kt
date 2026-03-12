@@ -14,10 +14,10 @@ class AppRepository(context: Context) {
     private val appContext = context.applicationContext
     private val packageManager: PackageManager = appContext.packageManager
     private val panelPrefs = PanelPreferences(appContext)
+    private val iconPackManager = IconPackManager(appContext)
 
     /**
      * Returns all launchable apps installed on the device, sorted alphabetically.
-     * Each [AppInfo] has [AppInfo.isInPanel] set according to current panel preferences.
      */
     suspend fun getAllApps(): List<AppInfo> = withContext(Dispatchers.IO) {
         val intent = android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
@@ -25,29 +25,32 @@ class AppRepository(context: Context) {
         }
 
         val panelPackages = panelPrefs.getPanelApps().toSet()
+        val selectedPack = panelPrefs.selectedIconPack
 
         packageManager.queryIntentActivities(intent, 0)
             .map { resolveInfo ->
+                val pkg = resolveInfo.activityInfo.packageName
+                val customIcon = iconPackManager.getIcon(pkg, selectedPack)
+                
                 AppInfo(
-                    packageName = resolveInfo.activityInfo.packageName,
+                    packageName = pkg,
                     appName = resolveInfo.loadLabel(packageManager).toString(),
-                    icon = resolveInfo.loadIcon(packageManager),
-                    isInPanel = panelPackages.contains(resolveInfo.activityInfo.packageName)
+                    icon = customIcon ?: resolveInfo.loadIcon(packageManager),
+                    isInPanel = panelPackages.contains(pkg)
                 )
             }
             .sortedBy { it.appName.lowercase() }
     }
 
     /**
-     * Returns only the apps currently pinned to the panel,
-     * in their saved order (panel order is preserved).
-     * Robust: Queries all launchable apps once and filters them to ensure visibility.
+     * Returns only the apps currently pinned to the panel.
      */
     suspend fun getPanelApps(): List<AppInfo> = withContext(Dispatchers.IO) {
         val panelPackages = panelPrefs.getPanelApps()
         if (panelPackages.isEmpty()) return@withContext emptyList()
 
-        // Cache all launchable apps once (Reliable on all devices)
+        val selectedPack = panelPrefs.selectedIconPack
+
         val intent = android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
             addCategory(android.content.Intent.CATEGORY_LAUNCHER)
         }
@@ -56,21 +59,22 @@ class AppRepository(context: Context) {
 
         panelPackages.mapNotNull { pkg ->
             val resolveInfo = allLaunchable[pkg]
+            val customIcon = iconPackManager.getIcon(pkg, selectedPack)
+
             if (resolveInfo != null) {
                 AppInfo(
                     packageName = pkg,
                     appName = resolveInfo.loadLabel(packageManager).toString(),
-                    icon = resolveInfo.loadIcon(packageManager),
+                    icon = customIcon ?: resolveInfo.loadIcon(packageManager),
                     isInPanel = true
                 )
             } else {
-                // Fallback for system apps or non-launcher apps that were manually added
                 try {
                     val appInfo = packageManager.getApplicationInfo(pkg, 0)
                     AppInfo(
                         packageName = pkg,
                         appName = packageManager.getApplicationLabel(appInfo).toString(),
-                        icon = packageManager.getApplicationIcon(appInfo),
+                        icon = customIcon ?: packageManager.getApplicationIcon(appInfo),
                         isInPanel = true
                     )
                 } catch (e: Exception) {
@@ -80,10 +84,6 @@ class AppRepository(context: Context) {
         }
     }
 
-    /**
-     * Returns the first 5 launchable apps found on the device.
-     * Used for initial population on first install.
-     */
     suspend fun getTop5Apps(): List<String> = withContext(Dispatchers.IO) {
         val intent = android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
             addCategory(android.content.Intent.CATEGORY_LAUNCHER)

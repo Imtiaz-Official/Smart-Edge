@@ -70,6 +70,7 @@ class SettingsActivity : AppCompatActivity() {
             onAppsChanged = null
             onAddClick = null
             
+            // For preview, we'll just show default icons or pack if set
             setApps(listOf(
                 AppInfo("pkg1", "Browser", getDrawable(android.R.drawable.ic_menu_compass), true),
                 AppInfo("pkg2", "Camera", getDrawable(android.R.drawable.ic_menu_camera), true),
@@ -154,6 +155,9 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchTools.isChecked = panelPrefs.showTools
         binding.switchHideBg.isChecked = panelPrefs.hideBackground
 
+        val pack = panelPrefs.selectedIconPack
+        binding.tvCurrentIconPack.text = if (pack == "none") "System Default" else pack
+
         updatePremiumUI()
     }
 
@@ -180,6 +184,7 @@ class SettingsActivity : AppCompatActivity() {
         
         binding.btnPickAccent.isEnabled = isPremium
         binding.btnPickBg.isEnabled = isPremium
+        binding.btnSelectIconPack.isEnabled = isPremium
 
         if (isPremium) {
             binding.tvPremiumStatus.text = "Premium Active"
@@ -302,6 +307,11 @@ class SettingsActivity : AppCompatActivity() {
             restartServiceIfRunning()
         }
 
+        binding.btnSelectIconPack.setOnClickListener {
+            val intent = Intent(this, IconPackActivity::class.java)
+            startActivity(intent)
+        }
+
         binding.sbPanelRadius.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
@@ -356,6 +366,11 @@ class SettingsActivity : AppCompatActivity() {
         binding.btnColorRed.setOnClickListener { updateColor("#E6B71C1C") }
         binding.btnColorGreen.setOnClickListener { updateColor("#E61B5E20") }
         binding.btnColorPurple.setOnClickListener { updateColor("#E64A148C") }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadCurrentSettings() // Refresh if icon pack changed
     }
 
     private fun openColorPicker(initialColor: Int, onPick: (Int) -> Unit) {
