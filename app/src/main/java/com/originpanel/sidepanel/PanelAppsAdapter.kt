@@ -16,6 +16,8 @@ class PanelAppsAdapter(
     private val onAddClick: () -> Unit
 ) : ListAdapter<AppInfo, RecyclerView.ViewHolder>(AppDiffCallback()) {
 
+    private val panelPrefs = PanelPreferences(context)
+
     companion object {
         private const val VIEW_TYPE_APP = 0
         private const val VIEW_TYPE_ADD = 1
@@ -57,7 +59,9 @@ class PanelAppsAdapter(
             holder.tvName.text = app.appName
 
             holder.itemView.setOnClickListener {
-                holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
+                if (panelPrefs.hapticEnabled) {
+                    holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
+                }
                 SpringAnimator.scalePulse(holder.itemView)
                 val launchIntent = context.packageManager
                     .getLaunchIntentForPackage(app.packageName)
@@ -71,14 +75,18 @@ class PanelAppsAdapter(
             }
 
             holder.itemView.setOnLongClickListener {
-                holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                if (panelPrefs.hapticEnabled) {
+                    holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                }
                 SpringAnimator.scalePulse(holder.itemView)
                 onRemove(app)
                 true
             }
         } else if (holder is AddViewHolder) {
             holder.itemView.setOnClickListener {
-                holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+                if (panelPrefs.hapticEnabled) {
+                    holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+                }
                 SpringAnimator.scalePulse(holder.itemView)
                 onAddClick()
             }

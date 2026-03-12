@@ -40,6 +40,11 @@ class SidePanelView @JvmOverloads constructor(
         // Inflate using ViewBinding
         binding = SidePanelLayoutBinding.inflate(LayoutInflater.from(context), this, true)
 
+        // Set opacity
+        val alphaVal = panelPrefs.panelOpacity / 100f
+        binding.panelCard.alpha = alphaVal
+        binding.btnAI.alpha = alphaVal
+
         // Setup RecyclerView
         adapter = PanelAppsAdapter(
             context,
@@ -61,14 +66,18 @@ class SidePanelView @JvmOverloads constructor(
 
         // Toggle Picker (Repurposed from Close button)
         binding.btnClose.setOnClickListener {
-            it.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+            if (panelPrefs.hapticEnabled) {
+                it.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+            }
             SpringAnimator.scalePulse(it)
             onAddClick?.invoke()
         }
 
         // AI button (placeholder — add your AI integration here)
         binding.btnAI.setOnClickListener {
-            it.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+            if (panelPrefs.hapticEnabled) {
+                it.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+            }
             SpringAnimator.scalePulse(it)
             Toast.makeText(context, "AI Assistant coming soon!", Toast.LENGTH_SHORT).show()
         }

@@ -125,5 +125,109 @@
 
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:background="#1AFFFFFF" />
+
+        <!-- Haptic Feedback -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Haptic Feedback"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Vibrate on interaction"
+                    android:textColor="@color/text_tertiary"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
+            <Switch
+                android:id="@+id/switchHaptic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:thumbTint="@color/accent_blue"
+                android:trackTint="@color/surface_white_20" />
+
+        </LinearLayout>
+
+        <!-- Panel Opacity -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Panel Opacity"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp" />
+
+        <SeekBar
+            android:id="@+id/sbOpacity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:max="100"
+            android:progress="100"
+            android:progressTint="@color/accent_blue"
+            android:thumbTint="@color/accent_blue" />
+
+        <!-- Handle Height -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Handle Height (DP)"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp" />
+
+        <SeekBar
+            android:id="@+id/sbHandleHeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:min="40"
+            android:max="300"
+            android:progress="80"
+            android:progressTint="@color/accent_blue"
+            android:thumbTint="@color/accent_blue" />
+
+        <!-- Handle Width -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Handle Width (DP)"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp" />
+
+        <SeekBar
+            android:id="@+id/sbHandleWidth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:min="10"
+            android:max="100"
+            android:progress="24"
+            android:progressTint="@color/accent_blue"
+            android:thumbTint="@color/accent_blue" />
+
     </LinearLayout>
 </ScrollView>

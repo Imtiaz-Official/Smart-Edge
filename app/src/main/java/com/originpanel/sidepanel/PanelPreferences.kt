@@ -19,6 +19,10 @@ class PanelPreferences(context: Context) {
         private const val KEY_PANEL_SIDE = "panel_side"
         private const val KEY_AUTO_START = "auto_start"
         private const val KEY_SHOW_PILL = "show_pill"
+        private const val KEY_HAPTIC_ENABLED = "haptic_enabled"
+        private const val KEY_PANEL_OPACITY = "panel_opacity"
+        private const val KEY_HANDLE_HEIGHT = "handle_height"
+        private const val KEY_HANDLE_WIDTH = "handle_width"
         private const val DELIMITER = ","
 
         const val SIDE_RIGHT = "right"
@@ -29,6 +33,26 @@ class PanelPreferences(context: Context) {
     var showPill: Boolean
         get() = prefs.getBoolean(KEY_SHOW_PILL, true)
         set(value) = prefs.edit { putBoolean(KEY_SHOW_PILL, value) }
+
+    /** Whether haptic feedback is enabled. */
+    var hapticEnabled: Boolean
+        get() = prefs.getBoolean(KEY_HAPTIC_ENABLED, true)
+        set(value) = prefs.edit { putBoolean(KEY_HAPTIC_ENABLED, value) }
+
+    /** Panel opacity (0 to 100). */
+    var panelOpacity: Int
+        get() = prefs.getInt(KEY_PANEL_OPACITY, 100)
+        set(value) = prefs.edit { putInt(KEY_PANEL_OPACITY, value) }
+
+    /** Edge handle height in DP. */
+    var handleHeight: Int
+        get() = prefs.getInt(KEY_HANDLE_HEIGHT, 80)
+        set(value) = prefs.edit { putInt(KEY_HANDLE_HEIGHT, value) }
+
+    /** Edge handle width in DP. */
+    var handleWidth: Int
+        get() = prefs.getInt(KEY_HANDLE_WIDTH, 24)
+        set(value) = prefs.edit { putInt(KEY_HANDLE_WIDTH, value) }
 
     /** Returns the ordered list of package names pinned to the panel. */
     fun getPanelApps(): List<String> {

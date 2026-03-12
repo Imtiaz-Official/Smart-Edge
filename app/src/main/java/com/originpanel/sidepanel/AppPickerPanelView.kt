@@ -35,6 +35,7 @@ class AppPickerPanelView @JvmOverloads constructor(
     private val adapter = PickerAdapter()
     
     private val repository = AppRepository(context)
+    private val panelPrefs = PanelPreferences(context)
     private var allApps = listOf<AppInfo>()
     
     private val scope = CoroutineScope(Dispatchers.Main + Job())
@@ -111,7 +112,9 @@ class AppPickerPanelView @JvmOverloads constructor(
             holder.vHighlight.visibility = if (isSelected) View.VISIBLE else View.GONE
 
             holder.itemView.setOnClickListener {
-                holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
+                if (panelPrefs.hapticEnabled) {
+                    holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
+                }
                 SpringAnimator.scalePulse(holder.itemView)
                 val newState = !app.isInPanel
                 app.isInPanel = newState

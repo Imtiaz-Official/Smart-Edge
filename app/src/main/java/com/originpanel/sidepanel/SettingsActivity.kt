@@ -50,6 +50,18 @@ class SettingsActivity : AppCompatActivity() {
 
         // Show Pill
         binding.switchShowPill.isChecked = panelPrefs.showPill
+
+        // Haptic Feedback
+        binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
+
+        // Opacity
+        binding.sbOpacity.progress = panelPrefs.panelOpacity
+
+        // Handle Height
+        binding.sbHandleHeight.progress = panelPrefs.handleHeight
+
+        // Handle Width
+        binding.sbHandleWidth.progress = panelPrefs.handleWidth
     }
 
     private fun setupListeners() {
@@ -69,6 +81,40 @@ class SettingsActivity : AppCompatActivity() {
             panelPrefs.showPill = isChecked
             restartServiceIfRunning()
         }
+
+        binding.switchHaptic.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.hapticEnabled = isChecked
+        }
+
+        binding.sbOpacity.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) panelPrefs.panelOpacity = progress
+            }
+            override fun onStartTrackingTouch(seekBar: android.widget.SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: android.widget.SeekBar?) {
+                restartServiceIfRunning()
+            }
+        })
+
+        binding.sbHandleHeight.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) panelPrefs.handleHeight = progress
+            }
+            override fun onStartTrackingTouch(seekBar: android.widget.SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: android.widget.SeekBar?) {
+                restartServiceIfRunning()
+            }
+        })
+
+        binding.sbHandleWidth.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) panelPrefs.handleWidth = progress
+            }
+            override fun onStartTrackingTouch(seekBar: android.widget.SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: android.widget.SeekBar?) {
+                restartServiceIfRunning()
+            }
+        })
     }
 
     private fun restartServiceIfRunning() {

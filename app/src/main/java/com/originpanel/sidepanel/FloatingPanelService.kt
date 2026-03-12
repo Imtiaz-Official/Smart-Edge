@@ -91,15 +91,17 @@ class FloatingPanelService : Service() {
             onTrigger = { openPanel() }
             isRightSide = isRight
             showPill = isPillVisible
+            // Set alpha based on opacity setting
+            alpha = panelPrefs.panelOpacity / 100f
         }
 
-        val handleWidth = 24
-        val screenHeight = resources.displayMetrics.heightPixels
-        val stripHeight  = if (isPillVisible) dpToPx(80) else (screenHeight * 0.60f).toInt()
+        val handleWidth = panelPrefs.handleWidth
+        val handleHeight = if (isPillVisible) dpToPx(panelPrefs.handleHeight) 
+                           else (resources.displayMetrics.heightPixels * 0.60f).toInt()
 
         val params = WindowManager.LayoutParams(
             dpToPx(handleWidth),
-            stripHeight,
+            handleHeight,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
