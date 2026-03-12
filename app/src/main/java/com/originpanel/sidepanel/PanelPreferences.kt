@@ -36,6 +36,9 @@ class PanelPreferences(context: Context) {
         private const val KEY_ICON_SHAPE = "icon_shape"
         private const val KEY_GESTURES_ENABLED = "gestures_enabled"
         
+        private const val KEY_PILL_WIDTH = "pill_width"
+        private const val KEY_PILL_COLOR = "pill_color"
+        
         private const val DELIMITER = ","
 
         const val SIDE_RIGHT = "right"
@@ -86,6 +89,16 @@ class PanelPreferences(context: Context) {
     var handleWidth: Int
         get() = prefs.getInt(KEY_HANDLE_WIDTH, 24)
         set(value) = prefs.edit { putInt(KEY_HANDLE_WIDTH, value) }
+
+    /** Pill width in DP. (The visual pill) */
+    var pillWidth: Int
+        get() = prefs.getInt(KEY_PILL_WIDTH, 2)
+        set(value) = prefs.edit { putInt(KEY_PILL_WIDTH, value) }
+
+    /** Pill custom color (Hex). */
+    var pillColor: String
+        get() = prefs.getString(KEY_PILL_COLOR, "#FFFFFF") ?: "#FFFFFF"
+        set(value) = prefs.edit { putString(KEY_PILL_COLOR, value) }
 
     /** Edge handle vertical offset (-100 to 100). */
     var handleVerticalOffset: Int

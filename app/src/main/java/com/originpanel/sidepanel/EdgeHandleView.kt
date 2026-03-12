@@ -67,12 +67,15 @@ class EdgeHandleView @JvmOverloads constructor(
                 else R.drawable.bg_pill_handle_left
             )
             
-            if (panelPrefs.isPremium) {
-                try {
-                    val color = Color.parseColor(panelPrefs.accentColor)
-                    backgroundTintList = ColorStateList.valueOf(color)
-                } catch (e: Exception) {}
-            } else {
+            // APPLY DYNAMIC WIDTH (Premium)
+            val density = resources.displayMetrics.density
+            layoutParams?.width = (panelPrefs.pillWidth * density).toInt()
+
+            // APPLY CUSTOM PILL COLOR (Premium)
+            try {
+                val color = Color.parseColor(panelPrefs.pillColor)
+                backgroundTintList = ColorStateList.valueOf(color)
+            } catch (e: Exception) {
                 backgroundTintList = null
             }
             
