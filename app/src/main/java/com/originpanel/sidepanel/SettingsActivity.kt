@@ -313,6 +313,14 @@ class SettingsActivity : AppCompatActivity() {
             Toast.makeText(this, "Settings Reset to Defaults", Toast.LENGTH_SHORT).show()
         }
 
+        binding.btnResetUIColors.setOnClickListener {
+            panelPrefs.resetUIColors()
+            loadCurrentSettings() // Refreshes button tints and preview
+            updatePreview()
+            restartServiceIfRunning()
+            Toast.makeText(this, "UI Colors Restored to Default", Toast.LENGTH_SHORT).show()
+        }
+
         binding.btnPickAccent.setOnClickListener {
             openColorPicker(Color.parseColor(panelPrefs.accentColor)) { newColor ->
                 val hex = String.format("#%06X", (0xFFFFFF and newColor))

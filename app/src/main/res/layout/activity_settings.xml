@@ -275,6 +275,18 @@
                 <Switch android:id="@+id/switchTools" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Show Tools Section" android:textColor="#FFFFFF" android:thumbTint="#FFFFFF" />
                 <Switch android:id="@+id/switchHideBg" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Invisible Background" android:textColor="#FFFFFF" android:thumbTint="#FFFFFF" />
 
+                <Button
+                    android:id="@+id/btnResetUIColors"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:layout_marginTop="16dp"
+                    android:backgroundTint="#33FFFFFF"
+                    android:text="Reset UI Colors"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    app:cornerRadius="8dp" />
+
                 <Button android:id="@+id/btnGoPremium" android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="16dp" android:text="Unlock Full Version" android:textAllCaps="false" android:backgroundTint="@color/accent_blue" app:cornerRadius="12dp" />
 
             </LinearLayout>

@@ -80,6 +80,14 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_ICON_PACK = "none"
     }
 
+    /** Resets only UI colors (Accent and Background). */
+    fun resetUIColors() {
+        prefs.edit {
+            putString(KEY_ACCENT_COLOR, DEFAULT_ACCENT_COLOR)
+            putString(KEY_PANEL_BG_COLOR, DEFAULT_PANEL_BG)
+        }
+    }
+
     /** Resets all configuration to perfect defaults. */
     fun resetToDefaults() {
         prefs.edit {
