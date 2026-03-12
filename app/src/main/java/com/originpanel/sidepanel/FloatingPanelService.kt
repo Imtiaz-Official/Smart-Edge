@@ -17,6 +17,7 @@ import android.os.Environment
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
@@ -47,6 +48,7 @@ class FloatingPanelService : Service() {
     private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
 
     companion object {
+        const val TAG = "FloatingPanelService"
         const val CHANNEL_ID = "side_panel_channel"
         const val NOTIFICATION_ID = 1001
         const val ACTION_STOP = "com.originpanel.sidepanel.STOP"
@@ -56,6 +58,7 @@ class FloatingPanelService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        Log.d(TAG, "onCreate")
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         panelPrefs = PanelPreferences(this)
 
@@ -68,6 +71,7 @@ class FloatingPanelService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(TAG, "onStartCommand action: ${intent?.action}")
         when (intent?.action) {
             ACTION_STOP -> stopSelf()
             ACTION_OPEN -> {
@@ -83,7 +87,10 @@ class FloatingPanelService : Service() {
                     intent.getParcelableExtra("DATA")
                 }
                 if (resultCode != -1 && data != null) {
+                    Log.d(TAG, "ACTION_SCREENSHOT: results valid, performing capture")
                     performScreenshot(resultCode, data)
+                } else {
+                    Log.e(TAG, "ACTION_SCREENSHOT: invalid results! code=$resultCode")
                 }
             }
         }
@@ -91,89 +98,105 @@ class FloatingPanelService : Service() {
     }
 
     private fun performScreenshot(resultCode: Int, data: Intent) {
-        // 1. Show flash animation immediately
+        Log.d(TAG, "performScreenshot: showing flash")
         showCaptureFlash()
 
-        // 2. Small delay to ensure flash is visible before capture
         Handler(Looper.getMainLooper()).postDelayed({
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                startForeground(NOTIFICATION_ID, buildNotification(), 
-                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION or 
-                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
-            }
-
-            val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-            val metrics = resources.displayMetrics
-            val width = metrics.widthPixels
-            val height = metrics.heightPixels
-            val density = metrics.densityDpi
-
-            val imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
-            val projection = projectionManager.getMediaProjection(resultCode, data)
-            
-            val virtualDisplay = projection.createVirtualDisplay(
-                "Screenshot", width, height, density,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY or DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
-                imageReader.surface, null, null
-            )
-
-            Handler(Looper.getMainLooper()).postDelayed({
-                val image = imageReader.acquireLatestImage()
-                if (image != null) {
-                    val planes = image.planes
-                    val buffer = planes[0].buffer
-                    val pixelStride = planes[0].pixelStride
-                    val rowStride = planes[0].rowStride
-                    val rowPadding = rowStride - pixelStride * width
-
-                    val bitmap = Bitmap.createBitmap(
-                        width + rowPadding / pixelStride,
-                        height, Bitmap.Config.ARGB_8888
-                    )
-                    bitmap.copyPixelsFromBuffer(buffer)
-                    
-                    val croppedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height)
-                    saveBitmap(croppedBitmap)
-                    
-                    image.close()
-                    virtualDisplay.release()
-                    projection.stop()
-                    
-                    Handler(Looper.getMainLooper()).post {
-                        Toast.makeText(applicationContext, "Screenshot saved to DCIM/SidePanel", Toast.LENGTH_LONG).show()
-                    }
-                    
-                    startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            try {
+                Log.d(TAG, "performScreenshot: elevating service type")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    startForeground(NOTIFICATION_ID, buildNotification(), 
+                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION or 
+                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
                 }
-            }, 500)
+
+                val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+                val metrics = resources.displayMetrics
+                val width = metrics.widthPixels
+                val height = metrics.heightPixels
+                val density = metrics.densityDpi
+
+                Log.d(TAG, "performScreenshot: creating virtual display $width x $height")
+                val imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
+                val projection = projectionManager.getMediaProjection(resultCode, data)
+                
+                val virtualDisplay = projection.createVirtualDisplay(
+                    "Screenshot", width, height, density,
+                    DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY or DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
+                    imageReader.surface, null, null
+                )
+
+                Handler(Looper.getMainLooper()).postDelayed({
+                    val image = imageReader.acquireLatestImage()
+                    if (image != null) {
+                        Log.d(TAG, "performScreenshot: image acquired, saving...")
+                        val planes = image.planes
+                        val buffer = planes[0].buffer
+                        val pixelStride = planes[0].pixelStride
+                        val rowStride = planes[0].rowStride
+                        val rowPadding = rowStride - pixelStride * width
+
+                        val bitmap = Bitmap.createBitmap(
+                            width + rowPadding / pixelStride,
+                            height, Bitmap.Config.ARGB_8888
+                        )
+                        bitmap.copyPixelsFromBuffer(buffer)
+                        
+                        val croppedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height)
+                        saveBitmap(croppedBitmap)
+                        
+                        image.close()
+                        virtualDisplay.release()
+                        projection.stop()
+                        
+                        Handler(Looper.getMainLooper()).post {
+                            Log.d(TAG, "performScreenshot: showing success toast")
+                            Toast.makeText(applicationContext, "Screenshot Saved: DCIM/SidePanel", Toast.LENGTH_LONG).show()
+                        }
+                        
+                        startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+                    } else {
+                        Log.e(TAG, "performScreenshot: image reader returned null image!")
+                    }
+                }, 500)
+            } catch (e: Exception) {
+                Log.e(TAG, "performScreenshot error: ${e.message}")
+                e.printStackTrace()
+            }
         }, 100)
     }
 
     private fun showCaptureFlash() {
+        Log.d(TAG, "showCaptureFlash: adding view to WindowManager")
         Handler(Looper.getMainLooper()).post {
-            val flashView = View(applicationContext).apply {
-                setBackgroundColor(android.graphics.Color.WHITE)
-                alpha = 1.0f
-            }
-            val params = WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                        WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-                PixelFormat.TRANSLUCENT
-            )
-            windowManager.addView(flashView, params)
-
-            flashView.animate()
-                .alpha(0f)
-                .setDuration(500)
-                .withEndAction {
-                    if (flashView.isAttachedToWindow) windowManager.removeView(flashView)
+            try {
+                val flashView = View(applicationContext).apply {
+                    setBackgroundColor(android.graphics.Color.WHITE)
+                    alpha = 1.0f
                 }
-                .start()
+                val params = WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                    PixelFormat.TRANSLUCENT
+                )
+                windowManager.addView(flashView, params)
+
+                flashView.animate()
+                    .alpha(0f)
+                    .setDuration(500)
+                    .withEndAction {
+                        Log.d(TAG, "showCaptureFlash: animation end, removing view")
+                        if (flashView.isAttachedToWindow) windowManager.removeView(flashView)
+                    }
+                    .start()
+            } catch (e: Exception) {
+                Log.e(TAG, "showCaptureFlash error: ${e.message}")
+            }
         }
     }
 
@@ -187,6 +210,7 @@ class FloatingPanelService : Service() {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
         }
         android.media.MediaScannerConnection.scanFile(this, arrayOf(file.absolutePath), null, null)
+        Log.d(TAG, "saveBitmap: saved to ${file.absolutePath}")
     }
 
     override fun onDestroy() {
