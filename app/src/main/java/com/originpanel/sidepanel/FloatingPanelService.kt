@@ -242,8 +242,8 @@ class FloatingPanelService : Service() {
             alpha = panelPrefs.panelOpacity / 100f
         }
 
-        // WIDER TOUCH TARGET TO OVERRIDE SYSTEM BACK
-        val handleWidth = 40
+        // SLEEK TOUCH TARGET (Reverted from 40dp)
+        val handleWidth = 24
         val handleHeight = if (isPillVisible) dpToPx(panelPrefs.handleHeight) 
                            else (resources.displayMetrics.heightPixels * 0.60f).toInt()
 

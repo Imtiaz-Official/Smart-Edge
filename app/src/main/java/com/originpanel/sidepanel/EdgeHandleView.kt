@@ -81,7 +81,7 @@ class EdgeHandleView @JvmOverloads constructor(
             
             alpha = (panelPrefs.panelOpacity / 100f) * 0.8f
             
-            // Block back gesture in the pill area
+            // AGGRESSIVE EXCLUSION: Block system gestures in the ENTIRE hit area
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 post {
                     systemGestureExclusionRects = listOf(Rect(0, 0, width, height))
@@ -91,7 +91,7 @@ class EdgeHandleView @JvmOverloads constructor(
             setBackgroundResource(0)
             alpha = 1f
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                systemGestureExclusionRects = emptyList()
+                systemGestureExclusionRects = listOf(Rect(0, 0, width, height))
             }
         }
     }
@@ -99,6 +99,8 @@ class EdgeHandleView @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (onTrigger == null) return false 
 
+        // CRITICAL: Immediately return true to consume the touch event 
+        // and prevent system intercept.
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 startX = event.rawX
@@ -142,10 +144,10 @@ class EdgeHandleView @JvmOverloads constructor(
                     animate().scaleX(1f).scaleY(1f).setDuration(150).start()
                 }
                 hasPassedThreshold = false
-                return !isTriggered 
+                return true // Consume
             }
         }
-        return super.onTouchEvent(event)
+        return true
     }
 
     private fun vibrateHaptic() {
