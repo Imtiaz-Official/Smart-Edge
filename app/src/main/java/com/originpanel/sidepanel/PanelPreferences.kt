@@ -33,6 +33,7 @@ class PanelPreferences(context: Context) {
     /** Returns the ordered list of package names pinned to the panel. */
     fun getPanelApps(): List<String> {
         val raw = prefs.getString(KEY_PANEL_APPS, "") ?: ""
+        android.util.Log.d("PanelPreferences", "getPanelApps raw: $raw")
         return if (raw.isBlank()) emptyList()
         else raw.split(DELIMITER).filter { it.isNotBlank() }
     }

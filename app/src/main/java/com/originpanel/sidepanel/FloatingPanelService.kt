@@ -58,7 +58,11 @@ class FloatingPanelService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_STOP -> stopSelf()
-            ACTION_OPEN -> openPanel()
+            ACTION_OPEN -> {
+                android.util.Log.d("FloatingPanelService", "onStartCommand: ACTION_OPEN received")
+                refreshApps()
+                openPanel()
+            }
         }
         return START_STICKY
     }
@@ -120,6 +124,9 @@ class FloatingPanelService : Service() {
             visibility = View.GONE // Start hidden
         }
 
+        // Pre-load apps immediately so they are ready on the first trigger
+        refreshApps()
+
         val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -151,6 +158,7 @@ class FloatingPanelService : Service() {
         if (isPanelOpen) return
         isPanelOpen = true
 
+        android.util.Log.d("FloatingPanelService", "openPanel: refreshing apps")
         refreshApps()
         sidePanelView?.scrollToTop() // Always start from the top on open
         sidePanelView?.let { panel ->
@@ -176,14 +184,22 @@ class FloatingPanelService : Service() {
             SpringAnimator.animateClose(panel, panelWidth) {
                 panel.visibility = View.GONE
                 edgeHandleView?.visibility = View.VISIBLE
+                panel.animatePickerToggle(false) // Reset toggle state
             }
         }
     }
 
     private fun refreshApps() {
+        android.util.Log.e("FloatingPanelService", "refreshApps: launching coroutine")
         serviceScope.launch {
             val apps = AppRepository(this@FloatingPanelService).getPanelApps()
-            sidePanelView?.setApps(apps)
+            android.util.Log.e("FloatingPanelService", "refreshApps: setting ${apps.size} apps to SidePanelView")
+            if (sidePanelView == null) {
+                android.util.Log.e("FloatingPanelService", "refreshApps: sidePanelView is NULL!")
+            } else {
+                sidePanelView?.setApps(apps)
+                android.util.Log.e("FloatingPanelService", "refreshApps: setApps called successfully")
+            }
         }
     }
 
@@ -233,6 +249,8 @@ class FloatingPanelService : Service() {
         if (isPickerOpen) return
         isPickerOpen = true
 
+        sidePanelView?.animatePickerToggle(true)
+
         pickerPanelView?.let { picker ->
             picker.visibility = View.VISIBLE
             picker.post {
@@ -246,6 +264,8 @@ class FloatingPanelService : Service() {
     private fun closePicker() {
         if (!isPickerOpen) return
         isPickerOpen = false
+
+        sidePanelView?.animatePickerToggle(false)
 
         pickerPanelView?.let { picker ->
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT

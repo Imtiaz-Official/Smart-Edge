@@ -59,10 +59,10 @@ class SidePanelView @JvmOverloads constructor(
             setHasFixedSize(true) // Avoids re-measuring parent during spring animations
         }
 
-        // Close button
+        // Toggle Picker (Repurposed from Close button)
         binding.btnClose.setOnClickListener {
             SpringAnimator.scalePulse(it)
-            onClose?.invoke()
+            onAddClick?.invoke()
         }
 
         // AI button (placeholder — add your AI integration here)
@@ -85,5 +85,25 @@ class SidePanelView @JvmOverloads constructor(
     /** Reset scroll to the top when the panel is re-opened. */
     fun scrollToTop() {
         binding.rvPanelApps.scrollToPosition(0)
+    }
+
+    /**
+     * Animates the bottom arrow (btnClose) to move from middle to the right side.
+     * @param isOpen Whether the picker is currently open.
+     */
+    fun animatePickerToggle(isOpen: Boolean) {
+        val density = context.resources.displayMetrics.density
+        // Center of 72dp pill is 36dp. Button (24dp) left is at 24dp.
+        // To be 8dp from right edge (at 64dp), left is 40dp.
+        // Target translation = 40 - 24 = 16dp.
+        val targetX = if (isOpen) (16f * density) else 0f
+        val targetRotation = if (isOpen) 0f else 180f
+
+        binding.btnClose.animate()
+            .translationX(targetX)
+            .rotation(targetRotation)
+            .setDuration(400)
+            .setInterpolator(android.view.animation.AnticipateOvershootInterpolator(1.0f))
+            .start()
     }
 }

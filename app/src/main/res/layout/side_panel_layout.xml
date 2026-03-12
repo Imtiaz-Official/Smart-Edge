@@ -40,15 +40,16 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toTopOf="@id/btnClose" />
 
-            <!-- Chevron at bottom of pill -->
+            <!-- Chevron at bottom of pill (now handles picker toggle and slide animation) -->
             <ImageButton
                 android:id="@+id/btnClose"
-                android:layout_width="32dp"
+                android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="8dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Close panel"
+                android:contentDescription="Toggle Picker"
                 android:src="@drawable/ic_chevron_right"
+                android:rotation="180"
                 android:tint="#80FFFFFF"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

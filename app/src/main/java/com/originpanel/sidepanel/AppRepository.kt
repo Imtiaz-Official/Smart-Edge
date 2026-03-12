@@ -9,10 +9,11 @@ import kotlinx.coroutines.withContext
  * Loads all user-installed, launchable apps from the PackageManager.
  * Also cross-references with PanelPreferences to mark which apps are pinned.
  */
-class AppRepository(private val context: Context) {
+class AppRepository(context: Context) {
 
-    private val packageManager: PackageManager = context.packageManager
-    private val panelPrefs = PanelPreferences(context)
+    private val appContext = context.applicationContext
+    private val packageManager: PackageManager = appContext.packageManager
+    private val panelPrefs = PanelPreferences(appContext)
 
     /**
      * Returns all launchable apps installed on the device, sorted alphabetically.
@@ -40,24 +41,41 @@ class AppRepository(private val context: Context) {
     /**
      * Returns only the apps currently pinned to the panel,
      * in their saved order (panel order is preserved).
-     * Optimised: Only queries the package manager for specific pinned packages.
+     * Robust: Queries all launchable apps once and filters them to ensure visibility.
      */
     suspend fun getPanelApps(): List<AppInfo> = withContext(Dispatchers.IO) {
         val panelPackages = panelPrefs.getPanelApps()
+        if (panelPackages.isEmpty()) return@withContext emptyList()
+
+        // Cache all launchable apps once (Reliable on all devices)
+        val intent = android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
+            addCategory(android.content.Intent.CATEGORY_LAUNCHER)
+        }
+        val allLaunchable = packageManager.queryIntentActivities(intent, 0)
+            .associateBy { it.activityInfo.packageName }
 
         panelPackages.mapNotNull { pkg ->
-            try {
-                val appInfo = packageManager.getApplicationInfo(pkg, 0)
-                val appName = packageManager.getApplicationLabel(appInfo).toString()
-                val icon = packageManager.getApplicationIcon(appInfo)
+            val resolveInfo = allLaunchable[pkg]
+            if (resolveInfo != null) {
                 AppInfo(
                     packageName = pkg,
-                    appName = appName,
-                    icon = icon,
+                    appName = resolveInfo.loadLabel(packageManager).toString(),
+                    icon = resolveInfo.loadIcon(packageManager),
                     isInPanel = true
                 )
-            } catch (e: PackageManager.NameNotFoundException) {
-                null
+            } else {
+                // Fallback for system apps or non-launcher apps that were manually added?
+                try {
+                    val appInfo = packageManager.getApplicationInfo(pkg, 0)
+                    AppInfo(
+                        packageName = pkg,
+                        appName = packageManager.getApplicationLabel(appInfo).toString(),
+                        icon = packageManager.getApplicationIcon(appInfo),
+                        isInPanel = true
+                    )
+                } catch (e: Exception) {
+                    null
+                }
             }
         }
     }
