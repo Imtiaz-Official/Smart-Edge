@@ -138,6 +138,7 @@ class SidePanelView @JvmOverloads constructor(
         when (theme) {
             PanelPreferences.THEME_HYPEROS -> {
                 drawable.setStroke((1 * density).toInt(), Color.parseColor("#33FFFFFF"))
+                drawable.cornerRadius = 12 * density // Sharp corners for HyperOS
             }
             PanelPreferences.THEME_REALME -> {
                 drawable.setStroke((2 * density).toInt(), Color.parseColor("#FF4A9EFF"))
@@ -146,8 +147,9 @@ class SidePanelView @JvmOverloads constructor(
             PanelPreferences.THEME_RICH -> {
                 drawable.setStroke((2 * density).toInt(), Color.parseColor("#FF4A9EFF"))
             }
-            else -> { // Origin
+            else -> { // Origin (Default)
                 drawable.setStroke((1 * density).toInt(), Color.parseColor("#26FFFFFF"))
+                drawable.cornerRadius = 48 * density // Very rounded pill for OriginOS
             }
         }
         
