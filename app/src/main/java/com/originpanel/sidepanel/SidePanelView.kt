@@ -39,12 +39,21 @@ class SidePanelView @JvmOverloads constructor(
     private val binding: SidePanelLayoutBinding
     private val adapter: PanelAppsAdapter
     private val panelPrefs = PanelPreferences(context)
+init {
+    // Inflate using ViewBinding
+    binding = SidePanelLayoutBinding.inflate(LayoutInflater.from(context), this, true)
 
-    init {
-        // Inflate using ViewBinding
-        binding = SidePanelLayoutBinding.inflate(LayoutInflater.from(context), this, true)
+    // Tapping anywhere outside the panelCard should close it
+    setOnClickListener { 
+        onClose?.invoke()
+    }
+    // Prevent clicks on the panel itself from bubbling up to the closer
+    binding.panelCard.setOnClickListener { /* Consume */ }
+    binding.btnAI.setOnClickListener { /* Consume */ }
 
-        // Apply UI Theme (Premium)
+    // Apply UI Theme (Premium)
+...
+
         applyTheme()
 
         // Set opacity
