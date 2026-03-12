@@ -1,6 +1,7 @@
 package com.originpanel.sidepanel
 
 import android.content.Context
+import android.graphics.Color
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
