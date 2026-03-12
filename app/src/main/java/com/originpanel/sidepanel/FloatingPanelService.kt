@@ -86,6 +86,9 @@ class FloatingPanelService : Service() {
     }
 
     private fun performScreenshot(resultCode: Int, data: Intent) {
+        // Show flash animation to indicate capture start
+        showCaptureFlash()
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(NOTIFICATION_ID, buildNotification(), 
                 android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION or 
@@ -130,13 +133,39 @@ class FloatingPanelService : Service() {
                 projection.stop()
                 
                 Handler(Looper.getMainLooper()).post {
-                    Toast.makeText(this@FloatingPanelService, "Screenshot saved to DCIM/SidePanel", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, "Screenshot saved to DCIM/SidePanel", Toast.LENGTH_LONG).show()
                 }
                 
-                // Downgrade back to specialUse
                 startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
             }
         }, 500)
+    }
+
+    private fun showCaptureFlash() {
+        Handler(Looper.getMainLooper()).post {
+            val flashView = View(this).apply {
+                setBackgroundColor(android.graphics.Color.WHITE)
+                alpha = 0.6f
+            }
+            val params = WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                PixelFormat.TRANSLUCENT
+            )
+            windowManager.addView(flashView, params)
+
+            flashView.animate()
+                .alpha(0f)
+                .setDuration(300)
+                .withEndAction {
+                    if (flashView.isAttachedToWindow) windowManager.removeView(flashView)
+                }
+                .start()
+        }
     }
 
     private fun saveBitmap(bitmap: Bitmap) {
@@ -148,8 +177,6 @@ class FloatingPanelService : Service() {
         FileOutputStream(file).use { out ->
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
         }
-        
-        // Notify gallery about new file
         android.media.MediaScannerConnection.scanFile(this, arrayOf(file.absolutePath), null, null)
     }
 
@@ -179,7 +206,7 @@ class FloatingPanelService : Service() {
             alpha = panelPrefs.panelOpacity / 100f
         }
 
-        val handleWidth = panelPrefs.handleWidth
+        val handleWidth = 40
         val handleHeight = if (isPillVisible) dpToPx(panelPrefs.handleHeight) 
                            else (resources.displayMetrics.heightPixels * 0.60f).toInt()
 
