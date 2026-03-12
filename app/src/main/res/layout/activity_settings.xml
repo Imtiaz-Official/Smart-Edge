@@ -9,383 +9,69 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="16dp">
 
-        <!-- REAL-TIME PREVIEW SECTION -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Live Preview"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp"
-            android:textAllCaps="true"
-            android:letterSpacing="0.1"
-            android:layout_marginBottom="12dp" />
-
-        <FrameLayout
-            android:id="@+id/previewContainer"
+        <!-- 1. LIVE PREVIEW CARD -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:background="@drawable/preview_wallpaper"
-            android:layout_marginBottom="32dp"
-            android:clipChildren="false"
-            android:elevation="4dp">
-            
-            <ImageView
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="24dp"
+            app:cardBackgroundColor="#1AFFFFFF"
+            app:strokeWidth="0dp"
+            android:layout_marginBottom="24dp">
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:alpha="0.3"
-                android:src="@drawable/preview_wallpaper" />
-
-            <TextView
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Wallpaper Simulation"
-                android:layout_gravity="top|center_horizontal"
-                android:layout_marginTop="8dp"
-                android:textColor="#80FFFFFF"
-                android:textSize="10sp"
-                android:textAllCaps="true" />
-        </FrameLayout>
+                android:orientation="vertical"
+                android:padding="12dp">
 
-        <!-- Panel Side -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Live Preview"
+                    android:textColor="@color/accent_blue"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="12dp" />
+
+                <FrameLayout
+                    android:id="@+id/previewContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:background="@drawable/preview_wallpaper"
+                    android:clipChildren="false">
+                    
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:alpha="0.3"
+                        android:src="@drawable/preview_wallpaper" />
+                </FrameLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 2. INTERACTION SECTION -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/panel_side_label"
+            android:text="Interaction"
             android:textColor="@color/text_secondary"
-            android:textSize="12sp"
+            android:textSize="13sp"
+            android:textStyle="bold"
             android:textAllCaps="true"
-            android:letterSpacing="0.1" />
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp" />
 
-        <RadioGroup
-            android:id="@+id/rgPanelSide"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="32dp">
-
-            <RadioButton
-                android:id="@+id/rbRight"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:buttonTint="@color/accent_blue"
-                android:text="@string/panel_side_right"
-                android:textColor="@color/text_primary" />
-
-            <RadioButton
-                android:id="@+id/rbLeft"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:buttonTint="@color/accent_blue"
-                android:text="@string/panel_side_left"
-                android:textColor="@color/text_primary" />
-
-        </RadioGroup>
-
-        <!-- Auto-start -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/auto_start_label"
-                    android:textColor="@color/text_primary"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Start panel when phone boots"
-                    android:textColor="@color/text_tertiary"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-
-            <Switch
-                android:id="@+id/switchAutoStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:thumbTint="@color/accent_blue"
-                android:trackTint="@color/surface_white_20" />
-
-        </LinearLayout>
-
-        <!-- Edge Gestures -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Edge Swipe Gestures"
-                    android:textColor="@color/text_primary"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Enable swipe + hold to open panel"
-                    android:textColor="@color/text_tertiary"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-
-            <Switch
-                android:id="@+id/switchGestures"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:thumbTint="@color/accent_blue"
-                android:trackTint="@color/surface_white_20" />
-
-        </LinearLayout>
-
-        <!-- Tap to Open -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tap Pill to Open"
-                    android:textColor="@color/text_primary"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Open panel with a simple tap"
-                    android:textColor="@color/text_tertiary"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-
-            <Switch
-                android:id="@+id/switchTapOpen"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:thumbTint="@color/accent_blue"
-                android:trackTint="@color/surface_white_20" />
-
-        </LinearLayout>
-
-        <!-- Show Pill Handle -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Visible Edge Handle"
-                    android:textColor="@color/text_primary"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Show a visible pill at the edge"
-                    android:textColor="@color/text_tertiary"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-
-            <Switch
-                android:id="@+id/switchShowPill"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:thumbTint="@color/accent_blue"
-                android:trackTint="@color/surface_white_20" />
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="24dp"
-            android:background="#1AFFFFFF" />
-
-        <!-- Haptic Feedback -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Haptic Feedback"
-                    android:textColor="@color/text_primary"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Vibrate on interaction"
-                    android:textColor="@color/text_tertiary"
-                    android:textSize="12sp" />
-
-            </LinearLayout>
-
-            <Switch
-                android:id="@+id/switchHaptic"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:thumbTint="@color/accent_blue"
-                android:trackTint="@color/surface_white_20" />
-
-        </LinearLayout>
-
-        <!-- Panel Opacity -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Panel Opacity"
-            android:textColor="@color/text_primary"
-            android:textSize="15sp" />
-
-        <SeekBar
-            android:id="@+id/sbOpacity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:max="100"
-            android:progress="100"
-            android:progressTint="@color/accent_blue"
-            android:thumbTint="@color/accent_blue" />
-
-        <!-- Handle Height -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Handle Height (DP)"
-            android:textColor="@color/text_primary"
-            android:textSize="15sp" />
-
-        <SeekBar
-            android:id="@+id/sbHandleHeight"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:min="40"
-            android:max="300"
-            android:progress="80"
-            android:progressTint="@color/accent_blue"
-            android:thumbTint="@color/accent_blue" />
-
-        <!-- Handle Width -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Handle Trigger Area (DP)"
-            android:textColor="@color/text_primary"
-            android:textSize="15sp"
-            android:layout_marginTop="24dp" />
-
-        <SeekBar
-            android:id="@+id/sbHandleWidth"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:min="10"
-            android:max="100"
-            android:progress="24"
-            android:progressTint="@color/accent_blue"
-            android:thumbTint="@color/accent_blue" />
-
-        <!-- Premium Features Header -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="24dp"
-            android:background="#1AFFFFFF" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Premium Features"
-                android:textColor="@color/accent_blue"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:textAllCaps="true"
-                android:letterSpacing="0.1" />
-
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:src="@android:drawable/btn_star_big_on"
-                android:tint="@color/accent_blue" />
-        </LinearLayout>
-
-        <!-- Premium Status Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardPremium"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardBackgroundColor="#1A4A9EFF"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardCornerRadius="20dp"
+            app:cardBackgroundColor="#0DFFFFFF"
+            app:strokeWidth="0dp"
             android:layout_marginBottom="24dp">
 
             <LinearLayout
@@ -394,404 +80,183 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/tvPremiumStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Unlock Full Customization"
-                    android:textColor="#FFFFFF"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tvPremiumDesc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Unlock Vertical Position, Rich UI Theme, Multi-Column, and more."
-                    android:textColor="#B3FFFFFF"
-                    android:textSize="12sp" />
-
-                <Button
-                    android:id="@+id/btnGoPremium"
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Screen Side" android:textColor="@color/text_primary" />
+                <RadioGroup
+                    android:id="@+id/rgPanelSide"
                     android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:layout_marginTop="16dp"
-                    android:backgroundTint="@color/accent_blue"
-                    android:text="Go Premium"
-                    android:textAllCaps="false"
-                    android:textColor="#FFFFFF"
-                    app:cornerRadius="12dp" />
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+                    <RadioButton android:id="@+id/rbRight" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Right Side" android:textColor="@color/text_secondary" android:buttonTint="@color/accent_blue" />
+                    <RadioButton android:id="@+id/rbLeft" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Left Side" android:textColor="@color/text_secondary" android:buttonTint="@color/accent_blue" />
+                </RadioGroup>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1AFFFFFF" android:layout_marginVertical="16dp" />
+
+                <Switch android:id="@+id/switchGestures" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Edge Swipe Gestures" android:textColor="@color/text_primary" android:thumbTint="@color/accent_blue" />
+                <Switch android:id="@+id/switchTapOpen" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Tap Pill to Open" android:textColor="@color/text_primary" android:thumbTint="@color/accent_blue" />
+                <Switch android:id="@+id/switchAutoStart" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Auto-start on Boot" android:textColor="@color/text_primary" android:thumbTint="@color/accent_blue" />
+                <Switch android:id="@+id/switchHaptic" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Haptic Feedback" android:textColor="@color/text_primary" android:thumbTint="@color/accent_blue" />
 
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <!-- Vertical Position (Premium) -->
+        <!-- 3. APPEARANCE SECTION -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Handle Vertical Position (Premium)"
-            android:textColor="@color/text_primary"
-            android:textSize="15sp" />
+            android:text="Appearance"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp" />
 
-        <SeekBar
-            android:id="@+id/sbHandleOffset"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:min="0"
-            android:max="200"
-            android:progress="100"
-            android:progressTint="@color/accent_blue"
-            android:thumbTint="@color/accent_blue"
-            android:enabled="false" />
-
-        <!-- Panel Columns (Premium) -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Panel Columns (Premium)"
-            android:textColor="@color/text_primary"
-            android:textSize="15sp" />
-
-        <RadioGroup
-            android:id="@+id/rgColumns"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp"
-            android:enabled="false">
-
-            <RadioButton
-                android:id="@+id/rbCol1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="1 Column"
-                android:textColor="@color/text_secondary"
-                android:enabled="false" />
-
-            <RadioButton
-                android:id="@+id/rbCol2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="2 Columns"
-                android:textColor="@color/text_secondary"
-                android:enabled="false" />
-        </RadioGroup>
-
-        <!-- UI Theme (Premium) -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="UI Style Theme (Premium)"
-            android:textColor="@color/text_primary"
-            android:textSize="15sp" />
-
-        <RadioGroup
-            android:id="@+id/rgThemes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="8dp"
-            android:enabled="false">
-
-            <RadioButton
-                android:id="@+id/rbThemeOrigin"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="OriginOS (Frosted Pill)"
-                android:textColor="@color/text_secondary"
-                android:enabled="false" />
-
-            <RadioButton
-                android:id="@+id/rbThemeHyper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="HyperOS (Square Glass)"
-                android:textColor="@color/text_secondary"
-                android:enabled="false" />
-
-            <RadioButton
-                android:id="@+id/rbThemeRealme"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Realme UI (Minimal Border)"
-                android:textColor="@color/text_secondary"
-                android:enabled="false" />
-
-            <RadioButton
-                android:id="@+id/rbThemeRich"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Rich UI (Premium Glow)"
-                android:textColor="@color/text_secondary"
-                android:enabled="false" />
-        </RadioGroup>
-
-        <!-- Icon Shape (Premium) -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Icon Shape (Premium)"
-            android:textColor="@color/text_primary"
-            android:textSize="15sp" />
-
-        <RadioGroup
-            android:id="@+id/rgIconShape"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp"
-            android:enabled="false">
-
-            <RadioButton
-                android:id="@+id/rbShapeCircle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Circle"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:enabled="false" />
-
-            <RadioButton
-                android:id="@+id/rbShapeSquircle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Squircle"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:enabled="false" />
-
-            <RadioButton
-                android:id="@+id/rbShapeSquare"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Square"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:enabled="false" />
-
-        </RadioGroup>
-
-        <!-- Icon Pack (Premium) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            app:cardCornerRadius="20dp"
+            app:cardBackgroundColor="#0DFFFFFF"
+            app:strokeWidth="0dp"
+            android:layout_marginBottom="24dp">
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="External Icon Pack (Premium)"
-                    android:textColor="@color/text_primary"
-                    android:textSize="15sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="UI Style Theme" android:textColor="@color/text_primary" />
+                <RadioGroup android:id="@+id/rgThemes" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp">
+                    <RadioButton android:id="@+id/rbThemeOrigin" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="OriginOS (Rounded)" android:textColor="@color/text_secondary" />
+                    <RadioButton android:id="@+id/rbThemeHyper" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="HyperOS (Glass)" android:textColor="@color/text_secondary" />
+                    <RadioButton android:id="@+id/rbThemeRealme" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Realme UI" android:textColor="@color/text_secondary" />
+                    <RadioButton android:id="@+id/rbThemeRich" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Rich UI (Glow)" android:textColor="@color/text_secondary" />
+                </RadioGroup>
 
-                <TextView
-                    android:id="@+id/tvCurrentIconPack"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="System Default"
-                    android:textColor="@color/text_tertiary"
-                    android:textSize="12sp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1AFFFFFF" android:layout_marginVertical="16dp" />
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Icon Shape" android:textColor="@color/text_primary" />
+                <RadioGroup android:id="@+id/rgIconShape" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="8dp">
+                    <RadioButton android:id="@+id/rbShapeCircle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Circle" android:textColor="@color/text_secondary" />
+                    <RadioButton android:id="@+id/rbShapeSquircle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Squircle" android:textColor="@color/text_secondary" />
+                    <RadioButton android:id="@+id/rbShapeSquare" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Square" android:textColor="@color/text_secondary" />
+                </RadioGroup>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1AFFFFFF" android:layout_marginVertical="16dp" />
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Icon Pack" android:textColor="@color/text_primary" />
+                        <TextView android:id="@+id/tvCurrentIconPack" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="System Default" android:textColor="@color/text_tertiary" android:textSize="12sp" />
+                    </LinearLayout>
+                    <Button android:id="@+id/btnSelectIconPack" android:layout_width="wrap_content" android:layout_height="36dp" android:text="Change" android:textSize="12sp" android:backgroundTint="#1AFFFFFF" android:textAllCaps="false" app:cornerRadius="8dp" />
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1AFFFFFF" android:layout_marginVertical="16dp" />
+
+                <!-- Added back missing sliders -->
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Panel Opacity" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                <SeekBar android:id="@+id/sbOpacity" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="100" android:progress="100" android:progressTint="@color/accent_blue" />
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Corner Radius (Premium)" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                <SeekBar android:id="@+id/sbPanelRadius" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="60" android:progress="28" android:progressTint="@color/accent_blue" />
 
             </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <Button
-                android:id="@+id/btnSelectIconPack"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:backgroundTint="#1AFFFFFF"
-                android:text="Change"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                app:cornerRadius="8dp"
-                android:enabled="false" />
-
-        </LinearLayout>
-
-        <!-- Custom Accent Color (Premium) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Custom Accent Color (Premium)"
-                android:textColor="@color/text_primary"
-                android:textSize="15sp" />
-
-            <Button
-                android:id="@+id/btnPickAccent"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:backgroundTint="@color/accent_blue"
-                android:enabled="false"
-                android:padding="8dp"
-                app:icon="@android:drawable/ic_menu_edit"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                app:iconTint="#FFFFFF" />
-        </LinearLayout>
-
-        <!-- Corner Radius (Premium) -->
+        <!-- 4. HANDLE SECTION -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Panel Corner Radius (Premium)"
-            android:textColor="@color/text_primary"
-            android:textSize="15sp" />
+            android:text="Handle &amp; Pill"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp" />
 
-        <SeekBar
-            android:id="@+id/sbPanelRadius"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:min="0"
-            android:max="60"
-            android:progress="28"
-            android:progressTint="@color/accent_blue"
-            android:thumbTint="@color/accent_blue"
-            android:enabled="false" />
-
-        <!-- Background Color (Premium) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Panel Background (Premium)"
-                android:textColor="@color/text_primary"
-                android:textSize="15sp" />
-
-            <Button
-                android:id="@+id/btnPickBg"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:backgroundTint="#E61A1C1E"
-                android:enabled="false"
-                android:padding="8dp"
-                app:icon="@android:drawable/ic_menu_edit"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                app:iconTint="#FFFFFF" />
-        </LinearLayout>
-
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:scrollbars="none">
+            app:cardCornerRadius="20dp"
+            app:cardBackgroundColor="#0DFFFFFF"
+            app:strokeWidth="0dp"
+            android:layout_marginBottom="24dp">
 
             <LinearLayout
-                android:id="@+id/llColorPresets"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingBottom="8dp">
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <Switch android:id="@+id/switchShowPill" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Visible Pill Handle" android:textColor="@color/text_primary" android:thumbTint="@color/accent_blue" />
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Handle Height" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                <SeekBar android:id="@+id/sbHandleHeight" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="300" android:progress="80" android:progressTint="@color/accent_blue" />
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Trigger Area Width" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                <SeekBar android:id="@+id/sbHandleWidth" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="100" android:progress="24" android:progressTint="@color/accent_blue" />
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Vertical Position (Premium)" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                <SeekBar android:id="@+id/sbHandleOffset" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="200" android:progress="100" android:progressTint="@color/accent_blue" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 5. PREMIUM DASHBOARD -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardPremium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="20dp"
+            app:cardBackgroundColor="#1A4A9EFF"
+            app:strokeWidth="0dp"
+            android:layout_marginBottom="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView android:id="@+id/tvPremiumStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Premium Dashboard" android:textColor="#FFFFFF" android:textStyle="bold" />
                 
-                <Button android:id="@+id/btnColorDark" android:layout_width="40dp" android:layout_height="40dp" android:backgroundTint="#E61A1C1E" android:layout_marginEnd="8dp" />
-                <Button android:id="@+id/btnColorBlue" android:layout_width="40dp" android:layout_height="40dp" android:backgroundTint="#E60D47A1" android:layout_marginEnd="8dp" />
-                <Button android:id="@+id/btnColorRed" android:layout_width="40dp" android:layout_height="40dp" android:backgroundTint="#E6B71C1C" android:layout_marginEnd="8dp" />
-                <Button android:id="@+id/btnColorGreen" android:layout_width="40dp" android:layout_height="40dp" android:backgroundTint="#E61B5E20" android:layout_marginEnd="8dp" />
-                <Button android:id="@+id/btnColorPurple" android:layout_width="40dp" android:layout_height="40dp" android:backgroundTint="#E64A148C" android:layout_marginEnd="8dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#33FFFFFF" android:layout_marginVertical="12dp" />
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Accent Color" android:textColor="#FFFFFF" />
+                    <Button android:id="@+id/btnPickAccent" android:layout_width="32dp" android:layout_height="32dp" android:backgroundTint="@color/accent_blue" app:icon="@android:drawable/ic_menu_edit" app:iconSize="14dp" app:iconPadding="0dp" android:padding="0dp" />
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Panel Background" android:textColor="#FFFFFF" />
+                    <Button android:id="@+id/btnPickBg" android:layout_width="32dp" android:layout_height="32dp" android:backgroundTint="#E61A1C1E" app:icon="@android:drawable/ic_menu_edit" app:iconSize="14dp" app:iconPadding="0dp" android:padding="0dp" />
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#33FFFFFF" android:layout_marginVertical="16dp" />
+
+                <Switch android:id="@+id/switchTools" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Show Tools Section" android:textColor="#FFFFFF" android:thumbTint="#FFFFFF" />
+                <Switch android:id="@+id/switchHideBg" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Invisible Background" android:textColor="#FFFFFF" android:thumbTint="#FFFFFF" />
+
+                <Button android:id="@+id/btnGoPremium" android:layout_width="match_parent" android:layout_height="40dp" android:layout_marginTop="16dp" android:text="Unlock Full Version" android:textAllCaps="false" android:backgroundTint="@color/accent_blue" app:cornerRadius="12dp" />
 
             </LinearLayout>
-        </HorizontalScrollView>
+        </com.google.android.material.card.MaterialCardView>
 
-        <!-- Pill Visuals (Premium) - HIDDEN FOR NOW -->
-
-        <!-- Tools Visibility (Premium) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tvToolsTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Show Tools Section (Premium)"
-                android:textColor="@color/text_primary"
-                android:textSize="15sp" />
-
-            <Switch
-                android:id="@+id/switchTools"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:thumbTint="@color/accent_blue"
-                android:trackTint="@color/surface_white_20"
-                android:enabled="false" />
-        </LinearLayout>
-
-        <!-- Hide Background (Premium) -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tvHideBgTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Hide Panel Background (Premium)"
-                android:textColor="@color/text_primary"
-                android:textSize="15sp" />
-
-            <Switch
-                android:id="@+id/switchHideBg"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:thumbTint="@color/accent_blue"
-                android:trackTint="@color/surface_white_20"
-                android:enabled="false" />
-        </LinearLayout>
-
-        <!-- Reset Defaults -->
+        <!-- Reset Button -->
         <Button
             android:id="@+id/btnResetDefaults"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="48dp"
-            android:backgroundTint="#1AFFFFFF"
-            android:text="Reset to Defaults"
+            android:text="Reset all to Defaults"
+            android:backgroundTint="#0DFFFFFF"
+            android:textColor="#80FFFFFF"
             android:textAllCaps="false"
-            android:textColor="#B3FFFFFF"
-            app:cornerRadius="12dp" />
+            app:cornerRadius="16dp"
+            android:layout_marginBottom="40dp" />
 
     </LinearLayout>
 </ScrollView>

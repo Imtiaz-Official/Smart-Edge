@@ -14,7 +14,7 @@ import yuku.ambilwarna.AmbilWarnaDialog
 
 /**
  * Settings screen for panel configuration.
- * Includes real-time preview and premium theme selections.
+ * Includes real-time preview and premium dashboard.
  */
 class SettingsActivity : AppCompatActivity() {
 
@@ -70,7 +70,6 @@ class SettingsActivity : AppCompatActivity() {
             onAppsChanged = null
             onAddClick = null
             
-            // For preview, we'll just show default icons or pack if set
             setApps(listOf(
                 AppInfo("pkg1", "Browser", getDrawable(android.R.drawable.ic_menu_compass), true),
                 AppInfo("pkg2", "Camera", getDrawable(android.R.drawable.ic_menu_camera), true),
@@ -92,18 +91,6 @@ class SettingsActivity : AppCompatActivity() {
         }
         previewPanel?.translationY = (panelPrefs.handleVerticalOffset * density)
         binding.previewContainer.addView(previewPanel, panelParams)
-        
-        val tv = android.widget.TextView(this).apply {
-            text = "Live Display Simulation"
-            setTextColor(Color.parseColor("#B3FFFFFF"))
-            textSize = 10f
-            gravity = Gravity.CENTER_HORIZONTAL
-            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
-                gravity = Gravity.BOTTOM
-                bottomMargin = 8
-            }
-        }
-        binding.previewContainer.addView(tv)
     }
 
     private fun updatePreview() {
@@ -132,12 +119,6 @@ class SettingsActivity : AppCompatActivity() {
         binding.sbHandleWidth.progress = panelPrefs.handleWidth
         binding.sbHandleOffset.progress = panelPrefs.handleVerticalOffset + 100
 
-        if (panelPrefs.panelColumns == 2) {
-            binding.rgColumns.check(R.id.rbCol2)
-        } else {
-            binding.rgColumns.check(R.id.rbCol1)
-        }
-
         when (panelPrefs.uiTheme) {
             PanelPreferences.THEME_HYPEROS -> binding.rgThemes.check(R.id.rbThemeHyper)
             PanelPreferences.THEME_REALME -> binding.rgThemes.check(R.id.rbThemeRealme)
@@ -151,7 +132,6 @@ class SettingsActivity : AppCompatActivity() {
             else -> binding.rgIconShape.check(R.id.rbShapeCircle)
         }
 
-        binding.sbPanelRadius.progress = panelPrefs.panelCornerRadius
         binding.switchTools.isChecked = panelPrefs.showTools
         binding.switchHideBg.isChecked = panelPrefs.hideBackground
 
@@ -164,9 +144,6 @@ class SettingsActivity : AppCompatActivity() {
     private fun updatePremiumUI() {
         val isPremium = panelPrefs.isPremium
         binding.sbHandleOffset.isEnabled = isPremium
-        binding.rgColumns.isEnabled = isPremium
-        binding.rbCol1.isEnabled = isPremium
-        binding.rbCol2.isEnabled = isPremium
         binding.rgThemes.isEnabled = isPremium
         binding.rbThemeOrigin.isEnabled = isPremium
         binding.rbThemeHyper.isEnabled = isPremium
@@ -178,7 +155,6 @@ class SettingsActivity : AppCompatActivity() {
         binding.rbShapeSquircle.isEnabled = isPremium
         binding.rbShapeSquare.isEnabled = isPremium
 
-        binding.sbPanelRadius.isEnabled = isPremium
         binding.switchTools.isEnabled = isPremium
         binding.switchHideBg.isEnabled = isPremium
         
@@ -280,12 +256,6 @@ class SettingsActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
         })
 
-        binding.rgColumns.setOnCheckedChangeListener { _, checkedId ->
-            panelPrefs.panelColumns = if (checkedId == R.id.rbCol2) 2 else 1
-            updatePreview()
-            restartServiceIfRunning()
-        }
-
         binding.rgThemes.setOnCheckedChangeListener { _, checkedId ->
             panelPrefs.uiTheme = when (checkedId) {
                 R.id.rbThemeHyper -> PanelPreferences.THEME_HYPEROS
@@ -311,17 +281,6 @@ class SettingsActivity : AppCompatActivity() {
             val intent = Intent(this, IconPackActivity::class.java)
             startActivity(intent)
         }
-
-        binding.sbPanelRadius.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    panelPrefs.panelCornerRadius = progress
-                    updatePreview()
-                }
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
-        })
 
         binding.switchTools.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showTools = isChecked
@@ -360,18 +319,11 @@ class SettingsActivity : AppCompatActivity() {
                 restartServiceIfRunning()
             }
         }
-
-        binding.btnColorDark.setOnClickListener { updateColor("#E61A1C1E") }
-        binding.btnColorBlue.setOnClickListener { updateColor("#E60D47A1") }
-        binding.btnColorRed.setOnClickListener { updateColor("#E6B71C1C") }
-        binding.btnColorGreen.setOnClickListener { updateColor("#E61B5E20") }
-        binding.btnColorPurple.setOnClickListener { updateColor("#E64A148C") }
     }
 
     override fun onResume() {
         super.onResume()
         loadCurrentSettings() 
-        // Force service to refresh apps immediately to show new icon pack
         restartServiceIfRunning()
     }
 
