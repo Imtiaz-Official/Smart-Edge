@@ -40,6 +40,7 @@ class SidePanelView @JvmOverloads constructor(
     private val binding: SidePanelLayoutBinding
     private val adapter: PanelAppsAdapter
     private val panelPrefs = PanelPreferences(context)
+    private var isAnimating = false
 
     init {
         // Inflate using ViewBinding
@@ -198,6 +199,9 @@ class SidePanelView @JvmOverloads constructor(
      * @param isOpen Whether the picker is currently open.
      */
     fun animatePickerToggle(isOpen: Boolean) {
+        if (isAnimating) return
+        isAnimating = true
+
         binding.btnClose.post {
             val density = context.resources.displayMetrics.density
             val viewWidth = binding.panelCard.width.toFloat()
@@ -216,6 +220,7 @@ class SidePanelView @JvmOverloads constructor(
                 .rotation(targetRotation)
                 .setDuration(400)
                 .setInterpolator(android.view.animation.AnticipateOvershootInterpolator(1.0f))
+                .withEndAction { isAnimating = false }
                 .start()
         }
     }

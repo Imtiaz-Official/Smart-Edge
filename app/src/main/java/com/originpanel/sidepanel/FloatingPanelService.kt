@@ -64,7 +64,14 @@ class FloatingPanelService : Service() {
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         panelPrefs = PanelPreferences(this)
 
-        // Pre-populate with some apps if empty (First Run)
+        createNotificationChannel()
+        startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+
+        initSidePanel()
+        initPickerPanel()
+        addEdgeHandle()
+
+        // Smart setup: Populates if empty
         serviceScope.launch {
             if (panelPrefs.getPanelApps().isEmpty()) {
                 val topApps = AppRepository(this@FloatingPanelService).getTop5Apps()
@@ -72,13 +79,6 @@ class FloatingPanelService : Service() {
                 refreshApps()
             }
         }
-
-        createNotificationChannel()
-        startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
-
-        initSidePanel()
-        initPickerPanel()
-        addEdgeHandle()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -99,10 +99,7 @@ class FloatingPanelService : Service() {
                 }
                 
                 if (resultCode == Activity.RESULT_OK && data != null) {
-                    Log.d(TAG, "ACTION_SCREENSHOT: results valid, performing capture")
                     performScreenshot(resultCode, data)
-                } else {
-                    Log.e(TAG, "ACTION_SCREENSHOT: invalid results! code=$resultCode")
                 }
             }
         }
@@ -140,7 +137,6 @@ class FloatingPanelService : Service() {
                 Handler(Looper.getMainLooper()).postDelayed({
                     val image = imageReader.acquireLatestImage()
                     if (image != null) {
-                        Log.d(TAG, "performScreenshot: image acquired, saving...")
                         val planes = image.planes
                         val buffer = planes[0].buffer
                         val pixelStride = planes[0].pixelStride
@@ -161,24 +157,19 @@ class FloatingPanelService : Service() {
                         projection.stop()
                         
                         Handler(Looper.getMainLooper()).post {
-                            Log.d(TAG, "performScreenshot: showing success toast")
                             Toast.makeText(applicationContext, "Screenshot Saved to DCIM/SidePanel", Toast.LENGTH_LONG).show()
                         }
                         
                         startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
-                    } else {
-                        Log.e(TAG, "performScreenshot: image reader returned null image!")
                     }
                 }, 500)
             } catch (e: Exception) {
-                Log.e(TAG, "performScreenshot error: ${e.message}")
                 e.printStackTrace()
             }
         }, 100)
     }
 
     private fun showCaptureFlash() {
-        Log.d(TAG, "showCaptureFlash: adding view to WindowManager")
         Handler(Looper.getMainLooper()).post {
             try {
                 val flashView = View(applicationContext).apply {
@@ -201,13 +192,10 @@ class FloatingPanelService : Service() {
                     .alpha(0f)
                     .setDuration(500)
                     .withEndAction {
-                        Log.d(TAG, "showCaptureFlash: removing view")
                         if (flashView.isAttachedToWindow) windowManager.removeView(flashView)
                     }
                     .start()
-            } catch (e: Exception) {
-                Log.e(TAG, "showCaptureFlash error: ${e.message}")
-            }
+            } catch (e: Exception) {}
         }
     }
 
@@ -221,7 +209,6 @@ class FloatingPanelService : Service() {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
         }
         android.media.MediaScannerConnection.scanFile(this, arrayOf(file.absolutePath), null, null)
-        Log.d(TAG, "saveBitmap: saved to ${file.absolutePath}")
     }
 
     override fun onDestroy() {

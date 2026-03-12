@@ -101,6 +101,9 @@ class PanelPreferences(context: Context) {
             putInt(KEY_PILL_WIDTH, DEFAULT_PILL_WIDTH)
             putString(KEY_PILL_COLOR, DEFAULT_PILL_COLOR)
             putBoolean(KEY_TAP_TO_OPEN, DEFAULT_TAP_TO_OPEN)
+            
+            // CLEAR APPS SO SMART SETUP RE-POPULATES
+            putString(KEY_PANEL_APPS, "")
         }
     }
 
