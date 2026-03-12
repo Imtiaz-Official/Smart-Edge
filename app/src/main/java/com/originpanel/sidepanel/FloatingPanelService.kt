@@ -12,6 +12,7 @@ import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.media.ImageReader
+import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Environment
@@ -88,7 +89,6 @@ class FloatingPanelService : Service() {
                     intent.getParcelableExtra("DATA")
                 }
                 
-                // FIXED LOGIC: Activity.RESULT_OK is -1
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     Log.d(TAG, "ACTION_SCREENSHOT: results valid, performing capture")
                     performScreenshot(resultCode, data)
@@ -101,12 +101,10 @@ class FloatingPanelService : Service() {
     }
 
     private fun performScreenshot(resultCode: Int, data: Intent) {
-        Log.d(TAG, "performScreenshot: showing flash")
         showCaptureFlash()
 
         Handler(Looper.getMainLooper()).postDelayed({
             try {
-                Log.d(TAG, "performScreenshot: elevating service type")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     startForeground(NOTIFICATION_ID, buildNotification(), 
                         android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION or 
@@ -119,9 +117,11 @@ class FloatingPanelService : Service() {
                 val height = metrics.heightPixels
                 val density = metrics.densityDpi
 
-                Log.d(TAG, "performScreenshot: creating virtual display $width x $height")
                 val imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
                 val projection = projectionManager.getMediaProjection(resultCode, data)
+                
+                // MANDATORY for Android 14: Register callback BEFORE createVirtualDisplay
+                projection.registerCallback(object : MediaProjection.Callback() {}, Handler(Looper.getMainLooper()))
                 
                 val virtualDisplay = projection.createVirtualDisplay(
                     "Screenshot", width, height, density,
@@ -154,7 +154,7 @@ class FloatingPanelService : Service() {
                         
                         Handler(Looper.getMainLooper()).post {
                             Log.d(TAG, "performScreenshot: showing success toast")
-                            Toast.makeText(applicationContext, "Screenshot Saved: DCIM/SidePanel", Toast.LENGTH_LONG).show()
+                            Toast.makeText(applicationContext, "Screenshot Saved to DCIM/SidePanel", Toast.LENGTH_LONG).show()
                         }
                         
                         startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
@@ -193,7 +193,7 @@ class FloatingPanelService : Service() {
                     .alpha(0f)
                     .setDuration(500)
                     .withEndAction {
-                        Log.d(TAG, "showCaptureFlash: animation end, removing view")
+                        Log.d(TAG, "showCaptureFlash: removing view")
                         if (flashView.isAttachedToWindow) windowManager.removeView(flashView)
                     }
                     .start()
