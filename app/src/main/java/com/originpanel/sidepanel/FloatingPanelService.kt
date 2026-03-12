@@ -48,8 +48,6 @@ class FloatingPanelService : Service() {
         startForeground(NOTIFICATION_ID, buildNotification())
 
         // ── Pre-warm Views for Zero Latency ──────────────────────────────────
-        // We inflate and add them to WindowManager immediately, but hidden (GONE)
-        // This eliminates the 100-200ms inflation lag during triggers.
         initSidePanel()
         initPickerPanel()
         addEdgeHandle()
@@ -91,7 +89,6 @@ class FloatingPanelService : Service() {
             onTrigger = { openPanel() }
             isRightSide = isRight
             showPill = isPillVisible
-            // Set alpha based on opacity setting
             alpha = panelPrefs.panelOpacity / 100f
         }
 
@@ -111,8 +108,6 @@ class FloatingPanelService : Service() {
         ).apply {
             gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL
                       else Gravity.START or Gravity.CENTER_VERTICAL
-            
-            // Apply vertical offset (converted from DP)
             y = dpToPx(panelPrefs.handleVerticalOffset)
         }
 
@@ -126,10 +121,9 @@ class FloatingPanelService : Service() {
             onClose = { closePanel() }
             onAppsChanged = { refreshApps() }
             onAddClick = { togglePicker() }
-            visibility = View.GONE // Start hidden
+            visibility = View.GONE 
         }
 
-        // Pre-load apps immediately so they are ready on the first trigger
         refreshApps()
 
         val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
@@ -150,7 +144,6 @@ class FloatingPanelService : Service() {
 
         windowManager.addView(sidePanelView, params)
         
-        // Setup Backdrop touch to close
         sidePanelView?.setOnTouchListener { _, event ->
             if (event.action == android.view.MotionEvent.ACTION_OUTSIDE) {
                 if (isPickerOpen) closePicker() else closePanel()
@@ -165,10 +158,9 @@ class FloatingPanelService : Service() {
 
         android.util.Log.d("FloatingPanelService", "openPanel: refreshing apps")
         refreshApps()
-        sidePanelView?.scrollToTop() // Always start from the top on open
+        sidePanelView?.scrollToTop() 
         sidePanelView?.let { panel ->
             panel.visibility = View.VISIBLE
-            // Use post to ensure the view is ready for animation
             panel.post {
                 val panelWidth = panel.width.toFloat()
                 SpringAnimator.animateOpen(panel, panelWidth)
@@ -189,22 +181,15 @@ class FloatingPanelService : Service() {
             SpringAnimator.animateClose(panel, panelWidth) {
                 panel.visibility = View.GONE
                 edgeHandleView?.visibility = View.VISIBLE
-                panel.animatePickerToggle(false) // Reset toggle state
+                panel.animatePickerToggle(false) 
             }
         }
     }
 
     private fun refreshApps() {
-        android.util.Log.e("FloatingPanelService", "refreshApps: launching coroutine")
         serviceScope.launch {
             val apps = AppRepository(this@FloatingPanelService).getPanelApps()
-            android.util.Log.e("FloatingPanelService", "refreshApps: setting ${apps.size} apps to SidePanelView")
-            if (sidePanelView == null) {
-                android.util.Log.e("FloatingPanelService", "refreshApps: sidePanelView is NULL!")
-            } else {
-                sidePanelView?.setApps(apps)
-                android.util.Log.e("FloatingPanelService", "refreshApps: setApps called successfully")
-            }
+            sidePanelView?.setApps(apps)
         }
     }
 
@@ -218,7 +203,7 @@ class FloatingPanelService : Service() {
                 else panelPrefs.removeApp(app.packageName)
                 refreshApps()
             }
-            visibility = View.GONE // Start hidden
+            visibility = View.GONE 
         }
 
         val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
@@ -231,14 +216,9 @@ class FloatingPanelService : Service() {
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             PixelFormat.TRANSLUCENT
         ).apply {
-            // Picker appears adjacent to the side panel.
-            // With Gravity.END, positive x shifts the view left (away from right edge).
-            // Set x to ~side panel width so picker sits flush next to the panel.
             gravity = if (isRight) Gravity.CENTER_VERTICAL or Gravity.END
                       else Gravity.CENTER_VERTICAL or Gravity.START
 
-            // Side panel (SidePanelView) has layout_width = 100dp
-            // So setting x = 104dp guarantees a 4dp perfect gap!
             val sidePanelWidthPx = (104 * resources.displayMetrics.density).toInt()
             x = sidePanelWidthPx
         }
@@ -254,6 +234,8 @@ class FloatingPanelService : Service() {
         if (isPickerOpen) return
         isPickerOpen = true
 
+        // Squeeze side panel to 1 column to save space
+        sidePanelView?.setColumns(1)
         sidePanelView?.animatePickerToggle(true)
 
         pickerPanelView?.let { picker ->
@@ -270,6 +252,9 @@ class FloatingPanelService : Service() {
         if (!isPickerOpen) return
         isPickerOpen = false
 
+        // Restore original columns (respecting user preference)
+        val originalCols = if (panelPrefs.isPremium) panelPrefs.panelColumns else 1
+        sidePanelView?.setColumns(originalCols)
         sidePanelView?.animatePickerToggle(false)
 
         pickerPanelView?.let { picker ->

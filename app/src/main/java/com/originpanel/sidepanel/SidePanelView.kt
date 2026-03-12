@@ -147,6 +147,25 @@ class SidePanelView @JvmOverloads constructor(
     }
 
     /**
+     * Dynamically changes the column count and panel width.
+     * Used to squeeze the panel to 1-col when picker is open.
+     */
+    fun setColumns(cols: Int) {
+        val density = context.resources.displayMetrics.density
+        val layoutManager = binding.rvPanelApps.layoutManager as? GridLayoutManager
+        layoutManager?.spanCount = cols
+        
+        val params = binding.panelCard.layoutParams
+        if (cols == 2) {
+            params.width = (150 * density).toInt()
+        } else {
+            params.width = (72 * density).toInt()
+        }
+        binding.panelCard.layoutParams = params
+        binding.panelCard.requestLayout()
+    }
+
+    /**
      * Animates the bottom arrow (btnClose) to move from middle to the right side.
      * @param isOpen Whether the picker is currently open.
      */
