@@ -140,6 +140,13 @@ class SettingsActivity : AppCompatActivity() {
             else -> binding.rgThemes.check(R.id.rbThemeOrigin)
         }
 
+        // Icon Shape
+        when (panelPrefs.iconShape) {
+            PanelPreferences.SHAPE_SQUIRCLE -> binding.rgIconShape.check(R.id.rbShapeSquircle)
+            PanelPreferences.SHAPE_SQUARE -> binding.rgIconShape.check(R.id.rbShapeSquare)
+            else -> binding.rgIconShape.check(R.id.rbShapeCircle)
+        }
+
         binding.sbPanelRadius.progress = panelPrefs.panelCornerRadius
         binding.switchTools.isChecked = panelPrefs.showTools
         binding.switchHideBg.isChecked = panelPrefs.hideBackground
@@ -158,6 +165,12 @@ class SettingsActivity : AppCompatActivity() {
         binding.rbThemeHyper.isEnabled = isPremium
         binding.rbThemeRealme.isEnabled = isPremium
         binding.rbThemeRich.isEnabled = isPremium
+        
+        binding.rgIconShape.isEnabled = isPremium
+        binding.rbShapeCircle.isEnabled = isPremium
+        binding.rbShapeSquircle.isEnabled = isPremium
+        binding.rbShapeSquare.isEnabled = isPremium
+
         binding.sbPanelRadius.isEnabled = isPremium
         binding.switchTools.isEnabled = isPremium
         binding.switchHideBg.isEnabled = isPremium
@@ -253,6 +266,16 @@ class SettingsActivity : AppCompatActivity() {
                 R.id.rbThemeRealme -> PanelPreferences.THEME_REALME
                 R.id.rbThemeRich -> PanelPreferences.THEME_RICH
                 else -> PanelPreferences.THEME_ORIGIN
+            }
+            updatePreview()
+            restartServiceIfRunning()
+        }
+
+        binding.rgIconShape.setOnCheckedChangeListener { _, checkedId ->
+            panelPrefs.iconShape = when (checkedId) {
+                R.id.rbShapeSquircle -> PanelPreferences.SHAPE_SQUIRCLE
+                R.id.rbShapeSquare -> PanelPreferences.SHAPE_SQUARE
+                else -> PanelPreferences.SHAPE_CIRCLE
             }
             updatePreview()
             restartServiceIfRunning()

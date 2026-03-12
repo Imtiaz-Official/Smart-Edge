@@ -57,8 +57,7 @@
             android:textColor="@color/text_secondary"
             android:textSize="12sp"
             android:textAllCaps="true"
-            android:letterSpacing="0.1"
-            android:layout_marginBottom="8dp" />
+            android:letterSpacing="0.1" / >
 
         <RadioGroup
             android:id="@+id/rgPanelSide"
@@ -327,6 +326,7 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/tvPremiumDesc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
@@ -452,6 +452,55 @@
                 android:text="Rich UI (Premium Glow)"
                 android:textColor="@color/text_secondary"
                 android:enabled="false" />
+        </RadioGroup>
+
+        <!-- Icon Shape (Premium) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Icon Shape (Premium)"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp" />
+
+        <RadioGroup
+            android:id="@+id/rgIconShape"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:enabled="false">
+
+            <RadioButton
+                android:id="@+id/rbShapeCircle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Circle"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:enabled="false" />
+
+            <RadioButton
+                android:id="@+id/rbShapeSquircle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Squircle"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:enabled="false" />
+
+            <RadioButton
+                android:id="@+id/rbShapeSquare"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Square"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:enabled="false" />
+
         </RadioGroup>
 
         <!-- Corner Radius (Premium) -->

@@ -48,7 +48,6 @@ class AppPickerPanelView @JvmOverloads constructor(
         etSearch = view.findViewById(R.id.etPickerSearch)
         btnSettings = view.findViewById(R.id.btnPickerClose) 
 
-        // Use 1 column list for Rich UI, 2 columns grid for others
         if (panelPrefs.uiTheme == PanelPreferences.THEME_RICH) {
             rvPickerGrid.layoutManager = LinearLayoutManager(context)
         } else {
@@ -117,7 +116,9 @@ class AppPickerPanelView @JvmOverloads constructor(
             holder.ivIcon.setImageDrawable(app.icon)
             holder.tvName.text = app.appName
             
-            // Set package name if using rich layout
+            // Apply icon shape
+            IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
+
             holder.tvPackage?.text = app.packageName
 
             val isSelected = app.isInPanel
@@ -144,6 +145,6 @@ class AppPickerPanelView @JvmOverloads constructor(
         val tvName: TextView = view.findViewById(R.id.tvPickerAppName)
         val ivCheck: View = view.findViewById(R.id.ivPickerCheck)
         val vHighlight: View = view.findViewById(R.id.vPickerBgHighlight)
-        val tvPackage: TextView? = view.findViewById(R.id.tvPickerPackageName) // Optional in modern layout
+        val tvPackage: TextView? = view.findViewById(R.id.tvPickerPackageName) 
     }
 }

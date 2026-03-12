@@ -61,14 +61,15 @@ class PanelAppsAdapter(
             val app = getItem(position)
             holder.ivIcon.setImageDrawable(app.icon)
             holder.tvName.text = app.appName
+            
+            // Apply icon shape
+            IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
 
             holder.itemView.setOnClickListener {
                 if (panelPrefs.hapticEnabled) {
                     holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
                 }
                 SpringAnimator.scalePulse(holder.itemView)
-                
-                // Close panel before starting activity for a "flexible" feel
                 onAppLaunched()
 
                 val launchIntent = context.packageManager
