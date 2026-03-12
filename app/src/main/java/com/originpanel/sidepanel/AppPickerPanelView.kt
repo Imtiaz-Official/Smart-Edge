@@ -128,7 +128,12 @@ class AppPickerPanelView @JvmOverloads constructor(
 
             // Apply accent color to highlights
             try {
-                val accentColor = Color.parseColor(panelPrefs.accentColor)
+                val accentColor = if (panelPrefs.useCustomAccent) {
+                    Color.parseColor(panelPrefs.accentColor)
+                } else {
+                    Color.parseColor("#4DFFFFFF") // Professional Default
+                }
+                
                 holder.vHighlight.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColor)
                 if (holder.ivCheck is ImageView) {
                     holder.ivCheck.imageTintList = android.content.res.ColorStateList.valueOf(accentColor)

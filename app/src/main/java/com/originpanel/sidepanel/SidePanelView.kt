@@ -139,10 +139,20 @@ class SidePanelView @JvmOverloads constructor(
         
         val accentColorHex = panelPrefs.accentColor
         Log.d("SidePanelView", "Applying theme: $theme, AccentColor: $accentColorHex")
-        val accentColor = try {
-            Color.parseColor(accentColorHex)
-        } catch (e: Exception) {
-            Color.parseColor("#4A9EFF") // Fallback
+        val accentColor = if (panelPrefs.useCustomAccent) {
+            try {
+                Color.parseColor(accentColorHex)
+            } catch (e: Exception) {
+                Color.parseColor("#4A9EFF") // Fallback
+            }
+        } else {
+            // PROFESSIONAL DEFAULTS (When custom accent is OFF)
+            when (theme) {
+                PanelPreferences.THEME_HYPEROS -> Color.parseColor("#33FFFFFF")
+                PanelPreferences.THEME_REALME -> Color.parseColor("#26FFFFFF")
+                PanelPreferences.THEME_RICH -> Color.parseColor("#4DFFFFFF")
+                else -> Color.parseColor("#26FFFFFF") // Origin
+            }
         }
 
         when (theme) {
