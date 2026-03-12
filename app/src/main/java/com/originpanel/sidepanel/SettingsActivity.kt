@@ -370,7 +370,9 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        loadCurrentSettings() // Refresh if icon pack changed
+        loadCurrentSettings() 
+        // Force service to refresh apps immediately to show new icon pack
+        restartServiceIfRunning()
     }
 
     private fun openColorPicker(initialColor: Int, onPick: (Int) -> Unit) {
