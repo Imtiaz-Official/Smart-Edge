@@ -125,6 +125,15 @@ class AppPickerPanelView @JvmOverloads constructor(
             holder.ivCheck.visibility = if (isSelected) View.VISIBLE else View.GONE
             holder.vHighlight.visibility = if (isSelected) View.VISIBLE else View.GONE
 
+            // Apply accent color to highlights
+            try {
+                val accentColor = Color.parseColor(panelPrefs.accentColor)
+                holder.vHighlight.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColor)
+                if (holder.ivCheck is ImageView) {
+                    holder.ivCheck.imageTintList = android.content.res.ColorStateList.valueOf(accentColor)
+                }
+            } catch (e: Exception) {}
+
             holder.itemView.setOnClickListener {
                 if (panelPrefs.hapticEnabled) {
                     holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)

@@ -136,17 +136,20 @@ class SidePanelView @JvmOverloads constructor(
         
         drawable.cornerRadius = panelPrefs.panelCornerRadius * density
         
+        val accentColor = Color.parseColor(panelPrefs.accentColor)
+
         when (theme) {
             PanelPreferences.THEME_HYPEROS -> {
                 drawable.setStroke((1 * density).toInt(), Color.parseColor("#33FFFFFF"))
                 drawable.cornerRadius = 12 * density // Sharp corners for HyperOS
             }
             PanelPreferences.THEME_REALME -> {
-                drawable.setStroke((2 * density).toInt(), Color.parseColor("#FF4A9EFF"))
+                drawable.setStroke((2 * density).toInt(), accentColor)
                 drawable.cornerRadius = 40 * density 
             }
             PanelPreferences.THEME_RICH -> {
-                drawable.setStroke((2 * density).toInt(), Color.parseColor("#FF4A9EFF"))
+                drawable.setStroke((2 * density).toInt(), accentColor)
+                binding.panelHandle.backgroundTintList = ColorStateList.valueOf(accentColor)
             }
             else -> { // Origin (Default)
                 drawable.setStroke((1 * density).toInt(), Color.parseColor("#26FFFFFF"))
