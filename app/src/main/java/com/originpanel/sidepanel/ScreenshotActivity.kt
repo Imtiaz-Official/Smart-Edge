@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 
 class ScreenshotActivity : Activity() {
@@ -13,13 +14,16 @@ class ScreenshotActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("ScreenshotActivity", "onCreate: requesting permission")
         projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         startActivityForResult(projectionManager.createScreenCaptureIntent(), REQUEST_CODE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.d("ScreenshotActivity", "onActivityResult: code=$resultCode")
         if (requestCode == REQUEST_CODE) {
-            if (resultCode == RESULT_OK && data != null) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                Log.d("ScreenshotActivity", "Permission granted, starting service elevation")
                 val elevateIntent = Intent(this, FloatingPanelService::class.java).apply {
                     action = FloatingPanelService.ACTION_SCREENSHOT
                     putExtra("RESULT_CODE", resultCode)
@@ -28,6 +32,7 @@ class ScreenshotActivity : Activity() {
                 startForegroundService(elevateIntent)
                 finish()
             } else {
+                Log.e("ScreenshotActivity", "Permission denied or data null")
                 Toast.makeText(this, "Screenshot permission denied", Toast.LENGTH_SHORT).show()
                 finish()
             }
