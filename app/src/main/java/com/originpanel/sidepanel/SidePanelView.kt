@@ -10,92 +10,78 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.dynamicanimation.animation.SpringAnimation
+import androidx.dynamicanimation.animation.SpringForce
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.originpanel.sidepanel.databinding.SidePanelLayoutBinding
 
 /**
- * The main side panel view — a frosted glass pill containing:
- * - Scrollable list of pinned apps (RecyclerView)
- * - Tools section (Screenshot, etc)
- * - Close / collapse button
- *
- * This view is added/removed from WindowManager by [FloatingPanelService].
+ * High-performance Side Panel.
+ * Fixed Arrow Logic: Uses deterministic constant-based positioning to prevent layout-race glitches.
  */
 class SidePanelView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : FrameLayout(context, attrs) {
 
-    /** Called when the user taps the close button or outside the panel. */
     var onClose: (() -> Unit)? = null
-
-    /** Called when an app is removed (so FloatingPanelService can refresh). */
     var onAppsChanged: (() -> Unit)? = null
-
-    /** Called when the plus button is tapped to open the picker panel. */
     var onAddClick: (() -> Unit)? = null
 
-    private val binding: SidePanelLayoutBinding
+    private val binding: SidePanelLayoutBinding = SidePanelLayoutBinding.inflate(LayoutInflater.from(context), this, true)
     private val adapter: PanelAppsAdapter
     private val panelPrefs = PanelPreferences(context)
 
+    // Physics Springs - Initialized directly to binding view
+    private val springX: SpringAnimation = SpringAnimation(binding.btnClose, SpringAnimation.TRANSLATION_X)
+    private val springRotation: SpringAnimation = SpringAnimation(binding.btnClose, SpringAnimation.ROTATION)
+
+    private val width1ColDp = 72f
+    private val width2ColDp = 150f
+    private val buttonWidthDp = 24f
+    private val horizontalMarginDp = 8f
+
     init {
-        // Inflate using ViewBinding
-        binding = SidePanelLayoutBinding.inflate(LayoutInflater.from(context), this, true)
-
-        // Tapping anywhere outside the panelCard should close it
-        setOnClickListener { 
-            onClose?.invoke()
+        // Configure Springs
+        springX.spring = SpringForce().apply {
+            dampingRatio = SpringForce.DAMPING_RATIO_LOW_BOUNCY
+            stiffness = SpringForce.STIFFNESS_LOW
         }
-        // Prevent clicks on the panel itself from bubbling up to the closer
-        binding.panelCard.setOnClickListener { /* Consume */ }
+        springRotation.spring = SpringForce().apply {
+            dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
+            stiffness = SpringForce.STIFFNESS_MEDIUM
+        }
 
-        // Apply Custom Styles (Premium + Themes)
+        setOnClickListener { onClose?.invoke() }
+        binding.panelCard.setOnClickListener { }
+
         applyTheme()
-
-        // Tools visibility
         binding.toolsContainer.visibility = if (panelPrefs.showTools) View.VISIBLE else View.GONE
+        binding.panelCard.alpha = panelPrefs.panelOpacity / 100f
 
-        // Set opacity
-        val alphaVal = panelPrefs.panelOpacity / 100f
-        binding.panelCard.alpha = alphaVal
-
-        // Setup RecyclerView
         adapter = PanelAppsAdapter(
             context,
             onRemove = { removedApp ->
                 panelPrefs.removeApp(removedApp.packageName)
                 onAppsChanged?.invoke()
-                Toast.makeText(context, "${removedApp.appName} removed from panel",
-                    Toast.LENGTH_SHORT).show()
             },
             onAddClick = { onAddClick?.invoke() },
             onAppLaunched = { onClose?.invoke() }
         )
 
-        binding.rvPanelApps.apply {
-            val cols = if (panelPrefs.isPremium) panelPrefs.panelColumns else 1
-            layoutManager = GridLayoutManager(context, cols)
-            
-            // Adjust panel width if 2 columns
-            val params = binding.panelCard.layoutParams
-            if (cols == 2) {
-                params.width = (150 * context.resources.displayMetrics.density).toInt()
-            } else {
-                params.width = (72 * context.resources.displayMetrics.density).toInt()
-            }
-            binding.panelCard.layoutParams = params
-            binding.panelCard.requestLayout()
+        val cols = if (panelPrefs.isPremium) panelPrefs.panelColumns else 1
+        binding.rvPanelApps.layoutManager = GridLayoutManager(context, cols)
+        binding.rvPanelApps.adapter = adapter
+        
+        // Initial width setup
+        val lp = binding.panelCard.layoutParams
+        lp.width = dpToPx(if (cols == 2) width2ColDp.toInt() else width1ColDp.toInt())
+        binding.panelCard.layoutParams = lp
 
-            this.adapter = this@SidePanelView.adapter
-            itemAnimator = null  
-            setHasFixedSize(true) 
-        }
-
-        // Toggle Picker (Repurposed from Close button)
         binding.btnClose.setOnClickListener {
             if (panelPrefs.hapticEnabled) {
                 it.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
@@ -104,13 +90,11 @@ class SidePanelView @JvmOverloads constructor(
             onAddClick?.invoke()
         }
 
-        // Screenshot tool
         binding.btnScreenshot.setOnClickListener {
             if (panelPrefs.hapticEnabled) {
                 it.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
             }
             onClose?.invoke() 
-            
             val intent = Intent(context, ScreenshotActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
@@ -128,28 +112,20 @@ class SidePanelView @JvmOverloads constructor(
             return
         }
 
-        val drawable = GradientDrawable()
-        drawable.shape = GradientDrawable.RECTANGLE
+        val drawable = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(Color.parseColor(panelPrefs.panelBackgroundColor))
+            cornerRadius = panelPrefs.panelCornerRadius * density
+        }
         
-        val bgColor = Color.parseColor(panelPrefs.panelBackgroundColor)
-        drawable.setColor(bgColor)
-        
-        drawable.cornerRadius = panelPrefs.panelCornerRadius * density
-        
-        val accentColorHex = panelPrefs.accentColor
         val accentColor = if (panelPrefs.useCustomAccent) {
-            try {
-                Color.parseColor(accentColorHex)
-            } catch (e: Exception) {
-                Color.parseColor("#4A9EFF") // Fallback
-            }
+            try { Color.parseColor(panelPrefs.accentColor) } catch (e: Exception) { Color.parseColor("#4A9EFF") }
         } else {
-            // PROFESSIONAL DEFAULTS (When custom accent is OFF)
             when (theme) {
                 PanelPreferences.THEME_HYPEROS -> Color.parseColor("#33FFFFFF")
                 PanelPreferences.THEME_REALME -> Color.parseColor("#26FFFFFF")
                 PanelPreferences.THEME_RICH -> Color.parseColor("#4DFFFFFF")
-                else -> Color.parseColor("#26FFFFFF") // Origin
+                else -> Color.parseColor("#26FFFFFF")
             }
         }
 
@@ -166,17 +142,13 @@ class SidePanelView @JvmOverloads constructor(
                 drawable.setStroke((2 * density).toInt(), accentColor)
                 binding.panelHandle.backgroundTintList = ColorStateList.valueOf(accentColor)
             }
-            else -> { // Origin (Default)
+            else -> {
                 drawable.setStroke((1 * density).toInt(), accentColor)
                 drawable.cornerRadius = 48 * density 
             }
         }
-        
         binding.panelCard.background = drawable
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            binding.panelCard.clipToOutline = true
-        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) binding.panelCard.clipToOutline = true
     }
 
     fun setApps(apps: List<AppInfo>) {
@@ -193,43 +165,25 @@ class SidePanelView @JvmOverloads constructor(
         val layoutManager = binding.rvPanelApps.layoutManager as? GridLayoutManager
         layoutManager?.spanCount = cols
         
-        val params = binding.panelCard.layoutParams
-        if (cols == 2) {
-            params.width = (150 * density).toInt()
-        } else {
-            params.width = (72 * density).toInt()
-        }
-        binding.panelCard.layoutParams = params
+        val lp = binding.panelCard.layoutParams
+        lp.width = dpToPx(if (cols == 2) width2ColDp.toInt() else width1ColDp.toInt())
+        binding.panelCard.layoutParams = lp
         binding.panelCard.requestLayout()
     }
 
-    /**
-     * Animates the bottom arrow (btnClose) to move from middle to the right side.
-     * Uses cancel() to prevent rapid-click lockups.
-     */
-    fun animatePickerToggle(isOpen: Boolean) {
-        binding.btnClose.animate().cancel() 
-        
-        binding.btnClose.post {
-            val density = context.resources.displayMetrics.density
-            val viewWidth = binding.panelCard.width.toFloat()
-            if (viewWidth <= 0) return@post
-
-            val viewWidthDp = viewWidth / density
-            val buttonWidthDp = 24f
-            
-            val middleX = (viewWidthDp / 2f) - (buttonWidthDp / 2f)
-            val rightX = viewWidthDp - 8f - buttonWidthDp
-            val translation = if (isOpen) (rightX - middleX) else 0f
-            
-            val targetRotation = if (isOpen) 0f else 180f
-
-            binding.btnClose.animate()
-                .translationX(translation * density)
-                .rotation(targetRotation)
-                .setDuration(350)
-                .setInterpolator(android.view.animation.AnticipateOvershootInterpolator(1.0f))
-                .start()
+    fun animatePickerToggle(isPickerOpen: Boolean) {
+        val density = context.resources.displayMetrics.density
+        val currentPanelWidthDp = if (isPickerOpen) width1ColDp else {
+            if (panelPrefs.isPremium && panelPrefs.panelColumns == 2) width2ColDp else width1ColDp
         }
+        val middleXDp = (currentPanelWidthDp / 2f) - (buttonWidthDp / 2f)
+        val rightXDp = currentPanelWidthDp - horizontalMarginDp - buttonWidthDp
+        val targetTranslationXDp = if (isPickerOpen) (rightXDp - middleXDp) else 0f
+        val targetRotation = if (isPickerOpen) 0f else 180f
+
+        springX.animateToFinalPosition(targetTranslationXDp * density)
+        springRotation.animateToFinalPosition(targetRotation)
     }
+
+    private fun dpToPx(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
 }

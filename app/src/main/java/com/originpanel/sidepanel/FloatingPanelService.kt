@@ -349,7 +349,13 @@ class FloatingPanelService : Service() {
         windowManager.addView(pickerPanelView, params)
     }
 
+    private var lastToggleTime = 0L
+
     private fun togglePicker() {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastToggleTime < 300) return // Debounce rapid clicks
+        lastToggleTime = currentTime
+
         if (isPickerOpen) closePicker() else openPicker()
     }
 
