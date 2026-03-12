@@ -242,8 +242,8 @@ class FloatingPanelService : Service() {
             alpha = panelPrefs.panelOpacity / 100f
         }
 
-        // SLEEK TOUCH TARGET (Reverted from 40dp)
-        val handleWidth = 24
+        // DYNAMIC TOUCH TARGET (Linked to settings)
+        val handleWidth = panelPrefs.handleWidth
         val handleHeight = if (isPillVisible) dpToPx(panelPrefs.handleHeight) 
                            else (resources.displayMetrics.heightPixels * 0.60f).toInt()
 
