@@ -152,7 +152,6 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchTools.isChecked = panelPrefs.showTools
         binding.switchHideBg.isChecked = panelPrefs.hideBackground
         
-        // Use our new Default-aligned pill width
         binding.sbPillWidth.progress = panelPrefs.pillWidth
 
         updatePremiumUI()
@@ -332,17 +331,33 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.btnResetDefaults.setOnClickListener {
             panelPrefs.resetToDefaults()
-            loadCurrentSettings() // Refresh UI state
+            loadCurrentSettings() 
             updatePreview()
             restartServiceIfRunning()
             Toast.makeText(this, "Settings Reset to Defaults", Toast.LENGTH_SHORT).show()
         }
+
+        binding.btnPillWhite.setOnClickListener { updatePillColor("#FFFFFF") }
+        binding.btnPillBlue.setOnClickListener { updatePillColor("#4A9EFF") }
+        binding.btnPillRed.setOnClickListener { updatePillColor("#FF5252") }
+        binding.btnPillGreen.setOnClickListener { updatePillColor("#69F0AE") }
+        binding.btnPillYellow.setOnClickListener { updatePillColor("#FFFF00") }
 
         binding.btnColorDark.setOnClickListener { updateColor("#E61A1C1E") }
         binding.btnColorBlue.setOnClickListener { updateColor("#E60D47A1") }
         binding.btnColorRed.setOnClickListener { updateColor("#E6B71C1C") }
         binding.btnColorGreen.setOnClickListener { updateColor("#E61B5E20") }
         binding.btnColorPurple.setOnClickListener { updateColor("#E64A148C") }
+    }
+
+    private fun updatePillColor(hex: String) {
+        if (!panelPrefs.isPremium) {
+            Toast.makeText(this, "Premium Required", Toast.LENGTH_SHORT).show()
+            return
+        }
+        panelPrefs.pillColor = hex
+        updatePreview()
+        restartServiceIfRunning()
     }
 
     private fun updateColor(hex: String) {

@@ -558,7 +558,7 @@
             android:layout_marginTop="8dp"
             android:min="1"
             android:max="12"
-            android:progress="2"
+            android:progress="3"
             android:progressTint="@color/accent_blue"
             android:thumbTint="@color/accent_blue"
             android:enabled="false" />

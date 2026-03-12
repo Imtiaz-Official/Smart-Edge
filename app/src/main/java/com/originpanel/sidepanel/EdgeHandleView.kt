@@ -57,7 +57,7 @@ class EdgeHandleView @JvmOverloads constructor(
 
     init {
         setLayerType(LAYER_TYPE_HARDWARE, null)
-        updatePill()
+        post { updatePill() }
     }
 
     fun updatePill() {
