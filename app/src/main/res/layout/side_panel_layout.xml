@@ -24,7 +24,7 @@
     android:background="@drawable/bg_panel"
     android:elevation="32dp"
     android:paddingTop="12dp"
-    android:paddingBottom="12dp">
+    android:paddingBottom="4dp">
 
     <!-- Rich Vertical Handle (Premium feel) -->
     <View
@@ -54,8 +54,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/toolsContainer" />
 
-        <!-- Tools Section (Premium) -->
-        <LinearLayout
+    <!-- Tools Section (Premium) -->
+    <LinearLayout
         android:id="@+id/toolsContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -91,17 +91,18 @@
             android:textColor="#80FFFFFF"
             android:textSize="7sp"
             android:layout_marginTop="2dp"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="4dp" />
 
-        </LinearLayout>
+    </LinearLayout>
 
-        <!-- Chevron at bottom of pill -->
 
+            <!-- Chevron at bottom of pill (now handles picker toggle and slide animation) -->
             <ImageButton
                 android:id="@+id/btnClose"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Toggle Picker"
                 android:src="@drawable/ic_chevron_right"
@@ -110,7 +111,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rvPanelApps" />
+                app:layout_constraintTop_toBottomOf="@id/toolsContainer" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
