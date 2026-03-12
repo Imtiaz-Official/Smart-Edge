@@ -51,6 +51,7 @@ class SettingsActivity : AppCompatActivity() {
             this.showPill = panelPrefs.showPill
             this.onTrigger = null 
             updatePill()
+            visibility = if (panelPrefs.gesturesEnabled) View.VISIBLE else View.GONE
         }
 
         val handleWidthPx = (panelPrefs.handleWidth * density).toInt()
@@ -120,6 +121,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         binding.switchAutoStart.isChecked = panelPrefs.autoStart
+        binding.switchGestures.isChecked = panelPrefs.gesturesEnabled
         binding.switchShowPill.isChecked = panelPrefs.showPill
         binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
         binding.sbOpacity.progress = panelPrefs.panelOpacity
@@ -140,7 +142,6 @@ class SettingsActivity : AppCompatActivity() {
             else -> binding.rgThemes.check(R.id.rbThemeOrigin)
         }
 
-        // Icon Shape
         when (panelPrefs.iconShape) {
             PanelPreferences.SHAPE_SQUIRCLE -> binding.rgIconShape.check(R.id.rbShapeSquircle)
             PanelPreferences.SHAPE_SQUARE -> binding.rgIconShape.check(R.id.rbShapeSquare)
@@ -192,6 +193,12 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchAutoStart.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.autoStart = isChecked
+        }
+
+        binding.switchGestures.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.gesturesEnabled = isChecked
+            updatePreview()
+            restartServiceIfRunning()
         }
 
         binding.switchShowPill.setOnCheckedChangeListener { _, isChecked ->

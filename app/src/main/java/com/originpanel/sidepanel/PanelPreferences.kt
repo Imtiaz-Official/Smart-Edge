@@ -34,6 +34,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_HIDE_BG = "hide_bg"
         private const val KEY_SHOW_TOOLS = "show_tools"
         private const val KEY_ICON_SHAPE = "icon_shape"
+        private const val KEY_GESTURES_ENABLED = "gestures_enabled"
         
         private const val DELIMITER = ","
 
@@ -50,6 +51,11 @@ class PanelPreferences(context: Context) {
         const val SHAPE_SQUARE = "square"
         const val SHAPE_ROUNDED = "rounded"
     }
+
+    /** Whether the edge swipe gesture is enabled. */
+    var gesturesEnabled: Boolean
+        get() = prefs.getBoolean(KEY_GESTURES_ENABLED, true)
+        set(value) = prefs.edit { putBoolean(KEY_GESTURES_ENABLED, value) }
 
     /** Icon shape: "circle", "squircle", "square", "rounded". */
     var iconShape: String

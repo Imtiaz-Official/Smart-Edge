@@ -82,6 +82,8 @@ class FloatingPanelService : Service() {
     // ── Edge Handle ──────────────────────────────────────────────────────────
 
     private fun addEdgeHandle() {
+        if (!panelPrefs.gesturesEnabled) return
+
         val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
         val isPillVisible = panelPrefs.showPill
         
