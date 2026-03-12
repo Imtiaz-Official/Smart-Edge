@@ -69,11 +69,13 @@ class SidePanelView @JvmOverloads constructor(
             layoutManager = GridLayoutManager(context, cols)
             
             // Adjust panel width if 2 columns
+            val params = binding.panelCard.layoutParams
             if (cols == 2) {
-                binding.panelCard.layoutParams.width = (136 * context.resources.displayMetrics.density).toInt()
+                params.width = (140 * context.resources.displayMetrics.density).toInt()
             } else {
-                binding.panelCard.layoutParams.width = (72 * context.resources.displayMetrics.density).toInt()
+                params.width = (72 * context.resources.displayMetrics.density).toInt()
             }
+            binding.panelCard.layoutParams = params
 
             this.adapter = this@SidePanelView.adapter
             itemAnimator = null  // Disable default animation (spring handles it)
@@ -149,14 +151,17 @@ class SidePanelView @JvmOverloads constructor(
      */
     fun animatePickerToggle(isOpen: Boolean) {
         val density = context.resources.displayMetrics.density
-        // Center of current width.
-        val currentWidth = binding.panelCard.width / density
-        val buttonWidth = 24f
+        // Use current layout params width if width is 0 (view not measured)
+        val viewWidth = if (binding.panelCard.width > 0) binding.panelCard.width.toFloat() 
+                        else binding.panelCard.layoutParams.width.toFloat()
         
-        // Start at middle: (currentWidth / 2) - (buttonWidth / 2)
-        // We want to move it to (currentWidth - 8dp - buttonWidth)
-        val middleX = (currentWidth / 2f) - (buttonWidth / 2f)
-        val rightX = currentWidth - 8f - buttonWidth
+        val viewWidthDp = viewWidth / density
+        val buttonWidthDp = 24f
+        
+        // Start at middle: (viewWidthDp / 2) - (buttonWidthDp / 2)
+        // We want to move it to (viewWidthDp - 8dp - buttonWidthDp)
+        val middleX = (viewWidthDp / 2f) - (buttonWidthDp / 2f)
+        val rightX = viewWidthDp - 8f - buttonWidthDp
         val translation = if (isOpen) (rightX - middleX) else 0f
         
         val targetRotation = if (isOpen) 0f else 180f
