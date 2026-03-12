@@ -134,6 +134,7 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchTools.isChecked = panelPrefs.showTools
         binding.switchHideBg.isChecked = panelPrefs.hideBackground
+        binding.switchUseCustomAccent.isChecked = panelPrefs.useCustomAccent
 
         val pack = panelPrefs.selectedIconPack
         binding.tvCurrentIconPack.text = if (pack == "none") "System Default" else pack
@@ -284,6 +285,12 @@ class SettingsActivity : AppCompatActivity() {
                 R.id.rbShapeSquare -> PanelPreferences.SHAPE_SQUARE
                 else -> PanelPreferences.SHAPE_CIRCLE
             }
+            updatePreview()
+            restartServiceIfRunning()
+        }
+
+        binding.switchUseCustomAccent.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.useCustomAccent = isChecked
             updatePreview()
             restartServiceIfRunning()
         }

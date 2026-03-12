@@ -25,6 +25,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_HANDLE_WIDTH = "handle_width"
         private const val KEY_HANDLE_OFFSET = "handle_offset"
         private const val KEY_ACCENT_COLOR = "accent_color"
+        private const val KEY_USE_CUSTOM_ACCENT = "use_custom_accent"
         private const val KEY_PANEL_COLUMNS = "panel_columns"
         private const val KEY_UI_THEME = "ui_theme"
         private const val KEY_IS_PREMIUM = "is_premium"
@@ -66,6 +67,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_HANDLE_WIDTH = 24
         const val DEFAULT_HANDLE_OFFSET = 0
         const val DEFAULT_ACCENT_COLOR = "#4A9EFF"
+        const val DEFAULT_USE_CUSTOM_ACCENT = false // OFF BY DEFAULT
         const val DEFAULT_PANEL_COLS = 1
         const val DEFAULT_THEME = THEME_ORIGIN
         const val DEFAULT_PANEL_RADIUS = 48 
@@ -85,6 +87,7 @@ class PanelPreferences(context: Context) {
         prefs.edit {
             putString(KEY_ACCENT_COLOR, DEFAULT_ACCENT_COLOR)
             putString(KEY_PANEL_BG_COLOR, DEFAULT_PANEL_BG)
+            putBoolean(KEY_USE_CUSTOM_ACCENT, DEFAULT_USE_CUSTOM_ACCENT)
         }
     }
 
@@ -100,6 +103,7 @@ class PanelPreferences(context: Context) {
             putInt(KEY_HANDLE_WIDTH, DEFAULT_HANDLE_WIDTH)
             putInt(KEY_HANDLE_OFFSET, DEFAULT_HANDLE_OFFSET)
             putString(KEY_ACCENT_COLOR, DEFAULT_ACCENT_COLOR)
+            putBoolean(KEY_USE_CUSTOM_ACCENT, DEFAULT_USE_CUSTOM_ACCENT)
             putInt(KEY_PANEL_COLUMNS, DEFAULT_PANEL_COLS)
             putString(KEY_UI_THEME, DEFAULT_THEME)
             putInt(KEY_PANEL_RADIUS, DEFAULT_PANEL_RADIUS)
@@ -116,12 +120,14 @@ class PanelPreferences(context: Context) {
         }
     }
 
-    /** Selected Icon Pack package name. "none" for system default. */
+    var useCustomAccent: Boolean
+        get() = prefs.getBoolean(KEY_USE_CUSTOM_ACCENT, DEFAULT_USE_CUSTOM_ACCENT)
+        set(value) = prefs.edit { putBoolean(KEY_USE_CUSTOM_ACCENT, value) }
+
     var selectedIconPack: String
         get() = prefs.getString(KEY_ICON_PACK, DEFAULT_ICON_PACK) ?: DEFAULT_ICON_PACK
         set(value) = prefs.edit { putString(KEY_ICON_PACK, value) }
 
-    /** Whether tapping the pill should open the panel. */
     var tapToOpen: Boolean
         get() = prefs.getBoolean(KEY_TAP_TO_OPEN, DEFAULT_TAP_TO_OPEN)
         set(value) = prefs.edit { putBoolean(KEY_TAP_TO_OPEN, value) }

@@ -226,6 +226,9 @@
                 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#33FFFFFF" android:layout_marginVertical="12dp" />
 
+                <!-- Master Toggle for Custom Accent -->
+                <Switch android:id="@+id/switchUseCustomAccent" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Use Custom Accent Color" android:textColor="#FFFFFF" android:thumbTint="#FFFFFF" android:layout_marginBottom="16dp" />
+
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Accent Color" android:textColor="#FFFFFF" />
                     <com.google.android.material.button.MaterialButton
