@@ -17,7 +17,6 @@ import com.originpanel.sidepanel.databinding.SidePanelLayoutBinding
  * The main side panel view — a frosted glass pill containing:
  * - Scrollable list of pinned apps (RecyclerView)
  * - Empty state text
- * - AI / BlueLM button (placeholder — extend as needed)
  * - Close / collapse button
  *
  * This view is added/removed from WindowManager by [FloatingPanelService].
@@ -57,7 +56,6 @@ class SidePanelView @JvmOverloads constructor(
         // Set opacity
         val alphaVal = panelPrefs.panelOpacity / 100f
         binding.panelCard.alpha = alphaVal
-        binding.btnAI.alpha = alphaVal
 
         // Setup RecyclerView
         adapter = PanelAppsAdapter(
@@ -99,23 +97,6 @@ class SidePanelView @JvmOverloads constructor(
             SpringAnimator.scalePulse(it)
             onAddClick?.invoke()
         }
-
-        // AI button (placeholder — add your AI integration here)
-        binding.btnAI.setOnClickListener {
-            if (panelPrefs.hapticEnabled) {
-                it.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
-            }
-            SpringAnimator.scalePulse(it)
-            Toast.makeText(context, "AI Assistant coming soon!", Toast.LENGTH_SHORT).show()
-        }
-
-        // Apply accent color (Premium)
-        try {
-            val accentColor = Color.parseColor(panelPrefs.accentColor)
-            binding.btnAI.backgroundTintList = ColorStateList.valueOf(accentColor)
-        } catch (e: Exception) {
-            binding.btnAI.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4A9EFF"))
-        }
     }
 
     private fun applyTheme() {
@@ -125,25 +106,18 @@ class SidePanelView @JvmOverloads constructor(
         when (theme) {
             PanelPreferences.THEME_HYPEROS -> {
                 binding.panelCard.setBackgroundResource(R.drawable.bg_panel_hyperos)
-                binding.btnAI.setBackgroundResource(R.drawable.bg_ai_button) 
-                // Set sharp corners for HyperOS AI
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     binding.panelCard.clipToOutline = true
                 }
             }
             PanelPreferences.THEME_REALME -> {
                 binding.panelCard.setBackgroundResource(R.drawable.bg_panel_realme)
-                // Realme uses more rounded AI button
-                binding.btnAI.setBackgroundResource(R.drawable.bg_close_btn)
-                binding.btnAI.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FF4A9EFF"))
             }
             PanelPreferences.THEME_RICH -> {
                 binding.panelCard.setBackgroundResource(R.drawable.bg_panel_rich)
-                binding.btnAI.setBackgroundResource(R.drawable.bg_ai_button)
             }
             else -> { // Origin (Default)
                 binding.panelCard.setBackgroundResource(R.drawable.bg_panel)
-                binding.btnAI.setBackgroundResource(R.drawable.bg_ai_button)
             }
         }
     }

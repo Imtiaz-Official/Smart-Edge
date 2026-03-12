@@ -73,34 +73,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- Floating AI Button (BlueLM Style) - Now pinned right below the panel -->
-        <LinearLayout
-            android:id="@+id/btnAI"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_ai_button"
-            android:elevation="40dp"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:text="AI"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-            
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="BlueLM"
-                android:textColor="#B3FFFFFF"
-                android:textSize="7sp" />
         </LinearLayout>
 
-    </LinearLayout>
-
-</RelativeLayout>
+        </RelativeLayout>
