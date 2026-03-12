@@ -17,4 +17,11 @@
     <style name="Theme.SidePanel.AppPicker" parent="Theme.SidePanel">
         <item name="android:statusBarColor">@color/bg_main</item>
     </style>
+
+    <style name="Theme.Transparent" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
 </resources>
