@@ -151,6 +151,9 @@ class SettingsActivity : AppCompatActivity() {
         binding.sbPanelRadius.progress = panelPrefs.panelCornerRadius
         binding.switchTools.isChecked = panelPrefs.showTools
         binding.switchHideBg.isChecked = panelPrefs.hideBackground
+        
+        // Use our new Default-aligned pill width
+        binding.sbPillWidth.progress = panelPrefs.pillWidth
 
         updatePremiumUI()
     }
@@ -175,11 +178,16 @@ class SettingsActivity : AppCompatActivity() {
         binding.sbPanelRadius.isEnabled = isPremium
         binding.switchTools.isEnabled = isPremium
         binding.switchHideBg.isEnabled = isPremium
+        binding.sbPillWidth.isEnabled = isPremium
 
         if (isPremium) {
             binding.tvPremiumStatus.text = "Premium Active"
             binding.btnGoPremium.visibility = View.GONE
             binding.cardPremium.setCardBackgroundColor(Color.parseColor("#1A00C853"))
+        } else {
+            binding.tvPremiumStatus.text = "Unlock Full Customization"
+            binding.btnGoPremium.visibility = View.VISIBLE
+            binding.cardPremium.setCardBackgroundColor(Color.parseColor("#1A4A9EFF"))
         }
     }
 
@@ -311,6 +319,25 @@ class SettingsActivity : AppCompatActivity() {
             restartServiceIfRunning()
         }
 
+        binding.sbPillWidth.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    panelPrefs.pillWidth = progress
+                    updatePreview()
+                }
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
+        })
+
+        binding.btnResetDefaults.setOnClickListener {
+            panelPrefs.resetToDefaults()
+            loadCurrentSettings() // Refresh UI state
+            updatePreview()
+            restartServiceIfRunning()
+            Toast.makeText(this, "Settings Reset to Defaults", Toast.LENGTH_SHORT).show()
+        }
+
         binding.btnColorDark.setOnClickListener { updateColor("#E61A1C1E") }
         binding.btnColorBlue.setOnClickListener { updateColor("#E60D47A1") }
         binding.btnColorRed.setOnClickListener { updateColor("#E6B71C1C") }
@@ -320,7 +347,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun updateColor(hex: String) {
         if (!panelPrefs.isPremium) {
-            Toast.makeText(this, "Custom colors require Premium", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Premium Required", Toast.LENGTH_SHORT).show()
             return
         }
         panelPrefs.panelBackgroundColor = hex

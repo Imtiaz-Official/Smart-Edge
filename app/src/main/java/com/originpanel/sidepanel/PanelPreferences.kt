@@ -53,112 +53,136 @@ class PanelPreferences(context: Context) {
         const val SHAPE_SQUIRCLE = "squircle"
         const val SHAPE_SQUARE = "square"
         const val SHAPE_ROUNDED = "rounded"
+
+        // Perfect Industry-Standard Defaults
+        val DEFAULT_SIDE = SIDE_RIGHT
+        const val DEFAULT_AUTO_START = true
+        const val DEFAULT_SHOW_PILL = true
+        const val DEFAULT_HAPTIC = true
+        const val DEFAULT_OPACITY = 100
+        const val DEFAULT_HANDLE_HEIGHT = 80
+        const val DEFAULT_HANDLE_WIDTH = 24
+        const val DEFAULT_HANDLE_OFFSET = 0
+        const val DEFAULT_ACCENT_COLOR = "#4A9EFF"
+        const val DEFAULT_PANEL_COLS = 1
+        const val DEFAULT_THEME = THEME_ORIGIN
+        const val DEFAULT_PANEL_RADIUS = 48 // Signature Pill
+        const val DEFAULT_PANEL_BG = "#E61A1C1E"
+        const val DEFAULT_HIDE_BG = false
+        const val DEFAULT_SHOW_TOOLS = true
+        const val DEFAULT_ICON_SHAPE = SHAPE_CIRCLE
+        const val DEFAULT_GESTURES = true
+        const val DEFAULT_PILL_WIDTH = 3
+        const val DEFAULT_PILL_COLOR = "#FFFFFF"
     }
 
-    /** Whether the edge swipe gesture is enabled. */
+    /** Resets all configuration to perfect defaults. */
+    fun resetToDefaults() {
+        prefs.edit {
+            putString(KEY_PANEL_SIDE, DEFAULT_SIDE)
+            putBoolean(KEY_AUTO_START, DEFAULT_AUTO_START)
+            putBoolean(KEY_SHOW_PILL, DEFAULT_SHOW_PILL)
+            putBoolean(KEY_HAPTIC_ENABLED, DEFAULT_HAPTIC)
+            putInt(KEY_PANEL_OPACITY, DEFAULT_OPACITY)
+            putInt(KEY_HANDLE_HEIGHT, DEFAULT_HANDLE_HEIGHT)
+            putInt(KEY_HANDLE_WIDTH, DEFAULT_HANDLE_WIDTH)
+            putInt(KEY_HANDLE_OFFSET, DEFAULT_HANDLE_OFFSET)
+            putString(KEY_ACCENT_COLOR, DEFAULT_ACCENT_COLOR)
+            putInt(KEY_PANEL_COLUMNS, DEFAULT_PANEL_COLS)
+            putString(KEY_UI_THEME, DEFAULT_THEME)
+            putInt(KEY_PANEL_RADIUS, DEFAULT_PANEL_RADIUS)
+            putString(KEY_PANEL_BG_COLOR, DEFAULT_PANEL_BG)
+            putBoolean(KEY_HIDE_BG, DEFAULT_HIDE_BG)
+            putBoolean(KEY_SHOW_TOOLS, DEFAULT_SHOW_TOOLS)
+            putString(KEY_ICON_SHAPE, DEFAULT_ICON_SHAPE)
+            putBoolean(KEY_GESTURES_ENABLED, DEFAULT_GESTURES)
+            putInt(KEY_PILL_WIDTH, DEFAULT_PILL_WIDTH)
+            putString(KEY_PILL_COLOR, DEFAULT_PILL_COLOR)
+        }
+    }
+
     var gesturesEnabled: Boolean
-        get() = prefs.getBoolean(KEY_GESTURES_ENABLED, true)
+        get() = prefs.getBoolean(KEY_GESTURES_ENABLED, DEFAULT_GESTURES)
         set(value) = prefs.edit { putBoolean(KEY_GESTURES_ENABLED, value) }
 
-    /** Icon shape: "circle", "squircle", "square", "rounded". */
     var iconShape: String
-        get() = prefs.getString(KEY_ICON_SHAPE, SHAPE_CIRCLE) ?: SHAPE_CIRCLE
+        get() = prefs.getString(KEY_ICON_SHAPE, DEFAULT_ICON_SHAPE) ?: DEFAULT_ICON_SHAPE
         set(value) = prefs.edit { putString(KEY_ICON_SHAPE, value) }
 
-    /** Whether to show a visible pill handle at the edge. */
     var showPill: Boolean
-        get() = prefs.getBoolean(KEY_SHOW_PILL, true)
+        get() = prefs.getBoolean(KEY_SHOW_PILL, DEFAULT_SHOW_PILL)
         set(value) = prefs.edit { putBoolean(KEY_SHOW_PILL, value) }
 
-    /** Whether haptic feedback is enabled. */
     var hapticEnabled: Boolean
-        get() = prefs.getBoolean(KEY_HAPTIC_ENABLED, true)
+        get() = prefs.getBoolean(KEY_HAPTIC_ENABLED, DEFAULT_HAPTIC)
         set(value) = prefs.edit { putBoolean(KEY_HAPTIC_ENABLED, value) }
 
-    /** Panel opacity (0 to 100). */
     var panelOpacity: Int
-        get() = prefs.getInt(KEY_PANEL_OPACITY, 100)
+        get() = prefs.getInt(KEY_PANEL_OPACITY, DEFAULT_OPACITY)
         set(value) = prefs.edit { putInt(KEY_PANEL_OPACITY, value) }
 
-    /** Edge handle height in DP. */
     var handleHeight: Int
-        get() = prefs.getInt(KEY_HANDLE_HEIGHT, 80)
+        get() = prefs.getInt(KEY_HANDLE_HEIGHT, DEFAULT_HANDLE_HEIGHT)
         set(value) = prefs.edit { putInt(KEY_HANDLE_HEIGHT, value) }
 
-    /** Edge handle width in DP. */
     var handleWidth: Int
-        get() = prefs.getInt(KEY_HANDLE_WIDTH, 24)
+        get() = prefs.getInt(KEY_HANDLE_WIDTH, DEFAULT_HANDLE_WIDTH)
         set(value) = prefs.edit { putInt(KEY_HANDLE_WIDTH, value) }
 
-    /** Pill width in DP. (The visual pill) */
     var pillWidth: Int
-        get() = prefs.getInt(KEY_PILL_WIDTH, 2)
+        get() = prefs.getInt(KEY_PILL_WIDTH, DEFAULT_PILL_WIDTH)
         set(value) = prefs.edit { putInt(KEY_PILL_WIDTH, value) }
 
-    /** Pill custom color (Hex). */
     var pillColor: String
-        get() = prefs.getString(KEY_PILL_COLOR, "#FFFFFF") ?: "#FFFFFF"
+        get() = prefs.getString(KEY_PILL_COLOR, DEFAULT_PILL_COLOR) ?: DEFAULT_PILL_COLOR
         set(value) = prefs.edit { putString(KEY_PILL_COLOR, value) }
 
-    /** Edge handle vertical offset (-100 to 100). */
     var handleVerticalOffset: Int
-        get() = prefs.getInt(KEY_HANDLE_OFFSET, 0)
+        get() = prefs.getInt(KEY_HANDLE_OFFSET, DEFAULT_HANDLE_OFFSET)
         set(value) = prefs.edit { putInt(KEY_HANDLE_OFFSET, value) }
 
-    /** Custom accent color (Hex string). */
     var accentColor: String
-        get() = prefs.getString(KEY_ACCENT_COLOR, "#4A9EFF") ?: "#4A9EFF"
+        get() = prefs.getString(KEY_ACCENT_COLOR, DEFAULT_ACCENT_COLOR) ?: DEFAULT_ACCENT_COLOR
         set(value) = prefs.edit { putString(KEY_ACCENT_COLOR, value) }
 
-    /** Number of columns in side panel (1 or 2). */
     var panelColumns: Int
-        get() = prefs.getInt(KEY_PANEL_COLUMNS, 1)
+        get() = prefs.getInt(KEY_PANEL_COLUMNS, DEFAULT_PANEL_COLS)
         set(value) = prefs.edit { putInt(KEY_PANEL_COLUMNS, value) }
 
-    /** UI Theme style: "origin", "hyperos", "realme", "rich". */
     var uiTheme: String
-        get() = prefs.getString(KEY_UI_THEME, THEME_ORIGIN) ?: THEME_ORIGIN
+        get() = prefs.getString(KEY_UI_THEME, DEFAULT_THEME) ?: DEFAULT_THEME
         set(value) = prefs.edit { putString(KEY_UI_THEME, value) }
 
-    /** Panel Corner Radius in DP. */
     var panelCornerRadius: Int
-        get() = prefs.getInt(KEY_PANEL_RADIUS, 28)
+        get() = prefs.getInt(KEY_PANEL_RADIUS, DEFAULT_PANEL_RADIUS)
         set(value) = prefs.edit { putInt(KEY_PANEL_RADIUS, value) }
 
-    /** Custom Background Color (Hex string). Default is semi-transparent dark. */
     var panelBackgroundColor: String
-        get() = prefs.getString(KEY_PANEL_BG_COLOR, "#E61A1C1E") ?: "#E61A1C1E"
+        get() = prefs.getString(KEY_PANEL_BG_COLOR, DEFAULT_PANEL_BG) ?: DEFAULT_PANEL_BG
         set(value) = prefs.edit { putString(KEY_PANEL_BG_COLOR, value) }
 
-    /** Whether to hide the panel background completely. */
     var hideBackground: Boolean
-        get() = prefs.getBoolean(KEY_HIDE_BG, false)
+        get() = prefs.getBoolean(KEY_HIDE_BG, DEFAULT_HIDE_BG)
         set(value) = prefs.edit { putBoolean(KEY_HIDE_BG, value) }
 
-    /** Whether to show the Tools section (Screenshot, etc). */
     var showTools: Boolean
-        get() = prefs.getBoolean(KEY_SHOW_TOOLS, true)
+        get() = prefs.getBoolean(KEY_SHOW_TOOLS, DEFAULT_SHOW_TOOLS)
         set(value) = prefs.edit { putBoolean(KEY_SHOW_TOOLS, value) }
 
-    /** Simulated premium status. */
     var isPremium: Boolean
         get() = prefs.getBoolean(KEY_IS_PREMIUM, false)
         set(value) = prefs.edit { putBoolean(KEY_IS_PREMIUM, value) }
 
-    /** Returns the ordered list of package names pinned to the panel. */
     fun getPanelApps(): List<String> {
         val raw = prefs.getString(KEY_PANEL_APPS, "") ?: ""
-        android.util.Log.d("PanelPreferences", "getPanelApps raw: $raw")
         return if (raw.isBlank()) emptyList()
         else raw.split(DELIMITER).filter { it.isNotBlank() }
     }
 
-    /** Saves a new ordered list of pinned package names. */
     fun setPanelApps(packages: List<String>) {
         prefs.edit { putString(KEY_PANEL_APPS, packages.joinToString(DELIMITER)) }
     }
 
-    /** Adds an app to the panel (appended to end). No-op if already present. */
     fun addApp(packageName: String) {
         val current = getPanelApps().toMutableList()
         if (!current.contains(packageName)) {
@@ -167,23 +191,19 @@ class PanelPreferences(context: Context) {
         }
     }
 
-    /** Removes an app from the panel. No-op if not present. */
     fun removeApp(packageName: String) {
         val current = getPanelApps().toMutableList()
         current.remove(packageName)
         setPanelApps(current)
     }
 
-    /** Returns true if the given package is pinned to the panel. */
     fun isInPanel(packageName: String): Boolean = getPanelApps().contains(packageName)
 
-    /** Panel side: "right" (default) or "left". */
     var panelSide: String
-        get() = prefs.getString(KEY_PANEL_SIDE, SIDE_RIGHT) ?: SIDE_RIGHT
+        get() = prefs.getString(KEY_PANEL_SIDE, DEFAULT_SIDE) ?: DEFAULT_SIDE
         set(value) = prefs.edit { putString(KEY_PANEL_SIDE, value) }
 
-    /** Whether the panel service should start automatically on boot. */
     var autoStart: Boolean
-        get() = prefs.getBoolean(KEY_AUTO_START, false)
+        get() = prefs.getBoolean(KEY_AUTO_START, DEFAULT_AUTO_START)
         set(value) = prefs.edit { putBoolean(KEY_AUTO_START, value) }
 }

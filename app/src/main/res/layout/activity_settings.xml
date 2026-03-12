@@ -646,5 +646,18 @@
                 android:enabled="false" />
         </LinearLayout>
 
+        <!-- Reset Defaults -->
+        <Button
+            android:id="@+id/btnResetDefaults"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="48dp"
+            android:backgroundTint="#1AFFFFFF"
+            android:text="Reset to Defaults"
+            android:textAllCaps="false"
+            android:textColor="#B3FFFFFF"
+            app:cornerRadius="12dp" />
+
     </LinearLayout>
 </ScrollView>
