@@ -44,6 +44,9 @@ class SidePanelView @JvmOverloads constructor(
         // Inflate using ViewBinding
         binding = SidePanelLayoutBinding.inflate(LayoutInflater.from(context), this, true)
 
+        // Apply UI Theme (Premium)
+        applyTheme()
+
         // Set opacity
         val alphaVal = panelPrefs.panelOpacity / 100f
         binding.panelCard.alpha = alphaVal
@@ -100,8 +103,23 @@ class SidePanelView @JvmOverloads constructor(
             val accentColor = Color.parseColor(panelPrefs.accentColor)
             binding.btnAI.backgroundTintList = ColorStateList.valueOf(accentColor)
         } catch (e: Exception) {
-            // Fallback to default blue if color string is invalid
             binding.btnAI.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4A9EFF"))
+        }
+    }
+
+    private fun applyTheme() {
+        val theme = panelPrefs.uiTheme
+        when (theme) {
+            PanelPreferences.THEME_HYPEROS -> {
+                binding.panelCard.setBackgroundResource(R.drawable.bg_panel_hyperos)
+                binding.btnAI.setBackgroundResource(R.drawable.bg_ai_button) // Or specific hyperos AI bg
+            }
+            PanelPreferences.THEME_REALME -> {
+                binding.panelCard.setBackgroundResource(R.drawable.bg_panel_realme)
+            }
+            else -> { // Origin (Default)
+                binding.panelCard.setBackgroundResource(R.drawable.bg_panel)
+            }
         }
     }
 

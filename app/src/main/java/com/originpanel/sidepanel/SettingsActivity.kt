@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -11,12 +12,13 @@ import com.originpanel.sidepanel.databinding.ActivitySettingsBinding
 
 /**
  * Settings screen for panel configuration.
- * Changes take effect on next panel restart.
+ * Includes real-time preview and premium theme selections.
  */
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var panelPrefs: PanelPreferences
+    private var previewPanel: SidePanelView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,8 +31,42 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         panelPrefs = PanelPreferences(this)
+        
+        setupPreview()
         loadCurrentSettings()
         setupListeners()
+    }
+
+    private fun setupPreview() {
+        // Create a mini version of our SidePanelView for the preview area
+        previewPanel = SidePanelView(this).apply {
+            // Disable actual logic for preview
+            onClose = null
+            onAppsChanged = null
+            onAddClick = null
+            
+            // Set some dummy apps for visual
+            setApps(listOf(
+                AppInfo("pkg1", "App 1", getDrawable(android.R.drawable.ic_menu_camera), true),
+                AppInfo("pkg2", "App 2", getDrawable(android.R.drawable.ic_menu_gallery), true)
+            ))
+        }
+
+        val params = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            gravity = android.view.Gravity.CENTER
+        }
+        
+        binding.previewContainer.removeAllViews()
+        binding.previewContainer.addView(previewPanel, params)
+    }
+
+    private fun updatePreview() {
+        // Re-inflate or update properties of the preview panel
+        // Since many properties are in 'init', simplest way is to re-add it
+        setupPreview()
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -64,7 +100,7 @@ class SettingsActivity : AppCompatActivity() {
         // Handle Width
         binding.sbHandleWidth.progress = panelPrefs.handleWidth
 
-        // Premium Vertical Offset (0-200 map to -100 to 100)
+        // Premium Vertical Offset
         binding.sbHandleOffset.progress = panelPrefs.handleVerticalOffset + 100
 
         // Premium Columns
@@ -72,6 +108,13 @@ class SettingsActivity : AppCompatActivity() {
             binding.rgColumns.check(R.id.rbCol2)
         } else {
             binding.rgColumns.check(R.id.rbCol1)
+        }
+
+        // Premium Themes
+        when (panelPrefs.uiTheme) {
+            PanelPreferences.THEME_HYPEROS -> binding.rgThemes.check(R.id.rbThemeHyper)
+            PanelPreferences.THEME_REALME -> binding.rgThemes.check(R.id.rbThemeRealme)
+            else -> binding.rgThemes.check(R.id.rbThemeOrigin)
         }
 
         updatePremiumUI()
@@ -83,11 +126,15 @@ class SettingsActivity : AppCompatActivity() {
         binding.rgColumns.isEnabled = isPremium
         binding.rbCol1.isEnabled = isPremium
         binding.rbCol2.isEnabled = isPremium
+        binding.rgThemes.isEnabled = isPremium
+        binding.rbThemeOrigin.isEnabled = isPremium
+        binding.rbThemeHyper.isEnabled = isPremium
+        binding.rbThemeRealme.isEnabled = isPremium
 
         if (isPremium) {
             binding.tvPremiumStatus.text = "Premium Active"
             binding.btnGoPremium.visibility = View.GONE
-            binding.cardPremium.setCardBackgroundColor(Color.parseColor("#1A00C853")) // Green tint
+            binding.cardPremium.setCardBackgroundColor(Color.parseColor("#1A00C853"))
         }
     }
 
@@ -113,7 +160,10 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.sbOpacity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) panelPrefs.panelOpacity = progress
+                if (fromUser) {
+                    panelPrefs.panelOpacity = progress
+                    updatePreview()
+                }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
@@ -151,6 +201,17 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.rgColumns.setOnCheckedChangeListener { _, checkedId ->
             panelPrefs.panelColumns = if (checkedId == R.id.rbCol2) 2 else 1
+            updatePreview()
+            restartServiceIfRunning()
+        }
+
+        binding.rgThemes.setOnCheckedChangeListener { _, checkedId ->
+            panelPrefs.uiTheme = when (checkedId) {
+                R.id.rbThemeHyper -> PanelPreferences.THEME_HYPEROS
+                R.id.rbThemeRealme -> PanelPreferences.THEME_REALME
+                else -> PanelPreferences.THEME_ORIGIN
+            }
+            updatePreview()
             restartServiceIfRunning()
         }
     }

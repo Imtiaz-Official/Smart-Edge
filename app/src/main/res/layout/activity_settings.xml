@@ -11,6 +11,34 @@
         android:orientation="vertical"
         android:padding="24dp">
 
+        <!-- REAL-TIME PREVIEW SECTION -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Live Preview"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:textAllCaps="true"
+            android:letterSpacing="0.1"
+            android:layout_marginBottom="12dp" />
+
+        <FrameLayout
+            android:id="@+id/previewContainer"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:background="#0DFFFFFF"
+            android:layout_marginBottom="32dp"
+            android:clipChildren="false">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Preview Area"
+                android:layout_gravity="center"
+                android:textColor="#33FFFFFF"
+                android:textSize="12sp" />
+        </FrameLayout>
+
         <!-- Panel Side -->
         <TextView
             android:layout_width="wrap_content"
@@ -292,7 +320,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Get vertical positioning, multi-column layout, and more."
+                    android:text="Get vertical positioning, themes, and more."
                     android:textColor="#B3FFFFFF"
                     android:textSize="12sp" />
 
@@ -362,6 +390,48 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="2 Columns"
+                android:textColor="@color/text_secondary"
+                android:enabled="false" />
+        </RadioGroup>
+
+        <!-- UI Theme (Premium) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="UI Style Theme (Premium)"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp" />
+
+        <RadioGroup
+            android:id="@+id/rgThemes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp"
+            android:enabled="false">
+
+            <RadioButton
+                android:id="@+id/rbThemeOrigin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="OriginOS (Frosted Pill)"
+                android:textColor="@color/text_secondary"
+                android:enabled="false" />
+
+            <RadioButton
+                android:id="@+id/rbThemeHyper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="HyperOS (Square Glass)"
+                android:textColor="@color/text_secondary"
+                android:enabled="false" />
+
+            <RadioButton
+                android:id="@+id/rbThemeRealme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Realme UI (Minimal Border)"
                 android:textColor="@color/text_secondary"
                 android:enabled="false" />
         </RadioGroup>

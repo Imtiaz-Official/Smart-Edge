@@ -26,11 +26,16 @@ class PanelPreferences(context: Context) {
         private const val KEY_HANDLE_OFFSET = "handle_offset"
         private const val KEY_ACCENT_COLOR = "accent_color"
         private const val KEY_PANEL_COLUMNS = "panel_columns"
+        private const val KEY_UI_THEME = "ui_theme"
         private const val KEY_IS_PREMIUM = "is_premium"
         private const val DELIMITER = ","
 
         const val SIDE_RIGHT = "right"
         const val SIDE_LEFT = "left"
+        
+        const val THEME_ORIGIN = "origin"
+        const val THEME_HYPEROS = "hyperos"
+        const val THEME_REALME = "realme"
     }
 
     /** Whether to show a visible pill handle at the edge. */
@@ -72,6 +77,11 @@ class PanelPreferences(context: Context) {
     var panelColumns: Int
         get() = prefs.getInt(KEY_PANEL_COLUMNS, 1)
         set(value) = prefs.edit { putInt(KEY_PANEL_COLUMNS, value) }
+
+    /** UI Theme style: "origin", "hyperos", "realme". */
+    var uiTheme: String
+        get() = prefs.getString(KEY_UI_THEME, THEME_ORIGIN) ?: THEME_ORIGIN
+        set(value) = prefs.edit { putString(KEY_UI_THEME, value) }
 
     /** Simulated premium status. */
     var isPremium: Boolean
