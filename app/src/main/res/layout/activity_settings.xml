@@ -228,12 +228,12 @@
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Accent Color" android:textColor="#FFFFFF" />
-                    <Button android:id="@+id/btnPickAccent" android:layout_width="32dp" android:layout_height="32dp" android:backgroundTint="@color/accent_blue" app:icon="@android:drawable/ic_menu_edit" app:iconSize="14dp" app:iconPadding="0dp" android:padding="0dp" />
+                    <Button android:id="@+id/btnPickAccent" android:layout_width="32dp" android:layout_height="32dp" android:backgroundTint="@color/accent_blue" app:icon="@drawable/ic_color_picker_custom" app:iconTint="@null" app:iconSize="18dp" app:iconPadding="0dp" android:padding="0dp" />
                 </LinearLayout>
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center_vertical">
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Panel Background" android:textColor="#FFFFFF" />
-                    <Button android:id="@+id/btnPickBg" android:layout_width="32dp" android:layout_height="32dp" android:backgroundTint="#E61A1C1E" app:icon="@android:drawable/ic_menu_edit" app:iconSize="14dp" app:iconPadding="0dp" android:padding="0dp" />
+                    <Button android:id="@+id/btnPickBg" android:layout_width="32dp" android:layout_height="32dp" android:backgroundTint="#E61A1C1E" app:icon="@drawable/ic_color_picker_custom" app:iconTint="@null" app:iconSize="18dp" app:iconPadding="0dp" android:padding="0dp" />
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#33FFFFFF" android:layout_marginVertical="16dp" />
