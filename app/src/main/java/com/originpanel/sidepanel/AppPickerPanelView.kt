@@ -13,6 +13,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,9 +46,15 @@ class AppPickerPanelView @JvmOverloads constructor(
         pickerPanelCard = view.findViewById(R.id.pickerPanelCard)
         rvPickerGrid = view.findViewById(R.id.rvPickerGrid)
         etSearch = view.findViewById(R.id.etPickerSearch)
-        btnSettings = view.findViewById(R.id.btnPickerClose) // It's still named btnPickerClose in XML
+        btnSettings = view.findViewById(R.id.btnPickerClose) 
 
-        rvPickerGrid.layoutManager = GridLayoutManager(context, 2)
+        // Use 1 column list for Rich UI, 2 columns grid for others
+        if (panelPrefs.uiTheme == PanelPreferences.THEME_RICH) {
+            rvPickerGrid.layoutManager = LinearLayoutManager(context)
+        } else {
+            rvPickerGrid.layoutManager = GridLayoutManager(context, 2)
+        }
+        
         rvPickerGrid.adapter = adapter
 
         btnSettings.setOnClickListener {
@@ -55,7 +62,7 @@ class AppPickerPanelView @JvmOverloads constructor(
                 addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(intent)
-            onClose?.invoke() // Close picker after opening settings
+            onClose?.invoke() 
         }
 
         etSearch.addTextChangedListener(object : TextWatcher {
@@ -98,7 +105,10 @@ class AppPickerPanelView @JvmOverloads constructor(
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PickerViewHolder {
-            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_picker_app_modern, parent, false)
+            val layoutId = if (panelPrefs.uiTheme == PanelPreferences.THEME_RICH) 
+                R.layout.item_picker_app_rich else R.layout.item_picker_app_modern
+            
+            val view = LayoutInflater.from(parent.context).inflate(layoutId, parent, false)
             return PickerViewHolder(view)
         }
 
@@ -107,6 +117,9 @@ class AppPickerPanelView @JvmOverloads constructor(
             holder.ivIcon.setImageDrawable(app.icon)
             holder.tvName.text = app.appName
             
+            // Set package name if using rich layout
+            holder.tvPackage?.text = app.packageName
+
             val isSelected = app.isInPanel
             holder.ivCheck.visibility = if (isSelected) View.VISIBLE else View.GONE
             holder.vHighlight.visibility = if (isSelected) View.VISIBLE else View.GONE
@@ -131,5 +144,6 @@ class AppPickerPanelView @JvmOverloads constructor(
         val tvName: TextView = view.findViewById(R.id.tvPickerAppName)
         val ivCheck: View = view.findViewById(R.id.ivPickerCheck)
         val vHighlight: View = view.findViewById(R.id.vPickerBgHighlight)
+        val tvPackage: TextView? = view.findViewById(R.id.tvPickerPackageName) // Optional in modern layout
     }
 }

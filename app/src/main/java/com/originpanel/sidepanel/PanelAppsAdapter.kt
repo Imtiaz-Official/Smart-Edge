@@ -42,8 +42,11 @@ class PanelAppsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_APP) {
+            val layoutId = if (panelPrefs.uiTheme == PanelPreferences.THEME_RICH)
+                R.layout.item_panel_app_rich else R.layout.item_panel_app
+            
             val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_panel_app, parent, false)
+                .inflate(layoutId, parent, false)
             AppViewHolder(view)
         } else {
             val view = LayoutInflater.from(parent.context)

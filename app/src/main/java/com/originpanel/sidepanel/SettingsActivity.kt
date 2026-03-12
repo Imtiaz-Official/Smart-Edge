@@ -64,8 +64,6 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun updatePreview() {
-        // Re-inflate or update properties of the preview panel
-        // Since many properties are in 'init', simplest way is to re-add it
         setupPreview()
     }
 
@@ -114,6 +112,7 @@ class SettingsActivity : AppCompatActivity() {
         when (panelPrefs.uiTheme) {
             PanelPreferences.THEME_HYPEROS -> binding.rgThemes.check(R.id.rbThemeHyper)
             PanelPreferences.THEME_REALME -> binding.rgThemes.check(R.id.rbThemeRealme)
+            PanelPreferences.THEME_RICH -> binding.rgThemes.check(R.id.rbThemeRich)
             else -> binding.rgThemes.check(R.id.rbThemeOrigin)
         }
 
@@ -130,6 +129,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.rbThemeOrigin.isEnabled = isPremium
         binding.rbThemeHyper.isEnabled = isPremium
         binding.rbThemeRealme.isEnabled = isPremium
+        binding.rbThemeRich.isEnabled = isPremium
 
         if (isPremium) {
             binding.tvPremiumStatus.text = "Premium Active"
@@ -209,6 +209,7 @@ class SettingsActivity : AppCompatActivity() {
             panelPrefs.uiTheme = when (checkedId) {
                 R.id.rbThemeHyper -> PanelPreferences.THEME_HYPEROS
                 R.id.rbThemeRealme -> PanelPreferences.THEME_REALME
+                R.id.rbThemeRich -> PanelPreferences.THEME_RICH
                 else -> PanelPreferences.THEME_ORIGIN
             }
             updatePreview()

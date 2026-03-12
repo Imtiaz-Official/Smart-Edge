@@ -27,6 +27,19 @@
             android:paddingTop="12dp"
             android:paddingBottom="12dp">
 
+            <!-- Rich Vertical Handle (Premium feel) -->
+            <View
+                android:id="@+id/panelHandle"
+                android:layout_width="4dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="4dp"
+                android:background="@drawable/bg_close_btn"
+                android:backgroundTint="#40FFFFFF"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
             <!-- Scrollable app list dynamically sized up to 320dp -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvPanelApps"

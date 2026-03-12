@@ -109,6 +109,8 @@ class SidePanelView @JvmOverloads constructor(
 
     private fun applyTheme() {
         val theme = panelPrefs.uiTheme
+        binding.panelHandle.visibility = if (theme == PanelPreferences.THEME_RICH) View.VISIBLE else View.GONE
+        
         when (theme) {
             PanelPreferences.THEME_HYPEROS -> {
                 binding.panelCard.setBackgroundResource(R.drawable.bg_panel_hyperos)
@@ -116,6 +118,9 @@ class SidePanelView @JvmOverloads constructor(
             }
             PanelPreferences.THEME_REALME -> {
                 binding.panelCard.setBackgroundResource(R.drawable.bg_panel_realme)
+            }
+            PanelPreferences.THEME_RICH -> {
+                binding.panelCard.setBackgroundResource(R.drawable.bg_panel_rich)
             }
             else -> { // Origin (Default)
                 binding.panelCard.setBackgroundResource(R.drawable.bg_panel)

@@ -36,6 +36,7 @@ class PanelPreferences(context: Context) {
         const val THEME_ORIGIN = "origin"
         const val THEME_HYPEROS = "hyperos"
         const val THEME_REALME = "realme"
+        const val THEME_RICH = "rich"
     }
 
     /** Whether to show a visible pill handle at the edge. */
@@ -78,7 +79,7 @@ class PanelPreferences(context: Context) {
         get() = prefs.getInt(KEY_PANEL_COLUMNS, 1)
         set(value) = prefs.edit { putInt(KEY_PANEL_COLUMNS, value) }
 
-    /** UI Theme style: "origin", "hyperos", "realme". */
+    /** UI Theme style: "origin", "hyperos", "realme", "rich". */
     var uiTheme: String
         get() = prefs.getString(KEY_UI_THEME, THEME_ORIGIN) ?: THEME_ORIGIN
         set(value) = prefs.edit { putString(KEY_UI_THEME, value) }

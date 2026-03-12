@@ -320,7 +320,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Get vertical positioning, themes, and more."
+                    android:text="Unlock Vertical Position, Rich UI Theme, Multi-Column, and more."
                     android:textColor="#B3FFFFFF"
                     android:textSize="12sp" />
 
@@ -432,6 +432,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Realme UI (Minimal Border)"
+                android:textColor="@color/text_secondary"
+                android:enabled="false" />
+
+            <RadioButton
+                android:id="@+id/rbThemeRich"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rich UI (Premium Glow)"
                 android:textColor="@color/text_secondary"
                 android:enabled="false" />
         </RadioGroup>
