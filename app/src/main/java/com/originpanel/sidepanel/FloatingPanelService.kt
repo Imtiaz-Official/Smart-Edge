@@ -76,7 +76,12 @@ class FloatingPanelService : Service() {
             }
             ACTION_SCREENSHOT -> {
                 val resultCode = intent.getIntExtra("RESULT_CODE", -1)
-                val data = intent.getParcelableExtra<Intent>("DATA")
+                val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    intent.getParcelableExtra("DATA", Intent::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent.getParcelableExtra("DATA")
+                }
                 if (resultCode != -1 && data != null) {
                     performScreenshot(resultCode, data)
                 }
@@ -86,7 +91,7 @@ class FloatingPanelService : Service() {
     }
 
     private fun performScreenshot(resultCode: Int, data: Intent) {
-        // Show flash animation to indicate capture start
+        // Show flash animation immediately
         showCaptureFlash()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -133,9 +138,10 @@ class FloatingPanelService : Service() {
                 projection.stop()
                 
                 Handler(Looper.getMainLooper()).post {
-                    Toast.makeText(applicationContext, "Screenshot saved to DCIM/SidePanel", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@FloatingPanelService, "Screenshot saved to DCIM/SidePanel", Toast.LENGTH_LONG).show()
                 }
                 
+                // Downgrade service type
                 startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
             }
         }, 500)
@@ -145,7 +151,7 @@ class FloatingPanelService : Service() {
         Handler(Looper.getMainLooper()).post {
             val flashView = View(this).apply {
                 setBackgroundColor(android.graphics.Color.WHITE)
-                alpha = 0.6f
+                alpha = 0.8f
             }
             val params = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -160,7 +166,7 @@ class FloatingPanelService : Service() {
 
             flashView.animate()
                 .alpha(0f)
-                .setDuration(300)
+                .setDuration(400)
                 .withEndAction {
                     if (flashView.isAttachedToWindow) windowManager.removeView(flashView)
                 }
@@ -206,7 +212,8 @@ class FloatingPanelService : Service() {
             alpha = panelPrefs.panelOpacity / 100f
         }
 
-        val handleWidth = 40
+        // BACK TO BEST PILL SIZE: 24dp
+        val handleWidth = 24
         val handleHeight = if (isPillVisible) dpToPx(panelPrefs.handleHeight) 
                            else (resources.displayMetrics.heightPixels * 0.60f).toInt()
 

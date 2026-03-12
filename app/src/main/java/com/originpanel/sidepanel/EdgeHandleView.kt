@@ -34,7 +34,7 @@ class EdgeHandleView @JvmOverloads constructor(
 
     private val panelPrefs = PanelPreferences(context)
 
-    // How long the user must hold the swipe before the panel opens (ms)
+    // Best-performing hold duration
     private val holdDurationMs = 300L
 
     private var startX = 0f
@@ -42,13 +42,11 @@ class EdgeHandleView @JvmOverloads constructor(
     private var hasPassedThreshold = false
     private var isTriggered = false
 
-    private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
-    // Threshold: user must drag at least 60dp inward to "arm" the hold timer
-    private val triggerThreshold = 60 * resources.displayMetrics.density
+    // Best-performing threshold: user must drag at least 24dp inward
+    private val triggerThreshold = 24 * resources.displayMetrics.density
 
     private val handler = Handler(Looper.getMainLooper())
     private val holdRunnable = Runnable {
-        // Timer fired — user held long enough. Open the panel!
         isTriggered = true
         vibrateHaptic()
         onTrigger?.invoke()
@@ -58,7 +56,6 @@ class EdgeHandleView @JvmOverloads constructor(
     }
 
     init {
-        // Hardware layer for smooth touch response
         setLayerType(LAYER_TYPE_HARDWARE, null)
         updatePill()
     }
@@ -70,7 +67,6 @@ class EdgeHandleView @JvmOverloads constructor(
                 else R.drawable.bg_pill_handle_left
             )
             
-            // Apply accent color if premium
             if (panelPrefs.isPremium) {
                 try {
                     val color = Color.parseColor(panelPrefs.accentColor)
@@ -88,7 +84,7 @@ class EdgeHandleView @JvmOverloads constructor(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (onTrigger == null) return false // No interactions in preview mode
+        if (onTrigger == null) return false 
 
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
@@ -107,19 +103,15 @@ class EdgeHandleView @JvmOverloads constructor(
 
                 val dx = if (isRightSide) (startX - event.rawX) else (event.rawX - startX)
 
-                // Arm the hold timer once the user has swiped past the threshold
                 if (!hasPassedThreshold && dx > triggerThreshold) {
                     hasPassedThreshold = true
-                    // Start the hold countdown
                     handler.postDelayed(holdRunnable, holdDurationMs)
 
-                    // Visual feedback: subtle pulse while holding
                     if (showPill) {
                         animate().scaleX(0.75f).scaleY(0.9f).setDuration(holdDurationMs).start()
                     }
                 }
 
-                // If user swipes back (cancels intent), disarm
                 if (hasPassedThreshold && dx < triggerThreshold / 2) {
                     hasPassedThreshold = false
                     handler.removeCallbacks(holdRunnable)
@@ -132,13 +124,10 @@ class EdgeHandleView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                // Always cancel the hold timer on finger lift
                 handler.removeCallbacks(holdRunnable)
-
                 if (showPill) {
                     animate().scaleX(1f).scaleY(1f).setDuration(150).start()
                 }
-
                 hasPassedThreshold = false
                 return !isTriggered 
             }
