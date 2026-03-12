@@ -1,10 +1,11 @@
 package com.originpanel.sidepanel
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
-import android.widget.RadioButton
-import android.widget.RadioGroup
-import android.widget.Switch
+import android.view.View
+import android.widget.SeekBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.originpanel.sidepanel.databinding.ActivitySettingsBinding
 
@@ -62,14 +63,38 @@ class SettingsActivity : AppCompatActivity() {
 
         // Handle Width
         binding.sbHandleWidth.progress = panelPrefs.handleWidth
+
+        // Premium Vertical Offset (0-200 map to -100 to 100)
+        binding.sbHandleOffset.progress = panelPrefs.handleVerticalOffset + 100
+
+        // Premium Columns
+        if (panelPrefs.panelColumns == 2) {
+            binding.rgColumns.check(R.id.rbCol2)
+        } else {
+            binding.rgColumns.check(R.id.rbCol1)
+        }
+
+        updatePremiumUI()
+    }
+
+    private fun updatePremiumUI() {
+        val isPremium = panelPrefs.isPremium
+        binding.sbHandleOffset.isEnabled = isPremium
+        binding.rgColumns.isEnabled = isPremium
+        binding.rbCol1.isEnabled = isPremium
+        binding.rbCol2.isEnabled = isPremium
+
+        if (isPremium) {
+            binding.tvPremiumStatus.text = "Premium Active"
+            binding.btnGoPremium.visibility = View.GONE
+            binding.cardPremium.setCardBackgroundColor(Color.parseColor("#1A00C853")) // Green tint
+        }
     }
 
     private fun setupListeners() {
         binding.rgPanelSide.setOnCheckedChangeListener { _, checkedId ->
             panelPrefs.panelSide = if (checkedId == R.id.rbLeft)
                 PanelPreferences.SIDE_LEFT else PanelPreferences.SIDE_RIGHT
-
-            // Restart service so edge strip repositions immediately
             restartServiceIfRunning()
         }
 
@@ -86,44 +111,55 @@ class SettingsActivity : AppCompatActivity() {
             panelPrefs.hapticEnabled = isChecked
         }
 
-        binding.sbOpacity.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
+        binding.sbOpacity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) panelPrefs.panelOpacity = progress
             }
-            override fun onStartTrackingTouch(seekBar: android.widget.SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: android.widget.SeekBar?) {
-                restartServiceIfRunning()
-            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
         })
 
-        binding.sbHandleHeight.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
+        binding.sbHandleHeight.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) panelPrefs.handleHeight = progress
             }
-            override fun onStartTrackingTouch(seekBar: android.widget.SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: android.widget.SeekBar?) {
-                restartServiceIfRunning()
-            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
         })
 
-        binding.sbHandleWidth.setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: android.widget.SeekBar?, progress: Int, fromUser: Boolean) {
+        binding.sbHandleWidth.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) panelPrefs.handleWidth = progress
             }
-            override fun onStartTrackingTouch(seekBar: android.widget.SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: android.widget.SeekBar?) {
-                restartServiceIfRunning()
-            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
         })
+
+        binding.btnGoPremium.setOnClickListener {
+            panelPrefs.isPremium = true
+            updatePremiumUI()
+            Toast.makeText(this, "Welcome to Premium!", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.sbHandleOffset.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) panelPrefs.handleVerticalOffset = progress - 100
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
+        })
+
+        binding.rgColumns.setOnCheckedChangeListener { _, checkedId ->
+            panelPrefs.panelColumns = if (checkedId == R.id.rbCol2) 2 else 1
+            restartServiceIfRunning()
+        }
     }
 
     private fun restartServiceIfRunning() {
-        // Stop then restart
         val stop = Intent(this, FloatingPanelService::class.java).apply {
             action = FloatingPanelService.ACTION_STOP
         }
         startService(stop)
-        // Small delay then restart so the new side takes effect
         binding.root.postDelayed({
             val start = Intent(this, FloatingPanelService::class.java)
             startForegroundService(start)

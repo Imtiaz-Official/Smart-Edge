@@ -1,11 +1,15 @@
 package com.originpanel.sidepanel
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.os.Build
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.originpanel.sidepanel.databinding.SidePanelLayoutBinding
 
@@ -58,7 +62,16 @@ class SidePanelView @JvmOverloads constructor(
         )
 
         binding.rvPanelApps.apply {
-            layoutManager = LinearLayoutManager(context)
+            val cols = if (panelPrefs.isPremium) panelPrefs.panelColumns else 1
+            layoutManager = GridLayoutManager(context, cols)
+            
+            // Adjust panel width if 2 columns
+            if (cols == 2) {
+                binding.panelCard.layoutParams.width = (136 * context.resources.displayMetrics.density).toInt()
+            } else {
+                binding.panelCard.layoutParams.width = (72 * context.resources.displayMetrics.density).toInt()
+            }
+
             this.adapter = this@SidePanelView.adapter
             itemAnimator = null  // Disable default animation (spring handles it)
             setHasFixedSize(true) // Avoids re-measuring parent during spring animations
@@ -80,6 +93,15 @@ class SidePanelView @JvmOverloads constructor(
             }
             SpringAnimator.scalePulse(it)
             Toast.makeText(context, "AI Assistant coming soon!", Toast.LENGTH_SHORT).show()
+        }
+
+        // Apply accent color (Premium)
+        try {
+            val accentColor = Color.parseColor(panelPrefs.accentColor)
+            binding.btnAI.backgroundTintList = ColorStateList.valueOf(accentColor)
+        } catch (e: Exception) {
+            // Fallback to default blue if color string is invalid
+            binding.btnAI.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#4A9EFF"))
         }
     }
 
@@ -104,14 +126,20 @@ class SidePanelView @JvmOverloads constructor(
      */
     fun animatePickerToggle(isOpen: Boolean) {
         val density = context.resources.displayMetrics.density
-        // Center of 72dp pill is 36dp. Button (24dp) left is at 24dp.
-        // To be 8dp from right edge (at 64dp), left is 40dp.
-        // Target translation = 40 - 24 = 16dp.
-        val targetX = if (isOpen) (16f * density) else 0f
+        // Center of current width.
+        val currentWidth = binding.panelCard.width / density
+        val buttonWidth = 24f
+        
+        // Start at middle: (currentWidth / 2) - (buttonWidth / 2)
+        // We want to move it to (currentWidth - 8dp - buttonWidth)
+        val middleX = (currentWidth / 2f) - (buttonWidth / 2f)
+        val rightX = currentWidth - 8f - buttonWidth
+        val translation = if (isOpen) (rightX - middleX) else 0f
+        
         val targetRotation = if (isOpen) 0f else 180f
 
         binding.btnClose.animate()
-            .translationX(targetX)
+            .translationX(translation * density)
             .rotation(targetRotation)
             .setDuration(400)
             .setInterpolator(android.view.animation.AnticipateOvershootInterpolator(1.0f))

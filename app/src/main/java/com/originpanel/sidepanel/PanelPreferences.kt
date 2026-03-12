@@ -23,6 +23,10 @@ class PanelPreferences(context: Context) {
         private const val KEY_PANEL_OPACITY = "panel_opacity"
         private const val KEY_HANDLE_HEIGHT = "handle_height"
         private const val KEY_HANDLE_WIDTH = "handle_width"
+        private const val KEY_HANDLE_OFFSET = "handle_offset"
+        private const val KEY_ACCENT_COLOR = "accent_color"
+        private const val KEY_PANEL_COLUMNS = "panel_columns"
+        private const val KEY_IS_PREMIUM = "is_premium"
         private const val DELIMITER = ","
 
         const val SIDE_RIGHT = "right"
@@ -53,6 +57,26 @@ class PanelPreferences(context: Context) {
     var handleWidth: Int
         get() = prefs.getInt(KEY_HANDLE_WIDTH, 24)
         set(value) = prefs.edit { putInt(KEY_HANDLE_WIDTH, value) }
+
+    /** Edge handle vertical offset (-100 to 100). */
+    var handleVerticalOffset: Int
+        get() = prefs.getInt(KEY_HANDLE_OFFSET, 0)
+        set(value) = prefs.edit { putInt(KEY_HANDLE_OFFSET, value) }
+
+    /** Custom accent color (Hex string). Default is BlueLM. */
+    var accentColor: String
+        get() = prefs.getString(KEY_ACCENT_COLOR, "#4A9EFF") ?: "#4A9EFF"
+        set(value) = prefs.edit { putString(KEY_ACCENT_COLOR, value) }
+
+    /** Number of columns in side panel (1 or 2). */
+    var panelColumns: Int
+        get() = prefs.getInt(KEY_PANEL_COLUMNS, 1)
+        set(value) = prefs.edit { putInt(KEY_PANEL_COLUMNS, value) }
+
+    /** Simulated premium status. */
+    var isPremium: Boolean
+        get() = prefs.getBoolean(KEY_IS_PREMIUM, false)
+        set(value) = prefs.edit { putBoolean(KEY_IS_PREMIUM, value) }
 
     /** Returns the ordered list of package names pinned to the panel. */
     fun getPanelApps(): List<String> {

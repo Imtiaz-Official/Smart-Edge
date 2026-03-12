@@ -111,6 +111,9 @@ class FloatingPanelService : Service() {
         ).apply {
             gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL
                       else Gravity.START or Gravity.CENTER_VERTICAL
+            
+            // Apply vertical offset (converted from DP)
+            y = dpToPx(panelPrefs.handleVerticalOffset)
         }
 
         windowManager.addView(edgeHandleView, params)

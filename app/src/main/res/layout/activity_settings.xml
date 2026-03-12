@@ -229,5 +229,141 @@
             android:progressTint="@color/accent_blue"
             android:thumbTint="@color/accent_blue" />
 
+        <!-- Premium Features Header -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="24dp"
+            android:background="#1AFFFFFF" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Premium Features"
+                android:textColor="@color/accent_blue"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:textAllCaps="true"
+                android:letterSpacing="0.1" />
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@android:drawable/btn_star_big_on"
+                android:tint="@color/accent_blue" />
+        </LinearLayout>
+
+        <!-- Premium Status Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardPremium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="#1A4A9EFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            android:layout_marginBottom="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tvPremiumStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Unlock Full Customization"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Get vertical positioning, multi-column layout, and more."
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/btnGoPremium"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="16dp"
+                    android:backgroundTint="@color/accent_blue"
+                    android:text="Go Premium"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    app:cornerRadius="12dp" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Vertical Position (Premium) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Handle Vertical Position (Premium)"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp" />
+
+        <SeekBar
+            android:id="@+id/sbHandleOffset"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:min="0"
+            android:max="200"
+            android:progress="100"
+            android:progressTint="@color/accent_blue"
+            android:thumbTint="@color/accent_blue"
+            android:enabled="false" />
+
+        <!-- Panel Columns (Premium) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Panel Columns (Premium)"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp" />
+
+        <RadioGroup
+            android:id="@+id/rgColumns"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:enabled="false">
+
+            <RadioButton
+                android:id="@+id/rbCol1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="1 Column"
+                android:textColor="@color/text_secondary"
+                android:enabled="false" />
+
+            <RadioButton
+                android:id="@+id/rbCol2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="2 Columns"
+                android:textColor="@color/text_secondary"
+                android:enabled="false" />
+        </RadioGroup>
+
     </LinearLayout>
 </ScrollView>
