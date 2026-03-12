@@ -13,7 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 class PanelAppsAdapter(
     private val context: Context,
     private val onRemove: (AppInfo) -> Unit,
-    private val onAddClick: () -> Unit
+    private val onAddClick: () -> Unit,
+    private val onAppLaunched: () -> Unit
 ) : ListAdapter<AppInfo, RecyclerView.ViewHolder>(AppDiffCallback()) {
 
     private val panelPrefs = PanelPreferences(context)
@@ -66,6 +67,10 @@ class PanelAppsAdapter(
                     holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
                 }
                 SpringAnimator.scalePulse(holder.itemView)
+                
+                // Close panel before starting activity for a "flexible" feel
+                onAppLaunched()
+
                 val launchIntent = context.packageManager
                     .getLaunchIntentForPackage(app.packageName)
                 if (launchIntent != null) {

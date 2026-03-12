@@ -68,7 +68,8 @@ class SidePanelView @JvmOverloads constructor(
                 Toast.makeText(context, "${removedApp.appName} removed from panel",
                     Toast.LENGTH_SHORT).show()
             },
-            onAddClick = { onAddClick?.invoke() }
+            onAddClick = { onAddClick?.invoke() },
+            onAppLaunched = { onClose?.invoke() }
         )
 
         binding.rvPanelApps.apply {
