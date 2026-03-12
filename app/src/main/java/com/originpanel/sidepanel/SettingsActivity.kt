@@ -138,6 +138,17 @@ class SettingsActivity : AppCompatActivity() {
         val pack = panelPrefs.selectedIconPack
         binding.tvCurrentIconPack.text = if (pack == "none") "System Default" else pack
 
+        // Sync Color Picker Previews (Make them accurate)
+        try {
+            val accentColor = Color.parseColor(panelPrefs.accentColor)
+            binding.btnPickAccent.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColor)
+            
+            val bgColor = Color.parseColor(panelPrefs.panelBackgroundColor)
+            binding.btnPickBg.backgroundTintList = android.content.res.ColorStateList.valueOf(bgColor)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         updatePremiumUI()
     }
 
