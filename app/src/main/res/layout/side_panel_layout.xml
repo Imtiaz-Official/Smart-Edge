@@ -8,7 +8,7 @@
 
     <!-- Container for both the panel and the AI button to keep them together -->
     <LinearLayout
-        android:layout_width="72dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
