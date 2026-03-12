@@ -242,12 +242,14 @@ class FloatingPanelService : Service() {
             alpha = panelPrefs.panelOpacity / 100f
         }
 
-        val handleWidth = panelPrefs.handleWidth
+        // WIDER TOUCH TARGET TO OVERRIDE SYSTEM BACK
+        val handleWidth = 40
         val handleHeight = if (isPillVisible) dpToPx(panelPrefs.handleHeight) 
                            else (resources.displayMetrics.heightPixels * 0.60f).toInt()
 
         val params = WindowManager.LayoutParams(
             dpToPx(handleWidth),
+
             handleHeight,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
