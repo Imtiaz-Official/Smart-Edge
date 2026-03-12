@@ -198,7 +198,7 @@
                 <SeekBar android:id="@+id/sbHandleHeight" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="300" android:progress="80" android:progressTint="@color/accent_blue" />
 
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Trigger Area Width" android:textColor="@color/text_secondary" android:textSize="12sp" />
-                <SeekBar android:id="@+id/sbHandleWidth" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="100" android:progress="24" android:progressTint="@color/accent_blue" />
+                <SeekBar android:id="@+id/sbHandleWidth" android:layout_width="match_parent" android:layout_height="wrap_content" android:min="24" android:max="100" android:progress="24" android:progressTint="@color/accent_blue" />
 
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Vertical Position (Premium)" android:textColor="@color/text_secondary" android:textSize="12sp" />
                 <SeekBar android:id="@+id/sbHandleOffset" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="200" android:progress="100" android:progressTint="@color/accent_blue" />
