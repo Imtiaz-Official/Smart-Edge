@@ -111,6 +111,7 @@ class AppPickerPanelView @JvmOverloads constructor(
             holder.vHighlight.visibility = if (isSelected) View.VISIBLE else View.GONE
 
             holder.itemView.setOnClickListener {
+                holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
                 SpringAnimator.scalePulse(holder.itemView)
                 val newState = !app.isInPanel
                 app.isInPanel = newState

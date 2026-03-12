@@ -61,12 +61,14 @@ class SidePanelView @JvmOverloads constructor(
 
         // Toggle Picker (Repurposed from Close button)
         binding.btnClose.setOnClickListener {
+            it.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
             SpringAnimator.scalePulse(it)
             onAddClick?.invoke()
         }
 
         // AI button (placeholder — add your AI integration here)
         binding.btnAI.setOnClickListener {
+            it.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
             SpringAnimator.scalePulse(it)
             Toast.makeText(context, "AI Assistant coming soon!", Toast.LENGTH_SHORT).show()
         }

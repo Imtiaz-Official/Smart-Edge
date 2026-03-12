@@ -57,6 +57,7 @@ class PanelAppsAdapter(
             holder.tvName.text = app.appName
 
             holder.itemView.setOnClickListener {
+                holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
                 SpringAnimator.scalePulse(holder.itemView)
                 val launchIntent = context.packageManager
                     .getLaunchIntentForPackage(app.packageName)
@@ -70,12 +71,14 @@ class PanelAppsAdapter(
             }
 
             holder.itemView.setOnLongClickListener {
+                holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
                 SpringAnimator.scalePulse(holder.itemView)
                 onRemove(app)
                 true
             }
         } else if (holder is AddViewHolder) {
             holder.itemView.setOnClickListener {
+                holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
                 SpringAnimator.scalePulse(holder.itemView)
                 onAddClick()
             }
