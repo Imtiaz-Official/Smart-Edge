@@ -25,18 +25,28 @@
         <FrameLayout
             android:id="@+id/previewContainer"
             android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:background="#0DFFFFFF"
+            android:layout_height="220dp"
+            android:background="@drawable/preview_wallpaper"
             android:layout_marginBottom="32dp"
-            android:clipChildren="false">
+            android:clipChildren="false"
+            android:elevation="4dp">
             
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:alpha="0.3"
+                android:src="@drawable/preview_wallpaper" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Preview Area"
-                android:layout_gravity="center"
-                android:textColor="#33FFFFFF"
-                android:textSize="12sp" />
+                android:text="Wallpaper Simulation"
+                android:layout_gravity="top|center_horizontal"
+                android:layout_marginTop="8dp"
+                android:textColor="#80FFFFFF"
+                android:textSize="10sp"
+                android:textAllCaps="true" />
         </FrameLayout>
 
         <!-- Panel Side -->

@@ -3,6 +3,7 @@ package com.originpanel.sidepanel
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.SeekBar
@@ -45,21 +46,39 @@ class SettingsActivity : AppCompatActivity() {
             onAppsChanged = null
             onAddClick = null
             
-            // Set some dummy apps for visual
+            // Set dummy colored apps for a rich visual
             setApps(listOf(
-                AppInfo("pkg1", "App 1", getDrawable(android.R.drawable.ic_menu_camera), true),
-                AppInfo("pkg2", "App 2", getDrawable(android.R.drawable.ic_menu_gallery), true)
+                AppInfo("pkg1", "Browser", getDrawable(android.R.drawable.ic_menu_compass), true),
+                AppInfo("pkg2", "Camera", getDrawable(android.R.drawable.ic_menu_camera), true),
+                AppInfo("pkg3", "Gallery", getDrawable(android.R.drawable.ic_menu_gallery), true),
+                AppInfo("pkg4", "Maps", getDrawable(android.R.drawable.ic_dialog_map), true),
+                AppInfo("pkg5", "Settings", getDrawable(android.R.drawable.ic_menu_preferences), true)
             ))
         }
 
+        // Determine gravity based on current side
+        val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
         val params = FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.WRAP_CONTENT,
             FrameLayout.LayoutParams.WRAP_CONTENT
         ).apply {
-            gravity = android.view.Gravity.CENTER
+            gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL else Gravity.START or Gravity.CENTER_VERTICAL
+            // Add some margin so it's not touching the edge of the preview container
+            setMargins(if (isRight) 0 else 16, 0, if (isRight) 16 else 0, 0)
         }
         
         binding.previewContainer.removeAllViews()
+        // Re-add background text
+        val tv = android.widget.TextView(this).apply {
+            text = "Wallpaper Simulation"
+            setTextColor(Color.parseColor("#80FFFFFF"))
+            textSize = 10f
+            gravity = Gravity.CENTER_HORIZONTAL
+            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = 8
+            }
+        }
+        binding.previewContainer.addView(tv)
         binding.previewContainer.addView(previewPanel, params)
     }
 
@@ -142,6 +161,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.rgPanelSide.setOnCheckedChangeListener { _, checkedId ->
             panelPrefs.panelSide = if (checkedId == R.id.rbLeft)
                 PanelPreferences.SIDE_LEFT else PanelPreferences.SIDE_RIGHT
+            updatePreview()
             restartServiceIfRunning()
         }
 
