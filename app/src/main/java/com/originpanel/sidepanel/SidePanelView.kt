@@ -170,27 +170,27 @@ class SidePanelView @JvmOverloads constructor(
      * @param isOpen Whether the picker is currently open.
      */
     fun animatePickerToggle(isOpen: Boolean) {
-        val density = context.resources.displayMetrics.density
-        // Use current layout params width if width is 0 (view not measured)
-        val viewWidth = if (binding.panelCard.width > 0) binding.panelCard.width.toFloat() 
-                        else binding.panelCard.layoutParams.width.toFloat()
-        
-        val viewWidthDp = viewWidth / density
-        val buttonWidthDp = 24f
-        
-        // Start at middle: (viewWidthDp / 2) - (buttonWidthDp / 2)
-        // We want to move it to (viewWidthDp - 8dp - buttonWidthDp)
-        val middleX = (viewWidthDp / 2f) - (buttonWidthDp / 2f)
-        val rightX = viewWidthDp - 8f - buttonWidthDp
-        val translation = if (isOpen) (rightX - middleX) else 0f
-        
-        val targetRotation = if (isOpen) 0f else 180f
+        binding.btnClose.post {
+            val density = context.resources.displayMetrics.density
+            val viewWidth = binding.panelCard.width.toFloat()
+            
+            val viewWidthDp = viewWidth / density
+            val buttonWidthDp = 24f
+            
+            // Start at middle: (viewWidthDp / 2) - (buttonWidthDp / 2)
+            // We want to move it to (viewWidthDp - 8dp - buttonWidthDp)
+            val middleX = (viewWidthDp / 2f) - (buttonWidthDp / 2f)
+            val rightX = viewWidthDp - 8f - buttonWidthDp
+            val translation = if (isOpen) (rightX - middleX) else 0f
+            
+            val targetRotation = if (isOpen) 0f else 180f
 
-        binding.btnClose.animate()
-            .translationX(translation * density)
-            .rotation(targetRotation)
-            .setDuration(400)
-            .setInterpolator(android.view.animation.AnticipateOvershootInterpolator(1.0f))
-            .start()
+            binding.btnClose.animate()
+                .translationX(translation * density)
+                .rotation(targetRotation)
+                .setDuration(400)
+                .setInterpolator(android.view.animation.AnticipateOvershootInterpolator(1.0f))
+                .start()
+        }
     }
 }
