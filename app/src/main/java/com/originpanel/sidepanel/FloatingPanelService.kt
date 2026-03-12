@@ -91,67 +91,69 @@ class FloatingPanelService : Service() {
     }
 
     private fun performScreenshot(resultCode: Int, data: Intent) {
-        // Show flash animation immediately
+        // 1. Show flash animation immediately
         showCaptureFlash()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(NOTIFICATION_ID, buildNotification(), 
-                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION or 
-                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
-        }
-
-        val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        val metrics = resources.displayMetrics
-        val width = metrics.widthPixels
-        val height = metrics.heightPixels
-        val density = metrics.densityDpi
-
-        val imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
-        val projection = projectionManager.getMediaProjection(resultCode, data)
-        
-        val virtualDisplay = projection.createVirtualDisplay(
-            "Screenshot", width, height, density,
-            DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY or DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
-            imageReader.surface, null, null
-        )
-
+        // 2. Small delay to ensure flash is visible before capture
         Handler(Looper.getMainLooper()).postDelayed({
-            val image = imageReader.acquireLatestImage()
-            if (image != null) {
-                val planes = image.planes
-                val buffer = planes[0].buffer
-                val pixelStride = planes[0].pixelStride
-                val rowStride = planes[0].rowStride
-                val rowPadding = rowStride - pixelStride * width
-
-                val bitmap = Bitmap.createBitmap(
-                    width + rowPadding / pixelStride,
-                    height, Bitmap.Config.ARGB_8888
-                )
-                bitmap.copyPixelsFromBuffer(buffer)
-                
-                val croppedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height)
-                saveBitmap(croppedBitmap)
-                
-                image.close()
-                virtualDisplay.release()
-                projection.stop()
-                
-                Handler(Looper.getMainLooper()).post {
-                    Toast.makeText(this@FloatingPanelService, "Screenshot saved to DCIM/SidePanel", Toast.LENGTH_LONG).show()
-                }
-                
-                // Downgrade service type
-                startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(NOTIFICATION_ID, buildNotification(), 
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION or 
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
             }
-        }, 500)
+
+            val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+            val metrics = resources.displayMetrics
+            val width = metrics.widthPixels
+            val height = metrics.heightPixels
+            val density = metrics.densityDpi
+
+            val imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
+            val projection = projectionManager.getMediaProjection(resultCode, data)
+            
+            val virtualDisplay = projection.createVirtualDisplay(
+                "Screenshot", width, height, density,
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY or DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
+                imageReader.surface, null, null
+            )
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                val image = imageReader.acquireLatestImage()
+                if (image != null) {
+                    val planes = image.planes
+                    val buffer = planes[0].buffer
+                    val pixelStride = planes[0].pixelStride
+                    val rowStride = planes[0].rowStride
+                    val rowPadding = rowStride - pixelStride * width
+
+                    val bitmap = Bitmap.createBitmap(
+                        width + rowPadding / pixelStride,
+                        height, Bitmap.Config.ARGB_8888
+                    )
+                    bitmap.copyPixelsFromBuffer(buffer)
+                    
+                    val croppedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height)
+                    saveBitmap(croppedBitmap)
+                    
+                    image.close()
+                    virtualDisplay.release()
+                    projection.stop()
+                    
+                    Handler(Looper.getMainLooper()).post {
+                        Toast.makeText(applicationContext, "Screenshot saved to DCIM/SidePanel", Toast.LENGTH_LONG).show()
+                    }
+                    
+                    startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+                }
+            }, 500)
+        }, 100)
     }
 
     private fun showCaptureFlash() {
         Handler(Looper.getMainLooper()).post {
-            val flashView = View(this).apply {
+            val flashView = View(applicationContext).apply {
                 setBackgroundColor(android.graphics.Color.WHITE)
-                alpha = 0.8f
+                alpha = 1.0f
             }
             val params = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
@@ -159,14 +161,15 @@ class FloatingPanelService : Service() {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                         WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                        WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
                 PixelFormat.TRANSLUCENT
             )
             windowManager.addView(flashView, params)
 
             flashView.animate()
                 .alpha(0f)
-                .setDuration(400)
+                .setDuration(500)
                 .withEndAction {
                     if (flashView.isAttachedToWindow) windowManager.removeView(flashView)
                 }
@@ -212,7 +215,6 @@ class FloatingPanelService : Service() {
             alpha = panelPrefs.panelOpacity / 100f
         }
 
-        // BACK TO BEST PILL SIZE: 24dp
         val handleWidth = 24
         val handleHeight = if (isPillVisible) dpToPx(panelPrefs.handleHeight) 
                            else (resources.displayMetrics.heightPixels * 0.60f).toInt()
