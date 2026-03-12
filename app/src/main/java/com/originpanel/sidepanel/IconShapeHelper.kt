@@ -10,24 +10,13 @@ import android.widget.ImageView
 
 /**
  * Utility to apply consistent shapes to icons (Circle, Squircle, Square, etc.)
- * Intelligent: Only masks if the icon is an AdaptiveIconDrawable or on Android 8+.
- * Legacy icons are left untouched to prevent double-clipping.
+ * UNIVERSAL: Force-masks all icons (including system/legacy) for a unified UI.
  */
 object IconShapeHelper {
 
     fun applyShape(view: ImageView, shape: String) {
-        val drawable = view.drawable
-        
-        // Android 8.0+ Adaptive Icons are designed to be masked.
-        // If it's NOT an adaptive icon, masking it manually often looks bad (double-border or clipping).
-        val isAdaptive = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && drawable is AdaptiveIconDrawable
-
-        if (!isAdaptive) {
-            // Return to system default (no manual mask)
-            view.outlineProvider = ViewOutlineProvider.BACKGROUND
-            view.clipToOutline = false
-            return
-        }
+        // Ensure the icon fills the mask area
+        view.scaleType = ImageView.ScaleType.CENTER_CROP
 
         view.outlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: Outline) {
@@ -40,12 +29,15 @@ object IconShapeHelper {
                         outline.setOval(0, 0, w, h)
                     }
                     PanelPreferences.SHAPE_SQUARE -> {
-                        outline.setRect(0, 0, w, h)
+                        // Polished Square: Not sharp, but with subtle 8dp rounded corners
+                        val radius = 8 * view.context.resources.displayMetrics.density
+                        outline.setRoundRect(0, 0, w, h, radius)
                     }
                     PanelPreferences.SHAPE_ROUNDED -> {
                         outline.setRoundRect(0, 0, w, h, minDim * 0.2f)
                     }
                     PanelPreferences.SHAPE_SQUIRCLE -> {
+                        // Advanced corner radius for that premium "Apple/OneUI" squircle feel
                         outline.setRoundRect(0, 0, w, h, minDim * 0.35f)
                     }
                     else -> {
