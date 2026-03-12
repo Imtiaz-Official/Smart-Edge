@@ -125,15 +125,24 @@ class SidePanelView @JvmOverloads constructor(
             PanelPreferences.THEME_HYPEROS -> {
                 binding.panelCard.setBackgroundResource(R.drawable.bg_panel_hyperos)
                 binding.btnAI.setBackgroundResource(R.drawable.bg_ai_button) 
+                // Set sharp corners for HyperOS AI
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    binding.panelCard.clipToOutline = true
+                }
             }
             PanelPreferences.THEME_REALME -> {
                 binding.panelCard.setBackgroundResource(R.drawable.bg_panel_realme)
+                // Realme uses more rounded AI button
+                binding.btnAI.setBackgroundResource(R.drawable.bg_close_btn)
+                binding.btnAI.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FF4A9EFF"))
             }
             PanelPreferences.THEME_RICH -> {
                 binding.panelCard.setBackgroundResource(R.drawable.bg_panel_rich)
+                binding.btnAI.setBackgroundResource(R.drawable.bg_ai_button)
             }
             else -> { // Origin (Default)
                 binding.panelCard.setBackgroundResource(R.drawable.bg_panel)
+                binding.btnAI.setBackgroundResource(R.drawable.bg_ai_button)
             }
         }
     }
