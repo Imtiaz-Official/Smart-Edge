@@ -57,7 +57,7 @@
             android:textColor="@color/text_secondary"
             android:textSize="12sp"
             android:textAllCaps="true"
-            android:letterSpacing="0.1" / >
+            android:letterSpacing="0.1" />
 
         <RadioGroup
             android:id="@+id/rgPanelSide"
