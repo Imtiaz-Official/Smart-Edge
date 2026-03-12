@@ -68,7 +68,7 @@
             android:id="@+id/ivPickerCheck"
             android:layout_width="12dp"
             android:layout_height="12dp"
-            android:background="@drawable/bg_ai_button"
+            android:background="@drawable/bg_close_btn"
             android:backgroundTint="#4A9EFF"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
