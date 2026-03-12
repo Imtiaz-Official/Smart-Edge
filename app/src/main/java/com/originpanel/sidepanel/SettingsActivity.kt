@@ -20,6 +20,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var panelPrefs: PanelPreferences
     private var previewPanel: SidePanelView? = null
+    private var previewHandle: EdgeHandleView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,38 +40,11 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupPreview() {
-        // Create a mini version of our SidePanelView for the preview area
-        previewPanel = SidePanelView(this).apply {
-            // Disable actual logic for preview
-            onClose = null
-            onAppsChanged = null
-            onAddClick = null
-            
-            // Set dummy colored apps for a rich visual
-            setApps(listOf(
-                AppInfo("pkg1", "Browser", getDrawable(android.R.drawable.ic_menu_compass), true),
-                AppInfo("pkg2", "Camera", getDrawable(android.R.drawable.ic_menu_camera), true),
-                AppInfo("pkg3", "Gallery", getDrawable(android.R.drawable.ic_menu_gallery), true),
-                AppInfo("pkg4", "Maps", getDrawable(android.R.drawable.ic_dialog_map), true),
-                AppInfo("pkg5", "Settings", getDrawable(android.R.drawable.ic_menu_preferences), true)
-            ))
-        }
-
-        // Determine gravity based on current side
-        val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
-        val params = FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.WRAP_CONTENT,
-            FrameLayout.LayoutParams.WRAP_CONTENT
-        ).apply {
-            gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL else Gravity.START or Gravity.CENTER_VERTICAL
-            // Add some margin so it's not touching the edge of the preview container
-            setMargins(if (isRight) 0 else 16, 0, if (isRight) 16 else 0, 0)
-        }
-        
         binding.previewContainer.removeAllViews()
-        // Re-add background text
+
+        // Background simulation text
         val tv = android.widget.TextView(this).apply {
-            text = "Wallpaper Simulation"
+            text = "Live Display Simulation"
             setTextColor(Color.parseColor("#80FFFFFF"))
             textSize = 10f
             gravity = Gravity.CENTER_HORIZONTAL
@@ -79,7 +53,55 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
         binding.previewContainer.addView(tv)
-        binding.previewContainer.addView(previewPanel, params)
+
+        val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
+        val density = resources.displayMetrics.density
+
+        // 1. Create Preview Handle
+        previewHandle = EdgeHandleView(this).apply {
+            this.isRightSide = isRight
+            this.showPill = panelPrefs.showPill
+            this.onTrigger = null // Important: disables touch logic for preview
+            updatePill()
+        }
+
+        val handleWidthPx = (panelPrefs.handleWidth * density).toInt()
+        val handleHeightPx = (panelPrefs.handleHeight * density).toInt()
+        
+        val handleParams = FrameLayout.LayoutParams(handleWidthPx, handleHeightPx).apply {
+            gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL else Gravity.START or Gravity.CENTER_VERTICAL
+        }
+        previewHandle?.translationY = (panelPrefs.handleVerticalOffset * density)
+        binding.previewContainer.addView(previewHandle, handleParams)
+
+        // 2. Create Preview Panel (Half-visible to show it's "ready")
+        previewPanel = SidePanelView(this).apply {
+            onClose = null
+            onAppsChanged = null
+            onAddClick = null
+            
+            setApps(listOf(
+                AppInfo("pkg1", "Browser", getDrawable(android.R.drawable.ic_menu_compass), true),
+                AppInfo("pkg2", "Camera", getDrawable(android.R.drawable.ic_menu_camera), true),
+                AppInfo("pkg3", "Gallery", getDrawable(android.R.drawable.ic_menu_gallery), true),
+                AppInfo("pkg4", "Maps", getDrawable(android.R.drawable.ic_dialog_map), true),
+                AppInfo("pkg5", "Settings", getDrawable(android.R.drawable.ic_menu_preferences), true)
+            ))
+            
+            // For preview, let's make it slide in a bit
+            alpha = 0.9f
+        }
+
+        val panelParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL else Gravity.START or Gravity.CENTER_VERTICAL
+            // Add margin to simulate distance from edge
+            setMargins(if (isRight) 0 else 24, 0, if (isRight) 24 else 0, 0)
+        }
+        previewPanel?.translationY = (panelPrefs.handleVerticalOffset * density)
+        binding.previewContainer.addView(previewPanel, panelParams)
     }
 
     private fun updatePreview() {
@@ -171,6 +193,7 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchShowPill.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showPill = isChecked
+            updatePreview()
             restartServiceIfRunning()
         }
 
@@ -191,7 +214,10 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.sbHandleHeight.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) panelPrefs.handleHeight = progress
+                if (fromUser) {
+                    panelPrefs.handleHeight = progress
+                    updatePreview()
+                }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
@@ -199,7 +225,10 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.sbHandleWidth.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) panelPrefs.handleWidth = progress
+                if (fromUser) {
+                    panelPrefs.handleWidth = progress
+                    updatePreview()
+                }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
@@ -213,7 +242,10 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.sbHandleOffset.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) panelPrefs.handleVerticalOffset = progress - 100
+                if (fromUser) {
+                    panelPrefs.handleVerticalOffset = progress - 100
+                    updatePreview()
+                }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }

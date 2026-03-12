@@ -1,6 +1,8 @@
 package com.originpanel.sidepanel
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
 import android.os.Handler
@@ -29,6 +31,8 @@ class EdgeHandleView @JvmOverloads constructor(
             field = value
             updatePill()
         }
+
+    private val panelPrefs = PanelPreferences(context)
 
     // How long the user must hold the swipe before the panel opens (ms)
     private val holdDurationMs = 300L
@@ -59,13 +63,24 @@ class EdgeHandleView @JvmOverloads constructor(
         updatePill()
     }
 
-    private fun updatePill() {
+    fun updatePill() {
         if (showPill) {
             setBackgroundResource(
                 if (isRightSide) R.drawable.bg_pill_handle_right
                 else R.drawable.bg_pill_handle_left
             )
-            alpha = 0.6f
+            
+            // Apply accent color if premium
+            if (panelPrefs.isPremium) {
+                try {
+                    val color = Color.parseColor(panelPrefs.accentColor)
+                    backgroundTintList = ColorStateList.valueOf(color)
+                } catch (e: Exception) {}
+            } else {
+                backgroundTintList = null
+            }
+            
+            alpha = (panelPrefs.panelOpacity / 100f) * 0.8f
         } else {
             setBackgroundResource(0)
             alpha = 1f
@@ -73,6 +88,8 @@ class EdgeHandleView @JvmOverloads constructor(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (onTrigger == null) return false // No interactions in preview mode
+
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 startX = event.rawX
@@ -122,18 +139,15 @@ class EdgeHandleView @JvmOverloads constructor(
                     animate().scaleX(1f).scaleY(1f).setDuration(150).start()
                 }
 
-                // If threshold was not reached or timer hadn't fired → pass through to OS
-                // The system back gesture will handle this naturally since we returned
-                // true in ACTION_DOWN only from our edge strip (not the full screen).
-                // The OS gesture detection layer still processes back gestures independently.
                 hasPassedThreshold = false
-                return !isTriggered // return false = let OS handle; true = consumed
+                return !isTriggered 
             }
         }
         return super.onTouchEvent(event)
     }
 
     private fun vibrateHaptic() {
+        if (!panelPrefs.hapticEnabled) return
         val v = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator ?: return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             v.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
@@ -143,11 +157,6 @@ class EdgeHandleView @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Exclude this strip from system gesture regions (Android 10+).
-     * This is critical — it prevents the OS from claiming the edge swipe
-     * immediately, giving our view time to detect hold intent first.
-     */
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
