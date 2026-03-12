@@ -129,7 +129,11 @@ class FloatingPanelService : Service() {
                 virtualDisplay.release()
                 projection.stop()
                 
-                Toast.makeText(this, "Screenshot saved to DCIM/SidePanel", Toast.LENGTH_SHORT).show()
+                Handler(Looper.getMainLooper()).post {
+                    Toast.makeText(this@FloatingPanelService, "Screenshot saved to DCIM/SidePanel", Toast.LENGTH_SHORT).show()
+                }
+                
+                // Downgrade back to specialUse
                 startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
             }
         }, 500)
@@ -144,6 +148,9 @@ class FloatingPanelService : Service() {
         FileOutputStream(file).use { out ->
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
         }
+        
+        // Notify gallery about new file
+        android.media.MediaScannerConnection.scanFile(this, arrayOf(file.absolutePath), null, null)
     }
 
     override fun onDestroy() {
