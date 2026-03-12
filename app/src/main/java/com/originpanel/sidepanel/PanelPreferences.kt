@@ -38,6 +38,7 @@ class PanelPreferences(context: Context) {
         
         private const val KEY_PILL_WIDTH = "pill_width"
         private const val KEY_PILL_COLOR = "pill_color"
+        private const val KEY_TAP_TO_OPEN = "tap_to_open"
         
         private const val DELIMITER = ","
 
@@ -66,7 +67,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_ACCENT_COLOR = "#4A9EFF"
         const val DEFAULT_PANEL_COLS = 1
         const val DEFAULT_THEME = THEME_ORIGIN
-        const val DEFAULT_PANEL_RADIUS = 48 // Signature Pill
+        const val DEFAULT_PANEL_RADIUS = 48 
         const val DEFAULT_PANEL_BG = "#E61A1C1E"
         const val DEFAULT_HIDE_BG = false
         const val DEFAULT_SHOW_TOOLS = true
@@ -74,6 +75,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_GESTURES = true
         const val DEFAULT_PILL_WIDTH = 3
         const val DEFAULT_PILL_COLOR = "#FFFFFF"
+        const val DEFAULT_TAP_TO_OPEN = false
     }
 
     /** Resets all configuration to perfect defaults. */
@@ -98,8 +100,14 @@ class PanelPreferences(context: Context) {
             putBoolean(KEY_GESTURES_ENABLED, DEFAULT_GESTURES)
             putInt(KEY_PILL_WIDTH, DEFAULT_PILL_WIDTH)
             putString(KEY_PILL_COLOR, DEFAULT_PILL_COLOR)
+            putBoolean(KEY_TAP_TO_OPEN, DEFAULT_TAP_TO_OPEN)
         }
     }
+
+    /** Whether tapping the pill should open the panel. */
+    var tapToOpen: Boolean
+        get() = prefs.getBoolean(KEY_TAP_TO_OPEN, DEFAULT_TAP_TO_OPEN)
+        set(value) = prefs.edit { putBoolean(KEY_TAP_TO_OPEN, value) }
 
     var gesturesEnabled: Boolean
         get() = prefs.getBoolean(KEY_GESTURES_ENABLED, DEFAULT_GESTURES)

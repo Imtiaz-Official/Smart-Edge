@@ -123,6 +123,7 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchAutoStart.isChecked = panelPrefs.autoStart
         binding.switchGestures.isChecked = panelPrefs.gesturesEnabled
+        binding.switchTapOpen.isChecked = panelPrefs.tapToOpen
         binding.switchShowPill.isChecked = panelPrefs.showPill
         binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
         binding.sbOpacity.progress = panelPrefs.panelOpacity
@@ -206,6 +207,11 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchGestures.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.gesturesEnabled = isChecked
             updatePreview()
+            restartServiceIfRunning()
+        }
+
+        binding.switchTapOpen.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.tapToOpen = isChecked
             restartServiceIfRunning()
         }
 
@@ -337,9 +343,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         binding.btnPickBg.setOnClickListener {
-            // Need to handle transparency for BG color
             openColorPicker(Color.parseColor(panelPrefs.panelBackgroundColor)) { newColor ->
-                // Keep the default alpha (E6) but change the color
                 val hex = String.format("#E6%06X", (0xFFFFFF and newColor))
                 panelPrefs.panelBackgroundColor = hex
                 updatePreview()
