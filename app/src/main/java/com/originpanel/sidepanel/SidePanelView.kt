@@ -39,21 +39,19 @@ class SidePanelView @JvmOverloads constructor(
     private val binding: SidePanelLayoutBinding
     private val adapter: PanelAppsAdapter
     private val panelPrefs = PanelPreferences(context)
-init {
-    // Inflate using ViewBinding
-    binding = SidePanelLayoutBinding.inflate(LayoutInflater.from(context), this, true)
 
-    // Tapping anywhere outside the panelCard should close it
-    setOnClickListener { 
-        onClose?.invoke()
-    }
-    // Prevent clicks on the panel itself from bubbling up to the closer
-    binding.panelCard.setOnClickListener { /* Consume */ }
-    binding.btnAI.setOnClickListener { /* Consume */ }
+    init {
+        // Inflate using ViewBinding
+        binding = SidePanelLayoutBinding.inflate(LayoutInflater.from(context), this, true)
 
-    // Apply UI Theme (Premium)
-...
+        // Tapping anywhere outside the panelCard should close it
+        setOnClickListener { 
+            onClose?.invoke()
+        }
+        // Prevent clicks on the panel itself from bubbling up to the closer
+        binding.panelCard.setOnClickListener { /* Consume */ }
 
+        // Apply UI Theme (Premium)
         applyTheme()
 
         // Set opacity
@@ -126,7 +124,7 @@ init {
         when (theme) {
             PanelPreferences.THEME_HYPEROS -> {
                 binding.panelCard.setBackgroundResource(R.drawable.bg_panel_hyperos)
-                binding.btnAI.setBackgroundResource(R.drawable.bg_ai_button) // Or specific hyperos AI bg
+                binding.btnAI.setBackgroundResource(R.drawable.bg_ai_button) 
             }
             PanelPreferences.THEME_REALME -> {
                 binding.panelCard.setBackgroundResource(R.drawable.bg_panel_realme)
