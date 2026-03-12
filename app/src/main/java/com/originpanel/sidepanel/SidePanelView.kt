@@ -56,6 +56,7 @@ class SidePanelView @JvmOverloads constructor(
             layoutManager = LinearLayoutManager(context)
             this.adapter = this@SidePanelView.adapter
             itemAnimator = null  // Disable default animation (spring handles it)
+            setHasFixedSize(true) // Avoids re-measuring parent during spring animations
         }
 
         // Close button
@@ -79,5 +80,10 @@ class SidePanelView @JvmOverloads constructor(
         adapter.submitList(apps)
         // RecyclerView always visible now because it contains the '+' button
         binding.rvPanelApps.visibility = View.VISIBLE
+    }
+
+    /** Reset scroll to the top when the panel is re-opened. */
+    fun scrollToTop() {
+        binding.rvPanelApps.scrollToPosition(0)
     }
 }

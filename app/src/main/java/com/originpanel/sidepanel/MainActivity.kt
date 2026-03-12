@@ -8,6 +8,9 @@ import android.provider.Settings
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.originpanel.sidepanel.databinding.ActivityMainBinding
 
 /**
@@ -49,6 +52,13 @@ class MainActivity : AppCompatActivity() {
         binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
+
+        // Load Tutorial Animation
+        Glide.with(this)
+            .asGif()
+            .load(R.drawable.tutorial_anim)
+            .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
+            .into(binding.ivTutorialAnim)
     }
 
     override fun onResume() {

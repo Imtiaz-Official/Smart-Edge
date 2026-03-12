@@ -3,35 +3,21 @@ package com.originpanel.sidepanel
 import android.content.Context
 import android.graphics.Rect
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.AttributeSet
-import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import androidx.core.view.GestureDetectorCompat
+import android.view.ViewConfiguration
 
-/**
- * An INVISIBLE touch strip at the screen edge that detects a quick inward swipe.
- *
- * OriginOS-style behavior:
- * - No visible pill or handle at rest — the screen looks completely normal
- * - A very thin (4dp) transparent strip sits at the edge at all times
- * - A quick inward fling from the strip opens the panel
- * - No long-press required (that's the Xiaomi/MIUI behavior)
- * - setSystemGestureExclusionRects() prevents conflict with Android 10+ back gesture
- *
- * WindowManager should give this view:
- *   width  = 4dp  (just enough to be a reliable touch target from edge)
- *   height = ~60% of screen height (mid section, avoids status/nav bar conflicts)
- *   TYPE_APPLICATION_OVERLAY, FLAG_NOT_FOCUSABLE | FLAG_NOT_TOUCH_MODAL
- */
 class EdgeHandleView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : View(context, attrs) {
 
-    /** Fired when a valid inward swipe is detected. */
+    /** Fired when a valid inward swipe AND hold is detected. */
     var onTrigger: (() -> Unit)? = null
 
     /** Whether the handle is on the right side of the screen. */
@@ -44,10 +30,41 @@ class EdgeHandleView @JvmOverloads constructor(
             updatePill()
         }
 
+    // How long the user must hold the swipe before the panel opens (ms)
+    private val holdDurationMs = 300L
+
+    private var startX = 0f
+    private var startY = 0f
+    private var hasPassedThreshold = false
+    private var isTriggered = false
+
+    private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+    // Threshold: user must drag at least 60dp inward to "arm" the hold timer
+    private val triggerThreshold = 60 * resources.displayMetrics.density
+
+    private val handler = Handler(Looper.getMainLooper())
+    private val holdRunnable = Runnable {
+        // Timer fired — user held long enough. Open the panel!
+        isTriggered = true
+        vibrateHaptic()
+        onTrigger?.invoke()
+        if (showPill) {
+            animate().scaleX(1f).scaleY(1f).setDuration(150).start()
+        }
+    }
+
+    init {
+        // Hardware layer for smooth touch response
+        setLayerType(LAYER_TYPE_HARDWARE, null)
+        updatePill()
+    }
+
     private fun updatePill() {
         if (showPill) {
-            setBackgroundResource(if (isRightSide) R.drawable.bg_pill_handle_right 
-                                  else R.drawable.bg_pill_handle_left)
+            setBackgroundResource(
+                if (isRightSide) R.drawable.bg_pill_handle_right
+                else R.drawable.bg_pill_handle_left
+            )
             alpha = 0.6f
         } else {
             setBackgroundResource(0)
@@ -55,82 +72,86 @@ class EdgeHandleView @JvmOverloads constructor(
         }
     }
 
-    // Minimum horizontal swipe velocity to qualify as "intentional"
-    private val MIN_FLING_VELOCITY = 400f   // dp/s
-    // Minimum horizontal distance (dp) to confirm directional intent
-    private val MIN_SWIPE_DISTANCE_DP = 25f
-    private val minSwipePx = MIN_SWIPE_DISTANCE_DP * context.resources.displayMetrics.density
-
-    private val gestureDetector = GestureDetectorCompat(context,
-        object : GestureDetector.SimpleOnGestureListener() {
-
-            override fun onDown(e: MotionEvent): Boolean {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                startX = event.rawX
+                startY = event.rawY
+                hasPassedThreshold = false
+                isTriggered = false
                 if (showPill) {
-                    animate().scaleX(0.9f).scaleY(0.9f).setDuration(100).start()
+                    animate().scaleX(0.85f).scaleY(0.95f).setDuration(100).start()
                 }
                 return true
             }
 
-            override fun onSingleTapUp(e: MotionEvent): Boolean {
-                triggerPanel()
+            MotionEvent.ACTION_MOVE -> {
+                if (isTriggered) return true
+
+                val dx = if (isRightSide) (startX - event.rawX) else (event.rawX - startX)
+
+                // Arm the hold timer once the user has swiped past the threshold
+                if (!hasPassedThreshold && dx > triggerThreshold) {
+                    hasPassedThreshold = true
+                    // Start the hold countdown
+                    handler.postDelayed(holdRunnable, holdDurationMs)
+
+                    // Visual feedback: subtle pulse while holding
+                    if (showPill) {
+                        animate().scaleX(0.75f).scaleY(0.9f).setDuration(holdDurationMs).start()
+                    }
+                }
+
+                // If user swipes back (cancels intent), disarm
+                if (hasPassedThreshold && dx < triggerThreshold / 2) {
+                    hasPassedThreshold = false
+                    handler.removeCallbacks(holdRunnable)
+                    if (showPill) {
+                        animate().scaleX(0.85f).scaleY(0.95f).setDuration(80).start()
+                    }
+                }
+
                 return true
             }
 
-            override fun onFling(
-                e1: MotionEvent?,
-                e2: MotionEvent,
-                velocityX: Float,
-                velocityY: Float
-            ): Boolean {
-                val startX = e1?.rawX ?: return false
-                val endX   = e2.rawX
-                
-                // Use raw coordinates to avoid issues with local coordinates in a 24dp window
-                val dx = if (isRightSide) (startX - endX) else (endX - startX)
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                // Always cancel the hold timer on finger lift
+                handler.removeCallbacks(holdRunnable)
 
-                val isFastEnough = Math.abs(velocityX) >= MIN_FLING_VELOCITY
-                val isFarEnough  = dx >= minSwipePx
-                val isHorizontal = Math.abs(velocityX) > Math.abs(velocityY) * 1.5f
-
-                if (isFastEnough && isFarEnough && isHorizontal) {
-                    triggerPanel()
-                    return true
+                if (showPill) {
+                    animate().scaleX(1f).scaleY(1f).setDuration(150).start()
                 }
-                return false
+
+                // If threshold was not reached or timer hadn't fired → pass through to OS
+                // The system back gesture will handle this naturally since we returned
+                // true in ACTION_DOWN only from our edge strip (not the full screen).
+                // The OS gesture detection layer still processes back gestures independently.
+                hasPassedThreshold = false
+                return !isTriggered // return false = let OS handle; true = consumed
             }
         }
-    ).also {
-        it.setIsLongpressEnabled(false)
+        return super.onTouchEvent(event)
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        val result = gestureDetector.onTouchEvent(event)
-        if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
-            if (showPill) {
-                animate().scaleX(1f).scaleY(1f).setDuration(150).start()
-            }
+    private fun vibrateHaptic() {
+        val v = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator ?: return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            v.vibrate(25)
         }
-        return result
     }
 
     /**
      * Exclude this strip from system gesture regions (Android 10+).
-     * Without this, the Android system "back" gesture swallows our swipe.
+     * This is critical — it prevents the OS from claiming the edge swipe
+     * immediately, giving our view time to detect hold intent first.
      */
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             systemGestureExclusionRects = listOf(Rect(0, 0, width, height))
         }
-    }
-
-    private fun triggerPanel() {
-        vibrateHaptic()
-        onTrigger?.invoke()
-    }
-
-    private fun vibrateHaptic() {
-        val v = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator ?: return
-        v.vibrate(VibrationEffect.createOneShot(35, VibrationEffect.DEFAULT_AMPLITUDE))
     }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_main"
@@ -26,10 +27,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:layout_marginBottom="40dp"
+            android:layout_marginBottom="24dp"
             android:text="OriginOS-style floating panel"
             android:textColor="@color/text_tertiary"
             android:textSize="13sp" />
+
+        <!-- Tutorial Animation Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="180dp"
+            android:layout_height="135dp"
+            android:layout_marginBottom="32dp"
+            app:cardBackgroundColor="@color/surface_white_05"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/surface_white_10"
+            app:strokeWidth="1dp">
+
+            <ImageView
+                android:id="@+id/ivTutorialAnim"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
+
+            <!-- Edge Swipe Indicator Overlay -->
+            <View
+                android:layout_width="4dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:background="#1AFFFFFF" />
+        </androidx.cardview.widget.CardView>
 
         <!-- Permission warning card (only shown if permission not granted) -->
         <LinearLayout

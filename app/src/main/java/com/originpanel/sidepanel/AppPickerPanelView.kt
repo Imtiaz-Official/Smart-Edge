@@ -30,7 +30,7 @@ class AppPickerPanelView @JvmOverloads constructor(
 
     private val rvPickerGrid: RecyclerView
     private val etSearch: EditText
-    private val btnClose: ImageButton
+    private val btnSettings: ImageButton
     private val adapter = PickerAdapter()
     
     private val repository = AppRepository(context)
@@ -42,12 +42,18 @@ class AppPickerPanelView @JvmOverloads constructor(
         val view = LayoutInflater.from(context).inflate(R.layout.picker_panel_layout, this, true)
         rvPickerGrid = view.findViewById(R.id.rvPickerGrid)
         etSearch = view.findViewById(R.id.etPickerSearch)
-        btnClose = view.findViewById(R.id.btnPickerClose)
+        btnSettings = view.findViewById(R.id.btnPickerClose) // It's still named btnPickerClose in XML
 
-        rvPickerGrid.layoutManager = GridLayoutManager(context, 3)
+        rvPickerGrid.layoutManager = GridLayoutManager(context, 2)
         rvPickerGrid.adapter = adapter
 
-        btnClose.setOnClickListener { onClose?.invoke() }
+        btnSettings.setOnClickListener {
+            val intent = android.content.Intent(context, SettingsActivity::class.java).apply {
+                addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+            onClose?.invoke() // Close picker after opening settings
+        }
 
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -58,6 +64,14 @@ class AppPickerPanelView @JvmOverloads constructor(
         })
 
         loadApps()
+    }
+
+    override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+        if (event.action == android.view.KeyEvent.ACTION_UP && event.keyCode == android.view.KeyEvent.KEYCODE_BACK) {
+            onClose?.invoke()
+            return true
+        }
+        return super.dispatchKeyEvent(event)
     }
 
     private fun loadApps() {

@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.graphics.PixelFormat
+import android.os.Build
 import android.os.IBinder
 import android.view.Gravity
 import android.view.View
@@ -39,6 +40,11 @@ class FloatingPanelService : Service() {
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, buildNotification())
 
+        // ── Pre-warm Views for Zero Latency ──────────────────────────────────
+        // We inflate and add them to WindowManager immediately, but hidden (GONE)
+        // This eliminates the 100-200ms inflation lag during triggers.
+        initSidePanel()
+        initPickerPanel()
         addEdgeHandle()
     }
 
@@ -52,12 +58,16 @@ class FloatingPanelService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        removeEdgeHandle()
-        removeSidePanel()
-        removePickerPanel()
+        removeView(edgeHandleView)
+        removeView(sidePanelView)
+        removeView(pickerPanelView)
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    private fun removeView(view: View?) {
+        view?.let { if (it.isAttachedToWindow) windowManager.removeView(it) }
+    }
 
     // ── Edge Handle ──────────────────────────────────────────────────────────
 
@@ -81,35 +91,25 @@ class FloatingPanelService : Service() {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL
                       else Gravity.START or Gravity.CENTER_VERTICAL
-            x = 0
-            y = 0
         }
 
         windowManager.addView(edgeHandleView, params)
     }
 
-    private fun removeEdgeHandle() {
-        edgeHandleView?.let {
-            if (it.isAttachedToWindow) windowManager.removeView(it)
-        }
-        edgeHandleView = null
-    }
+    // ── Side Panel (Pre-loaded) ───────────────────────────────────────────────
 
-    // ── Side Panel ───────────────────────────────────────────────────────────
-
-    private fun openPanel() {
-        if (isPanelOpen) return
-        isPanelOpen = true
-
+    private fun initSidePanel() {
         sidePanelView = SidePanelView(this).apply {
             onClose = { closePanel() }
             onAppsChanged = { refreshApps() }
             onAddClick = { togglePicker() }
+            visibility = View.GONE // Start hidden
         }
 
         val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
@@ -120,7 +120,8 @@ class FloatingPanelService : Service() {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL
@@ -128,8 +129,25 @@ class FloatingPanelService : Service() {
         }
 
         windowManager.addView(sidePanelView, params)
+        
+        // Setup Backdrop touch to close
+        sidePanelView?.setOnTouchListener { _, event ->
+            if (event.action == android.view.MotionEvent.ACTION_OUTSIDE) {
+                if (isPickerOpen) closePicker() else closePanel()
+                true
+            } else false
+        }
+    }
 
+    private fun openPanel() {
+        if (isPanelOpen) return
+        isPanelOpen = true
+
+        refreshApps()
+        sidePanelView?.scrollToTop() // Always start from the top on open
         sidePanelView?.let { panel ->
+            panel.visibility = View.VISIBLE
+            // Use post to ensure the view is ready for animation
             panel.post {
                 val panelWidth = panel.width.toFloat()
                 SpringAnimator.animateOpen(panel, panelWidth)
@@ -137,15 +155,6 @@ class FloatingPanelService : Service() {
         }
 
         edgeHandleView?.visibility = View.GONE
-
-        sidePanelView?.setOnTouchListener { _, event ->
-            if (event.action == android.view.MotionEvent.ACTION_OUTSIDE) {
-                if (isPickerOpen) closePicker() else closePanel()
-                true
-            } else false
-        }
-
-        refreshApps()
     }
 
     fun closePanel() {
@@ -157,17 +166,10 @@ class FloatingPanelService : Service() {
         sidePanelView?.let { panel ->
             val panelWidth = panel.width.toFloat()
             SpringAnimator.animateClose(panel, panelWidth) {
-                removeSidePanel()
+                panel.visibility = View.GONE
                 edgeHandleView?.visibility = View.VISIBLE
             }
         }
-    }
-
-    private fun removeSidePanel() {
-        sidePanelView?.let {
-            if (it.isAttachedToWindow) windowManager.removeView(it)
-        }
-        sidePanelView = null
     }
 
     private fun refreshApps() {
@@ -175,7 +177,43 @@ class FloatingPanelService : Service() {
         sidePanelView?.setApps(apps)
     }
 
-    // ── Picker Panel ─────────────────────────────────────────────────────────
+    // ── Picker Panel (Pre-loaded) ─────────────────────────────────────────────
+
+    private fun initPickerPanel() {
+        pickerPanelView = AppPickerPanelView(this).apply {
+            onClose = { closePicker() }
+            onToggleApp = { app, isSelected ->
+                if (isSelected) panelPrefs.addApp(app.packageName)
+                else panelPrefs.removeApp(app.packageName)
+                refreshApps()
+            }
+            visibility = View.GONE // Start hidden
+        }
+
+        val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
+        val params = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            // Picker appears adjacent to the side panel.
+            // With Gravity.END, positive x shifts the view left (away from right edge).
+            // Set x to ~side panel width so picker sits flush next to the panel.
+            gravity = if (isRight) Gravity.CENTER_VERTICAL or Gravity.END
+                      else Gravity.CENTER_VERTICAL or Gravity.START
+
+            // Side panel (SidePanelView) has layout_width = 100dp
+            // So setting x = 104dp guarantees a 4dp perfect gap!
+            val sidePanelWidthPx = (104 * resources.displayMetrics.density).toInt()
+            x = sidePanelWidthPx
+        }
+
+        windowManager.addView(pickerPanelView, params)
+    }
 
     private fun togglePicker() {
         if (isPickerOpen) closePicker() else openPicker()
@@ -185,40 +223,12 @@ class FloatingPanelService : Service() {
         if (isPickerOpen) return
         isPickerOpen = true
 
-        pickerPanelView = AppPickerPanelView(this).apply {
-            onClose = { closePicker() }
-            onToggleApp = { app, isSelected ->
-                if (isSelected) panelPrefs.addApp(app.packageName)
-                else panelPrefs.removeApp(app.packageName)
-                refreshApps()
-            }
-        }
-
-        val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
-        val params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            // Gravity CENTER to make it look like a large card in the middle-ish
-            gravity = if (isRight) Gravity.CENTER_VERTICAL or Gravity.END
-                      else Gravity.CENTER_VERTICAL or Gravity.START
-            
-            // Large offset to the side of the bar
-            val offsetPx = (100 * resources.displayMetrics.density).toInt()
-            x = offsetPx
-        }
-
-        windowManager.addView(pickerPanelView, params)
-
         pickerPanelView?.let { picker ->
+            picker.visibility = View.VISIBLE
             picker.post {
+                val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
                 val pickerWidth = picker.width.toFloat()
-                SpringAnimator.animateOpen(picker, if (isRight) pickerWidth else -pickerWidth)
+                SpringAnimator.animateOpen(picker, if (isRight) pickerWidth else -pickerWidth, isPicker = true)
             }
         }
     }
@@ -230,20 +240,13 @@ class FloatingPanelService : Service() {
         pickerPanelView?.let { picker ->
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
             val pickerWidth = picker.width.toFloat()
-            SpringAnimator.animateClose(picker, if (isRight) pickerWidth else -pickerWidth) {
-                removePickerPanel()
+            SpringAnimator.animateClose(picker, if (isRight) pickerWidth else -pickerWidth, isPicker = true) {
+                picker.visibility = View.GONE
             }
         }
     }
 
-    private fun removePickerPanel() {
-        pickerPanelView?.let {
-            if (it.isAttachedToWindow) windowManager.removeView(it)
-        }
-        pickerPanelView = null
-    }
-
-    // ── Notification ──────────────────────────────────────────────────────────
+    // ── Utilities ────────────────────────────────────────────────────────────
 
     private fun createNotificationChannel() {
         val channel = NotificationChannel(

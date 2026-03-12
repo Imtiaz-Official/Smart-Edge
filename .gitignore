@@ -1,0 +1,29 @@
+# Android
+.gradle/
+build/
+app/build/
+local.properties
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.jks
+
+# Logs
+*.log
+build_output.txt
+build_error.txt
+log.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project images (maybe keep screen.png?)
+overlap_check.png
+panel_gap*.png
+picker_collision.png
+polish_check.png
+xx.jpg

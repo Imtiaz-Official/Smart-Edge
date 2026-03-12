@@ -1,37 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/pickerPanelCard"
-    android:layout_width="280dp"
+    android:layout_width="210dp"
     android:layout_height="wrap_content"
-    android:layout_gravity="center_vertical"
-    android:background="@drawable/bg_panel"
-    android:elevation="40dp"
+    android:layout_gravity="center"
+    android:background="@drawable/bg_picker_panel"
+    android:elevation="24dp"
     android:orientation="vertical"
-    android:paddingTop="20dp"
-    android:paddingBottom="12dp"
-    android:paddingHorizontal="20dp">
+    android:padding="12dp">
 
-    <!-- Header Section (Search + Settings) -->
+    <!-- Compact Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="12dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <!-- Pill-shaped Search Bar -->
+        <!-- Search Bar -->
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="36dp"
             android:layout_weight="1"
             android:background="@drawable/bg_close_btn"
-            android:backgroundTint="#26FFFFFF"
+            android:backgroundTint="#331A1C1E"
             android:gravity="center_vertical"
-            android:paddingHorizontal="16dp">
+            android:paddingHorizontal="12dp">
 
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
                 android:src="@android:drawable/ic_menu_search"
                 android:tint="#80FFFFFF" />
 
@@ -47,17 +45,17 @@
                 android:paddingStart="8dp"
                 android:textColor="#FFFFFF"
                 android:textColorHint="#66FFFFFF"
-                android:textSize="14sp" />
+                android:textSize="13sp" />
         </LinearLayout>
 
         <!-- Settings Icon -->
         <ImageButton
             android:id="@+id/btnPickerClose"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="12dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
             android:background="@drawable/bg_close_btn"
-            android:backgroundTint="#26FFFFFF"
+            android:backgroundTint="#331A1C1E"
             android:padding="8dp"
             android:scaleType="fitCenter"
             android:src="@android:drawable/ic_menu_preferences"
@@ -70,15 +68,15 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:fontFamily="sans-serif-medium"
-        android:text="All small window apps"
+        android:text="Choose Apps"
         android:textColor="#FFFFFF"
-        android:textSize="15sp" />
+        android:textSize="14sp" />
 
-    <!-- 3-Column Grid -->
+    <!-- Grid with fixed max height -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvPickerGrid"
         android:layout_width="match_parent"
-        android:layout_height="480dp"
+        android:layout_height="340dp"
         android:clipToPadding="false"
         android:overScrollMode="ifContentScrolls"
         android:scrollbarStyle="outsideOverlay"
