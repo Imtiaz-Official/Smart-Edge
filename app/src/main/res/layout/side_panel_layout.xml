@@ -52,10 +52,51 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/btnClose" />
+        app:layout_constraintBottom_toTopOf="@id/toolsContainer" />
 
+        <!-- Tools Section (Premium) -->
+        <LinearLayout
+        android:id="@+id/toolsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="4dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/rvPanelApps"
+        app:layout_constraintBottom_toTopOf="@id/btnClose">
 
-            <!-- Chevron at bottom of pill (now handles picker toggle and slide animation) -->
+        <View
+            android:layout_width="24dp"
+            android:layout_height="1dp"
+            android:background="#33FFFFFF"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Screenshot Button -->
+        <ImageButton
+            android:id="@+id/btnScreenshot"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/bg_close_btn"
+            android:backgroundTint="#1AFFFFFF"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@android:drawable/ic_menu_camera"
+            android:tint="#D9FFFFFF" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SC"
+            android:textColor="#80FFFFFF"
+            android:textSize="7sp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="8dp" />
+
+        </LinearLayout>
+
+        <!-- Chevron at bottom of pill -->
+
             <ImageButton
                 android:id="@+id/btnClose"
                 android:layout_width="24dp"

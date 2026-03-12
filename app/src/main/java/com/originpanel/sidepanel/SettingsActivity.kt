@@ -140,8 +140,9 @@ class SettingsActivity : AppCompatActivity() {
             else -> binding.rgThemes.check(R.id.rbThemeOrigin)
         }
 
-        // New Radius
         binding.sbPanelRadius.progress = panelPrefs.panelCornerRadius
+        binding.switchTools.isChecked = panelPrefs.showTools
+        binding.switchHideBg.isChecked = panelPrefs.hideBackground
 
         updatePremiumUI()
     }
@@ -157,8 +158,9 @@ class SettingsActivity : AppCompatActivity() {
         binding.rbThemeHyper.isEnabled = isPremium
         binding.rbThemeRealme.isEnabled = isPremium
         binding.rbThemeRich.isEnabled = isPremium
-        
         binding.sbPanelRadius.isEnabled = isPremium
+        binding.switchTools.isEnabled = isPremium
+        binding.switchHideBg.isEnabled = isPremium
 
         if (isPremium) {
             binding.tvPremiumStatus.text = "Premium Active"
@@ -266,6 +268,18 @@ class SettingsActivity : AppCompatActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
         })
+
+        binding.switchTools.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.showTools = isChecked
+            updatePreview()
+            restartServiceIfRunning()
+        }
+
+        binding.switchHideBg.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.hideBackground = isChecked
+            updatePreview()
+            restartServiceIfRunning()
+        }
 
         binding.btnColorDark.setOnClickListener { updateColor("#E61A1C1E") }
         binding.btnColorBlue.setOnClickListener { updateColor("#E60D47A1") }

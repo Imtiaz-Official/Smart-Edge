@@ -31,6 +31,8 @@ class PanelPreferences(context: Context) {
         
         private const val KEY_PANEL_RADIUS = "panel_radius"
         private const val KEY_PANEL_BG_COLOR = "panel_bg_color"
+        private const val KEY_HIDE_BG = "hide_bg"
+        private const val KEY_SHOW_TOOLS = "show_tools"
         
         private const val DELIMITER = ","
 
@@ -97,6 +99,16 @@ class PanelPreferences(context: Context) {
     var panelBackgroundColor: String
         get() = prefs.getString(KEY_PANEL_BG_COLOR, "#E61A1C1E") ?: "#E61A1C1E"
         set(value) = prefs.edit { putString(KEY_PANEL_BG_COLOR, value) }
+
+    /** Whether to hide the panel background completely. */
+    var hideBackground: Boolean
+        get() = prefs.getBoolean(KEY_HIDE_BG, false)
+        set(value) = prefs.edit { putBoolean(KEY_HIDE_BG, value) }
+
+    /** Whether to show the Tools section (Screenshot, etc). */
+    var showTools: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_TOOLS, true)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_TOOLS, value) }
 
     /** Simulated premium status. */
     var isPremium: Boolean

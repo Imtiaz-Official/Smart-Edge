@@ -1,6 +1,7 @@
 package com.originpanel.sidepanel
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -17,7 +18,7 @@ import com.originpanel.sidepanel.databinding.SidePanelLayoutBinding
 /**
  * The main side panel view — a frosted glass pill containing:
  * - Scrollable list of pinned apps (RecyclerView)
- * - Empty state text
+ * - Tools section (Screenshot, etc)
  * - Close / collapse button
  *
  * This view is added/removed from WindowManager by [FloatingPanelService].
@@ -53,6 +54,9 @@ class SidePanelView @JvmOverloads constructor(
 
         // Apply Custom Styles (Premium + Themes)
         applyTheme()
+
+        // Tools visibility
+        binding.toolsContainer.visibility = if (panelPrefs.showTools) View.VISIBLE else View.GONE
 
         // Set opacity
         val alphaVal = panelPrefs.panelOpacity / 100f
@@ -98,6 +102,17 @@ class SidePanelView @JvmOverloads constructor(
             SpringAnimator.scalePulse(it)
             onAddClick?.invoke()
         }
+
+        // Screenshot tool
+        binding.btnScreenshot.setOnClickListener {
+            it.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+            onClose?.invoke() // Close panel before taking screenshot
+            
+            val intent = Intent(context, ScreenshotActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+        }
     }
 
     private fun applyTheme() {
@@ -105,25 +120,26 @@ class SidePanelView @JvmOverloads constructor(
         val density = context.resources.displayMetrics.density
         binding.panelHandle.visibility = if (theme == PanelPreferences.THEME_RICH) View.VISIBLE else View.GONE
         
-        // Dynamically create background instead of static XML to allow customization
+        if (panelPrefs.hideBackground) {
+            binding.panelCard.setBackgroundColor(Color.TRANSPARENT)
+            return
+        }
+
         val drawable = GradientDrawable()
         drawable.shape = GradientDrawable.RECTANGLE
         
-        // Use custom background color if set, else fallback to theme default
         val bgColor = Color.parseColor(panelPrefs.panelBackgroundColor)
         drawable.setColor(bgColor)
         
-        // Corner Radius
         drawable.cornerRadius = panelPrefs.panelCornerRadius * density
         
-        // Stroke/Border based on theme
         when (theme) {
             PanelPreferences.THEME_HYPEROS -> {
                 drawable.setStroke((1 * density).toInt(), Color.parseColor("#33FFFFFF"))
             }
             PanelPreferences.THEME_REALME -> {
                 drawable.setStroke((2 * density).toInt(), Color.parseColor("#FF4A9EFF"))
-                drawable.cornerRadius = 40 * density // Override for Realme
+                drawable.cornerRadius = 40 * density 
             }
             PanelPreferences.THEME_RICH -> {
                 drawable.setStroke((2 * density).toInt(), Color.parseColor("#FF4A9EFF"))
