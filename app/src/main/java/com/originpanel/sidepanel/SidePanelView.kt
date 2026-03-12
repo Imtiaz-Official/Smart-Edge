@@ -7,7 +7,7 @@ import android.os.Build
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.LinearLayout
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,7 +24,7 @@ import com.originpanel.sidepanel.databinding.SidePanelLayoutBinding
 class SidePanelView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
-) : LinearLayout(context, attrs) {
+) : FrameLayout(context, attrs) {
 
     /** Called when the user taps the close button or outside the panel. */
     var onClose: (() -> Unit)? = null

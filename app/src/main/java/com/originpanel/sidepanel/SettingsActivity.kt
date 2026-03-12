@@ -42,18 +42,6 @@ class SettingsActivity : AppCompatActivity() {
     private fun setupPreview() {
         binding.previewContainer.removeAllViews()
 
-        // Background simulation text
-        val tv = android.widget.TextView(this).apply {
-            text = "Live Display Simulation"
-            setTextColor(Color.parseColor("#80FFFFFF"))
-            textSize = 10f
-            gravity = Gravity.CENTER_HORIZONTAL
-            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
-                topMargin = 8
-            }
-        }
-        binding.previewContainer.addView(tv)
-
         val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
         val density = resources.displayMetrics.density
 
@@ -61,7 +49,7 @@ class SettingsActivity : AppCompatActivity() {
         previewHandle = EdgeHandleView(this).apply {
             this.isRightSide = isRight
             this.showPill = panelPrefs.showPill
-            this.onTrigger = null // Important: disables touch logic for preview
+            this.onTrigger = null 
             updatePill()
         }
 
@@ -74,12 +62,13 @@ class SettingsActivity : AppCompatActivity() {
         previewHandle?.translationY = (panelPrefs.handleVerticalOffset * density)
         binding.previewContainer.addView(previewHandle, handleParams)
 
-        // 2. Create Preview Panel (Half-visible to show it's "ready")
+        // 2. Create Preview Panel
         previewPanel = SidePanelView(this).apply {
             onClose = null
             onAppsChanged = null
             onAddClick = null
             
+            // Set dummy colored apps for a rich visual
             setApps(listOf(
                 AppInfo("pkg1", "Browser", getDrawable(android.R.drawable.ic_menu_compass), true),
                 AppInfo("pkg2", "Camera", getDrawable(android.R.drawable.ic_menu_camera), true),
@@ -88,20 +77,33 @@ class SettingsActivity : AppCompatActivity() {
                 AppInfo("pkg5", "Settings", getDrawable(android.R.drawable.ic_menu_preferences), true)
             ))
             
-            // For preview, let's make it slide in a bit
-            alpha = 0.9f
+            alpha = 1.0f
+            visibility = View.VISIBLE
         }
 
         val panelParams = FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.WRAP_CONTENT,
-            FrameLayout.LayoutParams.WRAP_CONTENT
+            FrameLayout.LayoutParams.MATCH_PARENT // Match container height to center correctly
         ).apply {
-            gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL else Gravity.START or Gravity.CENTER_VERTICAL
-            // Add margin to simulate distance from edge
-            setMargins(if (isRight) 0 else 24, 0, if (isRight) 24 else 0, 0)
+            gravity = if (isRight) Gravity.END else Gravity.START
+            // Add some margin so it's not touching the edge
+            setMargins(if (isRight) 0 else 16, 0, if (isRight) 16 else 0, 0)
         }
         previewPanel?.translationY = (panelPrefs.handleVerticalOffset * density)
         binding.previewContainer.addView(previewPanel, panelParams)
+        
+        // Simulation text at the bottom
+        val tv = android.widget.TextView(this).apply {
+            text = "Live Display Simulation"
+            setTextColor(Color.parseColor("#B3FFFFFF"))
+            textSize = 10f
+            gravity = Gravity.CENTER_HORIZONTAL
+            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
+                gravity = Gravity.BOTTOM
+                bottomMargin = 8
+            }
+        }
+        binding.previewContainer.addView(tv)
     }
 
     private fun updatePreview() {
