@@ -71,11 +71,12 @@ class SidePanelView @JvmOverloads constructor(
             // Adjust panel width if 2 columns
             val params = binding.panelCard.layoutParams
             if (cols == 2) {
-                params.width = (140 * context.resources.displayMetrics.density).toInt()
+                params.width = (150 * context.resources.displayMetrics.density).toInt()
             } else {
                 params.width = (72 * context.resources.displayMetrics.density).toInt()
             }
             binding.panelCard.layoutParams = params
+            binding.panelCard.requestLayout()
 
             this.adapter = this@SidePanelView.adapter
             itemAnimator = null  // Disable default animation (spring handles it)
