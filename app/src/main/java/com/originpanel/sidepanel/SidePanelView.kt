@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
@@ -136,12 +137,18 @@ class SidePanelView @JvmOverloads constructor(
         
         drawable.cornerRadius = panelPrefs.panelCornerRadius * density
         
-        val accentColor = Color.parseColor(panelPrefs.accentColor)
+        val accentColorHex = panelPrefs.accentColor
+        Log.d("SidePanelView", "Applying theme: $theme, AccentColor: $accentColorHex")
+        val accentColor = try {
+            Color.parseColor(accentColorHex)
+        } catch (e: Exception) {
+            Color.parseColor("#4A9EFF") // Fallback
+        }
 
         when (theme) {
             PanelPreferences.THEME_HYPEROS -> {
-                drawable.setStroke((1 * density).toInt(), Color.parseColor("#33FFFFFF"))
-                drawable.cornerRadius = 12 * density // Sharp corners for HyperOS
+                drawable.setStroke((1 * density).toInt(), accentColor)
+                drawable.cornerRadius = 12 * density 
             }
             PanelPreferences.THEME_REALME -> {
                 drawable.setStroke((2 * density).toInt(), accentColor)
@@ -152,8 +159,8 @@ class SidePanelView @JvmOverloads constructor(
                 binding.panelHandle.backgroundTintList = ColorStateList.valueOf(accentColor)
             }
             else -> { // Origin (Default)
-                drawable.setStroke((1 * density).toInt(), Color.parseColor("#26FFFFFF"))
-                drawable.cornerRadius = 48 * density // Very rounded pill for OriginOS
+                drawable.setStroke((1 * density).toInt(), accentColor)
+                drawable.cornerRadius = 48 * density 
             }
         }
         
@@ -164,24 +171,15 @@ class SidePanelView @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Updates the displayed app list.
-     * Uses DiffUtil internally via ListAdapter — only changed items are redrawn.
-     */
     fun setApps(apps: List<AppInfo>) {
         adapter.submitList(apps)
         binding.rvPanelApps.visibility = View.VISIBLE
     }
 
-    /** Reset scroll to the top when the panel is re-opened. */
     fun scrollToTop() {
         binding.rvPanelApps.scrollToPosition(0)
     }
 
-    /**
-     * Dynamically changes the column count and panel width.
-     * Used to squeeze the panel to 1-col when picker is open.
-     */
     fun setColumns(cols: Int) {
         val density = context.resources.displayMetrics.density
         val layoutManager = binding.rvPanelApps.layoutManager as? GridLayoutManager
@@ -197,10 +195,6 @@ class SidePanelView @JvmOverloads constructor(
         binding.panelCard.requestLayout()
     }
 
-    /**
-     * Animates the bottom arrow (btnClose) to move from middle to the right side.
-     * @param isOpen Whether the picker is currently open.
-     */
     fun animatePickerToggle(isOpen: Boolean) {
         if (isAnimating) return
         isAnimating = true
@@ -208,14 +202,11 @@ class SidePanelView @JvmOverloads constructor(
         binding.btnClose.post {
             val density = context.resources.displayMetrics.density
             val viewWidth = binding.panelCard.width.toFloat()
-            
             val viewWidthDp = viewWidth / density
             val buttonWidthDp = 24f
-            
             val middleX = (viewWidthDp / 2f) - (buttonWidthDp / 2f)
             val rightX = viewWidthDp - 8f - buttonWidthDp
             val translation = if (isOpen) (rightX - middleX) else 0f
-            
             val targetRotation = if (isOpen) 0f else 180f
 
             binding.btnClose.animate()
