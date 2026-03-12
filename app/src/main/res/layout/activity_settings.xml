@@ -542,7 +542,7 @@
 
         </RadioGroup>
 
-        <!-- Pill Visuals (Premium) -->
+        <!-- Pill Visuals (Premium) - HIDDEN FOR NOW
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -591,6 +591,7 @@
 
             </LinearLayout>
         </HorizontalScrollView>
+        -->
 
         <!-- Corner Radius (Premium) -->
         <TextView

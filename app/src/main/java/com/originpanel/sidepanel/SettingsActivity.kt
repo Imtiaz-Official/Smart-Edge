@@ -152,7 +152,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchTools.isChecked = panelPrefs.showTools
         binding.switchHideBg.isChecked = panelPrefs.hideBackground
         
-        binding.sbPillWidth.progress = panelPrefs.pillWidth
+        // binding.sbPillWidth.progress = panelPrefs.pillWidth // HIDDEN
 
         updatePremiumUI()
     }
@@ -177,7 +177,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.sbPanelRadius.isEnabled = isPremium
         binding.switchTools.isEnabled = isPremium
         binding.switchHideBg.isEnabled = isPremium
-        binding.sbPillWidth.isEnabled = isPremium
+        // binding.sbPillWidth.isEnabled = isPremium // HIDDEN
 
         if (isPremium) {
             binding.tvPremiumStatus.text = "Premium Active"
@@ -318,6 +318,7 @@ class SettingsActivity : AppCompatActivity() {
             restartServiceIfRunning()
         }
 
+        /* HIDDEN FOR NOW
         binding.sbPillWidth.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
@@ -329,6 +330,13 @@ class SettingsActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
         })
 
+        binding.btnPillWhite.setOnClickListener { updatePillColor("#FFFFFF") }
+        binding.btnPillBlue.setOnClickListener { updatePillColor("#4A9EFF") }
+        binding.btnPillRed.setOnClickListener { updatePillColor("#FF5252") }
+        binding.btnPillGreen.setOnClickListener { updatePillColor("#69F0AE") }
+        binding.btnPillYellow.setOnClickListener { updatePillColor("#FFFF00") }
+        */
+
         binding.btnResetDefaults.setOnClickListener {
             panelPrefs.resetToDefaults()
             loadCurrentSettings() 
@@ -336,12 +344,6 @@ class SettingsActivity : AppCompatActivity() {
             restartServiceIfRunning()
             Toast.makeText(this, "Settings Reset to Defaults", Toast.LENGTH_SHORT).show()
         }
-
-        binding.btnPillWhite.setOnClickListener { updatePillColor("#FFFFFF") }
-        binding.btnPillBlue.setOnClickListener { updatePillColor("#4A9EFF") }
-        binding.btnPillRed.setOnClickListener { updatePillColor("#FF5252") }
-        binding.btnPillGreen.setOnClickListener { updatePillColor("#69F0AE") }
-        binding.btnPillYellow.setOnClickListener { updatePillColor("#FFFF00") }
 
         binding.btnColorDark.setOnClickListener { updateColor("#E61A1C1E") }
         binding.btnColorBlue.setOnClickListener { updateColor("#E60D47A1") }
