@@ -16,42 +16,44 @@
         android:clipChildren="false"
         android:gravity="center_horizontal"
         android:orientation="vertical">
+<!-- Main Sidebar Pill -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/panelCard"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_panel"
+    android:elevation="32dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
 
-        <!-- Main Sidebar Pill -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/panelCard"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_panel"
-            android:elevation="32dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp">
+    <!-- Rich Vertical Handle (Premium feel) -->
+    <View
+        android:id="@+id/panelHandle"
+        android:layout_width="4dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="4dp"
+        android:background="@drawable/bg_close_btn"
+        android:backgroundTint="#40FFFFFF"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-            <!-- Rich Vertical Handle (Premium feel) -->
-            <View
-                android:id="@+id/panelHandle"
-                android:layout_width="4dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="4dp"
-                android:background="@drawable/bg_close_btn"
-                android:backgroundTint="#40FFFFFF"
-                android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
+    <!-- Scrollable app list -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPanelApps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintHeight_max="320dp"
+        android:clipToPadding="false"
+        android:overScrollMode="ifContentScrolls"
+        android:paddingBottom="4dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btnClose" />
 
-            <!-- Scrollable app list dynamically sized up to 320dp -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvPanelApps"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constrainedHeight="true"
-                app:layout_constraintHeight_max="320dp"
-                android:clipToPadding="false"
-                android:overScrollMode="ifContentScrolls"
-                android:paddingBottom="4dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/btnClose" />
 
             <!-- Chevron at bottom of pill (now handles picker toggle and slide animation) -->
             <ImageButton
