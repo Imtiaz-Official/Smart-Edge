@@ -69,7 +69,7 @@ class PanelPreferences(context: Context) {
         get() = prefs.getInt(KEY_HANDLE_OFFSET, 0)
         set(value) = prefs.edit { putInt(KEY_HANDLE_OFFSET, value) }
 
-    /** Custom accent color (Hex string). Default is BlueLM. */
+    /** Custom accent color (Hex string). */
     var accentColor: String
         get() = prefs.getString(KEY_ACCENT_COLOR, "#4A9EFF") ?: "#4A9EFF"
         set(value) = prefs.edit { putString(KEY_ACCENT_COLOR, value) }

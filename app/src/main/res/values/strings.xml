@@ -21,6 +21,5 @@
     <string name="done">Done</string>
     <string name="open">Open</string>
     <string name="no_apps">No apps added yet.\nTap \"Manage Apps\" to add some.</string>
-    <string name="bluelm_label">AI</string>
     <string name="panel_tip">Long press the right edge to open the panel</string>
 </resources>

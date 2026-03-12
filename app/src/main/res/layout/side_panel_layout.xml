@@ -6,7 +6,7 @@
     android:background="@android:color/transparent"
     android:clipChildren="false">
 
-    <!-- Container for both the panel and the AI button to keep them together -->
+    <!-- Container for the panel -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
