@@ -80,9 +80,19 @@ class EdgeHandleView @JvmOverloads constructor(
             }
             
             alpha = (panelPrefs.panelOpacity / 100f) * 0.8f
+            
+            // Block back gesture in the pill area
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                post {
+                    systemGestureExclusionRects = listOf(Rect(0, 0, width, height))
+                }
+            }
         } else {
             setBackgroundResource(0)
             alpha = 1f
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                systemGestureExclusionRects = emptyList()
+            }
         }
     }
 
