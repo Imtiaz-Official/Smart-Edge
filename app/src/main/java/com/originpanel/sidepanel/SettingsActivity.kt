@@ -10,6 +10,7 @@ import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.originpanel.sidepanel.databinding.ActivitySettingsBinding
+import yuku.ambilwarna.AmbilWarnaDialog
 
 /**
  * Settings screen for panel configuration.
@@ -151,8 +152,6 @@ class SettingsActivity : AppCompatActivity() {
         binding.sbPanelRadius.progress = panelPrefs.panelCornerRadius
         binding.switchTools.isChecked = panelPrefs.showTools
         binding.switchHideBg.isChecked = panelPrefs.hideBackground
-        
-        // binding.sbPillWidth.progress = panelPrefs.pillWidth // HIDDEN
 
         updatePremiumUI()
     }
@@ -177,7 +176,9 @@ class SettingsActivity : AppCompatActivity() {
         binding.sbPanelRadius.isEnabled = isPremium
         binding.switchTools.isEnabled = isPremium
         binding.switchHideBg.isEnabled = isPremium
-        // binding.sbPillWidth.isEnabled = isPremium // HIDDEN
+        
+        binding.btnPickAccent.isEnabled = isPremium
+        binding.btnPickBg.isEnabled = isPremium
 
         if (isPremium) {
             binding.tvPremiumStatus.text = "Premium Active"
@@ -318,31 +319,32 @@ class SettingsActivity : AppCompatActivity() {
             restartServiceIfRunning()
         }
 
-        /* HIDDEN FOR NOW
-        binding.sbPillWidth.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    panelPrefs.pillWidth = progress
-                    updatePreview()
-                }
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
-        })
-
-        binding.btnPillWhite.setOnClickListener { updatePillColor("#FFFFFF") }
-        binding.btnPillBlue.setOnClickListener { updatePillColor("#4A9EFF") }
-        binding.btnPillRed.setOnClickListener { updatePillColor("#FF5252") }
-        binding.btnPillGreen.setOnClickListener { updatePillColor("#69F0AE") }
-        binding.btnPillYellow.setOnClickListener { updatePillColor("#FFFF00") }
-        */
-
         binding.btnResetDefaults.setOnClickListener {
             panelPrefs.resetToDefaults()
             loadCurrentSettings() 
             updatePreview()
             restartServiceIfRunning()
             Toast.makeText(this, "Settings Reset to Defaults", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.btnPickAccent.setOnClickListener {
+            openColorPicker(Color.parseColor(panelPrefs.accentColor)) { newColor ->
+                val hex = String.format("#%06X", (0xFFFFFF and newColor))
+                panelPrefs.accentColor = hex
+                updatePreview()
+                restartServiceIfRunning()
+            }
+        }
+
+        binding.btnPickBg.setOnClickListener {
+            // Need to handle transparency for BG color
+            openColorPicker(Color.parseColor(panelPrefs.panelBackgroundColor)) { newColor ->
+                // Keep the default alpha (E6) but change the color
+                val hex = String.format("#E6%06X", (0xFFFFFF and newColor))
+                panelPrefs.panelBackgroundColor = hex
+                updatePreview()
+                restartServiceIfRunning()
+            }
         }
 
         binding.btnColorDark.setOnClickListener { updateColor("#E61A1C1E") }
@@ -352,14 +354,14 @@ class SettingsActivity : AppCompatActivity() {
         binding.btnColorPurple.setOnClickListener { updateColor("#E64A148C") }
     }
 
-    private fun updatePillColor(hex: String) {
-        if (!panelPrefs.isPremium) {
-            Toast.makeText(this, "Premium Required", Toast.LENGTH_SHORT).show()
-            return
-        }
-        panelPrefs.pillColor = hex
-        updatePreview()
-        restartServiceIfRunning()
+    private fun openColorPicker(initialColor: Int, onPick: (Int) -> Unit) {
+        val picker = AmbilWarnaDialog(this, initialColor, object : AmbilWarnaDialog.OnAmbilWarnaListener {
+            override fun onCancel(dialog: AmbilWarnaDialog?) {}
+            override fun onOk(dialog: AmbilWarnaDialog?, color: Int) {
+                onPick(color)
+            }
+        })
+        picker.show()
     }
 
     private fun updateColor(hex: String) {

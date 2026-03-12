@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.dynamicanimation)
     implementation(libs.glide)
+    implementation("com.github.yukuku:ambilwarna:2.0.1")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
