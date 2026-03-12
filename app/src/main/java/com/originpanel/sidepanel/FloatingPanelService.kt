@@ -13,6 +13,11 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import androidx.core.app.NotificationCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class FloatingPanelService : Service() {
 
@@ -24,6 +29,8 @@ class FloatingPanelService : Service() {
     private var isPanelOpen = false
     private var isPickerOpen = false
     private lateinit var panelPrefs: PanelPreferences
+    
+    private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
 
     companion object {
         const val CHANNEL_ID = "side_panel_channel"
@@ -58,6 +65,7 @@ class FloatingPanelService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        serviceScope.cancel()
         removeView(edgeHandleView)
         removeView(sidePanelView)
         removeView(pickerPanelView)
@@ -173,8 +181,10 @@ class FloatingPanelService : Service() {
     }
 
     private fun refreshApps() {
-        val apps = AppRepository(this).getPanelApps()
-        sidePanelView?.setApps(apps)
+        serviceScope.launch {
+            val apps = AppRepository(this@FloatingPanelService).getPanelApps()
+            sidePanelView?.setApps(apps)
+        }
     }
 
     // ── Picker Panel (Pre-loaded) ─────────────────────────────────────────────

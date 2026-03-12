@@ -28,6 +28,7 @@ class AppPickerPanelView @JvmOverloads constructor(
     var onClose: (() -> Unit)? = null
     var onToggleApp: ((AppInfo, Boolean) -> Unit)? = null
 
+    private val pickerPanelCard: View
     private val rvPickerGrid: RecyclerView
     private val etSearch: EditText
     private val btnSettings: ImageButton
@@ -40,6 +41,7 @@ class AppPickerPanelView @JvmOverloads constructor(
 
     init {
         val view = LayoutInflater.from(context).inflate(R.layout.picker_panel_layout, this, true)
+        pickerPanelCard = view.findViewById(R.id.pickerPanelCard)
         rvPickerGrid = view.findViewById(R.id.rvPickerGrid)
         etSearch = view.findViewById(R.id.etPickerSearch)
         btnSettings = view.findViewById(R.id.btnPickerClose) // It's still named btnPickerClose in XML

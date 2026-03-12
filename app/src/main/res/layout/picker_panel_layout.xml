@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/pickerPanelCard"
-    android:layout_width="210dp"
+    android:layout_width="240dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:background="@drawable/bg_picker_panel"
@@ -76,7 +76,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvPickerGrid"
         android:layout_width="match_parent"
-        android:layout_height="340dp"
+        android:layout_height="400dp"
         android:clipToPadding="false"
         android:overScrollMode="ifContentScrolls"
         android:scrollbarStyle="outsideOverlay"

@@ -27,12 +27,13 @@
             android:paddingTop="12dp"
             android:paddingBottom="12dp">
 
-            <!-- Scrollable app list (Strictly 300dp to fit exactly 5 items) -->
-            <!-- Using Fixed Height guarantees the 5-app rule -->
+            <!-- Scrollable app list dynamically sized up to 320dp -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvPanelApps"
                 android:layout_width="match_parent"
-                android:layout_height="320dp"
+                android:layout_height="wrap_content"
+                app:layout_constrainedHeight="true"
+                app:layout_constraintHeight_max="320dp"
                 android:clipToPadding="false"
                 android:overScrollMode="ifContentScrolls"
                 android:paddingBottom="4dp"
