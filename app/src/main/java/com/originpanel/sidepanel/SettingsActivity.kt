@@ -115,8 +115,8 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchShowPill.isChecked = panelPrefs.showPill
         binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
         binding.sbOpacity.progress = panelPrefs.panelOpacity
-        binding.sbHandleHeight.progress = panelPrefs.handleHeight
-        binding.sbHandleWidth.progress = panelPrefs.handleWidth
+        binding.sbHandleHeight.progress = panelPrefs.handleHeight // Relative to min 40
+        binding.sbHandleWidth.progress = panelPrefs.handleWidth // Relative to min 10
         binding.sbHandleOffset.progress = panelPrefs.handleVerticalOffset + 100
 
         when (panelPrefs.uiTheme) {

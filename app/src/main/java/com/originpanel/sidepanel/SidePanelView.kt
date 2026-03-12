@@ -41,7 +41,6 @@ class SidePanelView @JvmOverloads constructor(
     private val binding: SidePanelLayoutBinding
     private val adapter: PanelAppsAdapter
     private val panelPrefs = PanelPreferences(context)
-    private var isAnimating = false
 
     init {
         // Inflate using ViewBinding
@@ -138,7 +137,6 @@ class SidePanelView @JvmOverloads constructor(
         drawable.cornerRadius = panelPrefs.panelCornerRadius * density
         
         val accentColorHex = panelPrefs.accentColor
-        Log.d("SidePanelView", "Applying theme: $theme, AccentColor: $accentColorHex")
         val accentColor = if (panelPrefs.useCustomAccent) {
             try {
                 Color.parseColor(accentColorHex)
@@ -205,26 +203,32 @@ class SidePanelView @JvmOverloads constructor(
         binding.panelCard.requestLayout()
     }
 
+    /**
+     * Animates the bottom arrow (btnClose) to move from middle to the right side.
+     * Uses cancel() to prevent rapid-click lockups.
+     */
     fun animatePickerToggle(isOpen: Boolean) {
-        if (isAnimating) return
-        isAnimating = true
-
+        binding.btnClose.animate().cancel() 
+        
         binding.btnClose.post {
             val density = context.resources.displayMetrics.density
             val viewWidth = binding.panelCard.width.toFloat()
+            if (viewWidth <= 0) return@post
+
             val viewWidthDp = viewWidth / density
             val buttonWidthDp = 24f
+            
             val middleX = (viewWidthDp / 2f) - (buttonWidthDp / 2f)
             val rightX = viewWidthDp - 8f - buttonWidthDp
             val translation = if (isOpen) (rightX - middleX) else 0f
+            
             val targetRotation = if (isOpen) 0f else 180f
 
             binding.btnClose.animate()
                 .translationX(translation * density)
                 .rotation(targetRotation)
-                .setDuration(400)
+                .setDuration(350)
                 .setInterpolator(android.view.animation.AnticipateOvershootInterpolator(1.0f))
-                .withEndAction { isAnimating = false }
                 .start()
         }
     }

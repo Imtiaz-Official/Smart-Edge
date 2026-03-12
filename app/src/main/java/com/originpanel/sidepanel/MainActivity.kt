@@ -1,6 +1,7 @@
 package com.originpanel.sidepanel
 
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -114,8 +115,9 @@ class MainActivity : AppCompatActivity() {
             startService(intent)
         }
         isPanelRunning = true
-        binding.btnStartStop.text = getString(R.string.stop_panel)
-        binding.tvStatus.text = "✓  Panel is active — check your screen edge"
+        binding.btnStartStop.text = "Stop"
+        binding.tvStatus.text = "Service is Active"
+        binding.tvStatus.setTextColor(Color.parseColor("#00C853"))
     }
 
     private fun stopPanel() {
@@ -124,8 +126,9 @@ class MainActivity : AppCompatActivity() {
         }
         startService(intent)
         isPanelRunning = false
-        binding.btnStartStop.text = getString(R.string.start_panel)
-        binding.tvStatus.text = "Panel is stopped"
+        binding.btnStartStop.text = "Start"
+        binding.tvStatus.text = "Service is Stopped"
+        binding.tvStatus.setTextColor(Color.parseColor("#80FFFFFF"))
     }
 
     private fun triggerPanelToggle() {
