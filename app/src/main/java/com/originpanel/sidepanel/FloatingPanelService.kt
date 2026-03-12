@@ -45,7 +45,7 @@ class FloatingPanelService : Service() {
         panelPrefs = PanelPreferences(this)
 
         createNotificationChannel()
-        startForeground(NOTIFICATION_ID, buildNotification())
+        startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
 
         // ── Pre-warm Views for Zero Latency ──────────────────────────────────
         initSidePanel()
