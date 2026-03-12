@@ -454,5 +454,57 @@
                 android:enabled="false" />
         </RadioGroup>
 
+        <!-- Corner Radius (Premium) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Panel Corner Radius (Premium)"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp" />
+
+        <SeekBar
+            android:id="@+id/sbPanelRadius"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:min="0"
+            android:max="60"
+            android:progress="28"
+            android:progressTint="@color/accent_blue"
+            android:thumbTint="@color/accent_blue"
+            android:enabled="false" />
+
+        <!-- Background Color (Premium) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Panel Background (Premium)"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/llColorPresets"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="8dp">
+                
+                <Button android:id="@+id/btnColorDark" android:layout_width="40dp" android:layout_height="40dp" android:backgroundTint="#E61A1C1E" android:layout_marginEnd="8dp" />
+                <Button android:id="@+id/btnColorBlue" android:layout_width="40dp" android:layout_height="40dp" android:backgroundTint="#E60D47A1" android:layout_marginEnd="8dp" />
+                <Button android:id="@+id/btnColorRed" android:layout_width="40dp" android:layout_height="40dp" android:backgroundTint="#E6B71C1C" android:layout_marginEnd="8dp" />
+                <Button android:id="@+id/btnColorGreen" android:layout_width="40dp" android:layout_height="40dp" android:backgroundTint="#E61B5E20" android:layout_marginEnd="8dp" />
+                <Button android:id="@+id/btnColorPurple" android:layout_width="40dp" android:layout_height="40dp" android:backgroundTint="#E64A148C" android:layout_marginEnd="8dp" />
+
+            </LinearLayout>
+        </HorizontalScrollView>
+
     </LinearLayout>
 </ScrollView>

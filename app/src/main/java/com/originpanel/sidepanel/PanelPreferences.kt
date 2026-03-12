@@ -28,6 +28,10 @@ class PanelPreferences(context: Context) {
         private const val KEY_PANEL_COLUMNS = "panel_columns"
         private const val KEY_UI_THEME = "ui_theme"
         private const val KEY_IS_PREMIUM = "is_premium"
+        
+        private const val KEY_PANEL_RADIUS = "panel_radius"
+        private const val KEY_PANEL_BG_COLOR = "panel_bg_color"
+        
         private const val DELIMITER = ","
 
         const val SIDE_RIGHT = "right"
@@ -83,6 +87,16 @@ class PanelPreferences(context: Context) {
     var uiTheme: String
         get() = prefs.getString(KEY_UI_THEME, THEME_ORIGIN) ?: THEME_ORIGIN
         set(value) = prefs.edit { putString(KEY_UI_THEME, value) }
+
+    /** Panel Corner Radius in DP. */
+    var panelCornerRadius: Int
+        get() = prefs.getInt(KEY_PANEL_RADIUS, 28)
+        set(value) = prefs.edit { putInt(KEY_PANEL_RADIUS, value) }
+
+    /** Custom Background Color (Hex string). Default is semi-transparent dark. */
+    var panelBackgroundColor: String
+        get() = prefs.getString(KEY_PANEL_BG_COLOR, "#E61A1C1E") ?: "#E61A1C1E"
+        set(value) = prefs.edit { putString(KEY_PANEL_BG_COLOR, value) }
 
     /** Simulated premium status. */
     var isPremium: Boolean

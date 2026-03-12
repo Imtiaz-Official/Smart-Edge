@@ -3,6 +3,7 @@ package com.originpanel.sidepanel
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -50,7 +51,7 @@ class SidePanelView @JvmOverloads constructor(
         // Prevent clicks on the panel itself from bubbling up to the closer
         binding.panelCard.setOnClickListener { /* Consume */ }
 
-        // Apply UI Theme (Premium)
+        // Apply Custom Styles (Premium + Themes)
         applyTheme()
 
         // Set opacity
@@ -85,8 +86,8 @@ class SidePanelView @JvmOverloads constructor(
             binding.panelCard.requestLayout()
 
             this.adapter = this@SidePanelView.adapter
-            itemAnimator = null  // Disable default animation (spring handles it)
-            setHasFixedSize(true) // Avoids re-measuring parent during spring animations
+            itemAnimator = null  
+            setHasFixedSize(true) 
         }
 
         // Toggle Picker (Repurposed from Close button)
@@ -101,24 +102,41 @@ class SidePanelView @JvmOverloads constructor(
 
     private fun applyTheme() {
         val theme = panelPrefs.uiTheme
+        val density = context.resources.displayMetrics.density
         binding.panelHandle.visibility = if (theme == PanelPreferences.THEME_RICH) View.VISIBLE else View.GONE
         
+        // Dynamically create background instead of static XML to allow customization
+        val drawable = GradientDrawable()
+        drawable.shape = GradientDrawable.RECTANGLE
+        
+        // Use custom background color if set, else fallback to theme default
+        val bgColor = Color.parseColor(panelPrefs.panelBackgroundColor)
+        drawable.setColor(bgColor)
+        
+        // Corner Radius
+        drawable.cornerRadius = panelPrefs.panelCornerRadius * density
+        
+        // Stroke/Border based on theme
         when (theme) {
             PanelPreferences.THEME_HYPEROS -> {
-                binding.panelCard.setBackgroundResource(R.drawable.bg_panel_hyperos)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    binding.panelCard.clipToOutline = true
-                }
+                drawable.setStroke((1 * density).toInt(), Color.parseColor("#33FFFFFF"))
             }
             PanelPreferences.THEME_REALME -> {
-                binding.panelCard.setBackgroundResource(R.drawable.bg_panel_realme)
+                drawable.setStroke((2 * density).toInt(), Color.parseColor("#FF4A9EFF"))
+                drawable.cornerRadius = 40 * density // Override for Realme
             }
             PanelPreferences.THEME_RICH -> {
-                binding.panelCard.setBackgroundResource(R.drawable.bg_panel_rich)
+                drawable.setStroke((2 * density).toInt(), Color.parseColor("#FF4A9EFF"))
             }
-            else -> { // Origin (Default)
-                binding.panelCard.setBackgroundResource(R.drawable.bg_panel)
+            else -> { // Origin
+                drawable.setStroke((1 * density).toInt(), Color.parseColor("#26FFFFFF"))
             }
+        }
+        
+        binding.panelCard.background = drawable
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            binding.panelCard.clipToOutline = true
         }
     }
 
@@ -128,7 +146,6 @@ class SidePanelView @JvmOverloads constructor(
      */
     fun setApps(apps: List<AppInfo>) {
         adapter.submitList(apps)
-        // RecyclerView always visible now because it contains the '+' button
         binding.rvPanelApps.visibility = View.VISIBLE
     }
 
@@ -168,8 +185,6 @@ class SidePanelView @JvmOverloads constructor(
             val viewWidthDp = viewWidth / density
             val buttonWidthDp = 24f
             
-            // Start at middle: (viewWidthDp / 2) - (buttonWidthDp / 2)
-            // We want to move it to (viewWidthDp - 8dp - buttonWidthDp)
             val middleX = (viewWidthDp / 2f) - (buttonWidthDp / 2f)
             val rightX = viewWidthDp - 8f - buttonWidthDp
             val translation = if (isOpen) (rightX - middleX) else 0f

@@ -68,7 +68,6 @@ class SettingsActivity : AppCompatActivity() {
             onAppsChanged = null
             onAddClick = null
             
-            // Set dummy colored apps for a rich visual
             setApps(listOf(
                 AppInfo("pkg1", "Browser", getDrawable(android.R.drawable.ic_menu_compass), true),
                 AppInfo("pkg2", "Camera", getDrawable(android.R.drawable.ic_menu_camera), true),
@@ -83,16 +82,14 @@ class SettingsActivity : AppCompatActivity() {
 
         val panelParams = FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.WRAP_CONTENT,
-            FrameLayout.LayoutParams.MATCH_PARENT // Match container height to center correctly
+            FrameLayout.LayoutParams.MATCH_PARENT 
         ).apply {
             gravity = if (isRight) Gravity.END else Gravity.START
-            // Add some margin so it's not touching the edge
             setMargins(if (isRight) 0 else 16, 0, if (isRight) 16 else 0, 0)
         }
         previewPanel?.translationY = (panelPrefs.handleVerticalOffset * density)
         binding.previewContainer.addView(previewPanel, panelParams)
         
-        // Simulation text at the bottom
         val tv = android.widget.TextView(this).apply {
             text = "Live Display Simulation"
             setTextColor(Color.parseColor("#B3FFFFFF"))
@@ -116,48 +113,35 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun loadCurrentSettings() {
-        // Panel side
         if (panelPrefs.panelSide == PanelPreferences.SIDE_LEFT) {
             binding.rgPanelSide.check(R.id.rbLeft)
         } else {
             binding.rgPanelSide.check(R.id.rbRight)
         }
 
-        // Auto-start
         binding.switchAutoStart.isChecked = panelPrefs.autoStart
-
-        // Show Pill
         binding.switchShowPill.isChecked = panelPrefs.showPill
-
-        // Haptic Feedback
         binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
-
-        // Opacity
         binding.sbOpacity.progress = panelPrefs.panelOpacity
-
-        // Handle Height
         binding.sbHandleHeight.progress = panelPrefs.handleHeight
-
-        // Handle Width
         binding.sbHandleWidth.progress = panelPrefs.handleWidth
-
-        // Premium Vertical Offset
         binding.sbHandleOffset.progress = panelPrefs.handleVerticalOffset + 100
 
-        // Premium Columns
         if (panelPrefs.panelColumns == 2) {
             binding.rgColumns.check(R.id.rbCol2)
         } else {
             binding.rgColumns.check(R.id.rbCol1)
         }
 
-        // Premium Themes
         when (panelPrefs.uiTheme) {
             PanelPreferences.THEME_HYPEROS -> binding.rgThemes.check(R.id.rbThemeHyper)
             PanelPreferences.THEME_REALME -> binding.rgThemes.check(R.id.rbThemeRealme)
             PanelPreferences.THEME_RICH -> binding.rgThemes.check(R.id.rbThemeRich)
             else -> binding.rgThemes.check(R.id.rbThemeOrigin)
         }
+
+        // New Radius
+        binding.sbPanelRadius.progress = panelPrefs.panelCornerRadius
 
         updatePremiumUI()
     }
@@ -173,6 +157,8 @@ class SettingsActivity : AppCompatActivity() {
         binding.rbThemeHyper.isEnabled = isPremium
         binding.rbThemeRealme.isEnabled = isPremium
         binding.rbThemeRich.isEnabled = isPremium
+        
+        binding.sbPanelRadius.isEnabled = isPremium
 
         if (isPremium) {
             binding.tvPremiumStatus.text = "Premium Active"
@@ -269,6 +255,33 @@ class SettingsActivity : AppCompatActivity() {
             updatePreview()
             restartServiceIfRunning()
         }
+
+        binding.sbPanelRadius.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    panelPrefs.panelCornerRadius = progress
+                    updatePreview()
+                }
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
+        })
+
+        binding.btnColorDark.setOnClickListener { updateColor("#E61A1C1E") }
+        binding.btnColorBlue.setOnClickListener { updateColor("#E60D47A1") }
+        binding.btnColorRed.setOnClickListener { updateColor("#E6B71C1C") }
+        binding.btnColorGreen.setOnClickListener { updateColor("#E61B5E20") }
+        binding.btnColorPurple.setOnClickListener { updateColor("#E64A148C") }
+    }
+
+    private fun updateColor(hex: String) {
+        if (!panelPrefs.isPremium) {
+            Toast.makeText(this, "Custom colors require Premium", Toast.LENGTH_SHORT).show()
+            return
+        }
+        panelPrefs.panelBackgroundColor = hex
+        updatePreview()
+        restartServiceIfRunning()
     }
 
     private fun restartServiceIfRunning() {
