@@ -64,6 +64,15 @@ class FloatingPanelService : Service() {
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         panelPrefs = PanelPreferences(this)
 
+        // Pre-populate with some apps if empty (First Run)
+        serviceScope.launch {
+            if (panelPrefs.getPanelApps().isEmpty()) {
+                val topApps = AppRepository(this@FloatingPanelService).getTop5Apps()
+                panelPrefs.setPanelApps(topApps)
+                refreshApps()
+            }
+        }
+
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
 
@@ -120,7 +129,6 @@ class FloatingPanelService : Service() {
                 val imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
                 val projection = projectionManager.getMediaProjection(resultCode, data)
                 
-                // MANDATORY for Android 14: Register callback BEFORE createVirtualDisplay
                 projection.registerCallback(object : MediaProjection.Callback() {}, Handler(Looper.getMainLooper()))
                 
                 val virtualDisplay = projection.createVirtualDisplay(
@@ -242,14 +250,12 @@ class FloatingPanelService : Service() {
             alpha = panelPrefs.panelOpacity / 100f
         }
 
-        // DYNAMIC TOUCH TARGET (Linked to settings)
         val handleWidth = panelPrefs.handleWidth
         val handleHeight = if (isPillVisible) dpToPx(panelPrefs.handleHeight) 
                            else (resources.displayMetrics.heightPixels * 0.60f).toInt()
 
         val params = WindowManager.LayoutParams(
             dpToPx(handleWidth),
-
             handleHeight,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or

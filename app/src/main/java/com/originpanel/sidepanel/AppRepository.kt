@@ -64,7 +64,7 @@ class AppRepository(context: Context) {
                     isInPanel = true
                 )
             } else {
-                // Fallback for system apps or non-launcher apps that were manually added?
+                // Fallback for system apps or non-launcher apps that were manually added
                 try {
                     val appInfo = packageManager.getApplicationInfo(pkg, 0)
                     AppInfo(
@@ -78,5 +78,18 @@ class AppRepository(context: Context) {
                 }
             }
         }
+    }
+
+    /**
+     * Returns the first 5 launchable apps found on the device.
+     * Used for initial population on first install.
+     */
+    suspend fun getTop5Apps(): List<String> = withContext(Dispatchers.IO) {
+        val intent = android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
+            addCategory(android.content.Intent.CATEGORY_LAUNCHER)
+        }
+        packageManager.queryIntentActivities(intent, 0)
+            .take(5)
+            .map { it.activityInfo.packageName }
     }
 }
