@@ -1,5 +1,6 @@
 package com.originpanel.sidepanel
 
+import android.app.Activity
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -79,14 +80,16 @@ class FloatingPanelService : Service() {
                 openPanel()
             }
             ACTION_SCREENSHOT -> {
-                val resultCode = intent.getIntExtra("RESULT_CODE", -1)
+                val resultCode = intent.getIntExtra("RESULT_CODE", 0)
                 val data = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     intent.getParcelableExtra("DATA", Intent::class.java)
                 } else {
                     @Suppress("DEPRECATION")
                     intent.getParcelableExtra("DATA")
                 }
-                if (resultCode != -1 && data != null) {
+                
+                // FIXED LOGIC: Activity.RESULT_OK is -1
+                if (resultCode == Activity.RESULT_OK && data != null) {
                     Log.d(TAG, "ACTION_SCREENSHOT: results valid, performing capture")
                     performScreenshot(resultCode, data)
                 } else {
