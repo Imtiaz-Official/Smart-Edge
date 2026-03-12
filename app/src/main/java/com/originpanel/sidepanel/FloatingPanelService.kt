@@ -5,19 +5,33 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.PixelFormat
+import android.hardware.display.DisplayManager
+import android.media.ImageReader
+import android.media.projection.MediaProjectionManager
 import android.os.Build
+import android.os.Environment
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class FloatingPanelService : Service() {
 
@@ -37,6 +51,7 @@ class FloatingPanelService : Service() {
         const val NOTIFICATION_ID = 1001
         const val ACTION_STOP = "com.originpanel.sidepanel.STOP"
         const val ACTION_OPEN = "com.originpanel.sidepanel.OPEN"
+        const val ACTION_SCREENSHOT = "com.originpanel.sidepanel.SCREENSHOT"
     }
 
     override fun onCreate() {
@@ -47,7 +62,6 @@ class FloatingPanelService : Service() {
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
 
-        // ── Pre-warm Views for Zero Latency ──────────────────────────────────
         initSidePanel()
         initPickerPanel()
         addEdgeHandle()
@@ -57,12 +71,79 @@ class FloatingPanelService : Service() {
         when (intent?.action) {
             ACTION_STOP -> stopSelf()
             ACTION_OPEN -> {
-                android.util.Log.d("FloatingPanelService", "onStartCommand: ACTION_OPEN received")
                 refreshApps()
                 openPanel()
             }
+            ACTION_SCREENSHOT -> {
+                val resultCode = intent.getIntExtra("RESULT_CODE", -1)
+                val data = intent.getParcelableExtra<Intent>("DATA")
+                if (resultCode != -1 && data != null) {
+                    performScreenshot(resultCode, data)
+                }
+            }
         }
         return START_STICKY
+    }
+
+    private fun performScreenshot(resultCode: Int, data: Intent) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTIFICATION_ID, buildNotification(), 
+                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION or 
+                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+        }
+
+        val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        val metrics = resources.displayMetrics
+        val width = metrics.widthPixels
+        val height = metrics.heightPixels
+        val density = metrics.densityDpi
+
+        val imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
+        val projection = projectionManager.getMediaProjection(resultCode, data)
+        
+        val virtualDisplay = projection.createVirtualDisplay(
+            "Screenshot", width, height, density,
+            DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY or DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
+            imageReader.surface, null, null
+        )
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            val image = imageReader.acquireLatestImage()
+            if (image != null) {
+                val planes = image.planes
+                val buffer = planes[0].buffer
+                val pixelStride = planes[0].pixelStride
+                val rowStride = planes[0].rowStride
+                val rowPadding = rowStride - pixelStride * width
+
+                val bitmap = Bitmap.createBitmap(
+                    width + rowPadding / pixelStride,
+                    height, Bitmap.Config.ARGB_8888
+                )
+                bitmap.copyPixelsFromBuffer(buffer)
+                
+                val croppedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height)
+                saveBitmap(croppedBitmap)
+                
+                image.close()
+                virtualDisplay.release()
+                projection.stop()
+                
+                Toast.makeText(this, "Screenshot saved to DCIM/SidePanel", Toast.LENGTH_SHORT).show()
+                startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            }
+        }, 500)
+    }
+
+    private fun saveBitmap(bitmap: Bitmap) {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val fileName = "Screenshot_$timeStamp.png"
+        val dir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "SidePanel")
+        if (!dir.exists()) dir.mkdirs()
+        val file = File(dir, fileName)
+        FileOutputStream(file).use { out ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+        }
     }
 
     override fun onDestroy() {
@@ -79,11 +160,8 @@ class FloatingPanelService : Service() {
         view?.let { if (it.isAttachedToWindow) windowManager.removeView(it) }
     }
 
-    // ── Edge Handle ──────────────────────────────────────────────────────────
-
     private fun addEdgeHandle() {
         if (!panelPrefs.gesturesEnabled) return
-
         val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
         val isPillVisible = panelPrefs.showPill
         
@@ -116,8 +194,6 @@ class FloatingPanelService : Service() {
         windowManager.addView(edgeHandleView, params)
     }
 
-    // ── Side Panel (Pre-loaded) ───────────────────────────────────────────────
-
     private fun initSidePanel() {
         sidePanelView = SidePanelView(this).apply {
             onClose = { closePanel() }
@@ -125,9 +201,7 @@ class FloatingPanelService : Service() {
             onAddClick = { togglePicker() }
             visibility = View.GONE 
         }
-
         refreshApps()
-
         val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -143,22 +217,12 @@ class FloatingPanelService : Service() {
             gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL
                       else Gravity.START or Gravity.CENTER_VERTICAL
         }
-
         windowManager.addView(sidePanelView, params)
-        
-        sidePanelView?.setOnTouchListener { _, event ->
-            if (event.action == android.view.MotionEvent.ACTION_OUTSIDE) {
-                if (isPickerOpen) closePicker() else closePanel()
-                true
-            } else false
-        }
     }
 
     private fun openPanel() {
         if (isPanelOpen) return
         isPanelOpen = true
-
-        android.util.Log.d("FloatingPanelService", "openPanel: refreshing apps")
         refreshApps()
         sidePanelView?.scrollToTop() 
         sidePanelView?.let { panel ->
@@ -168,16 +232,13 @@ class FloatingPanelService : Service() {
                 SpringAnimator.animateOpen(panel, panelWidth)
             }
         }
-
         edgeHandleView?.visibility = View.GONE
     }
 
     fun closePanel() {
         if (!isPanelOpen) return
         isPanelOpen = false
-
         if (isPickerOpen) closePicker()
-
         sidePanelView?.let { panel ->
             val panelWidth = panel.width.toFloat()
             SpringAnimator.animateClose(panel, panelWidth) {
@@ -195,8 +256,6 @@ class FloatingPanelService : Service() {
         }
     }
 
-    // ── Picker Panel (Pre-loaded) ─────────────────────────────────────────────
-
     private fun initPickerPanel() {
         pickerPanelView = AppPickerPanelView(this).apply {
             onClose = { closePicker() }
@@ -207,7 +266,6 @@ class FloatingPanelService : Service() {
             }
             visibility = View.GONE 
         }
-
         val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -220,11 +278,9 @@ class FloatingPanelService : Service() {
         ).apply {
             gravity = if (isRight) Gravity.CENTER_VERTICAL or Gravity.END
                       else Gravity.CENTER_VERTICAL or Gravity.START
-
             val sidePanelWidthPx = (104 * resources.displayMetrics.density).toInt()
             x = sidePanelWidthPx
         }
-
         windowManager.addView(pickerPanelView, params)
     }
 
@@ -235,11 +291,8 @@ class FloatingPanelService : Service() {
     private fun openPicker() {
         if (isPickerOpen) return
         isPickerOpen = true
-
-        // Squeeze side panel to 1 column to save space
         sidePanelView?.setColumns(1)
         sidePanelView?.animatePickerToggle(true)
-
         pickerPanelView?.let { picker ->
             picker.visibility = View.VISIBLE
             picker.post {
@@ -253,12 +306,9 @@ class FloatingPanelService : Service() {
     private fun closePicker() {
         if (!isPickerOpen) return
         isPickerOpen = false
-
-        // Restore original columns (respecting user preference)
         val originalCols = if (panelPrefs.isPremium) panelPrefs.panelColumns else 1
         sidePanelView?.setColumns(originalCols)
         sidePanelView?.animatePickerToggle(false)
-
         pickerPanelView?.let { picker ->
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
             val pickerWidth = picker.width.toFloat()
@@ -267,8 +317,6 @@ class FloatingPanelService : Service() {
             }
         }
     }
-
-    // ── Utilities ────────────────────────────────────────────────────────────
 
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
@@ -291,13 +339,11 @@ class FloatingPanelService : Service() {
             this, 0, stopIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-
         val openMainIntent = Intent(this, MainActivity::class.java)
         val openMainPending = PendingIntent.getActivity(
             this, 0, openMainIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(getString(R.string.panel_running))

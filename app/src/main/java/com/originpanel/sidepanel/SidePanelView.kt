@@ -105,16 +105,15 @@ class SidePanelView @JvmOverloads constructor(
 
         // Screenshot tool
         binding.btnScreenshot.setOnClickListener {
-            it.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
-            Toast.makeText(context, "Screenshot coming soon!", Toast.LENGTH_SHORT).show()
-            // Temporarily disabled due to MediaProjection foreground service constraints
-            /*
+            if (panelPrefs.hapticEnabled) {
+                it.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+            }
             onClose?.invoke() 
+            
             val intent = Intent(context, ScreenshotActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(intent)
-            */
         }
     }
 

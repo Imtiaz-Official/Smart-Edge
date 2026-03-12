@@ -56,7 +56,7 @@
         <!-- Floating Service -->
         <service
             android:name=".FloatingPanelService"
-            android:foregroundServiceType="specialUse"
+            android:foregroundServiceType="specialUse|mediaProjection"
             android:enabled="true"
             android:exported="false" />
 
