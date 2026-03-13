@@ -56,6 +56,16 @@ class PanelAppsAdapter(
         }
     }
 
+    private var highlightPackage: String? = null
+
+    fun highlightItem(packageName: String) {
+        highlightPackage = packageName
+        val index = currentList.indexOfFirst { it.packageName == packageName }
+        if (index != -1) {
+            notifyItemChanged(index)
+        }
+    }
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is AppViewHolder) {
             val app = getItem(position)
@@ -64,6 +74,12 @@ class PanelAppsAdapter(
             
             // Apply icon shape
             IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
+
+            // Visual feedback for newly added app
+            if (app.packageName == highlightPackage) {
+                SpringAnimator.scalePulse(holder.itemView)
+                highlightPackage = null // Only pulse once
+            }
 
             holder.itemView.setOnClickListener {
                 if (panelPrefs.hapticEnabled) {

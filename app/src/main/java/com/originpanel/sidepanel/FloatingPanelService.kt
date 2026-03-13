@@ -319,10 +319,10 @@ class FloatingPanelService : Service() {
         }
     }
 
-    private fun refreshApps() {
+    private fun refreshApps(onComplete: (() -> Unit)? = null) {
         serviceScope.launch {
             val apps = AppRepository(this@FloatingPanelService).getPanelApps()
-            sidePanelView?.setApps(apps)
+            sidePanelView?.setApps(apps, onComplete)
         }
     }
 
@@ -330,9 +330,18 @@ class FloatingPanelService : Service() {
         pickerPanelView = AppPickerPanelView(this).apply {
             onClose = { closePicker() }
             onToggleApp = { app, isSelected ->
-                if (isSelected) panelPrefs.addApp(app.packageName)
-                else panelPrefs.removeApp(app.packageName)
-                refreshApps()
+                if (isSelected) {
+                    panelPrefs.addApp(app.packageName)
+                    refreshApps {
+                        // Only scroll if we are currently in picker mode
+                        if (isPickerOpen) {
+                            sidePanelView?.scrollToApp(app.packageName)
+                        }
+                    }
+                } else {
+                    panelPrefs.removeApp(app.packageName)
+                    refreshApps()
+                }
             }
             visibility = View.GONE 
         }

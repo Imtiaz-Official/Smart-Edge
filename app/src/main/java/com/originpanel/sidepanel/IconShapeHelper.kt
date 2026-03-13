@@ -14,38 +14,46 @@ import android.widget.ImageView
  */
 object IconShapeHelper {
 
-    fun applyShape(view: ImageView, shape: String) {
-        // Ensure the icon fills the mask area
-        view.scaleType = ImageView.ScaleType.CENTER_CROP
-
-        view.outlineProvider = object : ViewOutlineProvider() {
-            override fun getOutline(view: View, outline: Outline) {
-                val w = view.width
-                val h = view.height
-                val minDim = Math.min(w, h).toFloat()
-
-                when (shape) {
-                    PanelPreferences.SHAPE_CIRCLE -> {
-                        outline.setOval(0, 0, w, h)
-                    }
-                    PanelPreferences.SHAPE_SQUARE -> {
-                        // Polished Square: Not sharp, but with subtle 8dp rounded corners
-                        val radius = 8 * view.context.resources.displayMetrics.density
-                        outline.setRoundRect(0, 0, w, h, radius)
-                    }
-                    PanelPreferences.SHAPE_ROUNDED -> {
-                        outline.setRoundRect(0, 0, w, h, minDim * 0.2f)
-                    }
-                    PanelPreferences.SHAPE_SQUIRCLE -> {
-                        // Advanced corner radius for that premium "Apple/OneUI" squircle feel
-                        outline.setRoundRect(0, 0, w, h, minDim * 0.35f)
-                    }
-                    else -> {
-                        outline.setOval(0, 0, w, h)
-                    }
-                }
-            }
+    private val circleProvider = object : ViewOutlineProvider() {
+        override fun getOutline(view: View, outline: Outline) {
+            outline.setOval(0, 0, view.width, view.height)
         }
-        view.clipToOutline = true
+    }
+
+    private val squareProvider = object : ViewOutlineProvider() {
+        override fun getOutline(view: View, outline: Outline) {
+            val radius = 8 * view.context.resources.displayMetrics.density
+            outline.setRoundRect(0, 0, view.width, view.height, radius)
+        }
+    }
+
+    private val roundedProvider = object : ViewOutlineProvider() {
+        override fun getOutline(view: View, outline: Outline) {
+            val minDim = Math.min(view.width, view.height).toFloat()
+            outline.setRoundRect(0, 0, view.width, view.height, minDim * 0.2f)
+        }
+    }
+
+    private val squircleProvider = object : ViewOutlineProvider() {
+        override fun getOutline(view: View, outline: Outline) {
+            val minDim = Math.min(view.width, view.height).toFloat()
+            outline.setRoundRect(0, 0, view.width, view.height, minDim * 0.35f)
+        }
+    }
+
+    fun applyShape(view: ImageView, shape: String) {
+        val provider = when (shape) {
+            PanelPreferences.SHAPE_CIRCLE -> circleProvider
+            PanelPreferences.SHAPE_SQUARE -> squareProvider
+            PanelPreferences.SHAPE_ROUNDED -> roundedProvider
+            PanelPreferences.SHAPE_SQUIRCLE -> squircleProvider
+            else -> circleProvider
+        }
+
+        if (view.outlineProvider != provider) {
+            view.scaleType = ImageView.ScaleType.CENTER_CROP
+            view.outlineProvider = provider
+            view.clipToOutline = true
+        }
     }
 }

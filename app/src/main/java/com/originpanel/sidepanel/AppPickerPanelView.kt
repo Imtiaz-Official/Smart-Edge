@@ -87,21 +87,35 @@ class AppPickerPanelView @JvmOverloads constructor(
     fun loadApps() {
         scope.launch {
             allApps = withContext(Dispatchers.IO) { repository.getAllApps() }
-            adapter.setItems(allApps)
+            adapter.submitList(allApps)
         }
     }
 
     private fun filter(query: String) {
         val filtered = allApps.filter { it.appName.contains(query, ignoreCase = true) }
-        adapter.setItems(filtered)
+        adapter.submitList(filtered)
     }
 
-    inner class PickerAdapter : RecyclerView.Adapter<PickerViewHolder>() {
-        private var items = listOf<AppInfo>()
+    inner class PickerAdapter : androidx.recyclerview.widget.ListAdapter<AppInfo, PickerViewHolder>(AppDiffCallback()) {
 
-        fun setItems(newItems: List<AppInfo>) {
-            items = newItems
-            notifyDataSetChanged()
+        private var accentColor: Int = Color.parseColor("#4DFFFFFF")
+        private var accentColorStateList: android.content.res.ColorStateList = android.content.res.ColorStateList.valueOf(accentColor)
+
+        init {
+            updateAccentColor()
+        }
+
+        fun updateAccentColor() {
+            accentColor = try {
+                if (panelPrefs.useCustomAccent) {
+                    Color.parseColor(panelPrefs.accentColor)
+                } else {
+                    Color.parseColor("#4DFFFFFF")
+                }
+            } catch (e: Exception) {
+                Color.parseColor("#4DFFFFFF")
+            }
+            accentColorStateList = android.content.res.ColorStateList.valueOf(accentColor)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PickerViewHolder {
@@ -113,11 +127,11 @@ class AppPickerPanelView @JvmOverloads constructor(
         }
 
         override fun onBindViewHolder(holder: PickerViewHolder, position: Int) {
-            val app = items[position]
+            val app = getItem(position)
             holder.ivIcon.setImageDrawable(app.icon)
             holder.tvName.text = app.appName
             
-            // Apply icon shape
+            // Apply icon shape - only if not already set or for specific view recycle
             IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
 
             holder.tvPackage?.text = app.packageName
@@ -126,33 +140,49 @@ class AppPickerPanelView @JvmOverloads constructor(
             holder.ivCheck.visibility = if (isSelected) View.VISIBLE else View.GONE
             holder.vHighlight.visibility = if (isSelected) View.VISIBLE else View.GONE
 
-            // Apply accent color to highlights
-            try {
-                val accentColor = if (panelPrefs.useCustomAccent) {
-                    Color.parseColor(panelPrefs.accentColor)
-                } else {
-                    Color.parseColor("#4DFFFFFF") // Professional Default
-                }
-                
-                holder.vHighlight.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColor)
-                if (holder.ivCheck is ImageView) {
-                    holder.ivCheck.imageTintList = android.content.res.ColorStateList.valueOf(accentColor)
-                }
-            } catch (e: Exception) {}
+            // Optimized color application
+            holder.vHighlight.backgroundTintList = accentColorStateList
+            if (holder.ivCheck is ImageView) {
+                holder.ivCheck.imageTintList = accentColorStateList
+            }
 
             holder.itemView.setOnClickListener {
                 if (panelPrefs.hapticEnabled) {
                     holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
                 }
                 SpringAnimator.scalePulse(holder.itemView)
+                
+                // Toggle state locally and in prefs
                 val newState = !app.isInPanel
                 app.isInPanel = newState
                 onToggleApp?.invoke(app, newState)
-                notifyItemChanged(position)
+                
+                // Partial update for performance
+                notifyItemChanged(position, "TOGGLE_STATE")
             }
         }
 
-        override fun getItemCount() = items.size
+        override fun onBindViewHolder(holder: PickerViewHolder, position: Int, payloads: List<Any>) {
+            if (payloads.isEmpty()) {
+                super.onBindViewHolder(holder, position, payloads)
+            } else {
+                val app = getItem(position)
+                val isSelected = app.isInPanel
+                holder.ivCheck.visibility = if (isSelected) View.VISIBLE else View.GONE
+                holder.vHighlight.visibility = if (isSelected) View.VISIBLE else View.GONE
+            }
+        }
+    }
+
+    private class AppDiffCallback : androidx.recyclerview.widget.DiffUtil.ItemCallback<AppInfo>() {
+        override fun areItemsTheSame(oldItem: AppInfo, newItem: AppInfo): Boolean {
+            return oldItem.packageName == newItem.packageName
+        }
+
+        override fun areContentsTheSame(oldItem: AppInfo, newItem: AppInfo): Boolean {
+            // Check if name or selection state changed
+            return oldItem.appName == newItem.appName && oldItem.isInPanel == newItem.isInPanel
+        }
     }
 
     inner class PickerViewHolder(view: View) : RecyclerView.ViewHolder(view) {

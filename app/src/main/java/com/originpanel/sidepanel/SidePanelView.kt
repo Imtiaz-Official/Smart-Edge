@@ -151,13 +151,28 @@ class SidePanelView @JvmOverloads constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) binding.panelCard.clipToOutline = true
     }
 
-    fun setApps(apps: List<AppInfo>) {
-        adapter.submitList(apps)
+    fun setApps(apps: List<AppInfo>, onComplete: (() -> Unit)? = null) {
+        adapter.submitList(apps) {
+            onComplete?.invoke()
+        }
         binding.rvPanelApps.visibility = View.VISIBLE
     }
 
     fun scrollToTop() {
         binding.rvPanelApps.scrollToPosition(0)
+    }
+
+    fun scrollToApp(packageName: String) {
+        // Post to ensure the RecyclerView has updated its child count after submitList
+        binding.rvPanelApps.post {
+            val apps = adapter.currentList
+            val index = apps.indexOfFirst { it.packageName == packageName }
+            if (index != -1) {
+                binding.rvPanelApps.smoothScrollToPosition(index)
+                // Pulse the item for visibility
+                adapter.highlightItem(packageName)
+            }
+        }
     }
 
     fun setColumns(cols: Int) {
