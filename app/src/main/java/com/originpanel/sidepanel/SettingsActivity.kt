@@ -56,9 +56,19 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
         binding.switchBlur.isChecked = panelPrefs.blurEnabled
         binding.sbOpacity.progress = panelPrefs.panelOpacity
+        binding.tvOpacityValue.text = "${panelPrefs.panelOpacity}%"
+        
+        binding.sbPanelRadius.progress = panelPrefs.panelCornerRadius
+        binding.tvRadiusValue.text = "${panelPrefs.panelCornerRadius}dp"
+        
         binding.sbHandleHeight.progress = panelPrefs.handleHeight 
+        binding.tvHeightValue.text = "${panelPrefs.handleHeight}dp"
+        
         binding.sbHandleWidth.progress = panelPrefs.handleWidth 
+        binding.tvWidthValue.text = "${panelPrefs.handleWidth}dp"
+        
         binding.sbHandleOffset.progress = panelPrefs.handleVerticalOffset + 100
+        binding.tvOffsetValue.text = "${panelPrefs.handleVerticalOffset}dp"
 
         when (panelPrefs.uiTheme) {
             PanelPreferences.THEME_HYPEROS -> binding.rgThemes.check(R.id.rbThemeHyper)
@@ -164,30 +174,36 @@ class SettingsActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     panelPrefs.panelOpacity = progress
+                    binding.tvOpacityValue.text = "$progress%"
+                    applyAndShow()
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { applyAndShow() }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
         })
 
         binding.sbHandleHeight.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     panelPrefs.handleHeight = progress
+                    binding.tvHeightValue.text = "${progress}dp"
+                    applyAndShow()
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { applyAndShow() }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
         })
 
         binding.sbHandleWidth.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     panelPrefs.handleWidth = progress
+                    binding.tvWidthValue.text = "${progress}dp"
+                    applyAndShow()
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { applyAndShow() }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
         })
 
         binding.btnGoPremium.setOnClickListener {
@@ -199,11 +215,26 @@ class SettingsActivity : AppCompatActivity() {
         binding.sbHandleOffset.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    panelPrefs.handleVerticalOffset = progress - 100
+                    val offset = progress - 100
+                    panelPrefs.handleVerticalOffset = offset
+                    binding.tvOffsetValue.text = "${offset}dp"
+                    applyAndShow()
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { applyAndShow() }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
+        })
+
+        binding.sbPanelRadius.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    panelPrefs.panelCornerRadius = progress
+                    binding.tvRadiusValue.text = "${progress}dp"
+                    applyAndShow()
+                }
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
         })
 
         binding.rgThemes.setOnCheckedChangeListener { _, checkedId ->

@@ -116,12 +116,27 @@
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1AFFFFFF" android:layout_marginVertical="16dp" />
 
-                <!-- Added back missing sliders -->
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Panel Opacity" android:textColor="@color/text_secondary" android:textSize="12sp" />
-                <SeekBar android:id="@+id/sbOpacity" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="100" android:progress="100" android:progressTint="@color/accent_blue" />
+                <!-- Panel Opacity Slider -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="4dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Panel Opacity" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                    <TextView android:id="@+id/tvOpacityValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="100%" android:textColor="@color/accent_blue" android:textSize="12sp" android:textStyle="bold" />
+                </LinearLayout>
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <SeekBar android:id="@+id/sbOpacity" android:layout_width="match_parent" android:layout_height="32dp" android:max="100" android:progress="100" android:progressDrawable="@drawable/modern_slider_track" android:thumb="@drawable/modern_slider_thumb" android:splitTrack="false" />
+                    <!-- Default indicator dot (at 100%) -->
+                    <View android:layout_width="4dp" android:layout_height="4dp" android:background="#FFFFFF" android:alpha="0.5" android:layout_alignParentRight="true" android:layout_marginRight="14dp" android:layout_centerVertical="true" />
+                </RelativeLayout>
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Corner Radius (Premium)" android:textColor="@color/text_secondary" android:textSize="12sp" />
-                <SeekBar android:id="@+id/sbPanelRadius" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="60" android:progress="28" android:progressTint="@color/accent_blue" />
+                <!-- Corner Radius Slider -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="12dp" android:layout_marginBottom="4dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Corner Radius (Premium)" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                    <TextView android:id="@+id/tvRadiusValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="28dp" android:textColor="@color/accent_blue" android:textSize="12sp" android:textStyle="bold" />
+                </LinearLayout>
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <SeekBar android:id="@+id/sbPanelRadius" android:layout_width="match_parent" android:layout_height="32dp" android:max="60" android:progress="28" android:progressDrawable="@drawable/modern_slider_track" android:thumb="@drawable/modern_slider_thumb" android:splitTrack="false" />
+                    <!-- Default indicator dot (at 28dp) -->
+                    <View android:layout_width="4dp" android:layout_height="4dp" android:background="#FFFFFF" android:alpha="0.5" android:layout_centerHorizontal="true" android:layout_centerVertical="true" />
+                </RelativeLayout>
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -154,14 +169,38 @@
 
                 <Switch android:id="@+id/switchShowPill" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Visible Pill Handle" android:textColor="@color/text_primary" android:thumbTint="@color/accent_blue" />
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Handle Height" android:textColor="@color/text_secondary" android:textSize="12sp" />
-                <SeekBar android:id="@+id/sbHandleHeight" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="300" android:progress="80" android:progressTint="@color/accent_blue" />
+                <!-- Handle Height -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="16dp" android:layout_marginBottom="4dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Handle Height" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                    <TextView android:id="@+id/tvHeightValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="80dp" android:textColor="@color/accent_blue" android:textSize="12sp" android:textStyle="bold" />
+                </LinearLayout>
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <SeekBar android:id="@+id/sbHandleHeight" android:layout_width="match_parent" android:layout_height="32dp" android:max="300" android:progress="80" android:progressDrawable="@drawable/modern_slider_track" android:thumb="@drawable/modern_slider_thumb" android:splitTrack="false" />
+                    <!-- Default indicator dot (at 80) -->
+                    <View android:layout_width="4dp" android:layout_height="4dp" android:background="#FFFFFF" android:alpha="0.5" android:layout_marginLeft="64dp" android:layout_centerVertical="true" />
+                </RelativeLayout>
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Trigger Area Width" android:textColor="@color/text_secondary" android:textSize="12sp" />
-                <SeekBar android:id="@+id/sbHandleWidth" android:layout_width="match_parent" android:layout_height="wrap_content" android:min="24" android:max="100" android:progress="24" android:progressTint="@color/accent_blue" />
+                <!-- Trigger Width -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="12dp" android:layout_marginBottom="4dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Trigger Area Width" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                    <TextView android:id="@+id/tvWidthValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="24dp" android:textColor="@color/accent_blue" android:textSize="12sp" android:textStyle="bold" />
+                </LinearLayout>
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <SeekBar android:id="@+id/sbHandleWidth" android:layout_width="match_parent" android:layout_height="32dp" android:min="24" android:max="100" android:progress="24" android:progressDrawable="@drawable/modern_slider_track" android:thumb="@drawable/modern_slider_thumb" android:splitTrack="false" />
+                    <!-- Default indicator dot (at 24) -->
+                    <View android:layout_width="4dp" android:layout_height="4dp" android:background="#FFFFFF" android:alpha="0.5" android:layout_alignParentLeft="true" android:layout_marginLeft="14dp" android:layout_centerVertical="true" />
+                </RelativeLayout>
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Vertical Position (Premium)" android:textColor="@color/text_secondary" android:textSize="12sp" />
-                <SeekBar android:id="@+id/sbHandleOffset" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="200" android:progress="100" android:progressTint="@color/accent_blue" />
+                <!-- Handle Offset -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="12dp" android:layout_marginBottom="4dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Vertical Position (Premium)" android:textColor="@color/text_secondary" android:textSize="12sp" />
+                    <TextView android:id="@+id/tvOffsetValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0dp" android:textColor="@color/accent_blue" android:textSize="12sp" android:textStyle="bold" />
+                </LinearLayout>
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <SeekBar android:id="@+id/sbHandleOffset" android:layout_width="match_parent" android:layout_height="32dp" android:max="200" android:progress="100" android:progressDrawable="@drawable/modern_slider_track" android:thumb="@drawable/modern_slider_thumb" android:splitTrack="false" />
+                    <!-- Default indicator dot (at middle 100) -->
+                    <View android:layout_width="4dp" android:layout_height="4dp" android:background="#FFFFFF" android:alpha="0.5" android:layout_centerHorizontal="true" android:layout_centerVertical="true" />
+                </RelativeLayout>
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
