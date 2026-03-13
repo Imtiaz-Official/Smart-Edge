@@ -263,7 +263,8 @@ class FloatingPanelService : Service() {
         sidePanelView = SidePanelView(this).apply {
             onClose = { closePanel() }
             onAppsChanged = { refreshApps() }
-            onAddClick = { togglePicker() }
+            // Clicking the Arrow (btnClose) opens All Apps
+            onAddClick = { openPicker(enableEditMode = false) }
             visibility = View.GONE 
         }
         refreshApps()
@@ -365,20 +366,25 @@ class FloatingPanelService : Service() {
 
     private var lastToggleTime = 0L
 
-    private fun togglePicker() {
+    private fun togglePicker(enableEditMode: Boolean = true) {
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastToggleTime < 600) return // Physics-aligned debounce
         lastToggleTime = currentTime
 
-        if (isPickerOpen) closePicker() else openPicker()
+        if (isPickerOpen) {
+            closePicker()
+        } else {
+            openPicker(enableEditMode = enableEditMode)
+        }
     }
 
-    private fun openPicker() {
+    private fun openPicker(enableEditMode: Boolean = false) {
         if (isPickerOpen) return
         isPickerOpen = true
         sidePanelView?.setColumns(1)
         sidePanelView?.animatePickerToggle(true)
         pickerPanelView?.let { picker ->
+            picker.setEditMode(enableEditMode)
             // Use the public loadApps() we exposed earlier
             picker.loadApps()
             // PRE-CONDITION: Set alpha before making visible
@@ -401,6 +407,7 @@ class FloatingPanelService : Service() {
         sidePanelView?.setColumns(originalCols)
         sidePanelView?.animatePickerToggle(false)
         pickerPanelView?.let { picker ->
+            picker.setEditMode(false) // Reset mode
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
             val pickerWidth = picker.width.toFloat()
             SpringAnimator.animateClose(picker, if (isRight) pickerWidth else -pickerWidth, isPicker = true) {

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 class PanelAppsAdapter(
     private val context: Context,
     private val onRemove: (AppInfo) -> Unit,
-    private val onAddClick: () -> Unit,
+    private val onAddClick: (Boolean) -> Unit, // Accept Boolean for Edit Mode
     private val onAppLaunched: () -> Unit
 ) : ListAdapter<AppInfo, RecyclerView.ViewHolder>(AppDiffCallback()) {
 
@@ -113,7 +113,7 @@ class PanelAppsAdapter(
                     holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
                 }
                 SpringAnimator.scalePulse(holder.itemView)
-                onAddClick()
+                onAddClick(true) // Open in Edit Mode
             }
         }
     }

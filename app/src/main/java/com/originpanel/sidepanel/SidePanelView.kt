@@ -30,7 +30,7 @@ class SidePanelView @JvmOverloads constructor(
 
     var onClose: (() -> Unit)? = null
     var onAppsChanged: (() -> Unit)? = null
-    var onAddClick: (() -> Unit)? = null
+    var onAddClick: ((Boolean) -> Unit)? = null // Accept Boolean for Edit Mode
 
     private val binding: SidePanelLayoutBinding = SidePanelLayoutBinding.inflate(LayoutInflater.from(context), this, true)
     private val adapter: PanelAppsAdapter
@@ -69,7 +69,7 @@ class SidePanelView @JvmOverloads constructor(
                 panelPrefs.removeApp(removedApp.packageName)
                 onAppsChanged?.invoke()
             },
-            onAddClick = { onAddClick?.invoke() },
+            onAddClick = { isEdit -> onAddClick?.invoke(isEdit) },
             onAppLaunched = { onClose?.invoke() }
         )
 
@@ -87,7 +87,7 @@ class SidePanelView @JvmOverloads constructor(
                 it.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
             }
             SpringAnimator.scalePulse(it)
-            onAddClick?.invoke()
+            onAddClick?.invoke(false) // Arrow click opens All Apps (Normal Mode)
         }
 
         binding.btnScreenshot.setOnClickListener {

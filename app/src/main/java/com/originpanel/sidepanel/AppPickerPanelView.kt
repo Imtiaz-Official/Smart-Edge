@@ -34,11 +34,14 @@ class AppPickerPanelView @JvmOverloads constructor(
     private val rvPickerGrid: RecyclerView
     private val etSearch: EditText
     private val btnSettings: ImageButton
+    private val btnEdit: TextView
+    private val tvHeader: TextView
     private val adapter = PickerAdapter()
     
     private val repository = AppRepository(context)
     private val panelPrefs = PanelPreferences(context)
     private var allApps = listOf<AppInfo>()
+    private var isEditMode = false
     
     private val scope = CoroutineScope(Dispatchers.Main + Job())
 
@@ -48,6 +51,8 @@ class AppPickerPanelView @JvmOverloads constructor(
         rvPickerGrid = view.findViewById(R.id.rvPickerGrid)
         etSearch = view.findViewById(R.id.etPickerSearch)
         btnSettings = view.findViewById(R.id.btnPickerClose) 
+        btnEdit = view.findViewById(R.id.btnPickerEdit)
+        tvHeader = view.findViewById(R.id.tvPickerHeader)
 
         if (panelPrefs.uiTheme == PanelPreferences.THEME_RICH) {
             rvPickerGrid.layoutManager = LinearLayoutManager(context)
@@ -65,6 +70,10 @@ class AppPickerPanelView @JvmOverloads constructor(
             onClose?.invoke() 
         }
 
+        btnEdit.setOnClickListener {
+            setEditMode(!isEditMode)
+        }
+
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -74,6 +83,23 @@ class AppPickerPanelView @JvmOverloads constructor(
         })
 
         loadApps()
+    }
+
+    fun setEditMode(enabled: Boolean) {
+        isEditMode = enabled
+        tvHeader.text = if (isEditMode) "Manage Side Panel" else "All Apps"
+        btnEdit.text = if (isEditMode) "DONE" else "EDIT"
+        
+        // Visual feedback for the edit button
+        val accentColor = try {
+            if (panelPrefs.useCustomAccent) Color.parseColor(panelPrefs.accentColor)
+            else Color.parseColor("#4A9EFF")
+        } catch (e: Exception) { Color.parseColor("#4A9EFF") }
+
+        btnEdit.setTextColor(if (isEditMode) accentColor else Color.parseColor("#4A9EFF"))
+        
+        // Refresh everything to show/hide indicators
+        adapter.notifyDataSetChanged()
     }
 
     override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
@@ -131,35 +157,80 @@ class AppPickerPanelView @JvmOverloads constructor(
             holder.ivIcon.setImageDrawable(app.icon)
             holder.tvName.text = app.appName
             
-            // Apply icon shape - only if not already set or for specific view recycle
+            // Apply icon shape
             IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
-
             holder.tvPackage?.text = app.packageName
 
-            val isSelected = app.isInPanel
-            holder.ivCheck.visibility = if (isSelected) View.VISIBLE else View.GONE
-            holder.vHighlight.visibility = if (isSelected) View.VISIBLE else View.GONE
-
-            // Optimized color application
-            holder.vHighlight.backgroundTintList = accentColorStateList
-            if (holder.ivCheck is ImageView) {
-                holder.ivCheck.imageTintList = accentColorStateList
+            if (isEditMode) {
+                holder.ivCheck.visibility = View.VISIBLE
+                val isSelected = app.isInPanel
+                
+                // For PNG icon, use imageTintList to color the icon itself
+                val iconTint = if (isSelected) accentColorStateList else android.content.res.ColorStateList.valueOf(Color.parseColor("#B3FFFFFF"))
+                if (holder.ivCheck is ImageView) {
+                    holder.ivCheck.imageTintList = iconTint
+                }
+                
+                // Optional: keep the blue circle background only when selected
+                holder.ivCheck.backgroundTintList = if (isSelected) accentColorStateList else android.content.res.ColorStateList.valueOf(Color.parseColor("#33FFFFFF"))
+                
+                // Rotate to 'x' if selected, 'plus' if not
+                holder.ivCheck.rotation = if (isSelected) 45f else 0f
+            } else {
+                holder.ivCheck.visibility = View.GONE
             }
+
+            holder.vHighlight.visibility = if (app.isInPanel && isEditMode) View.VISIBLE else View.GONE
+            holder.vHighlight.backgroundTintList = accentColorStateList
 
             holder.itemView.setOnClickListener {
                 if (panelPrefs.hapticEnabled) {
                     holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
                 }
-                SpringAnimator.scalePulse(holder.itemView)
                 
-                // Toggle state locally and in prefs
-                val newState = !app.isInPanel
-                app.isInPanel = newState
-                onToggleApp?.invoke(app, newState)
-                
-                // Partial update for performance
-                notifyItemChanged(position, "TOGGLE_STATE")
+                if (isEditMode) {
+                    toggleAppSelection(app, position, holder.ivCheck)
+                } else {
+                    launchApp(app)
+                }
             }
+
+            // Also allow clicking the plus icon directly
+            holder.ivCheck.setOnClickListener {
+                if (isEditMode) {
+                    if (panelPrefs.hapticEnabled) {
+                        it.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
+                    }
+                    toggleAppSelection(app, position, holder.ivCheck)
+                }
+            }
+        }
+
+        private fun toggleAppSelection(app: AppInfo, position: Int, plusView: View) {
+            val newState = !app.isInPanel
+            app.isInPanel = newState
+            onToggleApp?.invoke(app, newState)
+
+            // Animation for the plus icon
+            plusView.animate()
+                .rotation(if (newState) 45f else 0f)
+                .setDuration(200)
+                .start()
+            
+            val tint = if (newState) accentColorStateList else android.content.res.ColorStateList.valueOf(Color.parseColor("#4DFFFFFF"))
+            plusView.backgroundTintList = tint
+
+            notifyItemChanged(position, "TOGGLE_STATE")
+        }
+
+        private fun launchApp(app: AppInfo) {
+            SpringAnimator.scalePulse(rvPickerGrid.findViewHolderForAdapterPosition(currentList.indexOf(app))?.itemView ?: return)
+            val intent = context.packageManager.getLaunchIntentForPackage(app.packageName)
+            if (intent != null) {
+                intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
+            }
+            onClose?.invoke()
         }
 
         override fun onBindViewHolder(holder: PickerViewHolder, position: Int, payloads: List<Any>) {
@@ -167,9 +238,20 @@ class AppPickerPanelView @JvmOverloads constructor(
                 super.onBindViewHolder(holder, position, payloads)
             } else {
                 val app = getItem(position)
-                val isSelected = app.isInPanel
-                holder.ivCheck.visibility = if (isSelected) View.VISIBLE else View.GONE
-                holder.vHighlight.visibility = if (isSelected) View.VISIBLE else View.GONE
+                if (isEditMode) {
+                    holder.ivCheck.visibility = View.VISIBLE
+                    val isSelected = app.isInPanel
+                    
+                    val iconTint = if (isSelected) accentColorStateList else android.content.res.ColorStateList.valueOf(Color.parseColor("#B3FFFFFF"))
+                    if (holder.ivCheck is ImageView) {
+                        holder.ivCheck.imageTintList = iconTint
+                    }
+                    holder.ivCheck.backgroundTintList = if (isSelected) accentColorStateList else android.content.res.ColorStateList.valueOf(Color.parseColor("#33FFFFFF"))
+                    holder.ivCheck.rotation = if (isSelected) 45f else 0f
+                } else {
+                    holder.ivCheck.visibility = View.GONE
+                }
+                holder.vHighlight.visibility = if (app.isInPanel && isEditMode) View.VISIBLE else View.GONE
             }
         }
     }

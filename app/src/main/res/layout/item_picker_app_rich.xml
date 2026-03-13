@@ -63,13 +63,16 @@
                 android:ellipsize="end" />
         </LinearLayout>
 
-        <!-- Selection Dot -->
-        <View
+        <!-- Selection Plus Icon (IOS Style) -->
+        <ImageView
             android:id="@+id/ivPickerCheck"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:background="@drawable/bg_close_btn"
             android:backgroundTint="#4A9EFF"
+            android:padding="6dp"
+            android:src="@drawable/ic_plus_custom"
+            android:tint="#FFFFFF"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
