@@ -64,6 +64,7 @@ class FloatingPanelService : Service() {
         const val NOTIFICATION_ID = 1001
         const val ACTION_STOP = "com.originpanel.sidepanel.STOP"
         const val ACTION_OPEN = "com.originpanel.sidepanel.OPEN"
+        const val ACTION_REFRESH = "com.originpanel.sidepanel.REFRESH"
         const val ACTION_SCREENSHOT = "com.originpanel.sidepanel.SCREENSHOT"
     }
 
@@ -101,6 +102,9 @@ class FloatingPanelService : Service() {
             ACTION_OPEN -> {
                 refreshApps()
                 openPanel()
+            }
+            ACTION_REFRESH -> {
+                refreshApps()
             }
             ACTION_SCREENSHOT -> {
                 val resultCode = intent.getIntExtra("RESULT_CODE", 0)
