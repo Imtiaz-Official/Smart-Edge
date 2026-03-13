@@ -422,6 +422,7 @@ class FloatingPanelService : Service() {
         val originalCols = if (panelPrefs.isPremium) panelPrefs.panelColumns else 1
         sidePanelView?.setColumns(originalCols)
         sidePanelView?.setEditButtonVisible(false) // Hide Edit Button when picker is closed
+        sidePanelView?.scrollToTop() // Reset scroll to top
         sidePanelView?.animatePickerToggle(false)
         pickerPanelView?.let { picker ->
             picker.setEditMode(false) // Reset mode
