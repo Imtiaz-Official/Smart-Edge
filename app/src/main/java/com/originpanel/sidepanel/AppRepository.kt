@@ -28,6 +28,7 @@ class AppRepository(context: Context) {
         val selectedPack = panelPrefs.selectedIconPack
 
         packageManager.queryIntentActivities(intent, 0)
+            .distinctBy { it.activityInfo.packageName }
             .map { resolveInfo ->
                 val pkg = resolveInfo.activityInfo.packageName
                 val customIcon = iconPackManager.getIcon(pkg, selectedPack)

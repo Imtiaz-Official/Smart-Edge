@@ -84,7 +84,7 @@ class AppPickerPanelView @JvmOverloads constructor(
         return super.dispatchKeyEvent(event)
     }
 
-    private fun loadApps() {
+    fun loadApps() {
         scope.launch {
             allApps = withContext(Dispatchers.IO) { repository.getAllApps() }
             adapter.setItems(allApps)

@@ -9,8 +9,12 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
     
-    <!-- Required for Android 11+ to discover Icon Packs -->
+    <!-- Required for Android 11+ to discover Icon Packs and All Apps -->
     <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
         <intent>
             <action android:name="com.novalauncher.THEME" />
         </intent>
@@ -48,6 +52,11 @@
         <activity
             android:name=".IconPackActivity"
             android:label="Select Icon Pack"
+            android:theme="@style/Theme.SidePanel" />
+
+        <activity
+            android:name=".AppPickerActivity"
+            android:label="Select Apps"
             android:theme="@style/Theme.SidePanel" />
 
         <activity

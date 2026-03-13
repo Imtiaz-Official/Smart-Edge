@@ -21,16 +21,11 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 object SpringAnimator {
 
     private val fadeInterpolator = FastOutSlowInInterpolator()
-
-    // Damping is the same for all devices — only stiffness adapts
     private const val SPRING_DAMPING = SpringForce.DAMPING_RATIO_LOW_BOUNCY
 
-    /**
-     * Returns spring stiffness tuned to the device's RAM class.
-     *   >= 8 GB RAM → STIFFNESS_HIGH    (flagship — fast & snappy)
-     *   >= 4 GB RAM → STIFFNESS_MEDIUM  (mid-range — current default)
-     *   <  4 GB RAM → STIFFNESS_MEDIUM_LOW (budget — softer, less demanding)
-     */
+    // Track active springs to cancel them if a new animation starts on the same view
+    private val activeSprings = java.util.concurrent.ConcurrentHashMap<View, SpringAnimation>()
+
     fun adaptiveStiffness(context: Context): Float {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val memInfo = ActivityManager.MemoryInfo()
@@ -43,47 +38,41 @@ object SpringAnimator {
         }
     }
 
-    /**
-     * Animates [view] translationX from off-screen to 0 (open panel).
-     * Synced to display VSYNC via Choreographer to eliminate first-frame flicker.
-     */
     fun animateOpen(view: View, panelWidth: Float, isPicker: Boolean = false, onEnd: (() -> Unit)? = null) {
-        // Picker animates opposite to the main panel since it sits on the inner side
-        view.translationX = if (isPicker)
-            (if (panelWidth > 0) -panelWidth else panelWidth)
-        else panelWidth
+        cancelExisting(view)
         
+        // Deterministic start position: if on right, start at +width, if on left, start at -width
+        // For picker, we use the sign of panelWidth passed from service
+        val startX = if (panelWidth == 0f) (if (isPicker) -500f else 500f) else panelWidth
+        
+        view.translationX = startX
         view.alpha = 0f
-
-        // GPU-backed layer during animation
         view.setLayerType(View.LAYER_TYPE_HARDWARE, null)
 
-        // Choreographer ensures the very first frame is VSYNC-aligned
-        Choreographer.getInstance().postFrameCallback {
-            // Fade in with Material interpolator
+        // Use post to ensure the initial state is captured by the renderer before starting animation
+        view.post {
             view.animate()
                 .alpha(1f)
                 .setDuration(160)
                 .setInterpolator(fadeInterpolator)
                 .start()
 
-            // Spring slide in
-            SpringAnimation(view, DynamicAnimation.TRANSLATION_X, 0f).apply {
+            val spring = SpringAnimation(view, DynamicAnimation.TRANSLATION_X, 0f).apply {
                 spring.stiffness = adaptiveStiffness(view.context)
                 spring.dampingRatio = SPRING_DAMPING
                 addEndListener { _, _, _, _ ->
+                    activeSprings.remove(view)
                     view.setLayerType(View.LAYER_TYPE_NONE, null)
                     onEnd?.invoke()
                 }
-                start()
             }
+            activeSprings[view] = spring
+            spring.start()
         }
     }
 
-    /**
-     * Animates [view] translationX back off-screen (close panel).
-     */
     fun animateClose(view: View, panelWidth: Float, isPicker: Boolean = false, onEnd: (() -> Unit)? = null) {
+        cancelExisting(view)
         view.setLayerType(View.LAYER_TYPE_HARDWARE, null)
 
         view.animate()
@@ -93,25 +82,30 @@ object SpringAnimator {
             .start()
 
         val targetX = if (isPicker)
-            (if (panelWidth > 0) -panelWidth else panelWidth)
-        else panelWidth
+            (if (panelWidth > 0) -panelWidth else (if (panelWidth < 0) panelWidth else -500f))
+        else (if (panelWidth > 0) panelWidth else 500f)
 
-        SpringAnimation(view, DynamicAnimation.TRANSLATION_X, targetX).apply {
+        val spring = SpringAnimation(view, DynamicAnimation.TRANSLATION_X, targetX).apply {
             spring.stiffness = SpringForce.STIFFNESS_LOW
             spring.dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
             addEndListener { _, _, _, _ ->
+                activeSprings.remove(view)
                 view.setLayerType(View.LAYER_TYPE_NONE, null)
                 view.translationX = 0f
                 onEnd?.invoke()
             }
-            start()
         }
+        activeSprings[view] = spring
+        spring.start()
     }
 
-    /**
-     * Optimized scale pulse for button feedback.
-     */
+    private fun cancelExisting(view: View) {
+        view.animate().cancel()
+        activeSprings.remove(view)?.cancel()
+    }
+
     fun scalePulse(view: View) {
+        view.animate().cancel()
         view.animate()
             .scaleX(0.9f)
             .scaleY(0.9f)

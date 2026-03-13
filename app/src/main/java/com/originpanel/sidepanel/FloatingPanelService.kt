@@ -291,10 +291,15 @@ class FloatingPanelService : Service() {
         refreshApps()
         sidePanelView?.scrollToTop() 
         sidePanelView?.let { panel ->
+            // PRE-CONDITION: Set state before making visible
+            panel.alpha = 0f
+            val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
+            panel.translationX = if (isRight) 1000f else -1000f // Large off-screen start
             panel.visibility = View.VISIBLE
+            
             panel.post {
                 val panelWidth = panel.width.toFloat()
-                SpringAnimator.animateOpen(panel, panelWidth)
+                SpringAnimator.animateOpen(panel, if (isRight) panelWidth else -panelWidth)
             }
         }
         edgeHandleView?.visibility = View.GONE
@@ -353,7 +358,7 @@ class FloatingPanelService : Service() {
 
     private fun togglePicker() {
         val currentTime = System.currentTimeMillis()
-        if (currentTime - lastToggleTime < 300) return // Debounce rapid clicks
+        if (currentTime - lastToggleTime < 600) return // Physics-aligned debounce
         lastToggleTime = currentTime
 
         if (isPickerOpen) closePicker() else openPicker()
@@ -365,11 +370,17 @@ class FloatingPanelService : Service() {
         sidePanelView?.setColumns(1)
         sidePanelView?.animatePickerToggle(true)
         pickerPanelView?.let { picker ->
+            // Use the public loadApps() we exposed earlier
+            picker.loadApps()
+            // PRE-CONDITION: Set alpha before making visible
+            picker.alpha = 0f
             picker.visibility = View.VISIBLE
             picker.post {
                 val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
                 val pickerWidth = picker.width.toFloat()
-                SpringAnimator.animateOpen(picker, if (isRight) pickerWidth else -pickerWidth, isPicker = true)
+                // Picker on right moves LEFT from panel (-width), on left moves RIGHT (+width)
+                val startX = if (isRight) -pickerWidth else pickerWidth
+                SpringAnimator.animateOpen(picker, startX, isPicker = true)
             }
         }
     }
@@ -384,7 +395,10 @@ class FloatingPanelService : Service() {
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
             val pickerWidth = picker.width.toFloat()
             SpringAnimator.animateClose(picker, if (isRight) pickerWidth else -pickerWidth, isPicker = true) {
-                picker.visibility = View.GONE
+                // Defensive check: only hide if we are still supposed to be closed
+                if (!isPickerOpen) {
+                    picker.visibility = View.GONE
+                }
             }
         }
     }

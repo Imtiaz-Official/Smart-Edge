@@ -181,6 +181,8 @@ class SidePanelView @JvmOverloads constructor(
         val targetTranslationXDp = if (isPickerOpen) (rightXDp - middleXDp) else 0f
         val targetRotation = if (isPickerOpen) 0f else 180f
 
+        springX.cancel()
+        springRotation.cancel()
         springX.animateToFinalPosition(targetTranslationXDp * density)
         springRotation.animateToFinalPosition(targetRotation)
     }
