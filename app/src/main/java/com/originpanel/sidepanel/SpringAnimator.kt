@@ -21,21 +21,14 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 object SpringAnimator {
 
     private val fadeInterpolator = FastOutSlowInInterpolator()
-    private const val SPRING_DAMPING = SpringForce.DAMPING_RATIO_LOW_BOUNCY
+    private const val SPRING_DAMPING = SpringForce.DAMPING_RATIO_NO_BOUNCY
 
     // Track active springs to cancel them if a new animation starts on the same view
     private val activeSprings = java.util.concurrent.ConcurrentHashMap<View, SpringAnimation>()
 
     fun adaptiveStiffness(context: Context): Float {
-        val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        val memInfo = ActivityManager.MemoryInfo()
-        am.getMemoryInfo(memInfo)
-        val ramGb = memInfo.totalMem / (1024f * 1024f * 1024f)
-        return when {
-            ramGb >= 8f -> SpringForce.STIFFNESS_HIGH
-            ramGb >= 4f -> SpringForce.STIFFNESS_MEDIUM
-            else        -> SpringForce.STIFFNESS_LOW
-        }
+        // Balanced stiffness: between LOW (200) and MEDIUM (500) for a "premium calm" feel
+        return 400f
     }
 
     fun animateOpen(view: View, panelWidth: Float, isPicker: Boolean = false, onEnd: (() -> Unit)? = null) {
@@ -53,7 +46,7 @@ object SpringAnimator {
         view.post {
             view.animate()
                 .alpha(1f)
-                .setDuration(160)
+                .setDuration(200) // Balanced fade
                 .setInterpolator(fadeInterpolator)
                 .start()
 
@@ -77,7 +70,7 @@ object SpringAnimator {
 
         view.animate()
             .alpha(0f)
-            .setDuration(140)
+            .setDuration(170) // Balanced fade
             .setInterpolator(fadeInterpolator)
             .start()
 
@@ -86,7 +79,7 @@ object SpringAnimator {
         else (if (panelWidth > 0) panelWidth else 500f)
 
         val spring = SpringAnimation(view, DynamicAnimation.TRANSLATION_X, targetX).apply {
-            spring.stiffness = SpringForce.STIFFNESS_LOW
+            spring.stiffness = 350f // Slightly lower for closing
             spring.dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
             addEndListener { _, _, _, _ ->
                 activeSprings.remove(view)

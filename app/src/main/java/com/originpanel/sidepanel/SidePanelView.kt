@@ -186,7 +186,15 @@ class SidePanelView @JvmOverloads constructor(
     }
 
     fun scrollToTop() {
-        binding.rvPanelApps.smoothScrollToPosition(0)
+        val scroller = object : androidx.recyclerview.widget.LinearSmoothScroller(context) {
+            override fun calculateSpeedPerPixel(displayMetrics: android.util.DisplayMetrics): Float {
+                // Higher value = Slower scroll. Default is 25f. 
+                // 100f makes it significantly "calmer" and more deliberate.
+                return 100f / displayMetrics.densityDpi
+            }
+        }
+        scroller.targetPosition = 0
+        binding.rvPanelApps.layoutManager?.startSmoothScroll(scroller)
     }
 
     fun scrollToPosition(pos: Int) {
@@ -194,9 +202,15 @@ class SidePanelView @JvmOverloads constructor(
     }
 
     fun scrollToBottom() {
+        val scroller = object : androidx.recyclerview.widget.LinearSmoothScroller(context) {
+            override fun calculateSpeedPerPixel(displayMetrics: android.util.DisplayMetrics): Float {
+                return 60f / displayMetrics.densityDpi // Slightly faster for adding new apps
+            }
+        }
         val count = adapter.itemCount
         if (count > 0) {
-            binding.rvPanelApps.smoothScrollToPosition(count - 1)
+            scroller.targetPosition = count - 1
+            binding.rvPanelApps.layoutManager?.startSmoothScroll(scroller)
         }
     }
 
@@ -206,7 +220,14 @@ class SidePanelView @JvmOverloads constructor(
             val apps = adapter.currentList
             val index = apps.indexOfFirst { it.packageName == packageName }
             if (index != -1) {
-                binding.rvPanelApps.smoothScrollToPosition(index)
+                val scroller = object : androidx.recyclerview.widget.LinearSmoothScroller(context) {
+                    override fun calculateSpeedPerPixel(displayMetrics: android.util.DisplayMetrics): Float {
+                        return 80f / displayMetrics.densityDpi
+                    }
+                }
+                scroller.targetPosition = index
+                binding.rvPanelApps.layoutManager?.startSmoothScroll(scroller)
+                
                 // Pulse the item for visibility
                 adapter.highlightItem(packageName)
             }
