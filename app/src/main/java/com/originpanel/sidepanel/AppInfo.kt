@@ -8,6 +8,6 @@ import android.graphics.drawable.Drawable
 data class AppInfo(
     val packageName: String,
     val appName: String,
-    val icon: Drawable?,
+    var icon: Drawable?,
     var isInPanel: Boolean = false
 )

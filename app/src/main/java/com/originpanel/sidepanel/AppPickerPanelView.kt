@@ -2,6 +2,7 @@ package com.originpanel.sidepanel
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.text.Editable
 import android.text.TextWatcher
@@ -196,12 +197,41 @@ class AppPickerPanelView @JvmOverloads constructor(
 
         override fun onBindViewHolder(holder: PickerViewHolder, position: Int) {
             val app = getItem(position)
-            holder.ivIcon.setImageDrawable(app.icon)
             holder.tvName.text = app.appName
-            
-            // Apply icon shape
-            IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
             holder.tvPackage?.text = app.packageName
+
+            // --- Lazy icon loading ---
+            // Cancel any previous icon load for this view (it was recycled)
+            holder.iconJob?.cancel()
+
+            if (app.icon != null) {
+                // Icon already cached on the AppInfo object — show immediately
+                holder.ivIcon.setImageDrawable(app.icon)
+                IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
+            } else {
+                // Show placeholder immediately so there's no blank gap
+                holder.ivIcon.setImageResource(android.R.drawable.sym_def_app_icon)
+                // Load icon in background, then update only this view
+                holder.iconJob = scope.launch {
+                    val icon: Drawable? = withContext(Dispatchers.IO) {
+                        repository.loadIconForApp(app.packageName)
+                    }
+                    // Cache result on the AppInfo so DiffCallback / rebinds skip re-loading
+                    if (icon != null) {
+                        app.icon = icon
+                        // Verify the holder still shows the same app (not recycled to another)
+                        val currentPos = holder.bindingAdapterPosition
+                        if (currentPos != RecyclerView.NO_ID.toInt() && currentPos < currentList.size &&
+                            currentList[currentPos].packageName == app.packageName) {
+                            holder.ivIcon.setImageDrawable(icon)
+                            IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
+                        }
+                    }
+                }
+            }
+
+            // Apply icon shape immediately (even to placeholder)
+            IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
 
             if (isEditMode) {
                 holder.ivCheck.visibility = View.VISIBLE
@@ -246,6 +276,13 @@ class AppPickerPanelView @JvmOverloads constructor(
                     toggleAppSelection(app, position, holder.ivCheck)
                 }
             }
+        }
+
+        override fun onViewRecycled(holder: PickerViewHolder) {
+            super.onViewRecycled(holder)
+            // Cancel the pending icon load so a recycled view doesn't get the wrong icon
+            holder.iconJob?.cancel()
+            holder.iconJob = null
         }
 
         private fun toggleAppSelection(app: AppInfo, position: Int, plusView: View) {
@@ -306,10 +343,10 @@ class AppPickerPanelView @JvmOverloads constructor(
         }
 
         override fun areContentsTheSame(oldItem: AppInfo, newItem: AppInfo): Boolean {
-            // Check if name, selection state or icon changed
-            return oldItem.appName == newItem.appName && 
-                   oldItem.isInPanel == newItem.isInPanel &&
-                   oldItem.icon === newItem.icon
+            // Icons are loaded lazily and stored directly on AppInfo; we don't compare them
+            // here to avoid blocking updates while icons are being fetched.
+            return oldItem.appName == newItem.appName &&
+                   oldItem.isInPanel == newItem.isInPanel
         }
     }
 
@@ -318,6 +355,8 @@ class AppPickerPanelView @JvmOverloads constructor(
         val tvName: TextView = view.findViewById(R.id.tvPickerAppName)
         val ivCheck: View = view.findViewById(R.id.ivPickerCheck)
         val vHighlight: View = view.findViewById(R.id.vPickerBgHighlight)
-        val tvPackage: TextView? = view.findViewById(R.id.tvPickerPackageName) 
+        val tvPackage: TextView? = view.findViewById(R.id.tvPickerPackageName)
+        /** Tracks the active icon-loading coroutine for this holder. */
+        var iconJob: Job? = null
     }
 }
