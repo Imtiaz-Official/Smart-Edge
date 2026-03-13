@@ -2,6 +2,7 @@ package com.originpanel.sidepanel
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Build
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
@@ -84,7 +85,46 @@ class AppPickerPanelView @JvmOverloads constructor(
             override fun afterTextChanged(s: Editable?) {}
         })
 
+        applyTheme()
         loadApps()
+    }
+
+    private fun applyTheme() {
+        val theme = panelPrefs.uiTheme
+        val density = context.resources.displayMetrics.density
+        
+        val drawable = android.graphics.drawable.GradientDrawable().apply {
+            shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+        }
+        
+        val themeBgColor = when (theme) {
+            PanelPreferences.THEME_ORIGIN -> Color.parseColor("#1F1F1F") 
+            else -> Color.parseColor(panelPrefs.panelBackgroundColor)
+        }
+        drawable.setColor(themeBgColor)
+
+        when (theme) {
+            PanelPreferences.THEME_ORIGIN -> {
+                drawable.cornerRadius = 32 * density
+            }
+            else -> {
+                drawable.cornerRadius = panelPrefs.panelCornerRadius * density
+            }
+        }
+        
+        pickerPanelCard.background = drawable
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) pickerPanelCard.clipToOutline = true
+
+        // Style the search bar background
+        val searchBg = findViewById<View>(R.id.etPickerSearch).parent as? View
+        searchBg?.let {
+            val sd = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                cornerRadius = 20 * density
+                setColor(Color.parseColor("#4D000000")) // Darker pill like image
+            }
+            it.background = sd
+        }
     }
 
     fun setEditMode(enabled: Boolean) {

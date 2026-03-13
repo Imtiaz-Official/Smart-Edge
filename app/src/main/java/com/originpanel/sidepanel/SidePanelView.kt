@@ -137,14 +137,20 @@ class SidePanelView @JvmOverloads constructor(
 
         val drawable = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
-            setColor(Color.parseColor(panelPrefs.panelBackgroundColor))
             cornerRadius = panelPrefs.panelCornerRadius * density
         }
+        
+        val themeBgColor = when (theme) {
+            PanelPreferences.THEME_ORIGIN -> Color.parseColor("#1F1F1F") // Solid Charcoal
+            else -> Color.parseColor(panelPrefs.panelBackgroundColor)
+        }
+        drawable.setColor(themeBgColor)
         
         val accentColor = if (panelPrefs.useCustomAccent) {
             try { Color.parseColor(panelPrefs.accentColor) } catch (e: Exception) { Color.parseColor("#4A9EFF") }
         } else {
             when (theme) {
+                PanelPreferences.THEME_ORIGIN -> Color.parseColor("#33FFFFFF") // Clearer white circles
                 PanelPreferences.THEME_HYPEROS -> Color.parseColor("#33FFFFFF")
                 PanelPreferences.THEME_REALME -> Color.parseColor("#26FFFFFF")
                 PanelPreferences.THEME_RICH -> Color.parseColor("#4DFFFFFF")
@@ -153,6 +159,11 @@ class SidePanelView @JvmOverloads constructor(
         }
 
         when (theme) {
+            PanelPreferences.THEME_ORIGIN -> {
+                drawable.cornerRadius = 32 * density // Slightly higher radius
+                drawable.setStroke(0, Color.TRANSPARENT)
+                binding.btnClose.backgroundTintList = ColorStateList.valueOf(accentColor)
+            }
             PanelPreferences.THEME_HYPEROS -> {
                 drawable.setStroke((1 * density).toInt(), accentColor)
                 drawable.cornerRadius = 12 * density 
@@ -246,15 +257,7 @@ class SidePanelView @JvmOverloads constructor(
     }
 
     fun animatePickerToggle(isPickerOpen: Boolean) {
-        val density = context.resources.displayMetrics.density
         val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
-
-        val currentPanelWidthDp = if (isPickerOpen) width1ColDp else {
-            if (panelPrefs.isPremium && panelPrefs.panelColumns == 2) width2ColDp else width1ColDp
-        }
-        val middleXDp = (currentPanelWidthDp / 2f) - (buttonWidthDp / 2f)
-        val rightXDp = currentPanelWidthDp - horizontalMarginDp - buttonWidthDp
-        val targetTranslationXDp = if (isPickerOpen) (rightXDp - middleXDp) else 0f
         
         // Mirror rotation based on side
         val targetRotation = if (isRight) {
@@ -263,9 +266,7 @@ class SidePanelView @JvmOverloads constructor(
             if (isPickerOpen) 180f else 0f
         }
 
-        springX.cancel()
         springRotation.cancel()
-        springX.animateToFinalPosition(targetTranslationXDp * density)
         springRotation.animateToFinalPosition(targetRotation)
     }
 

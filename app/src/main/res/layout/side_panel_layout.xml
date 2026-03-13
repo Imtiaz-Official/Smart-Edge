@@ -97,21 +97,24 @@
     </LinearLayout>
 
 
-            <!-- Chevron at bottom of pill (now handles picker toggle and slide animation) -->
+            <!-- Chevron at bottom of pill (now handles picker toggle) -->
             <ImageButton
                 android:id="@+id/btnClose"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_close_btn"
+                android:backgroundTint="#1AFFFFFF"
                 android:contentDescription="Toggle Picker"
+                android:padding="4dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/ic_chevron_right"
                 android:rotation="180"
-                android:tint="#80FFFFFF"
+                android:tint="#D9FFFFFF"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/toolsContainer" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
