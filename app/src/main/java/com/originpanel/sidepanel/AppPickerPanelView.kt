@@ -28,6 +28,7 @@ class AppPickerPanelView @JvmOverloads constructor(
 ) : LinearLayout(context, attrs) {
 
     var onClose: (() -> Unit)? = null
+    var onAppLaunched: (() -> Unit)? = null
     var onToggleApp: ((AppInfo, Boolean) -> Unit)? = null
 
     private val pickerPanelCard: View
@@ -225,13 +226,15 @@ class AppPickerPanelView @JvmOverloads constructor(
         }
 
         private fun launchApp(app: AppInfo) {
-            SpringAnimator.scalePulse(rvPickerGrid.findViewHolderForAdapterPosition(currentList.indexOf(app))?.itemView ?: return)
+            rvPickerGrid.findViewHolderForAdapterPosition(currentList.indexOf(app))?.itemView?.let {
+                SpringAnimator.scalePulse(it)
+            }
             val intent = context.packageManager.getLaunchIntentForPackage(app.packageName)
             if (intent != null) {
                 intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
             }
-            onClose?.invoke()
+            onAppLaunched?.invoke()
         }
 
         override fun onBindViewHolder(holder: PickerViewHolder, position: Int, payloads: List<Any>) {

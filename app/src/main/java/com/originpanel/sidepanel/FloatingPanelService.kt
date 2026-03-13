@@ -330,6 +330,7 @@ class FloatingPanelService : Service() {
     private fun initPickerPanel() {
         pickerPanelView = AppPickerPanelView(this).apply {
             onClose = { closePicker() }
+            onAppLaunched = { closePanel() }
             onToggleApp = { app, isSelected ->
                 if (isSelected) {
                     panelPrefs.addApp(app.packageName)
