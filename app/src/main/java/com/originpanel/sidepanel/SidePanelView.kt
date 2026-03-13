@@ -151,6 +151,10 @@ class SidePanelView @JvmOverloads constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) binding.panelCard.clipToOutline = true
     }
 
+    fun setEditButtonVisible(visible: Boolean) {
+        adapter.setShowAddButton(visible)
+    }
+
     fun setApps(apps: List<AppInfo>, onComplete: (() -> Unit)? = null) {
         adapter.submitList(apps) {
             onComplete?.invoke()
@@ -160,6 +164,13 @@ class SidePanelView @JvmOverloads constructor(
 
     fun scrollToTop() {
         binding.rvPanelApps.scrollToPosition(0)
+    }
+
+    fun scrollToBottom() {
+        val count = adapter.itemCount
+        if (count > 0) {
+            binding.rvPanelApps.smoothScrollToPosition(count - 1)
+        }
     }
 
     fun scrollToApp(packageName: String) {

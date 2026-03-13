@@ -46,14 +46,14 @@
     <!-- Selection Blue Plus Icon (IOS Style) -->
     <ImageView
         android:id="@+id/ivPickerCheck"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:layout_gravity="top|end"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="4dp"
+        android:layout_marginTop="-2dp"
+        android:layout_marginEnd="2dp"
         android:background="@drawable/bg_close_btn"
         android:backgroundTint="#4A9EFF"
-        android:padding="5dp"
+        android:padding="7dp"
         android:src="@drawable/ic_plus_custom"
         android:tint="#FFFFFF"
         android:visibility="gone" />

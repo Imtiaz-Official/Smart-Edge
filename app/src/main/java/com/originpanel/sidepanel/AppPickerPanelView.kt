@@ -41,7 +41,8 @@ class AppPickerPanelView @JvmOverloads constructor(
     private val repository = AppRepository(context)
     private val panelPrefs = PanelPreferences(context)
     private var allApps = listOf<AppInfo>()
-    private var isEditMode = false
+    var isEditMode = false
+        private set
     
     private val scope = CoroutineScope(Dispatchers.Main + Job())
 

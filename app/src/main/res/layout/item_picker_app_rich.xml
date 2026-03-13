@@ -66,11 +66,11 @@
         <!-- Selection Plus Icon (IOS Style) -->
         <ImageView
             android:id="@+id/ivPickerCheck"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:background="@drawable/bg_close_btn"
             android:backgroundTint="#4A9EFF"
-            android:padding="6dp"
+            android:padding="8dp"
             android:src="@drawable/ic_plus_custom"
             android:tint="#FFFFFF"
             android:visibility="gone"

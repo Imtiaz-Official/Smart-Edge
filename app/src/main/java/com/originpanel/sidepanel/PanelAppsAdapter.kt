@@ -18,6 +18,18 @@ class PanelAppsAdapter(
 ) : ListAdapter<AppInfo, RecyclerView.ViewHolder>(AppDiffCallback()) {
 
     private val panelPrefs = PanelPreferences(context)
+    private var showAddButton: Boolean = false
+
+    fun setShowAddButton(show: Boolean) {
+        if (showAddButton != show) {
+            showAddButton = show
+            if (show) {
+                notifyItemInserted(currentList.size)
+            } else {
+                notifyItemRemoved(currentList.size)
+            }
+        }
+    }
 
     companion object {
         private const val VIEW_TYPE_APP = 0
@@ -38,7 +50,7 @@ class PanelAppsAdapter(
     }
 
     override fun getItemCount(): Int {
-        return currentList.size + 1
+        return if (showAddButton) currentList.size + 1 else currentList.size
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -108,6 +120,15 @@ class PanelAppsAdapter(
                 true
             }
         } else if (holder is AddViewHolder) {
+            // ALWAYS reset properties first to prevent "tiny icon" from previous states
+            holder.itemView.animate().cancel()
+            holder.itemView.alpha = 1f
+            holder.itemView.scaleX = 1f
+            holder.itemView.scaleY = 1f
+            
+            // Just use a simple spring pulse for entry feedback rather than complex view property animations
+            SpringAnimator.scalePulse(holder.itemView)
+
             holder.itemView.setOnClickListener {
                 if (panelPrefs.hapticEnabled) {
                     holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)

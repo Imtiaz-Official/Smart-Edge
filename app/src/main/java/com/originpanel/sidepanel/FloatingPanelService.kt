@@ -263,8 +263,8 @@ class FloatingPanelService : Service() {
         sidePanelView = SidePanelView(this).apply {
             onClose = { closePanel() }
             onAppsChanged = { refreshApps() }
-            // Clicking the Arrow (btnClose) opens All Apps
-            onAddClick = { openPicker(enableEditMode = false) }
+            // Clicking the Arrow (btnClose) toggles All Apps
+            onAddClick = { isEdit -> togglePicker(isEdit) }
             visibility = View.GONE 
         }
         refreshApps()
@@ -372,7 +372,15 @@ class FloatingPanelService : Service() {
         lastToggleTime = currentTime
 
         if (isPickerOpen) {
-            closePicker()
+            val currentModeIsEdit = pickerPanelView?.isEditMode ?: false
+            
+            if (enableEditMode && !currentModeIsEdit) {
+                // Switch to Edit Mode if requested from Add button
+                pickerPanelView?.setEditMode(true)
+            } else {
+                // Otherwise close (clicking same button or clicking arrow while open)
+                closePicker()
+            }
         } else {
             openPicker(enableEditMode = enableEditMode)
         }
@@ -382,6 +390,8 @@ class FloatingPanelService : Service() {
         if (isPickerOpen) return
         isPickerOpen = true
         sidePanelView?.setColumns(1)
+        sidePanelView?.setEditButtonVisible(true) // Show Edit Button when picker is open
+        sidePanelView?.scrollToBottom() // Focus on the new button
         sidePanelView?.animatePickerToggle(true)
         pickerPanelView?.let { picker ->
             picker.setEditMode(enableEditMode)
@@ -405,6 +415,7 @@ class FloatingPanelService : Service() {
         isPickerOpen = false
         val originalCols = if (panelPrefs.isPremium) panelPrefs.panelColumns else 1
         sidePanelView?.setColumns(originalCols)
+        sidePanelView?.setEditButtonVisible(false) // Hide Edit Button when picker is closed
         sidePanelView?.animatePickerToggle(false)
         pickerPanelView?.let { picker ->
             picker.setEditMode(false) // Reset mode
