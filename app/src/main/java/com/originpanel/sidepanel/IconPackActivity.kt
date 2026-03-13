@@ -47,8 +47,7 @@ class IconPackActivity : AppCompatActivity() {
             startForegroundService(intent)
             
             finish()
-        }
-    }
+        }    }
 
     override fun onSupportNavigateUp(): Boolean {
         finish()

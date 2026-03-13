@@ -144,6 +144,8 @@ class PanelAppsAdapter(
             oldItem.packageName == newItem.packageName
 
         override fun areContentsTheSame(oldItem: AppInfo, newItem: AppInfo) =
-            oldItem.appName == newItem.appName && oldItem.isInPanel == newItem.isInPanel
+            oldItem.appName == newItem.appName && 
+            oldItem.isInPanel == newItem.isInPanel &&
+            oldItem.icon === newItem.icon // Reference comparison for icons
     }
 }
