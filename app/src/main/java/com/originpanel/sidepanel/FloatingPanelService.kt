@@ -358,8 +358,14 @@ class FloatingPanelService : Service() {
         ).apply {
             gravity = if (isRight) Gravity.CENTER_VERTICAL or Gravity.END
                       else Gravity.CENTER_VERTICAL or Gravity.START
-            val sidePanelWidthPx = (104 * resources.displayMetrics.density).toInt()
-            x = sidePanelWidthPx
+            
+            val density = resources.displayMetrics.density
+            val cols = if (panelPrefs.isPremium) panelPrefs.panelColumns else 1
+            val sidePanelWidthDp = if (cols == 2) 150 else 72
+            
+            // Consistent 12dp gap from the side panel card
+            // 12dp (margin from edge) + sidePanelWidthDp + 12dp (gap)
+            x = ( (sidePanelWidthDp + 24) * density).toInt()
         }
         windowManager.addView(pickerPanelView, params)
     }

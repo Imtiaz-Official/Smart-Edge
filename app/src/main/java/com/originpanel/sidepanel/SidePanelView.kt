@@ -82,6 +82,29 @@ class SidePanelView @JvmOverloads constructor(
         lp.width = dpToPx(if (cols == 2) width2ColDp.toInt() else width1ColDp.toInt())
         binding.panelCard.layoutParams = lp
 
+        // Dynamic alignment based on side
+        val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
+        
+        // Initial arrow rotation based on side
+        binding.btnClose.rotation = if (isRight) 180f else 0f
+
+        val containerLp = binding.panelContainer.layoutParams as? android.widget.RelativeLayout.LayoutParams
+        if (containerLp != null) {
+            containerLp.removeRule(android.widget.RelativeLayout.ALIGN_PARENT_END)
+            containerLp.removeRule(android.widget.RelativeLayout.ALIGN_PARENT_START)
+            
+            if (isRight) {
+                containerLp.addRule(android.widget.RelativeLayout.ALIGN_PARENT_END)
+                containerLp.marginEnd = dpToPx(12)
+                containerLp.marginStart = 0
+            } else {
+                containerLp.addRule(android.widget.RelativeLayout.ALIGN_PARENT_START)
+                containerLp.marginStart = dpToPx(12)
+                containerLp.marginEnd = 0
+            }
+            binding.panelContainer.layoutParams = containerLp
+        }
+
         binding.btnClose.setOnClickListener {
             if (panelPrefs.hapticEnabled) {
                 it.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
@@ -199,13 +222,21 @@ class SidePanelView @JvmOverloads constructor(
 
     fun animatePickerToggle(isPickerOpen: Boolean) {
         val density = context.resources.displayMetrics.density
+        val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
+
         val currentPanelWidthDp = if (isPickerOpen) width1ColDp else {
             if (panelPrefs.isPremium && panelPrefs.panelColumns == 2) width2ColDp else width1ColDp
         }
         val middleXDp = (currentPanelWidthDp / 2f) - (buttonWidthDp / 2f)
         val rightXDp = currentPanelWidthDp - horizontalMarginDp - buttonWidthDp
         val targetTranslationXDp = if (isPickerOpen) (rightXDp - middleXDp) else 0f
-        val targetRotation = if (isPickerOpen) 0f else 180f
+        
+        // Mirror rotation based on side
+        val targetRotation = if (isRight) {
+            if (isPickerOpen) 0f else 180f
+        } else {
+            if (isPickerOpen) 180f else 0f
+        }
 
         springX.cancel()
         springRotation.cancel()
