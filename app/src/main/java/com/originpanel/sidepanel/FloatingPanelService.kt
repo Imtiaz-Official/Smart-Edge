@@ -49,15 +49,6 @@ class FloatingPanelService : Service() {
     
     private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
 
-    private val systemDialogsReceiver = object : android.content.BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == Intent.ACTION_CLOSE_SYSTEM_DIALOGS) {
-                // Immediate close for snappy gesture feel
-                closePanel(immediate = true)
-            }
-        }
-    }
-
     companion object {
         const val TAG = "FloatingPanelService"
         const val CHANNEL_ID = "side_panel_channel"
@@ -81,9 +72,7 @@ class FloatingPanelService : Service() {
         initPickerPanel()
         addEdgeHandle()
 
-        // Register for system-level triggers (Home/Recents)
-        val filter = android.content.IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
-        registerReceiver(systemDialogsReceiver, filter, RECEIVER_EXPORTED)
+
 
         // Smart setup: Populates if empty
         serviceScope.launch {
@@ -230,9 +219,6 @@ class FloatingPanelService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        try {
-            unregisterReceiver(systemDialogsReceiver)
-        } catch (e: Exception) {}
         serviceScope.cancel()
         removeView(edgeHandleView)
         removeView(sidePanelView)

@@ -45,6 +45,27 @@ class SidePanelView @JvmOverloads constructor(
     private val buttonWidthDp = 24f
     private val horizontalMarginDp = 8f
 
+    private val gestureDetector = android.view.GestureDetector(context, object : android.view.GestureDetector.SimpleOnGestureListener() {
+        override fun onFling(e1: android.view.MotionEvent?, e2: android.view.MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+            val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
+            
+            // Fling outward to close
+            if (isRight && velocityX > 800f) {
+                onClose?.invoke()
+                return true
+            } else if (!isRight && velocityX < -800f) {
+                onClose?.invoke()
+                return true
+            }
+            return false
+        }
+    })
+
+    override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+        gestureDetector.onTouchEvent(ev)
+        return super.dispatchTouchEvent(ev)
+    }
+
     init {
         // Configure Springs
         springX.spring = SpringForce().apply {

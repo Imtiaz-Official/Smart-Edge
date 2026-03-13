@@ -49,6 +49,15 @@ class AppPickerPanelView @JvmOverloads constructor(
     
     private val scope = CoroutineScope(Dispatchers.Main + Job())
 
+    private lateinit var gestureDetector: android.view.GestureDetector
+
+    override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+        if (::gestureDetector.isInitialized) {
+            gestureDetector.onTouchEvent(ev)
+        }
+        return super.dispatchTouchEvent(ev)
+    }
+
     init {
         val view = LayoutInflater.from(context).inflate(R.layout.picker_panel_layout, this, true)
         pickerPanelCard = view.findViewById(R.id.pickerPanelCard)
@@ -57,6 +66,17 @@ class AppPickerPanelView @JvmOverloads constructor(
         btnSettings = view.findViewById(R.id.btnPickerClose) 
         btnEdit = view.findViewById(R.id.btnPickerEdit)
         tvHeader = view.findViewById(R.id.tvPickerHeader)
+
+        gestureDetector = android.view.GestureDetector(context, object : android.view.GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(e1: android.view.MotionEvent?, e2: android.view.MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+                val canScrollUp = rvPickerGrid.canScrollVertically(-1)
+                if (!canScrollUp && velocityY > 800f) {
+                    onClose?.invoke()
+                    return true
+                }
+                return false
+            }
+        })
 
         if (panelPrefs.uiTheme == PanelPreferences.THEME_RICH) {
             rvPickerGrid.layoutManager = LinearLayoutManager(context)
