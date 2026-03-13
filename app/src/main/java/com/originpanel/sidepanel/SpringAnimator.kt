@@ -21,21 +21,14 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 object SpringAnimator {
 
     private val fadeInterpolator = FastOutSlowInInterpolator()
-    private const val SPRING_DAMPING = SpringForce.DAMPING_RATIO_LOW_BOUNCY
+    private const val SPRING_DAMPING = SpringForce.DAMPING_RATIO_NO_BOUNCY
 
     // Track active springs to cancel them if a new animation starts on the same view
     private val activeSprings = java.util.concurrent.ConcurrentHashMap<View, SpringAnimation>()
 
     fun adaptiveStiffness(context: Context): Float {
-        val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        val memInfo = ActivityManager.MemoryInfo()
-        am.getMemoryInfo(memInfo)
-        val ramGb = memInfo.totalMem / (1024f * 1024f * 1024f)
-        return when {
-            ramGb >= 8f -> SpringForce.STIFFNESS_HIGH
-            ramGb >= 4f -> SpringForce.STIFFNESS_MEDIUM
-            else        -> SpringForce.STIFFNESS_LOW
-        }
+        // Lower stiffness for a "calmer" feel
+        return SpringForce.STIFFNESS_LOW
     }
 
     fun animateOpen(view: View, panelWidth: Float, isPicker: Boolean = false, onEnd: (() -> Unit)? = null) {
@@ -53,7 +46,7 @@ object SpringAnimator {
         view.post {
             view.animate()
                 .alpha(1f)
-                .setDuration(160)
+                .setDuration(250) // Longer fade for smoothness
                 .setInterpolator(fadeInterpolator)
                 .start()
 
@@ -77,7 +70,7 @@ object SpringAnimator {
 
         view.animate()
             .alpha(0f)
-            .setDuration(140)
+            .setDuration(200) // Longer fade for smoothness
             .setInterpolator(fadeInterpolator)
             .start()
 
