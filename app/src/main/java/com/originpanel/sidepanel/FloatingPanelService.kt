@@ -57,6 +57,7 @@ class FloatingPanelService : Service() {
         const val ACTION_OPEN = "com.originpanel.sidepanel.OPEN"
         const val ACTION_REFRESH = "com.originpanel.sidepanel.REFRESH"
         const val ACTION_SCREENSHOT = "com.originpanel.sidepanel.SCREENSHOT"
+        const val ACTION_CLOSE_PANEL = "com.originpanel.sidepanel.CLOSE_PANEL"
     }
 
     override fun onCreate() {
@@ -94,6 +95,9 @@ class FloatingPanelService : Service() {
             }
             ACTION_REFRESH -> {
                 refreshApps()
+            }
+            ACTION_CLOSE_PANEL -> {
+                closePanel(immediate = false)
             }
             ACTION_SCREENSHOT -> {
                 val resultCode = intent.getIntExtra("RESULT_CODE", 0)

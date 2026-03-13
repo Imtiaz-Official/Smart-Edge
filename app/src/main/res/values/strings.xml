@@ -22,4 +22,5 @@
     <string name="open">Open</string>
     <string name="no_apps">No apps added yet.\nTap \"Manage Apps\" to add some.</string>
     <string name="panel_tip">Long press the right edge to open the panel</string>
+    <string name="accessibility_service_description">Detects system navigation gestures to effortlessly auto-close the floating panel.</string>
 </resources>

@@ -151,6 +151,16 @@ class SettingsActivity : AppCompatActivity() {
             applyAndShow()
         }
 
+        binding.btnAccessibility.setOnClickListener {
+            try {
+                val intent = Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                startActivity(intent)
+                Toast.makeText(this, "Scroll down to 'Downloaded Apps' and enable 'Side Panel'", Toast.LENGTH_LONG).show()
+            } catch (e: Exception) {
+                Toast.makeText(this, "Could not open Accessibility Settings", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         binding.switchTapOpen.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.tapToOpen = isChecked
             applyAndShow()

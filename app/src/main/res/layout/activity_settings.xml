@@ -51,6 +51,18 @@
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1AFFFFFF" android:layout_marginVertical="16dp" />
 
                 <Switch android:id="@+id/switchGestures" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Edge Swipe Gestures" android:textColor="@color/text_primary" android:thumbTint="@color/accent_blue" />
+                
+                <Button
+                    android:id="@+id/btnAccessibility"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Enable Gesture Auto-Close (Accessibility)"
+                    android:textAllCaps="false"
+                    android:backgroundTint="#1AFFFFFF"
+                    android:textColor="@color/accent_blue"
+                    app:cornerRadius="12dp" />
+
                 <Switch android:id="@+id/switchTapOpen" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Tap Pill to Open" android:textColor="@color/text_primary" android:thumbTint="@color/accent_blue" />
                 <Switch android:id="@+id/switchAutoStart" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Auto-start on Boot" android:textColor="@color/text_primary" android:thumbTint="@color/accent_blue" />
                 <Switch android:id="@+id/switchHaptic" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Haptic Feedback" android:textColor="@color/text_primary" android:thumbTint="@color/accent_blue" />
