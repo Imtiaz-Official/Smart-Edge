@@ -20,8 +20,6 @@ class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var panelPrefs: PanelPreferences
-    private var previewPanel: SidePanelView? = null
-    private var previewHandle: EdgeHandleView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,66 +33,8 @@ class SettingsActivity : AppCompatActivity() {
 
         panelPrefs = PanelPreferences(this)
         
-        setupPreview()
         loadCurrentSettings()
         setupListeners()
-    }
-
-    private fun setupPreview() {
-        binding.previewContainer.removeAllViews()
-
-        val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
-        val density = resources.displayMetrics.density
-
-        // 1. Create Preview Handle
-        previewHandle = EdgeHandleView(this).apply {
-            this.isRightSide = isRight
-            this.showPill = panelPrefs.showPill
-            this.onTrigger = null 
-            updatePill()
-            visibility = if (panelPrefs.gesturesEnabled) View.VISIBLE else View.GONE
-        }
-
-        val handleWidthPx = (panelPrefs.handleWidth * density).toInt()
-        val handleHeightPx = (panelPrefs.handleHeight * density).toInt()
-        
-        val handleParams = FrameLayout.LayoutParams(handleWidthPx, handleHeightPx).apply {
-            gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL else Gravity.START or Gravity.CENTER_VERTICAL
-        }
-        previewHandle?.translationY = (panelPrefs.handleVerticalOffset * density)
-        binding.previewContainer.addView(previewHandle, handleParams)
-
-        // 2. Create Preview Panel
-        previewPanel = SidePanelView(this).apply {
-            onClose = null
-            onAppsChanged = null
-            onAddClick = null
-            
-            setApps(listOf(
-                AppInfo("pkg1", "Browser", getDrawable(android.R.drawable.ic_menu_compass), true),
-                AppInfo("pkg2", "Camera", getDrawable(android.R.drawable.ic_menu_camera), true),
-                AppInfo("pkg3", "Gallery", getDrawable(android.R.drawable.ic_menu_gallery), true),
-                AppInfo("pkg4", "Maps", getDrawable(android.R.drawable.ic_dialog_map), true),
-                AppInfo("pkg5", "Settings", getDrawable(android.R.drawable.ic_menu_preferences), true)
-            ))
-            
-            alpha = 1.0f
-            visibility = View.VISIBLE
-        }
-
-        val panelParams = FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.WRAP_CONTENT,
-            FrameLayout.LayoutParams.MATCH_PARENT 
-        ).apply {
-            gravity = if (isRight) Gravity.END else Gravity.START
-            setMargins(if (isRight) 0 else 16, 0, if (isRight) 16 else 0, 0)
-        }
-        previewPanel?.translationY = (panelPrefs.handleVerticalOffset * density)
-        binding.previewContainer.addView(previewPanel, panelParams)
-    }
-
-    private fun updatePreview() {
-        setupPreview()
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -115,8 +55,8 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchShowPill.isChecked = panelPrefs.showPill
         binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
         binding.sbOpacity.progress = panelPrefs.panelOpacity
-        binding.sbHandleHeight.progress = panelPrefs.handleHeight // Relative to min 40
-        binding.sbHandleWidth.progress = panelPrefs.handleWidth // Relative to min 10
+        binding.sbHandleHeight.progress = panelPrefs.handleHeight 
+        binding.sbHandleWidth.progress = panelPrefs.handleWidth 
         binding.sbHandleOffset.progress = panelPrefs.handleVerticalOffset + 100
 
         when (panelPrefs.uiTheme) {
@@ -139,7 +79,6 @@ class SettingsActivity : AppCompatActivity() {
         val pack = panelPrefs.selectedIconPack
         binding.tvCurrentIconPack.text = if (pack == "none") "System Default" else pack
 
-        // Sync Color Picker Previews (Make them accurate)
         try {
             val accentColor = Color.parseColor(panelPrefs.accentColor)
             binding.btnPickAccent.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColor)
@@ -189,8 +128,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.rgPanelSide.setOnCheckedChangeListener { _, checkedId ->
             panelPrefs.panelSide = if (checkedId == R.id.rbLeft)
                 PanelPreferences.SIDE_LEFT else PanelPreferences.SIDE_RIGHT
-            updatePreview()
-            restartServiceIfRunning()
+            applyAndShow()
         }
 
         binding.switchAutoStart.setOnCheckedChangeListener { _, isChecked ->
@@ -199,19 +137,17 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchGestures.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.gesturesEnabled = isChecked
-            updatePreview()
-            restartServiceIfRunning()
+            applyAndShow()
         }
 
         binding.switchTapOpen.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.tapToOpen = isChecked
-            restartServiceIfRunning()
+            applyAndShow()
         }
 
         binding.switchShowPill.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showPill = isChecked
-            updatePreview()
-            restartServiceIfRunning()
+            applyAndShow()
         }
 
         binding.switchHaptic.setOnCheckedChangeListener { _, isChecked ->
@@ -222,33 +158,30 @@ class SettingsActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     panelPrefs.panelOpacity = progress
-                    updatePreview()
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { applyAndShow() }
         })
 
         binding.sbHandleHeight.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     panelPrefs.handleHeight = progress
-                    updatePreview()
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { applyAndShow() }
         })
 
         binding.sbHandleWidth.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     panelPrefs.handleWidth = progress
-                    updatePreview()
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { applyAndShow() }
         })
 
         binding.btnGoPremium.setOnClickListener {
@@ -261,11 +194,10 @@ class SettingsActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     panelPrefs.handleVerticalOffset = progress - 100
-                    updatePreview()
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { restartServiceIfRunning() }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) { applyAndShow() }
         })
 
         binding.rgThemes.setOnCheckedChangeListener { _, checkedId ->
@@ -275,8 +207,7 @@ class SettingsActivity : AppCompatActivity() {
                 R.id.rbThemeRich -> PanelPreferences.THEME_RICH
                 else -> PanelPreferences.THEME_ORIGIN
             }
-            updatePreview()
-            restartServiceIfRunning()
+            applyAndShow()
         }
 
         binding.rgIconShape.setOnCheckedChangeListener { _, checkedId ->
@@ -285,14 +216,12 @@ class SettingsActivity : AppCompatActivity() {
                 R.id.rbShapeSquare -> PanelPreferences.SHAPE_SQUARE
                 else -> PanelPreferences.SHAPE_CIRCLE
             }
-            updatePreview()
-            restartServiceIfRunning()
+            applyAndShow()
         }
 
         binding.switchUseCustomAccent.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.useCustomAccent = isChecked
-            updatePreview()
-            restartServiceIfRunning()
+            applyAndShow()
         }
 
         binding.btnSelectIconPack.setOnClickListener {
@@ -302,29 +231,25 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchTools.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showTools = isChecked
-            updatePreview()
-            restartServiceIfRunning()
+            applyAndShow()
         }
 
         binding.switchHideBg.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.hideBackground = isChecked
-            updatePreview()
-            restartServiceIfRunning()
+            applyAndShow()
         }
 
         binding.btnResetDefaults.setOnClickListener {
             panelPrefs.resetToDefaults()
             loadCurrentSettings() 
-            updatePreview()
-            restartServiceIfRunning()
+            applyAndShow()
             Toast.makeText(this, "Settings Reset to Defaults", Toast.LENGTH_SHORT).show()
         }
 
         binding.btnResetUIColors.setOnClickListener {
             panelPrefs.resetUIColors()
-            loadCurrentSettings() // Refreshes button tints and preview
-            updatePreview()
-            restartServiceIfRunning()
+            loadCurrentSettings() 
+            applyAndShow()
             Toast.makeText(this, "UI Colors Restored to Default", Toast.LENGTH_SHORT).show()
         }
 
@@ -332,8 +257,8 @@ class SettingsActivity : AppCompatActivity() {
             openColorPicker(Color.parseColor(panelPrefs.accentColor)) { newColor ->
                 val hex = String.format("#%06X", (0xFFFFFF and newColor))
                 panelPrefs.accentColor = hex
-                updatePreview()
-                restartServiceIfRunning()
+                loadCurrentSettings()
+                applyAndShow()
             }
         }
 
@@ -341,8 +266,8 @@ class SettingsActivity : AppCompatActivity() {
             openColorPicker(Color.parseColor(panelPrefs.panelBackgroundColor)) { newColor ->
                 val hex = String.format("#E6%06X", (0xFFFFFF and newColor))
                 panelPrefs.panelBackgroundColor = hex
-                updatePreview()
-                restartServiceIfRunning()
+                loadCurrentSettings()
+                applyAndShow()
             }
         }
     }
@@ -350,7 +275,6 @@ class SettingsActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadCurrentSettings() 
-        restartServiceIfRunning()
     }
 
     private fun openColorPicker(initialColor: Int, onPick: (Int) -> Unit) {
@@ -363,24 +287,17 @@ class SettingsActivity : AppCompatActivity() {
         picker.show()
     }
 
-    private fun updateColor(hex: String) {
-        if (!panelPrefs.isPremium) {
-            Toast.makeText(this, "Premium Required", Toast.LENGTH_SHORT).show()
-            return
-        }
-        panelPrefs.panelBackgroundColor = hex
-        updatePreview()
-        restartServiceIfRunning()
-    }
-
-    private fun restartServiceIfRunning() {
+    private fun applyAndShow() {
         val stop = Intent(this, FloatingPanelService::class.java).apply {
             action = FloatingPanelService.ACTION_STOP
         }
         startService(stop)
+        
         binding.root.postDelayed({
-            val start = Intent(this, FloatingPanelService::class.java)
+            val start = Intent(this, FloatingPanelService::class.java).apply {
+                action = "com.originpanel.sidepanel.SHOW_TEMP"
+            }
             startForegroundService(start)
-        }, 400)
+        }, 300)
     }
 }
