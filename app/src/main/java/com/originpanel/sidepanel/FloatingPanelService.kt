@@ -419,11 +419,21 @@ class FloatingPanelService : Service() {
     private fun closePicker() {
         if (!isPickerOpen) return
         isPickerOpen = false
-        val originalCols = if (panelPrefs.isPremium) panelPrefs.panelColumns else 1
-        sidePanelView?.setColumns(originalCols)
-        sidePanelView?.setEditButtonVisible(false) // Hide Edit Button when picker is closed
-        sidePanelView?.scrollToTop() // Reset scroll to top
+        
+        // 1. Start animations and smooth scroll immediately
         sidePanelView?.animatePickerToggle(false)
+        sidePanelView?.scrollToTop()
+        
+        // 2. Delay structural layout changes slightly to let the scroll settle
+        // This prevents "hiccups" where columns change mid-scroll
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (!isPickerOpen) { // Double check we didn't re-open
+                val originalCols = if (panelPrefs.isPremium) panelPrefs.panelColumns else 1
+                sidePanelView?.setEditButtonVisible(false) 
+                sidePanelView?.setColumns(originalCols)
+            }
+        }, 250)
+        
         pickerPanelView?.let { picker ->
             picker.setEditMode(false) // Reset mode
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT

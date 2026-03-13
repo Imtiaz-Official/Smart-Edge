@@ -48,7 +48,7 @@ class SidePanelView @JvmOverloads constructor(
     init {
         // Configure Springs
         springX.spring = SpringForce().apply {
-            dampingRatio = SpringForce.DAMPING_RATIO_LOW_BOUNCY
+            dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
             stiffness = SpringForce.STIFFNESS_LOW
         }
         springRotation.spring = SpringForce().apply {
@@ -186,7 +186,11 @@ class SidePanelView @JvmOverloads constructor(
     }
 
     fun scrollToTop() {
-        binding.rvPanelApps.scrollToPosition(0)
+        binding.rvPanelApps.smoothScrollToPosition(0)
+    }
+
+    fun scrollToPosition(pos: Int) {
+        binding.rvPanelApps.scrollToPosition(pos)
     }
 
     fun scrollToBottom() {
