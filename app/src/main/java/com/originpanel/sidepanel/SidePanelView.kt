@@ -77,19 +77,6 @@ class SidePanelView @JvmOverloads constructor(
         binding.rvPanelApps.layoutManager = GridLayoutManager(context, cols)
         binding.rvPanelApps.adapter = adapter
         
-        // Immediate close detection on touch outside
-        setOnTouchListener { _, event ->
-            if (event.action == android.view.MotionEvent.ACTION_DOWN) {
-                val rect = android.graphics.Rect()
-                binding.panelCard.getGlobalVisibleRect(rect)
-                if (!rect.contains(event.x.toInt(), event.y.toInt())) {
-                    onClose?.invoke()
-                    // Return false so the system still sees this touch for gestures (Home/Recents)
-                }
-            }
-            false
-        }
-
         // Initial width setup
         val lp = binding.panelCard.layoutParams
         lp.width = dpToPx(if (cols == 2) width2ColDp.toInt() else width1ColDp.toInt())
