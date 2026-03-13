@@ -54,6 +54,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchTapOpen.isChecked = panelPrefs.tapToOpen
         binding.switchShowPill.isChecked = panelPrefs.showPill
         binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
+        binding.switchBlur.isChecked = panelPrefs.blurEnabled
         binding.sbOpacity.progress = panelPrefs.panelOpacity
         binding.sbHandleHeight.progress = panelPrefs.handleHeight 
         binding.sbHandleWidth.progress = panelPrefs.handleWidth 
@@ -152,6 +153,11 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchHaptic.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.hapticEnabled = isChecked
+        }
+
+        binding.switchBlur.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.blurEnabled = isChecked
+            applyAndShow()
         }
 
         binding.sbOpacity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {

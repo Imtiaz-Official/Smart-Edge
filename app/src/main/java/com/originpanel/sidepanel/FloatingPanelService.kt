@@ -266,11 +266,20 @@ class FloatingPanelService : Service() {
             // Clicking the Arrow (btnClose) toggles All Apps
             onAddClick = { isEdit -> togglePicker(isEdit) }
             visibility = View.GONE 
+            
+            // Handle touches outside the window bounds
+            setOnTouchListener { _, event ->
+                if (event.action == android.view.MotionEvent.ACTION_OUTSIDE) {
+                    closePanel()
+                    return@setOnTouchListener true
+                }
+                false
+            }
         }
         refreshApps()
         val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
         val params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
@@ -289,6 +298,9 @@ class FloatingPanelService : Service() {
     private fun openPanel() {
         if (isPanelOpen) return
         isPanelOpen = true
+        
+        updateBlur(true)
+        
         refreshApps()
         sidePanelView?.scrollToTop() 
         sidePanelView?.let { panel ->
@@ -306,6 +318,26 @@ class FloatingPanelService : Service() {
         edgeHandleView?.visibility = View.GONE
     }
 
+    private fun updateBlur(enabled: Boolean) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+        
+        // Blur is optional and only active for Origin theme by default, 
+        // but we can allow it for all if preference is on.
+        val shouldBlur = enabled && panelPrefs.blurEnabled
+        
+        sidePanelView?.let { panel ->
+            val params = panel.layoutParams as? WindowManager.LayoutParams ?: return
+            if (shouldBlur) {
+                params.flags = params.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
+                params.blurBehindRadius = 50
+            } else {
+                params.flags = params.flags and WindowManager.LayoutParams.FLAG_BLUR_BEHIND.inv()
+                params.blurBehindRadius = 0
+            }
+            windowManager.updateViewLayout(panel, params)
+        }
+    }
+
     fun closePanel() {
         if (!isPanelOpen) return
         isPanelOpen = false
@@ -314,6 +346,7 @@ class FloatingPanelService : Service() {
             val panelWidth = panel.width.toFloat()
             SpringAnimator.animateClose(panel, panelWidth) {
                 panel.visibility = View.GONE
+                updateBlur(false)
                 edgeHandleView?.visibility = View.VISIBLE
                 panel.animatePickerToggle(false) 
             }
@@ -346,6 +379,14 @@ class FloatingPanelService : Service() {
                 }
             }
             visibility = View.GONE 
+            
+            setOnTouchListener { _, event ->
+                if (event.action == android.view.MotionEvent.ACTION_OUTSIDE) {
+                    closePicker()
+                    return@setOnTouchListener true
+                }
+                false
+            }
         }
         val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
         val params = WindowManager.LayoutParams(

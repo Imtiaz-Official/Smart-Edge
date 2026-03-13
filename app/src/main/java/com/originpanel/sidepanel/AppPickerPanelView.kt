@@ -70,7 +70,7 @@ class AppPickerPanelView @JvmOverloads constructor(
                 addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(intent)
-            onClose?.invoke() 
+            onAppLaunched?.invoke() // This will call closePanel() in the service
         }
 
         btnEdit.setOnClickListener {

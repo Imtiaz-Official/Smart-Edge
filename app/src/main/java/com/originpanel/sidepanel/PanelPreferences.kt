@@ -148,6 +148,10 @@ class PanelPreferences(context: Context) {
         get() = prefs.getBoolean(KEY_HAPTIC_ENABLED, DEFAULT_HAPTIC)
         set(value) = prefs.edit { putBoolean(KEY_HAPTIC_ENABLED, value) }
 
+    var blurEnabled: Boolean
+        get() = prefs.getBoolean("blur_enabled", false)
+        set(value) = prefs.edit { putBoolean("blur_enabled", value) }
+
     var panelOpacity: Int
         get() = prefs.getInt(KEY_PANEL_OPACITY, DEFAULT_OPACITY)
         set(value) = prefs.edit { putInt(KEY_PANEL_OPACITY, value) }

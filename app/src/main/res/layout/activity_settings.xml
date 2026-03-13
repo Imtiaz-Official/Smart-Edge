@@ -92,6 +92,9 @@
                     <RadioButton android:id="@+id/rbThemeRich" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Rich UI (Glow)" android:textColor="@color/text_secondary" />
                 </RadioGroup>
 
+                <Switch android:id="@+id/switchBlur" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Glassmorphic Blur" android:textColor="@color/text_primary" android:thumbTint="@color/accent_blue" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="May cause lag on budget devices (Android 12+ only)" android:textColor="@color/text_tertiary" android:textSize="11sp" android:layout_marginStart="4dp" />
+
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1AFFFFFF" android:layout_marginVertical="16dp" />
 
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Icon Shape" android:textColor="@color/text_primary" />
