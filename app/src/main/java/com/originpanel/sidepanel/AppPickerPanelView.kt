@@ -306,8 +306,10 @@ class AppPickerPanelView @JvmOverloads constructor(
         }
 
         override fun areContentsTheSame(oldItem: AppInfo, newItem: AppInfo): Boolean {
-            // Check if name or selection state changed
-            return oldItem.appName == newItem.appName && oldItem.isInPanel == newItem.isInPanel
+            // Check if name, selection state or icon changed
+            return oldItem.appName == newItem.appName && 
+                   oldItem.isInPanel == newItem.isInPanel &&
+                   oldItem.icon === newItem.icon
         }
     }
 

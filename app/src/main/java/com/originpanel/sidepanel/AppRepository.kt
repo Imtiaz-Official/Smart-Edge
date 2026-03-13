@@ -24,8 +24,9 @@ class AppRepository(context: Context) {
             addCategory(android.content.Intent.CATEGORY_LAUNCHER)
         }
 
-        val panelPackages = panelPrefs.getPanelApps().toSet()
-        val selectedPack = panelPrefs.selectedIconPack
+        val prefs = PanelPreferences(appContext)
+        val panelPackages = prefs.getPanelApps().toSet()
+        val selectedPack = prefs.selectedIconPack
 
         packageManager.queryIntentActivities(intent, 0)
             .distinctBy { it.activityInfo.packageName }
@@ -47,10 +48,11 @@ class AppRepository(context: Context) {
      * Returns only the apps currently pinned to the panel.
      */
     suspend fun getPanelApps(): List<AppInfo> = withContext(Dispatchers.IO) {
-        val panelPackages = panelPrefs.getPanelApps()
+        val prefs = PanelPreferences(appContext)
+        val panelPackages = prefs.getPanelApps()
         if (panelPackages.isEmpty()) return@withContext emptyList()
 
-        val selectedPack = panelPrefs.selectedIconPack
+        val selectedPack = prefs.selectedIconPack
 
         val intent = android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
             addCategory(android.content.Intent.CATEGORY_LAUNCHER)
