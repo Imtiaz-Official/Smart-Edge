@@ -45,6 +45,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         panelPrefs = PanelPreferences(this)
 
+        // Set status bar color and icons
+        val typedValue = android.util.TypedValue()
+        theme.resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true)
+        window.statusBarColor = typedValue.data
+        androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
+
         // Hide default action bar — our layout provides the header
         supportActionBar?.hide()
 
