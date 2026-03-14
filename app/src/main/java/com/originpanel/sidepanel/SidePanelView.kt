@@ -31,6 +31,7 @@ class SidePanelView @JvmOverloads constructor(
     var onClose: (() -> Unit)? = null
     var onAppsChanged: (() -> Unit)? = null
     var onAddClick: ((Boolean) -> Unit)? = null // Accept Boolean for Edit Mode
+    var onScreenshot: (() -> Unit)? = null
 
     private val binding: SidePanelLayoutBinding = SidePanelLayoutBinding.inflate(LayoutInflater.from(context), this, true)
     private val adapter: PanelAppsAdapter
@@ -77,7 +78,7 @@ class SidePanelView @JvmOverloads constructor(
             stiffness = SpringForce.STIFFNESS_MEDIUM
         }
 
-        setOnClickListener { onClose?.invoke() }
+        // Removed setOnClickListener to prevent accidental closures from clicks on window "dead space"
         binding.panelCard.setOnClickListener { }
 
         applyTheme()
@@ -138,15 +139,7 @@ class SidePanelView @JvmOverloads constructor(
             if (panelPrefs.hapticEnabled) {
                 it.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
             }
-            // Close panel first, then launch ScreenshotActivity after the close animation
-            // finishes (~300ms) so the activity window doesn't appear while panel is visible.
-            onClose?.invoke()
-            it.postDelayed({
-                val intent = Intent(context, ScreenshotActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                context.startActivity(intent)
-            }, 350)
+            onScreenshot?.invoke()
         }
     }
 

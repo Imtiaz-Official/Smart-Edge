@@ -14,6 +14,9 @@ class ScreenshotActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Ensure the activity is as invisible as possible before the system dialog pops up
+        window.setBackgroundDrawableResource(android.R.color.transparent)
+        
         Log.d("ScreenshotActivity", "onCreate: requesting permission")
         projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         startActivityForResult(projectionManager.createScreenCaptureIntent(), REQUEST_CODE)
