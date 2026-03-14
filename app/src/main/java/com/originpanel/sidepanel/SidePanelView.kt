@@ -138,11 +138,15 @@ class SidePanelView @JvmOverloads constructor(
             if (panelPrefs.hapticEnabled) {
                 it.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
             }
-            onClose?.invoke() 
-            val intent = Intent(context, ScreenshotActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(intent)
+            // Close panel first, then launch ScreenshotActivity after the close animation
+            // finishes (~300ms) so the activity window doesn't appear while panel is visible.
+            onClose?.invoke()
+            it.postDelayed({
+                val intent = Intent(context, ScreenshotActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(intent)
+            }, 350)
         }
     }
 
