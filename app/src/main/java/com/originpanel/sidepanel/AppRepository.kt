@@ -68,9 +68,14 @@ class AppRepository(context: Context) {
         val customIcon = iconPackManager.getIcon(packageName, selectedPack)
         val finalIcon = if (customIcon != null) customIcon else {
             try {
-                packageManager.getApplicationIcon(packageName)
+                val appInfo = packageManager.getApplicationInfo(packageName, 0)
+                appInfo.loadIcon(packageManager)
             } catch (e: Exception) {
-                null
+                try {
+                    packageManager.getApplicationIcon(packageName)
+                } catch (e2: Exception) {
+                    null
+                }
             }
         }
         
@@ -82,11 +87,10 @@ class AppRepository(context: Context) {
      * Returns only the apps currently pinned to the panel.
      */
     suspend fun getPanelApps(): List<AppInfo> = withContext(Dispatchers.IO) {
-        val prefs = PanelPreferences(appContext)
-        val panelPackages = prefs.getPanelApps()
+        val panelPackages = panelPrefs.getPanelApps()
         if (panelPackages.isEmpty()) return@withContext emptyList()
 
-        val selectedPack = prefs.selectedIconPack
+        val selectedPack = panelPrefs.selectedIconPack
 
         val intent = android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
             addCategory(android.content.Intent.CATEGORY_LAUNCHER)

@@ -104,6 +104,8 @@ class FloatingPanelService : Service() {
                 openPanel()
             }
             ACTION_REFRESH -> {
+                pickerPanelView?.invalidateAppList() // Force full reload of metadata
+                pickerPanelView?.loadApps(true)      // Trigger immediate reload
                 refreshApps()
             }
             ACTION_CLOSE_PANEL -> {
@@ -361,20 +363,16 @@ class FloatingPanelService : Service() {
     private fun initRootLayout() {
         if (rootLayout != null) return
         
-        rootLayout = android.widget.FrameLayout(this).apply {
-            // Give it a nearly invisible background so it's "real" for touches
-            setBackgroundColor(android.graphics.Color.parseColor("#01000000")) 
-            setOnClickListener {
-                // Clicking anywhere on the root (not consumed by children) closes the panel
-                closePanel()
-            }
-        }
+        rootLayout = android.widget.FrameLayout(this)
+        // No click listener here — touching dead space should NOT close the panel.
+        // Dismissal is handled explicitly via the close button / back-arrow in SidePanelView.
 
         rootParams = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or   // pass-through touches outside children
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             PixelFormat.TRANSLUCENT
@@ -567,6 +565,8 @@ class FloatingPanelService : Service() {
 
     private fun refreshApps(onComplete: (() -> Unit)? = null) {
         serviceScope.launch {
+            // getPanelApps in repository is already optimized to use the cache
+            // and load the real icons.
             val apps = AppRepository(this@FloatingPanelService).getPanelApps()
             sidePanelView?.setApps(apps, onComplete)
         }

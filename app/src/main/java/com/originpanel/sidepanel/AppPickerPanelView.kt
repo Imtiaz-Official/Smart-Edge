@@ -48,7 +48,17 @@ class AppPickerPanelView @JvmOverloads constructor(
     var isEditMode = false
         private set
     
-    private val scope = CoroutineScope(Dispatchers.Main + Job())
+    private val scope: CoroutineScope
+        get() = _scope
+    private var _scope = CoroutineScope(Dispatchers.Main + Job())
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        // Recreate scope if it was cancelled by a previous detach
+        if (!_scope.coroutineContext[Job]!!.isActive) {
+            _scope = CoroutineScope(Dispatchers.Main + Job())
+        }
+    }
 
     private lateinit var gestureDetector: android.view.GestureDetector
 
@@ -220,6 +230,12 @@ class AppPickerPanelView @JvmOverloads constructor(
         allApps = listOf()
     }
 
+    /** Specifically clears icons from cached apps to force a reload (e.g. icon pack change) */
+    fun clearIcons() {
+        allApps.forEach { it.icon = null }
+        adapter.notifyDataSetChanged()
+    }
+
     private fun filter(query: String) {
         val filtered = allApps.filter { it.appName.contains(query, ignoreCase = true) }
         adapter.submitList(filtered)
@@ -267,7 +283,6 @@ class AppPickerPanelView @JvmOverloads constructor(
             if (app.icon != null) {
                 // Icon already cached on the AppInfo object — show immediately
                 holder.ivIcon.setImageDrawable(app.icon)
-                IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
             } else {
                 // Show placeholder immediately so there's no blank gap
                 holder.ivIcon.setImageResource(android.R.drawable.sym_def_app_icon)
@@ -281,10 +296,9 @@ class AppPickerPanelView @JvmOverloads constructor(
                         app.icon = icon
                         // Verify the holder still shows the same app (not recycled to another)
                         val currentPos = holder.bindingAdapterPosition
-                        if (currentPos != RecyclerView.NO_ID.toInt() && currentPos < currentList.size &&
+                        if (currentPos != RecyclerView.NO_POSITION && currentPos < currentList.size &&
                             currentList[currentPos].packageName == app.packageName) {
                             holder.ivIcon.setImageDrawable(icon)
-                            IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
                         }
                     }
                 }
