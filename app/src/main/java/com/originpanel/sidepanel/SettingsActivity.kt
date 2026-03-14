@@ -63,6 +63,10 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
         binding.switchShowLogs.isChecked = panelPrefs.showLogs
         binding.switchBlur.isChecked = panelPrefs.blurEnabled
+        binding.sbBlurAmount.value = panelPrefs.blurAmount.toFloat()
+        binding.tvBlurAmountValue.text = panelPrefs.blurAmount.toString()
+        binding.layoutBlurAmount.visibility = if (panelPrefs.blurEnabled) View.VISIBLE else View.GONE
+        
         binding.switchColumns.isChecked = panelPrefs.panelColumns == 2
         binding.sbOpacity.value = panelPrefs.panelOpacity.toFloat()
         binding.tvOpacityValue.text = "${panelPrefs.panelOpacity}%"
@@ -118,6 +122,7 @@ class SettingsActivity : AppCompatActivity() {
         val isOriginTheme = panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN
 
         binding.sbHandleOffset.isEnabled = isPremium
+        binding.sbBlurAmount.isEnabled = isPremium
         binding.rgThemes.isEnabled = isPremium
         binding.rbThemeOrigin.isEnabled = isPremium
         binding.rbThemeHyper.isEnabled = isPremium
@@ -243,8 +248,23 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchBlur.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.blurEnabled = isChecked
+            binding.layoutBlurAmount.visibility = if (isChecked) View.VISIBLE else View.GONE
             applyOnly()
         }
+
+        binding.sbBlurAmount.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                val amount = value.toInt()
+                panelPrefs.blurAmount = amount
+                binding.tvBlurAmountValue.text = amount.toString()
+            }
+        }
+        binding.sbBlurAmount.addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) {}
+            override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) {
+                applyOnly()
+            }
+        })
 
         binding.switchColumns.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.panelColumns = if (isChecked) 2 else 1

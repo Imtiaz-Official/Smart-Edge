@@ -42,6 +42,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_TAP_TO_OPEN = "tap_to_open"
         private const val KEY_ICON_PACK = "selected_icon_pack"
         private const val KEY_BLUR_ENABLED = "blur_enabled"
+        private const val KEY_BLUR_AMOUNT = "blur_amount"
         private const val KEY_SHOW_LOGS = "show_logs"
         
         private const val DELIMITER = ","
@@ -84,6 +85,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_TAP_TO_OPEN = true
         const val DEFAULT_ICON_PACK = "none"
         const val DEFAULT_SHOW_LOGS = false
+        const val DEFAULT_BLUR_AMOUNT = 15
     }
 
     /** Resets only UI colors (Accent and Background). */
@@ -120,6 +122,8 @@ class PanelPreferences(context: Context) {
             putString(KEY_PILL_COLOR, DEFAULT_PILL_COLOR)
             putBoolean(KEY_TAP_TO_OPEN, DEFAULT_TAP_TO_OPEN)
             putString(KEY_ICON_PACK, DEFAULT_ICON_PACK)
+            putInt(KEY_BLUR_AMOUNT, DEFAULT_BLUR_AMOUNT)
+            putBoolean(KEY_BLUR_ENABLED, false)
             putString(KEY_PANEL_APPS, "")
         }
     }
@@ -155,6 +159,10 @@ class PanelPreferences(context: Context) {
     var blurEnabled: Boolean
         get() = prefs.getBoolean(KEY_BLUR_ENABLED, false)
         set(value) = prefs.edit { putBoolean(KEY_BLUR_ENABLED, value) }
+
+    var blurAmount: Int
+        get() = prefs.getInt(KEY_BLUR_AMOUNT, DEFAULT_BLUR_AMOUNT)
+        set(value) = prefs.edit { putInt(KEY_BLUR_AMOUNT, value) }
 
     var panelOpacity: Int
         get() = prefs.getInt(KEY_PANEL_OPACITY, DEFAULT_OPACITY)

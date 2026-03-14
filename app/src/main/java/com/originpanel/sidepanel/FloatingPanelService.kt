@@ -136,6 +136,7 @@ class FloatingPanelService : Service() {
                 edgeHandleView?.updateFromPrefs()
                 sidePanelView?.updateStyles()
                 pickerPanelView?.applyTheme()
+                updateBlur(isPanelOpen)
                 
                 // Only reload apps if specifically needed (e.g. icon pack change)
                 // but for sliders, we just need to update view attributes.
@@ -510,11 +511,12 @@ class FloatingPanelService : Service() {
     private fun updateBlur(enabled: Boolean) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
         val shouldBlur = enabled && panelPrefs.blurEnabled
+        val blurRadius = panelPrefs.blurAmount
         
         rootParams?.let { params ->
             if (shouldBlur) {
                 params.flags = params.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
-                params.blurBehindRadius = 50
+                params.blurBehindRadius = blurRadius
             } else {
                 params.flags = params.flags and WindowManager.LayoutParams.FLAG_BLUR_BEHIND.inv()
                 params.blurBehindRadius = 0

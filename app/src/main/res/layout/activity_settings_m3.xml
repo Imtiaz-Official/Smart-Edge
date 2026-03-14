@@ -112,6 +112,16 @@
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchBlur" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Glassmorphic Blur" android:textColor="?attr/colorOnSurface" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="May cause lag on budget devices (Android 12+ only)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" android:layout_marginStart="4dp" />
 
+                    <!-- Blur Amount Slider -->
+                    <LinearLayout android:id="@+id/layoutBlurAmount" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="4dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Blur Intensity (Default: 15)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
+                            <TextView android:id="@+id/tvBlurAmountValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
+                        </LinearLayout>
+                        <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
+                            android:id="@+id/sbBlurAmount" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="5.0" android:valueTo="50.0" android:value="15.0" app:tickVisible="false" />
+                    </LinearLayout>
+
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Icon Shape" android:textColor="?attr/colorOnSurface" />
