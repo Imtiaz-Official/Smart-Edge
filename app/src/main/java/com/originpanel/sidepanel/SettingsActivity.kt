@@ -115,6 +115,8 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun updatePremiumUI() {
         val isPremium = panelPrefs.isPremium
+        val isOriginTheme = panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN
+
         binding.sbHandleOffset.isEnabled = isPremium
         binding.rgThemes.isEnabled = isPremium
         binding.rbThemeOrigin.isEnabled = isPremium
@@ -131,12 +133,14 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchTools.isEnabled = isPremium
         binding.switchHideBg.isEnabled = isPremium
         binding.switchColumns.isEnabled = isPremium
-        binding.switchUseCustomAccent.isEnabled = isPremium
-        binding.sbPanelRadius.isEnabled = isPremium
-        binding.btnResetUIColors.isEnabled = isPremium
         
-        binding.btnPickAccent.isEnabled = isPremium
-        binding.btnPickBg.isEnabled = isPremium
+        // Disable accent/bg customization for OriginOS theme
+        binding.switchUseCustomAccent.isEnabled = isPremium && !isOriginTheme
+        binding.sbPanelRadius.isEnabled = isPremium
+        binding.btnResetUIColors.isEnabled = isPremium && !isOriginTheme
+        
+        binding.btnPickAccent.isEnabled = isPremium && !isOriginTheme
+        binding.btnPickBg.isEnabled = isPremium && !isOriginTheme
         binding.btnSelectIconPack.isEnabled = isPremium
 
         // Resolve theme colors for Material 3 styling
@@ -157,11 +161,22 @@ class SettingsActivity : AppCompatActivity() {
             val onSurface = typedValue.data
             
             binding.tvPremiumStatus.setTextColor(onSurface)
-            binding.switchUseCustomAccent.setTextColor(onSurface)
+            
+            // Visual feedback for disabled items in Origin theme
+            val disabledAlpha = 0.5f
+            val semiTransparentSurface = (onSurface and 0x00FFFFFF) or (0x80 shl 24)
+            
+            binding.switchUseCustomAccent.setTextColor(if (isOriginTheme) semiTransparentSurface else onSurface)
+            binding.switchUseCustomAccent.alpha = if (isOriginTheme) disabledAlpha else 1.0f
+            
+            binding.tvAccentColor.setTextColor(if (isOriginTheme) semiTransparentSurface else onSurface)
+            binding.tvAccentColor.alpha = if (isOriginTheme) disabledAlpha else 1.0f
+            
+            binding.tvPanelBgColor.setTextColor(if (isOriginTheme) semiTransparentSurface else onSurface)
+            binding.tvPanelBgColor.alpha = if (isOriginTheme) disabledAlpha else 1.0f
+
             binding.switchTools.setTextColor(onSurface)
             binding.switchHideBg.setTextColor(onSurface)
-            binding.tvAccentColor.setTextColor(onSurface)
-            binding.tvPanelBgColor.setTextColor(onSurface)
         } else {
             binding.tvPremiumStatus.text = "Unlock Full Customization"
             binding.btnGoPremium.visibility = View.VISIBLE
@@ -321,6 +336,12 @@ class SettingsActivity : AppCompatActivity() {
                 R.id.rbThemeRich -> PanelPreferences.THEME_RICH
                 else -> PanelPreferences.THEME_ORIGIN
             }
+            // Auto-disable custom accent for Origin theme to match standard look
+            if (panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN) {
+                panelPrefs.useCustomAccent = false
+                binding.switchUseCustomAccent.isChecked = false
+            }
+            updatePremiumUI()
             applyAndShow()
         }
 
