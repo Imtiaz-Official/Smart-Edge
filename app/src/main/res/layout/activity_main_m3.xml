@@ -220,84 +220,90 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- QUICK ACTIONS GRID -->
-            <GridLayout
+            <!-- ACTIVITY LOGS BUTTON (NEW) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnShowLogs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:columnCount="2"
-                android:rowCount="1"
-                android:layout_marginBottom="24dp">
+                app:cardCornerRadius="24dp"
+                style="?attr/materialCardViewStyle"
+                android:layout_marginBottom="24dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="gone">
 
-                <!-- Manage Apps Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/btnManageApps"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_marginEnd="8dp"
-                    app:cardCornerRadius="24dp"
-                    style="?attr/materialCardViewStyle"
-                    android:clickable="true"
-                    android:focusable="true">
+                    android:orientation="horizontal"
+                    android:padding="20dp"
+                    android:gravity="center_vertical">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_info_details"
+                        app:tint="?attr/colorPrimary" />
+
+                    <TextView
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center">
+                        android:layout_weight="1"
+                        android:layout_marginStart="16dp"
+                        android:text="Activity Logs"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
-                        <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:src="@android:drawable/ic_menu_add"
-                            app:tint="?attr/colorPrimary" />
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="?attr/colorOnSurfaceVariant" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text="Manage Apps"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+            <!-- SETTINGS QUICK ACTION -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnSettings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="24dp"
+                style="?attr/materialCardViewStyle"
+                android:layout_marginBottom="24dp"
+                android:clickable="true"
+                android:focusable="true">
 
-                <!-- Settings Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/btnSettings"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_marginStart="8dp"
-                    app:cardCornerRadius="24dp"
-                    style="?attr/materialCardViewStyle"
-                    android:clickable="true"
-                    android:focusable="true">
+                    android:orientation="horizontal"
+                    android:padding="20dp"
+                    android:gravity="center_vertical">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_preferences"
+                        app:tint="?attr/colorPrimary" />
+
+                    <TextView
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center">
+                        android:layout_weight="1"
+                        android:layout_marginStart="16dp"
+                        android:text="Advanced Settings"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
-                        <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:src="@android:drawable/ic_menu_preferences"
-                            app:tint="?attr/colorPrimary" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text="Settings"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </GridLayout>
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="?attr/colorOnSurfaceVariant" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- TUTORIAL SECTION -->
             <TextView

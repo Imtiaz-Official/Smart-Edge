@@ -7,12 +7,13 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import android.widget.Toast
 import com.originpanel.sidepanel.databinding.ActivityMainM3Binding
 
 /**
@@ -51,23 +52,11 @@ class MainActivity : AppCompatActivity() {
         binding.btnIgnoreBattery.setOnClickListener { requestIgnoreBatteryOptimization() }
         binding.btnStartStop.setOnClickListener { togglePanel() }
         binding.btnTogglePanel.setOnClickListener { triggerPanelToggle() }
-        binding.btnManageApps.setOnClickListener {
-            if (!hasOverlayPermission()) {
-                Toast.makeText(this, "Please grant 'Display over other apps' permission first", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            if (!isAccessibilityServiceEnabled()) {
-                Toast.makeText(this, "Please enable 'SidePanel' in Accessibility Settings", Toast.LENGTH_LONG).show()
-                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-                return@setOnClickListener
-            }
-            sendBroadcast(Intent("com.originpanel.sidepanel.ACTION_OPEN_PICKER"))
-            Toast.makeText(this, "Opening panel editor...", Toast.LENGTH_SHORT).show()
-            // Close MainActivity so user sees the panel picker immediately
-            finish()
-        }
         binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
+        }
+        binding.btnShowLogs.setOnClickListener {
+            showLogsDialog()
         }
 
         // Load Tutorial Animation
@@ -99,6 +88,43 @@ class MainActivity : AppCompatActivity() {
     }
 
     // ── Permission ────────────────────────────────────────────────────────────
+
+    private fun showLogsDialog() {
+        val sdf = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
+        val time = sdf.format(java.util.Date())
+        
+        val logBuilder = StringBuilder()
+        logBuilder.append("[$time] Log Session Started\n")
+        logBuilder.append("[$time] Device: ${android.os.Build.MODEL} (${android.os.Build.VERSION.RELEASE})\n")
+        logBuilder.append("[$time] Overlay: ${if (hasOverlayPermission()) "GRANTED" else "MISSING"}\n")
+        logBuilder.append("[$time] Accessibility: ${if (isAccessibilityServiceEnabled()) "ACTIVE" else "INACTIVE"}\n")
+        logBuilder.append("[$time] Service: ${if (FloatingPanelService.isRunning) "RUNNING" else "STOPPED"}\n")
+        logBuilder.append("[$time] Theme: ${panelPrefs.uiTheme.uppercase()}\n")
+        logBuilder.append("[$time] Premium: ${if (panelPrefs.isPremium) "YES" else "NO"}\n")
+        logBuilder.append("[$time] --- End of Summary ---")
+
+        val tv = TextView(this).apply {
+            text = logBuilder.toString()
+            setPadding(64, 32, 64, 32)
+            typeface = android.graphics.Typeface.MONOSPACE
+            textSize = 12f // 12f is the float for sp
+            setTextColor(Color.parseColor("#B3FFFFFF"))
+            layoutParams = android.view.ViewGroup.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
+
+        val scroll = android.widget.ScrollView(this).apply {
+            addView(tv)
+        }
+
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("System Activity Logs")
+            .setView(scroll)
+            .setPositiveButton("Close", null)
+            .show()
+    }
 
     private fun hasOverlayPermission(): Boolean =
         Settings.canDrawOverlays(this)
@@ -164,6 +190,9 @@ class MainActivity : AppCompatActivity() {
         val standardBatteryIgnored = isIgnoringBatteryOptimizations()
         val isPremium = panelPrefs.isPremium
         
+        // Show/Hide Activity Logs button based on user preference
+        binding.btnShowLogs.visibility = if (panelPrefs.showLogs) View.VISIBLE else View.GONE
+
         // On Vivo/iQOO, the standard check isn't enough to guarantee stability.
         // We keep the card visible on these devices even if standard optimization is "ignored"
         // so they can access the deep-link to "High Background Power Consumption".

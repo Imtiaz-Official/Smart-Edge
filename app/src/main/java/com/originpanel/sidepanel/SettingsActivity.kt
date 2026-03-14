@@ -54,6 +54,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchTapOpen.isChecked = panelPrefs.tapToOpen
         binding.switchShowPill.isChecked = panelPrefs.showPill
         binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
+        binding.switchShowLogs.isChecked = panelPrefs.showLogs
         binding.switchBlur.isChecked = panelPrefs.blurEnabled
         binding.switchColumns.isChecked = panelPrefs.panelColumns == 2
         binding.sbOpacity.value = panelPrefs.panelOpacity.toFloat()
@@ -210,6 +211,10 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchHaptic.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.hapticEnabled = isChecked
+        }
+
+        binding.switchShowLogs.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.showLogs = isChecked
         }
 
         binding.switchBlur.setOnCheckedChangeListener { _, isChecked ->

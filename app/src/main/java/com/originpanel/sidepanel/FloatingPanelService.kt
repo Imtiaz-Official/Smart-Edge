@@ -574,8 +574,12 @@ class FloatingPanelService : Service() {
             // Position it correctly relative to side panel
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
             val density = resources.displayMetrics.density
-            val cols = if (panelPrefs.isPremium) panelPrefs.panelColumns else 1
-            val sidePanelWidthDp = if (cols == 2) 150 else 72
+            
+            // Get the REAL width of the sidebar when picker is open
+            // Sidebar ALWAYS collapses to 1 column when picker is open, 
+            // but we should check if we want to change that behavior.
+            // Currently SidePanelView.kt:270 collapses to cols=1 in setColumns(1).
+            val sidePanelWidthDp = 72 // width1ColDp
             
             val lp = android.widget.FrameLayout.LayoutParams(dpToPx(240), android.widget.FrameLayout.LayoutParams.WRAP_CONTENT)
             lp.gravity = if (isRight) Gravity.CENTER_VERTICAL or Gravity.END

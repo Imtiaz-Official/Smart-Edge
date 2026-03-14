@@ -42,6 +42,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_TAP_TO_OPEN = "tap_to_open"
         private const val KEY_ICON_PACK = "selected_icon_pack"
         private const val KEY_BLUR_ENABLED = "blur_enabled"
+        private const val KEY_SHOW_LOGS = "show_logs"
         
         private const val DELIMITER = ","
 
@@ -81,6 +82,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_PILL_COLOR = "#FFFFFF"
         const val DEFAULT_TAP_TO_OPEN = true
         const val DEFAULT_ICON_PACK = "none"
+        const val DEFAULT_SHOW_LOGS = false
     }
 
     /** Resets only UI colors (Accent and Background). */
@@ -204,6 +206,10 @@ class PanelPreferences(context: Context) {
     var showTools: Boolean
         get() = prefs.getBoolean(KEY_SHOW_TOOLS, DEFAULT_SHOW_TOOLS)
         set(value) = prefs.edit { putBoolean(KEY_SHOW_TOOLS, value) }
+
+    var showLogs: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_LOGS, DEFAULT_SHOW_LOGS)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_LOGS, value) }
 
     var isPremium: Boolean
         get() = prefs.getBoolean(KEY_IS_PREMIUM, false)

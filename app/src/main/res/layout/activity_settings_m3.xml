@@ -73,6 +73,7 @@
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchTapOpen" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Tap Pill to Open" android:textColor="?attr/colorOnSurface" />
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchAutoStart" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Auto-start on Boot" android:textColor="?attr/colorOnSurface" />
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchHaptic" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Haptic Feedback" android:textColor="?attr/colorOnSurface" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchShowLogs" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Show Activity Logs on Home" android:textColor="?attr/colorOnSurface" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -110,9 +111,6 @@
 
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchBlur" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Glassmorphic Blur" android:textColor="?attr/colorOnSurface" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="May cause lag on budget devices (Android 12+ only)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" android:layout_marginStart="4dp" />
-
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchColumns" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Double-Column Layout (Premium)" android:textColor="?attr/colorOnSurface" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Increase density to show two apps per row" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" android:layout_marginStart="4dp" />
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
@@ -246,6 +244,7 @@
 
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchTools" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Show Tools Section" android:textColor="?attr/colorOnSurfaceVariant" />
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchHideBg" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Invisible Background" android:textColor="?attr/colorOnSurfaceVariant" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchColumns" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Double-Column Layout" android:textColor="?attr/colorOnSurfaceVariant" />
 
                     <Button
                         android:id="@+id/btnResetUIColors"
