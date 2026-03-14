@@ -146,6 +146,22 @@ class SidePanelView @JvmOverloads constructor(
         }
     }
 
+    fun updateStyles() {
+        applyTheme()
+        binding.toolsContainer.visibility = if (panelPrefs.showTools) View.VISIBLE else View.GONE
+        binding.panelCard.alpha = panelPrefs.panelOpacity / 100f
+        
+        // Update width if columns changed
+        val cols = if (panelPrefs.isPremium) panelPrefs.panelColumns else 1
+        val lp = binding.panelCard.layoutParams
+        lp.width = dpToPx(if (cols == 2) width2ColDp.toInt() else width1ColDp.toInt())
+        binding.panelCard.layoutParams = lp
+        
+        // Refresh grid
+        (binding.rvPanelApps.layoutManager as? GridLayoutManager)?.spanCount = cols
+        binding.panelCard.requestLayout()
+    }
+
     private fun applyTheme() {
         val theme = panelPrefs.uiTheme
         val density = context.resources.displayMetrics.density
@@ -181,14 +197,21 @@ class SidePanelView @JvmOverloads constructor(
 
         when (theme) {
             PanelPreferences.THEME_ORIGIN -> {
-                drawable.cornerRadius = 32 * density // Slightly higher radius
+                // Respect user radius if premium, otherwise use default 32
+                if (!panelPrefs.isPremium) {
+                    drawable.cornerRadius = 32 * density
+                }
                 drawable.setStroke(0, Color.TRANSPARENT)
                 binding.btnClose.backgroundTintList = ColorStateList.valueOf(accentColor)
             }
             PanelPreferences.THEME_HYPEROS -> {
                 drawable.setStroke((1 * density).toInt(), accentColor)
-                drawable.cornerRadius = 12 * density 
+                // Respect user radius if premium, otherwise use default 12
+                if (!panelPrefs.isPremium) {
+                    drawable.cornerRadius = 12 * density
+                }
             }
+
             PanelPreferences.THEME_REALME -> {
                 drawable.setStroke((2 * density).toInt(), accentColor)
                 drawable.cornerRadius = 40 * density 

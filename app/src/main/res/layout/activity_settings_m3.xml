@@ -116,9 +116,10 @@
 
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Icon Shape" android:textColor="?attr/colorOnSurface" />
                     <RadioGroup android:id="@+id/rgIconShape" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="8dp">
-                        <RadioButton android:id="@+id/rbShapeCircle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Circle" android:textColor="?attr/colorOnSurfaceVariant" />
-                        <RadioButton android:id="@+id/rbShapeSquircle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Squircle" android:textColor="?attr/colorOnSurfaceVariant" />
-                        <RadioButton android:id="@+id/rbShapeSquare" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Square" android:textColor="?attr/colorOnSurfaceVariant" />
+                        <RadioButton android:id="@+id/rbShapeSystem" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="System" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="10sp" android:paddingStart="0dp" android:paddingEnd="0dp" android:minWidth="0dp" android:maxLines="1" />
+                        <RadioButton android:id="@+id/rbShapeCircle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Circle" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="10sp" android:paddingStart="0dp" android:paddingEnd="0dp" android:minWidth="0dp" android:maxLines="1" />
+                        <RadioButton android:id="@+id/rbShapeSquircle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Squircle" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="10sp" android:paddingStart="0dp" android:paddingEnd="0dp" android:minWidth="0dp" android:maxLines="1" />
+                        <RadioButton android:id="@+id/rbShapeSquare" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Square" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="10sp" android:paddingStart="0dp" android:paddingEnd="0dp" android:minWidth="0dp" android:maxLines="1" />
                     </RadioGroup>
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
@@ -135,16 +136,22 @@
 
                     <!-- Sliders -->
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="4dp">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Panel Opacity" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Panel Opacity (Default: 100%)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                         <TextView android:id="@+id/tvOpacityValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="100%" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
-                    <com.google.android.material.slider.Slider android:id="@+id/sbOpacity" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="100.0" android:value="100.0" app:tickVisible="false" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
+ android:id="@+id/sbOpacity" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="100.0" android:value="100.0" app:tickVisible="false" android:layout_marginBottom="4dp" />
+                    </LinearLayout>
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="12dp" android:layout_marginBottom="4dp">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Corner Radius (Premium)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Corner Radius (Premium - Default: 48dp)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                         <TextView android:id="@+id/tvRadiusValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="28dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
-                    <com.google.android.material.slider.Slider android:id="@+id/sbPanelRadius" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="60.0" android:value="28.0" app:tickVisible="false" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
+ android:id="@+id/sbPanelRadius" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="60.0" android:value="28.0" app:tickVisible="false" android:layout_marginBottom="4dp" />
+                    </LinearLayout>
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -175,22 +182,31 @@
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchShowPill" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Visible Pill Handle" android:textColor="?attr/colorOnSurface" />
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="16dp" android:layout_marginBottom="4dp">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Handle Height" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Handle Height (Default: 80dp)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                         <TextView android:id="@+id/tvHeightValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="80dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
-                    <com.google.android.material.slider.Slider android:id="@+id/sbHandleHeight" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="300.0" android:value="80.0" app:tickVisible="false" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
+ android:id="@+id/sbHandleHeight" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="300.0" android:value="80.0" app:tickVisible="false" android:layout_marginBottom="4dp" />
+                    </LinearLayout>
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="12dp" android:layout_marginBottom="4dp">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Trigger Area Width" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Trigger Area Width (Default: 24dp)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                         <TextView android:id="@+id/tvWidthValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="24dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
-                    <com.google.android.material.slider.Slider android:id="@+id/sbHandleWidth" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="24.0" android:valueTo="100.0" android:value="24.0" app:tickVisible="false" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
+ android:id="@+id/sbHandleWidth" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="24.0" android:valueTo="100.0" android:value="24.0" app:tickVisible="false" android:layout_marginBottom="4dp" />
+                    </LinearLayout>
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="12dp" android:layout_marginBottom="4dp">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Vertical Position (Premium)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Vertical Position (Default: 0dp)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                         <TextView android:id="@+id/tvOffsetValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
-                    <com.google.android.material.slider.Slider android:id="@+id/sbHandleOffset" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="200.0" android:value="100.0" app:tickVisible="false" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
+ android:id="@+id/sbHandleOffset" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="200.0" android:value="100.0" app:tickVisible="false" android:layout_marginBottom="4dp" />
+                    </LinearLayout>
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

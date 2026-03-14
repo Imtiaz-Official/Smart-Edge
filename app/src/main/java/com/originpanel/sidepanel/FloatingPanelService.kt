@@ -132,8 +132,16 @@ class FloatingPanelService : Service() {
                 openPanel()
             }
             ACTION_REFRESH -> {
-                pickerPanelView?.invalidateAppList() // Force full reload of metadata
-                pickerPanelView?.loadApps(true)      // Trigger immediate reload
+                // UPDATE IN-PLACE: No restarts, no metadata reload
+                edgeHandleView?.updateFromPrefs()
+                sidePanelView?.updateStyles()
+                pickerPanelView?.applyTheme()
+                
+                // Only reload apps if specifically needed (e.g. icon pack change)
+                // but for sliders, we just need to update view attributes.
+                if (isPickerOpen) {
+                    pickerPanelView?.loadApps() 
+                }
                 refreshApps()
             }
             ACTION_CLOSE_PANEL -> {
@@ -319,11 +327,23 @@ class FloatingPanelService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     private fun removeView(view: View?) {
-        view?.let { if (it.isAttachedToWindow) windowManager.removeView(it) }
+        if (view == null) return
+        try {
+            if (view.isAttachedToWindow) {
+                windowManager.removeView(view)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error removing view: ${e.message}")
+        }
     }
 
     private fun addEdgeHandle() {
         if (!panelPrefs.gesturesEnabled) return
+        
+        // REMOVE EXISTING to prevent stacking
+        removeView(edgeHandleView)
+        edgeHandleView = null
+
         val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
         val isPillVisible = panelPrefs.showPill
         

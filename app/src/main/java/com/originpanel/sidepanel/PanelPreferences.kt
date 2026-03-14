@@ -54,6 +54,7 @@ class PanelPreferences(context: Context) {
         const val THEME_REALME = "realme"
         const val THEME_RICH = "rich"
 
+        const val SHAPE_SYSTEM = "system"
         const val SHAPE_CIRCLE = "circle"
         const val SHAPE_SQUIRCLE = "squircle"
         const val SHAPE_SQUARE = "square"
@@ -76,7 +77,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_PANEL_BG = "#E61A1C1E"
         const val DEFAULT_HIDE_BG = false
         const val DEFAULT_SHOW_TOOLS = true
-        const val DEFAULT_ICON_SHAPE = SHAPE_SQUIRCLE
+        const val DEFAULT_ICON_SHAPE = SHAPE_SYSTEM
         const val DEFAULT_GESTURES = true
         const val DEFAULT_PILL_WIDTH = 3
         const val DEFAULT_PILL_COLOR = "#FFFFFF"

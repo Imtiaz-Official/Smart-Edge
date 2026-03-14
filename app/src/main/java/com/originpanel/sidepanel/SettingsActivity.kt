@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowInsetsControllerCompat
 import com.originpanel.sidepanel.databinding.ActivitySettingsM3Binding
 import yuku.ambilwarna.AmbilWarnaDialog
 
@@ -25,6 +26,12 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsM3Binding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Set status bar color and icons
+        val typedValue = android.util.TypedValue()
+        theme.resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true)
+        window.statusBarColor = typedValue.data
+        androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
 
         supportActionBar?.apply {
             title = getString(R.string.settings_title)
@@ -82,7 +89,8 @@ class SettingsActivity : AppCompatActivity() {
         when (panelPrefs.iconShape) {
             PanelPreferences.SHAPE_SQUIRCLE -> binding.rgIconShape.check(R.id.rbShapeSquircle)
             PanelPreferences.SHAPE_SQUARE -> binding.rgIconShape.check(R.id.rbShapeSquare)
-            else -> binding.rgIconShape.check(R.id.rbShapeCircle)
+            PanelPreferences.SHAPE_CIRCLE -> binding.rgIconShape.check(R.id.rbShapeCircle)
+            else -> binding.rgIconShape.check(R.id.rbShapeSystem)
         }
 
         binding.switchTools.isChecked = panelPrefs.showTools
@@ -115,6 +123,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.rbThemeRich.isEnabled = isPremium
         
         binding.rgIconShape.isEnabled = isPremium
+        binding.rbShapeSystem.isEnabled = isPremium
         binding.rbShapeCircle.isEnabled = isPremium
         binding.rbShapeSquircle.isEnabled = isPremium
         binding.rbShapeSquare.isEnabled = isPremium
@@ -232,27 +241,43 @@ class SettingsActivity : AppCompatActivity() {
                 val progress = value.toInt()
                 panelPrefs.panelOpacity = progress
                 binding.tvOpacityValue.text = "$progress%"
-                applyAndShow()
+                // No applyOnly() here - wait for stop
             }
         }
+        binding.sbOpacity.addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) {}
+            override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) {
+                applyOnly()
+            }
+        })
 
         binding.sbHandleHeight.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
                 val progress = value.toInt()
                 panelPrefs.handleHeight = progress
                 binding.tvHeightValue.text = "${progress}dp"
-                applyAndShow()
             }
         }
+        binding.sbHandleHeight.addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) {}
+            override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) {
+                applyOnly()
+            }
+        })
 
         binding.sbHandleWidth.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
                 val progress = value.toInt()
                 panelPrefs.handleWidth = progress
                 binding.tvWidthValue.text = "${progress}dp"
-                applyAndShow()
             }
         }
+        binding.sbHandleWidth.addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) {}
+            override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) {
+                applyOnly()
+            }
+        })
 
         binding.btnGoPremium.setOnClickListener {
             panelPrefs.isPremium = true
@@ -266,18 +291,28 @@ class SettingsActivity : AppCompatActivity() {
                 val offset = progress - 100
                 panelPrefs.handleVerticalOffset = offset
                 binding.tvOffsetValue.text = "${offset}dp"
-                applyAndShow()
             }
         }
+        binding.sbHandleOffset.addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) {}
+            override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) {
+                applyAndShow() // Vertical offset needs a full WindowManager update
+            }
+        })
 
         binding.sbPanelRadius.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
                 val progress = value.toInt()
                 panelPrefs.panelCornerRadius = progress
                 binding.tvRadiusValue.text = "${progress}dp"
-                applyAndShow()
             }
         }
+        binding.sbPanelRadius.addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) {}
+            override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) {
+                applyOnly()
+            }
+        })
 
         binding.rgThemes.setOnCheckedChangeListener { _, checkedId ->
             panelPrefs.uiTheme = when (checkedId) {
@@ -293,7 +328,8 @@ class SettingsActivity : AppCompatActivity() {
             panelPrefs.iconShape = when (checkedId) {
                 R.id.rbShapeSquircle -> PanelPreferences.SHAPE_SQUIRCLE
                 R.id.rbShapeSquare -> PanelPreferences.SHAPE_SQUARE
-                else -> PanelPreferences.SHAPE_CIRCLE
+                R.id.rbShapeCircle -> PanelPreferences.SHAPE_CIRCLE
+                else -> PanelPreferences.SHAPE_SYSTEM
             }
             applyAndShow()
         }
@@ -364,6 +400,14 @@ class SettingsActivity : AppCompatActivity() {
             }
         })
         picker.show()
+    }
+
+    private fun applyOnly() {
+        // Use startService with ACTION_REFRESH — much more reliable than broadcast
+        val intent = Intent(this, FloatingPanelService::class.java).apply {
+            action = FloatingPanelService.ACTION_REFRESH
+        }
+        startService(intent)
     }
 
     private fun applyAndShow() {

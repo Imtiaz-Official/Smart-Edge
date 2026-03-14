@@ -161,4 +161,27 @@ class EdgeHandleView @JvmOverloads constructor(
             systemGestureExclusionRects = listOf(Rect(0, 0, width, height))
         }
     }
+
+    fun updateFromPrefs() {
+        val prefs = PanelPreferences(context)
+        isRightSide = prefs.panelSide == PanelPreferences.SIDE_RIGHT
+        showPill = prefs.showPill
+        alpha = prefs.panelOpacity / 100f
+        
+        // Refresh the handle's WindowManager parameters (for vertical offset/width/height)
+        val params = layoutParams as? android.view.WindowManager.LayoutParams
+        if (params != null) {
+            params.y = (prefs.handleVerticalOffset * resources.displayMetrics.density).toInt()
+            params.width = (prefs.handleWidth * resources.displayMetrics.density).toInt()
+            params.height = if (showPill) (prefs.handleHeight * resources.displayMetrics.density).toInt()
+                            else (resources.displayMetrics.heightPixels * 0.60f).toInt()
+            
+            val wm = context.getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager
+            if (isAttachedToWindow) {
+                wm.updateViewLayout(this, params)
+            }
+        }
+        updatePill()
+        invalidate()
+    }
 }

@@ -121,7 +121,7 @@ class AppPickerPanelView @JvmOverloads constructor(
         loadApps()
     }
 
-    private fun applyTheme() {
+    fun applyTheme() {
         val theme = panelPrefs.uiTheme
         val density = context.resources.displayMetrics.density
         
