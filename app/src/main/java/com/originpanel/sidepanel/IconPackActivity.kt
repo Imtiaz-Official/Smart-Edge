@@ -39,6 +39,7 @@ class IconPackActivity : AppCompatActivity() {
 
         rv.adapter = IconPackAdapter(packs, panelPrefs.selectedIconPack) { selectedPkg ->
             panelPrefs.selectedIconPack = selectedPkg
+            AppRepository.clearCache() // IMPORTANT: Clear cache before refresh
             
             // Notify service to refresh icons immediately
             val intent = android.content.Intent(this, FloatingPanelService::class.java).apply {

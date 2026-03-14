@@ -149,6 +149,7 @@ class AppPickerPanelView @JvmOverloads constructor(
     }
 
     fun setEditMode(enabled: Boolean) {
+        if (isEditMode == enabled) return
         isEditMode = enabled
         tvHeader.text = if (isEditMode) "Manage Side Panel" else "All Apps"
         btnEdit.text = if (isEditMode) "DONE" else "EDIT"
@@ -161,8 +162,8 @@ class AppPickerPanelView @JvmOverloads constructor(
 
         btnEdit.setTextColor(if (isEditMode) accentColor else Color.parseColor("#4A9EFF"))
         
-        // Refresh everything to show/hide indicators
-        adapter.notifyDataSetChanged()
+        // Surgical update instead of full notifyDataSetChanged to prevent flickering
+        adapter.notifyItemRangeChanged(0, adapter.itemCount, "EDIT_MODE_CHANGE")
     }
 
     override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
@@ -173,10 +174,29 @@ class AppPickerPanelView @JvmOverloads constructor(
         return super.dispatchKeyEvent(event)
     }
 
-    fun loadApps() {
+    fun loadApps(forceRefresh: Boolean = false) {
+        if (!forceRefresh && allApps.isNotEmpty()) {
+            // Just refresh the "isInPanel" state from preferences without recreating objects
+            val panelPackages = panelPrefs.getPanelApps().toSet()
+            var changed = false
+            allApps.forEach { 
+                val inPanel = panelPackages.contains(it.packageName)
+                if (it.isInPanel != inPanel) {
+                    it.isInPanel = inPanel
+                    changed = true
+                }
+            }
+            if (changed) {
+                // Submit a copy to trigger DiffUtil if needed, or just notify
+                adapter.notifyItemRangeChanged(0, adapter.itemCount, "PANEL_STATE_CHANGE")
+            }
+            return
+        }
+
         scope.launch {
-            allApps = withContext(Dispatchers.IO) { repository.getAllApps() }
-            adapter.submitList(allApps)
+            val apps = withContext(Dispatchers.IO) { repository.getAllApps() }
+            allApps = apps
+            adapter.submitList(allApps.toList())
         }
     }
 

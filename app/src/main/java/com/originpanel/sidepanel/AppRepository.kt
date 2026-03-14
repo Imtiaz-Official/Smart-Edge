@@ -21,6 +21,16 @@ class AppRepository(context: Context) {
     private val panelPrefs = PanelPreferences(appContext)
     private val iconPackManager = IconPackManager(appContext)
 
+    companion object {
+        // Simple cache to prevent reference inequality flickers.
+        // Key: iconPackName + "|" + packageName
+        private val iconCache = java.util.Collections.synchronizedMap(HashMap<String, Drawable>())
+        
+        fun clearCache() {
+            iconCache.clear()
+        }
+    }
+
     /**
      * Returns all launchable apps with metadata only (icon = null).
      * Call [loadIconForApp] afterwards to populate icons lazily.
@@ -53,13 +63,20 @@ class AppRepository(context: Context) {
      */
     suspend fun loadIconForApp(packageName: String): Drawable? = withContext(Dispatchers.IO) {
         val selectedPack = panelPrefs.selectedIconPack
+        val cacheKey = "$selectedPack|$packageName"
+        iconCache[cacheKey]?.let { return@withContext it }
+
         val customIcon = iconPackManager.getIcon(packageName, selectedPack)
-        if (customIcon != null) return@withContext customIcon
-        return@withContext try {
-            packageManager.getApplicationIcon(packageName)
-        } catch (e: Exception) {
-            null
+        val finalIcon = if (customIcon != null) customIcon else {
+            try {
+                packageManager.getApplicationIcon(packageName)
+            } catch (e: Exception) {
+                null
+            }
         }
+        
+        if (finalIcon != null) iconCache[cacheKey] = finalIcon
+        return@withContext finalIcon
     }
 
     /**
@@ -79,28 +96,48 @@ class AppRepository(context: Context) {
             .associateBy { it.activityInfo.packageName }
 
         panelPackages.mapNotNull { pkg ->
+            val cacheKey = "$selectedPack|$pkg"
+            val cachedIcon = iconCache[cacheKey]
+            
+            if (cachedIcon != null) {
+                // If we have resolveInfo, we can load label too
+                val resolveInfo = allLaunchable[pkg]
+                val appName = if (resolveInfo != null) {
+                    resolveInfo.loadLabel(packageManager).toString()
+                } else {
+                    try {
+                        val appInfo = packageManager.getApplicationInfo(pkg, 0)
+                        packageManager.getApplicationLabel(appInfo).toString()
+                    } catch (e: Exception) { pkg }
+                }
+                return@mapNotNull AppInfo(pkg, appName, cachedIcon, true)
+            }
+
             val resolveInfo = allLaunchable[pkg]
             val customIcon = iconPackManager.getIcon(pkg, selectedPack)
 
-            if (resolveInfo != null) {
-                AppInfo(
-                    packageName = pkg,
-                    appName = resolveInfo.loadLabel(packageManager).toString(),
-                    icon = customIcon ?: resolveInfo.loadIcon(packageManager),
-                    isInPanel = true
-                )
+            val finalIcon = if (resolveInfo != null) {
+                customIcon ?: resolveInfo.loadIcon(packageManager)
             } else {
                 try {
                     val appInfo = packageManager.getApplicationInfo(pkg, 0)
-                    AppInfo(
-                        packageName = pkg,
-                        appName = packageManager.getApplicationLabel(appInfo).toString(),
-                        icon = customIcon ?: packageManager.getApplicationIcon(appInfo),
-                        isInPanel = true
-                    )
-                } catch (e: Exception) {
-                    null
+                    customIcon ?: packageManager.getApplicationIcon(appInfo)
+                } catch (e: Exception) { null }
+            }
+
+            if (finalIcon != null) {
+                iconCache[cacheKey] = finalIcon
+                val appName = if (resolveInfo != null) {
+                    resolveInfo.loadLabel(packageManager).toString()
+                } else {
+                    try {
+                        val appInfo = packageManager.getApplicationInfo(pkg, 0)
+                        packageManager.getApplicationLabel(appInfo).toString()
+                    } catch (e: Exception) { pkg }
                 }
+                AppInfo(pkg, appName, finalIcon, true)
+            } else {
+                null
             }
         }
     }

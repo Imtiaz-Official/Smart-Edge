@@ -126,9 +126,6 @@ class PanelAppsAdapter(
             holder.itemView.scaleX = 1f
             holder.itemView.scaleY = 1f
             
-            // Just use a simple spring pulse for entry feedback rather than complex view property animations
-            SpringAnimator.scalePulse(holder.itemView)
-
             holder.itemView.setOnClickListener {
                 if (panelPrefs.hapticEnabled) {
                     holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)

@@ -467,7 +467,7 @@ class FloatingPanelService : Service() {
         sidePanelView?.animatePickerToggle(true)
         pickerPanelView?.let { picker ->
             picker.setEditMode(enableEditMode)
-            // Use the public loadApps() we exposed earlier
+            // loadApps() is now optimized to be lazy internally
             picker.loadApps()
             // PRE-CONDITION: Set alpha before making visible
             picker.alpha = 0f

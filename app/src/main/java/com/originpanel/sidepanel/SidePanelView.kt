@@ -267,9 +267,10 @@ class SidePanelView @JvmOverloads constructor(
     }
 
     fun setColumns(cols: Int) {
-        val density = context.resources.displayMetrics.density
-        val layoutManager = binding.rvPanelApps.layoutManager as? GridLayoutManager
-        layoutManager?.spanCount = cols
+        val layoutManager = binding.rvPanelApps.layoutManager as? GridLayoutManager ?: return
+        if (layoutManager.spanCount == cols && binding.panelCard.width > 0) return
+        
+        layoutManager.spanCount = cols
         
         val lp = binding.panelCard.layoutParams
         lp.width = dpToPx(if (cols == 2) width2ColDp.toInt() else width1ColDp.toInt())
