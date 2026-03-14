@@ -93,18 +93,18 @@ class SettingsActivity : AppCompatActivity() {
         binding.sbHandleOffset.value = (panelPrefs.handleVerticalOffset + 100).toFloat()
         binding.tvOffsetValue.text = "${panelPrefs.handleVerticalOffset}dp"
 
-        when (panelPrefs.uiTheme) {
-            PanelPreferences.THEME_HYPEROS -> binding.rgThemes.check(R.id.rbThemeHyper)
-            PanelPreferences.THEME_REALME -> binding.rgThemes.check(R.id.rbThemeRealme)
-            PanelPreferences.THEME_RICH -> binding.rgThemes.check(R.id.rbThemeRich)
-            else -> binding.rgThemes.check(R.id.rbThemeOrigin)
+        binding.tvUIStyleValue.text = when (panelPrefs.uiTheme) {
+            PanelPreferences.THEME_HYPEROS -> "HyperOS (Glass)"
+            PanelPreferences.THEME_REALME -> "Realme UI"
+            PanelPreferences.THEME_RICH -> "Rich UI (Glow)"
+            else -> "OriginOS (Rounded)"
         }
 
-        when (panelPrefs.iconShape) {
-            PanelPreferences.SHAPE_SQUIRCLE -> binding.rgIconShape.check(R.id.rbShapeSquircle)
-            PanelPreferences.SHAPE_SQUARE -> binding.rgIconShape.check(R.id.rbShapeSquare)
-            PanelPreferences.SHAPE_CIRCLE -> binding.rgIconShape.check(R.id.rbShapeCircle)
-            else -> binding.rgIconShape.check(R.id.rbShapeSystem)
+        binding.tvIconShapeValue.text = when (panelPrefs.iconShape) {
+            PanelPreferences.SHAPE_SQUIRCLE -> "Squircle"
+            PanelPreferences.SHAPE_SQUARE -> "Square"
+            PanelPreferences.SHAPE_CIRCLE -> "Circle"
+            else -> "System Default"
         }
 
         binding.switchTools.isChecked = panelPrefs.showTools
@@ -129,21 +129,15 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun updatePremiumUI() {
         val isPremium = panelPrefs.isPremium
-        val isOriginTheme = panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN
 
         binding.sbHandleOffset.isEnabled = isPremium
         binding.sbBlurAmount.isEnabled = isPremium
-        binding.rgThemes.isEnabled = isPremium
-        binding.rbThemeOrigin.isEnabled = isPremium
-        binding.rbThemeHyper.isEnabled = isPremium
-        binding.rbThemeRealme.isEnabled = isPremium
-        binding.rbThemeRich.isEnabled = isPremium
         
-        binding.rgIconShape.isEnabled = isPremium
-        binding.rbShapeSystem.isEnabled = isPremium
-        binding.rbShapeCircle.isEnabled = isPremium
-        binding.rbShapeSquircle.isEnabled = isPremium
-        binding.rbShapeSquare.isEnabled = isPremium
+        binding.layoutUIStyle.isEnabled = isPremium
+        binding.layoutUIStyle.alpha = if (isPremium) 1.0f else 0.5f
+        
+        binding.layoutIconShape.isEnabled = isPremium
+        binding.layoutIconShape.alpha = if (isPremium) 1.0f else 0.5f
 
         binding.switchTools.isEnabled = isPremium
         binding.switchHideBg.isEnabled = isPremium
@@ -158,57 +152,12 @@ class SettingsActivity : AppCompatActivity() {
         binding.btnPickBg.isEnabled = isPremium
         binding.btnSelectIconPack.isEnabled = isPremium
 
-        // Resolve theme colors for Material 3 styling
-        val typedValue = android.util.TypedValue()
-        
         if (isPremium) {
             binding.tvPremiumStatus.text = "Premium Active"
             binding.btnGoPremium.visibility = View.GONE
-            
-            theme.resolveAttribute(com.google.android.material.R.attr.colorSurfaceContainerHigh, typedValue, true)
-            binding.cardPremium.setCardBackgroundColor(typedValue.data)
-            binding.cardPremium.strokeWidth = 2
-            
-            theme.resolveAttribute(com.google.android.material.R.attr.colorPrimary, typedValue, true)
-            binding.cardPremium.strokeColor = typedValue.data
-            
-            theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
-            val onSurface = typedValue.data
-            
-            binding.tvPremiumStatus.setTextColor(onSurface)
-            
-            // Visual feedback for disabled items in Origin theme
-            val disabledAlpha = 0.5f
-            val semiTransparentSurface = (onSurface and 0x00FFFFFF) or (0x80 shl 24)
-            
-            binding.switchUseCustomAccent.setTextColor(if (isOriginTheme) semiTransparentSurface else onSurface)
-            binding.switchUseCustomAccent.alpha = if (isOriginTheme) disabledAlpha else 1.0f
-            
-            binding.tvAccentColor.setTextColor(if (isOriginTheme) semiTransparentSurface else onSurface)
-            binding.tvAccentColor.alpha = if (isOriginTheme) disabledAlpha else 1.0f
-            
-            binding.tvPanelBgColor.setTextColor(if (isOriginTheme) semiTransparentSurface else onSurface)
-            binding.tvPanelBgColor.alpha = if (isOriginTheme) disabledAlpha else 1.0f
-
-            binding.switchTools.setTextColor(onSurface)
-            binding.switchHideBg.setTextColor(onSurface)
         } else {
             binding.tvPremiumStatus.text = "Unlock Full Customization"
             binding.btnGoPremium.visibility = View.VISIBLE
-            
-            theme.resolveAttribute(com.google.android.material.R.attr.colorSurfaceContainer, typedValue, true)
-            binding.cardPremium.setCardBackgroundColor(typedValue.data)
-            binding.cardPremium.strokeWidth = 0
-            
-            theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
-            val onSurfaceVariant = typedValue.data
-            
-            binding.tvPremiumStatus.setTextColor(onSurfaceVariant)
-            binding.switchUseCustomAccent.setTextColor(onSurfaceVariant)
-            binding.switchTools.setTextColor(onSurfaceVariant)
-            binding.switchHideBg.setTextColor(onSurfaceVariant)
-            binding.tvAccentColor.setTextColor(onSurfaceVariant)
-            binding.tvPanelBgColor.setTextColor(onSurfaceVariant)
         }
     }
 
@@ -378,30 +327,58 @@ class SettingsActivity : AppCompatActivity() {
             }
         })
 
-        binding.rgThemes.setOnCheckedChangeListener { _, checkedId ->
-            panelPrefs.uiTheme = when (checkedId) {
-                R.id.rbThemeHyper -> PanelPreferences.THEME_HYPEROS
-                R.id.rbThemeRealme -> PanelPreferences.THEME_REALME
-                R.id.rbThemeRich -> PanelPreferences.THEME_RICH
-                else -> PanelPreferences.THEME_ORIGIN
-            }
-            // Auto-disable custom accent for Origin theme to match standard look
-            if (panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN) {
-                panelPrefs.useCustomAccent = false
-                binding.switchUseCustomAccent.isChecked = false
-            }
-            updatePremiumUI()
-            applyOnly()
+        binding.layoutUIStyle.setOnClickListener {
+            val options = arrayOf("OriginOS (Rounded)", "HyperOS (Glass)", "Realme UI", "Rich UI (Glow)")
+            val values = arrayOf(
+                PanelPreferences.THEME_ORIGIN,
+                PanelPreferences.THEME_HYPEROS,
+                PanelPreferences.THEME_REALME,
+                PanelPreferences.THEME_RICH
+            )
+            
+            val selectedIndex = values.indexOf(panelPrefs.uiTheme).let { if (it == -1) 0 else it }
+
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("UI Style Theme")
+                .setSingleChoiceItems(options, selectedIndex) { dialog, which ->
+                    panelPrefs.uiTheme = values[which]
+                    binding.tvUIStyleValue.text = options[which]
+                    
+                    // Auto-disable custom accent for Origin theme to match standard look
+                    if (panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN) {
+                        panelPrefs.useCustomAccent = false
+                        binding.switchUseCustomAccent.isChecked = false
+                    }
+                    
+                    updatePremiumUI()
+                    applyAndShow()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
 
-        binding.rgIconShape.setOnCheckedChangeListener { _, checkedId ->
-            panelPrefs.iconShape = when (checkedId) {
-                R.id.rbShapeSquircle -> PanelPreferences.SHAPE_SQUIRCLE
-                R.id.rbShapeSquare -> PanelPreferences.SHAPE_SQUARE
-                R.id.rbShapeCircle -> PanelPreferences.SHAPE_CIRCLE
-                else -> PanelPreferences.SHAPE_SYSTEM
-            }
-            applyOnly()
+        binding.layoutIconShape.setOnClickListener {
+            val options = arrayOf("System Default", "Circle", "Squircle", "Square")
+            val values = arrayOf(
+                PanelPreferences.SHAPE_SYSTEM,
+                PanelPreferences.SHAPE_CIRCLE,
+                PanelPreferences.SHAPE_SQUIRCLE,
+                PanelPreferences.SHAPE_SQUARE
+            )
+            
+            val selectedIndex = values.indexOf(panelPrefs.iconShape).let { if (it == -1) 0 else it }
+
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Icon Shape")
+                .setSingleChoiceItems(options, selectedIndex) { dialog, which ->
+                    panelPrefs.iconShape = values[which]
+                    binding.tvIconShapeValue.text = options[which]
+                    applyAndShow()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
 
         binding.switchUseCustomAccent.setOnCheckedChangeListener { _, isChecked ->

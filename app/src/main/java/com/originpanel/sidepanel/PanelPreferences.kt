@@ -79,11 +79,11 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_PANEL_BG = "#E61A1C1E"
         const val DEFAULT_HIDE_BG = false
         const val DEFAULT_SHOW_TOOLS = true
-        const val DEFAULT_ICON_SHAPE = SHAPE_SYSTEM
+        val DEFAULT_ICON_SHAPE = SHAPE_SQUIRCLE
         const val DEFAULT_GESTURES = true
         const val DEFAULT_PILL_WIDTH = 3
         const val DEFAULT_PILL_COLOR = "#FFFFFF"
-        const val DEFAULT_TAP_TO_OPEN = true
+        const val DEFAULT_TAP_TO_OPEN = false
         const val DEFAULT_ICON_PACK = "none"
         const val DEFAULT_SHOW_LOGS = false
         const val DEFAULT_BLUR_AMOUNT = 15

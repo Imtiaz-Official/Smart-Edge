@@ -194,17 +194,13 @@ class MainActivity : AppCompatActivity() {
     private fun updatePermissionUI() {
         val granted = hasOverlayPermission()
         val standardBatteryIgnored = isIgnoringBatteryOptimizations()
-        val isPremium = panelPrefs.isPremium
         
         // Show/Hide Activity Logs button based on user preference
         binding.btnShowLogs.visibility = if (panelPrefs.showLogs) View.VISIBLE else View.GONE
 
-        // On Vivo/iQOO, the standard check isn't enough to guarantee stability.
-        // We keep the card visible on these devices even if standard optimization is "ignored"
-        // so they can access the deep-link to "High Background Power Consumption".
-        val manufacturer = Build.MANUFACTURER.lowercase()
-        val isVivo = manufacturer.contains("vivo") || manufacturer.contains("iqoo")
-        val batteryCardVisible = !standardBatteryIgnored || isVivo
+        // For Vivo/iQOO, we want to keep the card visible until standard optimization is ignored,
+        // so the user can easily reach the deep-links. Once ignored, it disappears.
+        val batteryCardVisible = !standardBatteryIgnored
 
         binding.cardPermission.visibility = if (granted) View.GONE else View.VISIBLE
         binding.cardBatteryOptimization.visibility = if (batteryCardVisible) View.VISIBLE else View.GONE

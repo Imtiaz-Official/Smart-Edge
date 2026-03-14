@@ -31,7 +31,7 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:textAllCaps="true"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="12dp"
                 android:layout_marginBottom="8dp" />
 
             <com.google.android.material.card.MaterialCardView
@@ -43,9 +43,10 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Screen Side" android:textColor="?attr/colorOnSurface" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Screen Side" android:textColor="?attr/colorOnSurface" android:textStyle="bold" />
                     <RadioGroup
                         android:id="@+id/rgPanelSide"
                         android:layout_width="match_parent"
@@ -59,32 +60,22 @@
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchGestures" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Edge Swipe Gestures" android:textColor="?attr/colorOnSurface" />
-                    
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnAccessibility"
-                        style="@style/Widget.Material3.Button.TonalButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:layout_marginTop="12dp"
-                        android:text="Enable Gesture Auto-Close (Accessibility)"
-                        android:textSize="15sp"
-                        android:textAllCaps="false" />
 
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchTapOpen" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Tap Pill to Open" android:textColor="?attr/colorOnSurface" />
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchAutoStart" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Auto-start on Boot" android:textColor="?attr/colorOnSurface" />
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchHaptic" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Haptic Feedback" android:textColor="?attr/colorOnSurface" />
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchShowLogs" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Show Activity Logs on Home" android:textColor="?attr/colorOnSurface" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchTapOpen" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Tap Pill to Open" android:textColor="?attr/colorOnSurface" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchAutoStart" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Auto-start on Boot" android:textColor="?attr/colorOnSurface" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchHaptic" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Haptic Feedback" android:textColor="?attr/colorOnSurface" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchShowLogs" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Show Activity Logs on Home" android:textColor="?attr/colorOnSurface" />
 
                     <LinearLayout
                         android:id="@+id/layoutAnimFeel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="8dp"
                         android:orientation="vertical"
                         android:clickable="true"
                         android:focusable="true"
                         android:background="?attr/selectableItemBackground"
-                        android:paddingVertical="8dp">
+                        android:paddingVertical="12dp">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -102,8 +93,6 @@
                             android:textSize="14sp" />
                     </LinearLayout>
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
-
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -116,7 +105,7 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:textAllCaps="true"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="12dp"
                 android:layout_marginBottom="8dp" />
 
             <com.google.android.material.card.MaterialCardView
@@ -128,21 +117,41 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="UI Style Theme" android:textColor="?attr/colorOnSurface" />
-                    <RadioGroup android:id="@+id/rgThemes" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp">
-                        <RadioButton android:id="@+id/rbThemeOrigin" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="OriginOS (Rounded)" android:textColor="?attr/colorOnSurfaceVariant" />
-                        <RadioButton android:id="@+id/rbThemeHyper" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="HyperOS (Glass)" android:textColor="?attr/colorOnSurfaceVariant" />
-                        <RadioButton android:id="@+id/rbThemeRealme" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Realme UI" android:textColor="?attr/colorOnSurfaceVariant" />
-                        <RadioButton android:id="@+id/rbThemeRich" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Rich UI (Glow)" android:textColor="?attr/colorOnSurfaceVariant" />
-                    </RadioGroup>
+                    <LinearLayout
+                        android:id="@+id/layoutUIStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="UI Style Theme"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/tvUIStyleValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="OriginOS (Rounded)"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textSize="14sp" />
+                    </LinearLayout>
 
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchBlur" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Glassmorphic Blur" android:textColor="?attr/colorOnSurface" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="May cause lag on budget devices (Android 12+ only)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" android:layout_marginStart="4dp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="May cause lag on budget devices (Android 12+ only)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
 
                     <!-- Blur Amount Slider -->
-                    <LinearLayout android:id="@+id/layoutBlurAmount" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp">
+                    <LinearLayout android:id="@+id/layoutBlurAmount" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="16dp">
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="4dp">
                             <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Blur Intensity (Default: 15)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                             <TextView android:id="@+id/tvBlurAmountValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
@@ -153,19 +162,38 @@
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Icon Shape" android:textColor="?attr/colorOnSurface" />
-                    <RadioGroup android:id="@+id/rgIconShape" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="8dp">
-                        <RadioButton android:id="@+id/rbShapeSystem" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="System" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="10sp" android:paddingStart="0dp" android:paddingEnd="0dp" android:minWidth="0dp" android:maxLines="1" />
-                        <RadioButton android:id="@+id/rbShapeCircle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Circle" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="10sp" android:paddingStart="0dp" android:paddingEnd="0dp" android:minWidth="0dp" android:maxLines="1" />
-                        <RadioButton android:id="@+id/rbShapeSquircle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Squircle" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="10sp" android:paddingStart="0dp" android:paddingEnd="0dp" android:minWidth="0dp" android:maxLines="1" />
-                        <RadioButton android:id="@+id/rbShapeSquare" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Square" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="10sp" android:paddingStart="0dp" android:paddingEnd="0dp" android:minWidth="0dp" android:maxLines="1" />
-                    </RadioGroup>
+                    <LinearLayout
+                        android:id="@+id/layoutIconShape"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Icon Shape"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/tvIconShapeValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Squircle"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textSize="14sp" />
+                    </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Icon Pack" android:textColor="?attr/colorOnSurface" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Icon Pack" android:textColor="?attr/colorOnSurface" android:textStyle="bold" />
                             <TextView android:id="@+id/tvCurrentIconPack" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="System Default" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                         </LinearLayout>
                         <Button android:id="@+id/btnSelectIconPack" style="@style/Widget.Material3.Button.TonalButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Change" android:textSize="12sp" android:textAllCaps="false" />
@@ -178,19 +206,15 @@
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Panel Opacity (Default: 100%)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                         <TextView android:id="@+id/tvOpacityValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="100%" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
-                        <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
- android:id="@+id/sbOpacity" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="100.0" android:value="100.0" app:tickVisible="false" android:layout_marginBottom="4dp" />
-                    </LinearLayout>
+                    <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
+                        android:id="@+id/sbOpacity" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="100.0" android:value="100.0" app:tickVisible="false" android:layout_marginBottom="12dp" />
 
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="12dp" android:layout_marginBottom="4dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="8dp" android:layout_marginBottom="4dp">
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Corner Radius (Premium - Default: 48dp)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                         <TextView android:id="@+id/tvRadiusValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="28dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
-                        <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
- android:id="@+id/sbPanelRadius" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="60.0" android:value="28.0" app:tickVisible="false" android:layout_marginBottom="4dp" />
-                    </LinearLayout>
+                    <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
+                        android:id="@+id/sbPanelRadius" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="60.0" android:value="28.0" app:tickVisible="false" android:layout_marginBottom="4dp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -204,7 +228,7 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:textAllCaps="true"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="12dp"
                 android:layout_marginBottom="8dp" />
 
             <com.google.android.material.card.MaterialCardView
@@ -216,7 +240,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchShowPill" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Visible Pill Handle" android:textColor="?attr/colorOnSurface" />
 
@@ -224,28 +249,22 @@
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Handle Height (Default: 80dp)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                         <TextView android:id="@+id/tvHeightValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="80dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
-                        <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
- android:id="@+id/sbHandleHeight" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="300.0" android:value="80.0" app:tickVisible="false" android:layout_marginBottom="4dp" />
-                    </LinearLayout>
+                    <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
+                        android:id="@+id/sbHandleHeight" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="300.0" android:value="80.0" app:tickVisible="false" android:layout_marginBottom="12dp" />
 
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="12dp" android:layout_marginBottom="4dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="8dp" android:layout_marginBottom="4dp">
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Trigger Area Width (Default: 24dp)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                         <TextView android:id="@+id/tvWidthValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="24dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
-                        <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
- android:id="@+id/sbHandleWidth" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="24.0" android:valueTo="100.0" android:value="24.0" app:tickVisible="false" android:layout_marginBottom="4dp" />
-                    </LinearLayout>
+                    <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
+                        android:id="@+id/sbHandleWidth" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="24.0" android:valueTo="100.0" android:value="24.0" app:tickVisible="false" android:layout_marginBottom="12dp" />
 
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="12dp" android:layout_marginBottom="4dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="8dp" android:layout_marginBottom="4dp">
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Vertical Position (Default: 0dp)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                         <TextView android:id="@+id/tvOffsetValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
-                        <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
- android:id="@+id/sbHandleOffset" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="200.0" android:value="100.0" app:tickVisible="false" android:layout_marginBottom="4dp" />
-                    </LinearLayout>
+                    <com.originpanel.sidepanel.DefaultMarkerSlider style="@style/Widget.App.Slider"
+                        android:id="@+id/sbHandleOffset" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="200.0" android:value="100.0" app:tickVisible="false" android:layout_marginBottom="4dp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -256,50 +275,59 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="?attr/materialCardViewStyle"
-                app:cardBackgroundColor="?attr/colorSurfaceContainer"
-                app:strokeWidth="0dp"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <TextView android:id="@+id/tvPremiumStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Premium Dashboard" android:textColor="?attr/colorOnSurfaceVariant" android:textStyle="bold" />
+                    <TextView android:id="@+id/tvPremiumStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Premium Dashboard" android:textColor="?attr/colorPrimary" android:textSize="14sp" android:textStyle="bold" android:textAllCaps="true" />
                     
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="12dp" />
 
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchUseCustomAccent" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Use Custom Accent Color" android:textColor="?attr/colorOnSurfaceVariant" android:layout_marginBottom="16dp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchUseCustomAccent" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Use Custom Accent Color" android:textColor="?attr/colorOnSurface" android:layout_marginBottom="12dp" />
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
                         <TextView android:id="@+id/tvAccentColor" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Accent Color" android:textColor="?attr/colorOnSurfaceVariant" />
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnPickAccent"
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
                             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.Corner50"
                             android:backgroundTint="?attr/colorPrimary"
                             app:icon="@drawable/ic_color_picker_custom"
-                            app:iconTint="?attr/colorOnPrimary" />
+                            app:iconTint="?attr/colorOnPrimary"
+                            app:iconGravity="textStart"
+                            android:padding="0dp"
+                            app:iconPadding="0dp" />
                     </LinearLayout>
 
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center_vertical">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center_vertical">
                         <TextView android:id="@+id/tvPanelBgColor" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Panel Background" android:textColor="?attr/colorOnSurfaceVariant" />
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnPickBg"
-                            android:layout_width="44dp"
-                            android:layout_height="44dp"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
                             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.Corner50"
                             android:backgroundTint="?attr/colorPrimary"
                             app:icon="@drawable/ic_color_picker_custom"
-                            app:iconTint="?attr/colorOnPrimary" />
+                            app:iconTint="?attr/colorOnPrimary"
+                            app:iconGravity="textStart"
+                            android:padding="0dp"
+                            app:iconPadding="0dp" />
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchTools" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Show Tools Section" android:textColor="?attr/colorOnSurfaceVariant" />
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchHideBg" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Invisible Background" android:textColor="?attr/colorOnSurfaceVariant" />
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchColumns" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Double-Column Layout" android:textColor="?attr/colorOnSurfaceVariant" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchTools" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Show Tools Section" android:textColor="?attr/colorOnSurface" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchHideBg" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Invisible Background" android:textColor="?attr/colorOnSurface" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchColumns" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Double-Column Layout" android:textColor="?attr/colorOnSurface" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnResetUIColors"
@@ -308,7 +336,7 @@
                         android:layout_height="56dp"
                         android:layout_marginTop="16dp"
                         android:text="Reset UI Colors"
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         android:textAllCaps="false" />
 
                     <com.google.android.material.button.MaterialButton
@@ -316,13 +344,23 @@
                         style="@style/Widget.Material3.Button"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="12dp"
                         android:text="Unlock Full Version"
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         android:textAllCaps="false" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAccessibility"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="12dp"
+                android:text="Enable Gesture Auto-Close"
+                android:textSize="14sp"
+                android:textAllCaps="false" />
 
             <!-- Reset Button -->
             <com.google.android.material.button.MaterialButton
