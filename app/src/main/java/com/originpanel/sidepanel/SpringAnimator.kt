@@ -1,7 +1,5 @@
 package com.originpanel.sidepanel
 
-import android.app.ActivityManager
-import android.content.Context
 import android.view.Choreographer
 import android.view.View
 import androidx.dynamicanimation.animation.DynamicAnimation
@@ -26,7 +24,7 @@ object SpringAnimator {
     // Track active springs to cancel them if a new animation starts on the same view
     private val activeSprings = java.util.concurrent.ConcurrentHashMap<View, SpringAnimation>()
 
-    fun adaptiveStiffness(context: Context): Float {
+    fun adaptiveStiffness(): Float {
         // Balanced stiffness: between LOW (200) and MEDIUM (500) for a "premium calm" feel
         return 400f
     }
@@ -51,7 +49,7 @@ object SpringAnimator {
                 .start()
 
             val spring = SpringAnimation(view, DynamicAnimation.TRANSLATION_X, 0f).apply {
-                spring.stiffness = adaptiveStiffness(view.context)
+                spring.stiffness = adaptiveStiffness()
                 spring.dampingRatio = SPRING_DAMPING
                 addEndListener { _, _, _, _ ->
                     activeSprings.remove(view)

@@ -207,6 +207,19 @@ class AppPickerPanelView @JvmOverloads constructor(
         }
     }
 
+    /** Clears the search box and restores the full app list. Call when picker opens. */
+    fun resetSearch() {
+        if (etSearch.text.isNotEmpty()) {
+            etSearch.setText("")
+            adapter.submitList(allApps.toList())
+        }
+    }
+
+    /** Clears cached app list so next loadApps() fetches fresh data. Call when picker closes. */
+    fun invalidateAppList() {
+        allApps = listOf()
+    }
+
     private fun filter(query: String) {
         val filtered = allApps.filter { it.appName.contains(query, ignoreCase = true) }
         adapter.submitList(filtered)

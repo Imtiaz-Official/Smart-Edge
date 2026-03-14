@@ -23,11 +23,8 @@ class PanelAppsAdapter(
     fun setShowAddButton(show: Boolean) {
         if (showAddButton != show) {
             showAddButton = show
-            if (show) {
-                notifyItemInserted(currentList.size)
-            } else {
-                notifyItemRemoved(currentList.size)
-            }
+            // Use notifyDataSetChanged to avoid off-by-one if a submitList diff is in-flight
+            notifyDataSetChanged()
         }
     }
 

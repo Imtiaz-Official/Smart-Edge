@@ -476,8 +476,8 @@ class FloatingPanelService : Service() {
         sidePanelView?.animatePickerToggle(true)
         pickerPanelView?.let { picker ->
             picker.setEditMode(enableEditMode)
-            // loadApps() is now optimized to be lazy internally
-            picker.loadApps()
+            picker.resetSearch()        // Fix #8: clear stale search on each open
+            picker.loadApps()           // uses cached data unless invalidated
             // PRE-CONDITION: Set alpha before making visible
             picker.alpha = 0f
             picker.visibility = View.VISIBLE
@@ -510,7 +510,8 @@ class FloatingPanelService : Service() {
         }, 250)
         
         pickerPanelView?.let { picker ->
-            picker.setEditMode(false) // Reset mode
+            picker.setEditMode(false)       // Reset edit mode
+            picker.invalidateAppList()      // Fix #9: force refresh next open (catches new installs)
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
             val pickerWidth = picker.width.toFloat()
             SpringAnimator.animateClose(picker, if (isRight) pickerWidth else -pickerWidth, isPicker = true) {

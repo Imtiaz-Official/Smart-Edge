@@ -41,6 +41,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_PILL_COLOR = "pill_color"
         private const val KEY_TAP_TO_OPEN = "tap_to_open"
         private const val KEY_ICON_PACK = "selected_icon_pack"
+        private const val KEY_BLUR_ENABLED = "blur_enabled"
         
         private const val DELIMITER = ","
 
@@ -149,8 +150,8 @@ class PanelPreferences(context: Context) {
         set(value) = prefs.edit { putBoolean(KEY_HAPTIC_ENABLED, value) }
 
     var blurEnabled: Boolean
-        get() = prefs.getBoolean("blur_enabled", false)
-        set(value) = prefs.edit { putBoolean("blur_enabled", value) }
+        get() = prefs.getBoolean(KEY_BLUR_ENABLED, false)
+        set(value) = prefs.edit { putBoolean(KEY_BLUR_ENABLED, value) }
 
     var panelOpacity: Int
         get() = prefs.getInt(KEY_PANEL_OPACITY, DEFAULT_OPACITY)

@@ -40,8 +40,7 @@ class AppRepository(context: Context) {
             addCategory(android.content.Intent.CATEGORY_LAUNCHER)
         }
 
-        val prefs = PanelPreferences(appContext)
-        val panelPackages = prefs.getPanelApps().toSet()
+        val panelPackages = panelPrefs.getPanelApps().toSet()
 
         packageManager.queryIntentActivities(intent, 0)
             .distinctBy { it.activityInfo.packageName }

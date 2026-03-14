@@ -40,6 +40,8 @@ class EdgeHandleView @JvmOverloads constructor(
     private val holdDurationMs = 300L
 
     private val holdRunnable = Runnable {
+        // Guard: if the user pulled back before the delay expired, don't open
+        if (!hasPassedThreshold) return@Runnable
         isTriggered = true
         vibrateHaptic()
         onTrigger?.invoke()
