@@ -332,7 +332,7 @@
 
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
-                        android:layout_height="160dp"
+                        android:layout_height="320dp"
                         app:cardCornerRadius="16dp"
                         app:cardElevation="0dp">
                         
@@ -340,7 +340,7 @@
                             android:id="@+id/ivTutorialAnim"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:scaleType="centerCrop" />
+                            android:scaleType="fitXY" />
                     </com.google.android.material.card.MaterialCardView>
 
                     <TextView
