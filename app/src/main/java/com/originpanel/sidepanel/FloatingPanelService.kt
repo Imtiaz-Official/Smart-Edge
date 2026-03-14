@@ -250,40 +250,43 @@ class FloatingPanelService : Service() {
 
     private fun showCaptureFlash(onPeak: () -> Unit) {
         Handler(Looper.getMainLooper()).post {
-            try {
-                val flashView = View(applicationContext).apply {
-                    setBackgroundColor(android.graphics.Color.WHITE)
-                    alpha = 0f
-                }
-                val params = WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.MATCH_PARENT,
-                    WindowManager.LayoutParams.MATCH_PARENT,
-                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-                    PixelFormat.TRANSLUCENT
-                )
-                windowManager.addView(flashView, params)
+            // Re-use the existing rootLayout for the flash to avoid WindowManager addView jitters
+            if (rootLayout == null) initRootLayout()
+            
+            val root = rootLayout ?: return@post
+            if (root.parent == null) {
+                windowManager.addView(root, rootParams)
+            }
 
-                flashView.animate()
-                    .alpha(0.6f)
-                    .setDuration(100)
-                    .setInterpolator(android.view.animation.DecelerateInterpolator())
-                    .withEndAction {
-                        onPeak()
-                        flashView.animate()
-                            .alpha(0f)
-                            .setDuration(400)
-                            .setInterpolator(android.view.animation.AccelerateInterpolator())
-                            .withEndAction {
-                                if (flashView.isAttachedToWindow) windowManager.removeView(flashView)
+            // Create a dedicated flash overlay inside root to keep background logic clean
+            val flashOverlay = View(this).apply {
+                setBackgroundColor(android.graphics.Color.WHITE)
+                alpha = 0f
+                setLayerType(View.LAYER_TYPE_HARDWARE, null)
+            }
+            root.addView(flashOverlay, android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT)
+
+            // Native-smooth animation using hardware layer
+            flashOverlay.animate()
+                .alpha(0.7f)
+                .setDuration(120)
+                .setInterpolator(android.view.animation.DecelerateInterpolator())
+                .withEndAction {
+                    onPeak() // Capture at peak
+                    flashOverlay.animate()
+                        .alpha(0f)
+                        .setDuration(350)
+                        .setInterpolator(android.view.animation.AccelerateInterpolator())
+                        .withEndAction {
+                            root.removeView(flashOverlay)
+                            // If panel isn't open, remove the root layout from WM to release resources
+                            if (!isPanelOpen && root.parent != null) {
+                                windowManager.removeView(root)
                             }
-                            .start()
-                    }
-                    .start()
-            } catch (e: Exception) {}
+                        }
+                        .start()
+                }
+                .start()
         }
     }
 

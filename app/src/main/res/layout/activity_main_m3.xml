@@ -126,6 +126,7 @@
             </com.google.android.material.card.MaterialCardView>
 
             <!-- BATTERY OPTIMIZATION ALERT -->
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardBatteryOptimization"
                 android:layout_width="match_parent"

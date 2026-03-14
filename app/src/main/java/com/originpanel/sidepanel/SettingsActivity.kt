@@ -55,6 +55,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchShowPill.isChecked = panelPrefs.showPill
         binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
         binding.switchBlur.isChecked = panelPrefs.blurEnabled
+        binding.switchColumns.isChecked = panelPrefs.panelColumns == 2
         binding.sbOpacity.value = panelPrefs.panelOpacity.toFloat()
         binding.tvOpacityValue.text = "${panelPrefs.panelOpacity}%"
         
@@ -119,6 +120,10 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchTools.isEnabled = isPremium
         binding.switchHideBg.isEnabled = isPremium
+        binding.switchColumns.isEnabled = isPremium
+        binding.switchUseCustomAccent.isEnabled = isPremium
+        binding.sbPanelRadius.isEnabled = isPremium
+        binding.btnResetUIColors.isEnabled = isPremium
         
         binding.btnPickAccent.isEnabled = isPremium
         binding.btnPickBg.isEnabled = isPremium
@@ -209,6 +214,11 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchBlur.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.blurEnabled = isChecked
+            applyAndShow()
+        }
+
+        binding.switchColumns.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.panelColumns = if (isChecked) 2 else 1
             applyAndShow()
         }
 

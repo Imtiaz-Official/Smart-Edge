@@ -27,6 +27,7 @@ import com.originpanel.sidepanel.databinding.ActivityMainM3Binding
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainM3Binding
+    private lateinit var panelPrefs: PanelPreferences
     private var isPanelRunning = false
 
     // Launcher for overlay permission settings screen
@@ -41,6 +42,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainM3Binding.inflate(layoutInflater)
         setContentView(binding.root)
+        panelPrefs = PanelPreferences(this)
 
         // Hide default action bar — our layout provides the header
         supportActionBar?.hide()
@@ -160,6 +162,7 @@ class MainActivity : AppCompatActivity() {
     private fun updatePermissionUI() {
         val granted = hasOverlayPermission()
         val standardBatteryIgnored = isIgnoringBatteryOptimizations()
+        val isPremium = panelPrefs.isPremium
         
         // On Vivo/iQOO, the standard check isn't enough to guarantee stability.
         // We keep the card visible on these devices even if standard optimization is "ignored"

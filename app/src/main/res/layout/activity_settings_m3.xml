@@ -111,6 +111,9 @@
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchBlur" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Glassmorphic Blur" android:textColor="?attr/colorOnSurface" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="May cause lag on budget devices (Android 12+ only)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" android:layout_marginStart="4dp" />
 
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchColumns" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Double-Column Layout (Premium)" android:textColor="?attr/colorOnSurface" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Increase density to show two apps per row" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" android:layout_marginStart="4dp" />
+
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Icon Shape" android:textColor="?attr/colorOnSurface" />
