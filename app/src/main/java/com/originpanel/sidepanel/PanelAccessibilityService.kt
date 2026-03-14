@@ -11,6 +11,9 @@ class PanelAccessibilityService : AccessibilityService() {
         private const val TAG = "PanelAccessibility"
     }
 
+    // We intentionally do NOT override onServiceConnected to auto-start the Side Panel UI
+    // because the user should have to explicitly press the "Start" button in the MainActivity.
+
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
         
@@ -41,5 +44,15 @@ class PanelAccessibilityService : AccessibilityService() {
 
     override fun onInterrupt() {
         // Required override, but nothing to teardown for our simple usecase
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        // When the user toggles Accessibility OFF, Android unbinds this service.
+        // We should immediately stop the floating panel if it is running.
+        val stopIntent = Intent(this, FloatingPanelService::class.java).apply {
+            action = FloatingPanelService.ACTION_STOP
+        }
+        startService(stopIntent)
+        return super.onUnbind(intent)
     }
 }

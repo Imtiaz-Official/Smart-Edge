@@ -72,6 +72,9 @@ class FloatingPanelService : Service() {
 
     companion object {
         const val TAG = "FloatingPanelService"
+        var isRunning = false
+            private set
+            
         const val CHANNEL_ID = "side_panel_channel"
         const val NOTIFICATION_ID = 1001
         const val ACTION_STOP = "com.originpanel.sidepanel.STOP"
@@ -85,6 +88,7 @@ class FloatingPanelService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        isRunning = true
         Log.d(TAG, "onCreate")
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         panelPrefs = PanelPreferences(this)
@@ -297,6 +301,7 @@ class FloatingPanelService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        isRunning = false
         serviceScope.cancel()
         
         try {

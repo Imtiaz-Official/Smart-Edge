@@ -18,6 +18,8 @@ class BootReceiver : BroadcastReceiver() {
 
         val prefs = PanelPreferences(context)
         if (!prefs.autoStart) return
+        
+        if (!isAccessibilityServiceEnabled(context)) return
 
         val serviceIntent = Intent(context, FloatingPanelService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -25,5 +27,23 @@ class BootReceiver : BroadcastReceiver() {
         } else {
             context.startService(serviceIntent)
         }
+    }
+
+    private fun isAccessibilityServiceEnabled(context: Context): Boolean {
+        val enabledServices = android.provider.Settings.Secure.getString(
+            context.contentResolver,
+            android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        ) ?: return false
+        
+        val colonSplitter = android.text.TextUtils.SimpleStringSplitter(':')
+        colonSplitter.setString(enabledServices)
+        
+        while (colonSplitter.hasNext()) {
+            val componentName = colonSplitter.next()
+            if (componentName.equals("${context.packageName}/${PanelAccessibilityService::class.java.name}", ignoreCase = true)) {
+                return true
+            }
+        }
+        return false
     }
 }

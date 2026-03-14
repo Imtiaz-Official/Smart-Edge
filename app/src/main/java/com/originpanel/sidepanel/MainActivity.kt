@@ -50,14 +50,19 @@ class MainActivity : AppCompatActivity() {
         binding.btnStartStop.setOnClickListener { togglePanel() }
         binding.btnTogglePanel.setOnClickListener { triggerPanelToggle() }
         binding.btnManageApps.setOnClickListener {
-            if (hasOverlayPermission()) {
-                sendBroadcast(Intent("com.originpanel.sidepanel.ACTION_OPEN_PICKER"))
-                Toast.makeText(this, "Opening panel editor...", Toast.LENGTH_SHORT).show()
-                // Close MainActivity so user sees the panel picker immediately
-                finish()
-            } else {
+            if (!hasOverlayPermission()) {
                 Toast.makeText(this, "Please grant 'Display over other apps' permission first", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+            if (!isAccessibilityServiceEnabled()) {
+                Toast.makeText(this, "Please enable 'SidePanel' in Accessibility Settings", Toast.LENGTH_LONG).show()
+                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                return@setOnClickListener
+            }
+            sendBroadcast(Intent("com.originpanel.sidepanel.ACTION_OPEN_PICKER"))
+            Toast.makeText(this, "Opening panel editor...", Toast.LENGTH_SHORT).show()
+            // Close MainActivity so user sees the panel picker immediately
+            finish()
         }
         binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
@@ -74,6 +79,21 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updatePermissionUI()
+        updateServiceStatus()
+    }
+
+    private fun updateServiceStatus() {
+        val isRunning = FloatingPanelService.isRunning
+        isPanelRunning = isRunning
+        
+        binding.btnStartStop.text = if (isRunning) "Stop" else "Start"
+        binding.tvStatus.text = if (isRunning) "Service is Active" else "Service is Stopped"
+        binding.tvStatus.setTextColor(if (isRunning) Color.parseColor("#00C853") else Color.parseColor("#80FFFFFF"))
+        
+        val dot = findViewById<android.widget.ImageView>(R.id.statusDot)
+        dot?.imageTintList = android.content.res.ColorStateList.valueOf(
+            if (isRunning) Color.parseColor("#00C853") else Color.parseColor("#FF5252")
+        )
     }
 
     // ── Permission ────────────────────────────────────────────────────────────
@@ -167,6 +187,12 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        if (!isAccessibilityServiceEnabled()) {
+            Toast.makeText(this, "Please enable 'SidePanel' in Accessibility Settings", Toast.LENGTH_LONG).show()
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            return
+        }
+
         if (isPanelRunning) {
             stopPanel()
         } else {
@@ -181,10 +207,8 @@ class MainActivity : AppCompatActivity() {
         } else {
             startService(intent)
         }
-        isPanelRunning = true
-        binding.btnStartStop.text = "Stop"
-        binding.tvStatus.text = "Service is Active"
-        binding.tvStatus.setTextColor(Color.parseColor("#00C853"))
+        // UI will be updated via FloatingPanelService.isRunning + updateServiceStatus
+        binding.root.postDelayed({ updateServiceStatus() }, 500)
     }
 
     private fun stopPanel() {
@@ -192,15 +216,19 @@ class MainActivity : AppCompatActivity() {
             action = FloatingPanelService.ACTION_STOP
         }
         startService(intent)
-        isPanelRunning = false
-        binding.btnStartStop.text = "Start"
-        binding.tvStatus.text = "Service is Stopped"
-        binding.tvStatus.setTextColor(Color.parseColor("#80FFFFFF"))
+        // UI will be updated via FloatingPanelService.isRunning + updateServiceStatus
+        binding.root.postDelayed({ updateServiceStatus() }, 500)
     }
 
     private fun triggerPanelToggle() {
         if (!hasOverlayPermission()) {
             requestOverlayPermission()
+            return
+        }
+        
+        if (!isAccessibilityServiceEnabled()) {
+            Toast.makeText(this, "Please enable 'SidePanel' in Accessibility Settings", Toast.LENGTH_LONG).show()
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             return
         }
         
@@ -213,5 +241,23 @@ class MainActivity : AppCompatActivity() {
             action = FloatingPanelService.ACTION_OPEN
         }
         startForegroundService(intent)
+    }
+
+    private fun isAccessibilityServiceEnabled(): Boolean {
+        val enabledServices = Settings.Secure.getString(
+            contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        ) ?: return false
+        
+        val colonSplitter = android.text.TextUtils.SimpleStringSplitter(':')
+        colonSplitter.setString(enabledServices)
+        
+        while (colonSplitter.hasNext()) {
+            val componentName = colonSplitter.next()
+            if (componentName.equals("$packageName/${PanelAccessibilityService::class.java.name}", ignoreCase = true)) {
+                return true
+            }
+        }
+        return false
     }
 }
