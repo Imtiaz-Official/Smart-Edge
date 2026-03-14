@@ -342,7 +342,7 @@ class SettingsActivity : AppCompatActivity() {
         
         binding.root.postDelayed({
             val start = Intent(this, FloatingPanelService::class.java).apply {
-                action = "com.originpanel.sidepanel.SHOW_TEMP"
+                action = FloatingPanelService.ACTION_SHOW_TEMP
             }
             startForegroundService(start)
         }, 300)

@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -166,6 +167,12 @@ class AppPickerPanelView @JvmOverloads constructor(
         adapter.notifyItemRangeChanged(0, adapter.itemCount, "EDIT_MODE_CHANGE")
     }
 
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        // Cancel all running coroutines (icon loads) to prevent memory leaks
+        scope.cancel()
+    }
+
     override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
         if (event.action == android.view.KeyEvent.ACTION_UP && event.keyCode == android.view.KeyEvent.KEYCODE_BACK) {
             onClose?.invoke()
@@ -303,13 +310,17 @@ class AppPickerPanelView @JvmOverloads constructor(
                 }
             }
 
-            // Only the plus icon triggers add/remove in edit mode
+            // Only the plus icon triggers add/remove in edit mode.
+            // Use bindingAdapterPosition (not the captured `position`) to avoid stale index.
             holder.ivCheck.setOnClickListener {
                 if (isEditMode) {
-                    if (panelPrefs.hapticEnabled) {
-                        it.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
+                    val currentPos = holder.bindingAdapterPosition
+                    if (currentPos != RecyclerView.NO_POSITION) {
+                        if (panelPrefs.hapticEnabled) {
+                            it.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
+                        }
+                        toggleAppSelection(getItem(currentPos), currentPos, holder.ivCheck)
                     }
-                    toggleAppSelection(app, position, holder.ivCheck)
                 }
             }
         }

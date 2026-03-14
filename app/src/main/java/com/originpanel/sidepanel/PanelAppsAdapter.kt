@@ -112,11 +112,15 @@ class PanelAppsAdapter(
             }
 
             holder.itemView.setOnLongClickListener {
-                if (panelPrefs.hapticEnabled) {
-                    holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                // Use bindingAdapterPosition to get the live index, not the captured one
+                val currentPos = holder.bindingAdapterPosition
+                if (currentPos != RecyclerView.NO_POSITION) {
+                    if (panelPrefs.hapticEnabled) {
+                        holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                    }
+                    SpringAnimator.scalePulse(holder.itemView)
+                    onRemove(getItem(currentPos))
                 }
-                SpringAnimator.scalePulse(holder.itemView)
-                onRemove(app)
                 true
             }
         } else if (holder is AddViewHolder) {

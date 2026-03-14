@@ -22,12 +22,12 @@ class AppRepository(context: Context) {
     private val iconPackManager = IconPackManager(appContext)
 
     companion object {
-        // Simple cache to prevent reference inequality flickers.
+        // LRU cache capped at 150 entries to prevent unbounded memory growth.
         // Key: iconPackName + "|" + packageName
-        private val iconCache = java.util.Collections.synchronizedMap(HashMap<String, Drawable>())
+        private val iconCache = object : android.util.LruCache<String, Drawable>(150) {}
         
         fun clearCache() {
-            iconCache.clear()
+            iconCache.evictAll()
         }
     }
 
@@ -64,7 +64,7 @@ class AppRepository(context: Context) {
     suspend fun loadIconForApp(packageName: String): Drawable? = withContext(Dispatchers.IO) {
         val selectedPack = panelPrefs.selectedIconPack
         val cacheKey = "$selectedPack|$packageName"
-        iconCache[cacheKey]?.let { return@withContext it }
+        iconCache.get(cacheKey)?.let { return@withContext it }
 
         val customIcon = iconPackManager.getIcon(packageName, selectedPack)
         val finalIcon = if (customIcon != null) customIcon else {
@@ -75,7 +75,7 @@ class AppRepository(context: Context) {
             }
         }
         
-        if (finalIcon != null) iconCache[cacheKey] = finalIcon
+        if (finalIcon != null) iconCache.put(cacheKey, finalIcon)
         return@withContext finalIcon
     }
 
@@ -97,7 +97,7 @@ class AppRepository(context: Context) {
 
         panelPackages.mapNotNull { pkg ->
             val cacheKey = "$selectedPack|$pkg"
-            val cachedIcon = iconCache[cacheKey]
+            val cachedIcon = iconCache.get(cacheKey)
             
             if (cachedIcon != null) {
                 // If we have resolveInfo, we can load label too
@@ -126,7 +126,7 @@ class AppRepository(context: Context) {
             }
 
             if (finalIcon != null) {
-                iconCache[cacheKey] = finalIcon
+                iconCache.put(cacheKey, finalIcon)
                 val appName = if (resolveInfo != null) {
                     resolveInfo.loadLabel(packageManager).toString()
                 } else {
