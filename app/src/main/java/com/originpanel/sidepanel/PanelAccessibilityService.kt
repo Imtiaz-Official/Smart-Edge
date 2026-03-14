@@ -18,12 +18,19 @@ class PanelAccessibilityService : AccessibilityService() {
             val packageName = event.packageName?.toString() ?: return
             val className = event.className?.toString() ?: ""
             
+            // Get the current active keyboard package
+            val defaultIme = android.provider.Settings.Secure.getString(
+                contentResolver,
+                android.provider.Settings.Secure.DEFAULT_INPUT_METHOD
+            )
+            val imePackage = defaultIme?.substringBefore("/") ?: ""
+            
             // Log.d(TAG, "Window State Changed. Package: $packageName, Class: $className")
             
-            // If the system transitions to ANY window that is not our app
+            // If the system transitions to ANY window that is not our app OR the soft keyboard
             // (e.g. Launcher, Recents, Notification shade, another app), instantly close the panel.
             // This achieves 0-latency auto-close for all system gestures.
-            if (packageName != "com.originpanel.sidepanel") {
+            if (packageName != "com.originpanel.sidepanel" && packageName != imePackage) {
                 val closeIntent = Intent(this, FloatingPanelService::class.java).apply {
                     action = FloatingPanelService.ACTION_CLOSE_PANEL
                 }

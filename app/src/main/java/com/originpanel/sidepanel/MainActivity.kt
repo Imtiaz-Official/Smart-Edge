@@ -12,7 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import com.originpanel.sidepanel.databinding.ActivityMainBinding
+import android.widget.Toast
+import com.originpanel.sidepanel.databinding.ActivityMainM3Binding
 
 /**
  * Entry-point activity.
@@ -25,7 +26,7 @@ import com.originpanel.sidepanel.databinding.ActivityMainBinding
  */
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainM3Binding
     private var isPanelRunning = false
 
     // Launcher for overlay permission settings screen
@@ -38,7 +39,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityMainM3Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
         // Hide default action bar — our layout provides the header
@@ -49,7 +50,14 @@ class MainActivity : AppCompatActivity() {
         binding.btnStartStop.setOnClickListener { togglePanel() }
         binding.btnTogglePanel.setOnClickListener { triggerPanelToggle() }
         binding.btnManageApps.setOnClickListener {
-            startActivity(Intent(this, AppPickerActivity::class.java))
+            if (hasOverlayPermission()) {
+                sendBroadcast(Intent("com.originpanel.sidepanel.ACTION_OPEN_PICKER"))
+                Toast.makeText(this, "Opening panel editor...", Toast.LENGTH_SHORT).show()
+                // Close MainActivity so user sees the panel picker immediately
+                finish()
+            } else {
+                Toast.makeText(this, "Please grant 'Display over other apps' permission first", Toast.LENGTH_SHORT).show()
+            }
         }
         binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))

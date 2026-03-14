@@ -9,7 +9,7 @@ import android.widget.FrameLayout
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.originpanel.sidepanel.databinding.ActivitySettingsBinding
+import com.originpanel.sidepanel.databinding.ActivitySettingsM3Binding
 import yuku.ambilwarna.AmbilWarnaDialog
 
 /**
@@ -18,12 +18,12 @@ import yuku.ambilwarna.AmbilWarnaDialog
  */
 class SettingsActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivitySettingsBinding
+    private lateinit var binding: ActivitySettingsM3Binding
     private lateinit var panelPrefs: PanelPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivitySettingsBinding.inflate(layoutInflater)
+        binding = ActivitySettingsM3Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
         supportActionBar?.apply {
@@ -55,19 +55,19 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchShowPill.isChecked = panelPrefs.showPill
         binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
         binding.switchBlur.isChecked = panelPrefs.blurEnabled
-        binding.sbOpacity.progress = panelPrefs.panelOpacity
+        binding.sbOpacity.value = panelPrefs.panelOpacity.toFloat()
         binding.tvOpacityValue.text = "${panelPrefs.panelOpacity}%"
         
-        binding.sbPanelRadius.progress = panelPrefs.panelCornerRadius
+        binding.sbPanelRadius.value = panelPrefs.panelCornerRadius.toFloat()
         binding.tvRadiusValue.text = "${panelPrefs.panelCornerRadius}dp"
         
-        binding.sbHandleHeight.progress = panelPrefs.handleHeight 
+        binding.sbHandleHeight.value = panelPrefs.handleHeight.toFloat()
         binding.tvHeightValue.text = "${panelPrefs.handleHeight}dp"
         
-        binding.sbHandleWidth.progress = panelPrefs.handleWidth 
+        binding.sbHandleWidth.value = panelPrefs.handleWidth.toFloat()
         binding.tvWidthValue.text = "${panelPrefs.handleWidth}dp"
         
-        binding.sbHandleOffset.progress = panelPrefs.handleVerticalOffset + 100
+        binding.sbHandleOffset.value = (panelPrefs.handleVerticalOffset + 100).toFloat()
         binding.tvOffsetValue.text = "${panelPrefs.handleVerticalOffset}dp"
 
         when (panelPrefs.uiTheme) {
@@ -124,14 +124,46 @@ class SettingsActivity : AppCompatActivity() {
         binding.btnPickBg.isEnabled = isPremium
         binding.btnSelectIconPack.isEnabled = isPremium
 
+        // Resolve theme colors for Material 3 styling
+        val typedValue = android.util.TypedValue()
+        
         if (isPremium) {
             binding.tvPremiumStatus.text = "Premium Active"
             binding.btnGoPremium.visibility = View.GONE
-            binding.cardPremium.setCardBackgroundColor(Color.parseColor("#1A00C853"))
+            
+            theme.resolveAttribute(com.google.android.material.R.attr.colorSurfaceContainerHigh, typedValue, true)
+            binding.cardPremium.setCardBackgroundColor(typedValue.data)
+            binding.cardPremium.strokeWidth = 2
+            
+            theme.resolveAttribute(com.google.android.material.R.attr.colorPrimary, typedValue, true)
+            binding.cardPremium.strokeColor = typedValue.data
+            
+            theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
+            val onSurface = typedValue.data
+            
+            binding.tvPremiumStatus.setTextColor(onSurface)
+            binding.switchUseCustomAccent.setTextColor(onSurface)
+            binding.switchTools.setTextColor(onSurface)
+            binding.switchHideBg.setTextColor(onSurface)
+            binding.tvAccentColor.setTextColor(onSurface)
+            binding.tvPanelBgColor.setTextColor(onSurface)
         } else {
             binding.tvPremiumStatus.text = "Unlock Full Customization"
             binding.btnGoPremium.visibility = View.VISIBLE
-            binding.cardPremium.setCardBackgroundColor(Color.parseColor("#1A4A9EFF"))
+            
+            theme.resolveAttribute(com.google.android.material.R.attr.colorSurfaceContainer, typedValue, true)
+            binding.cardPremium.setCardBackgroundColor(typedValue.data)
+            binding.cardPremium.strokeWidth = 0
+            
+            theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
+            val onSurfaceVariant = typedValue.data
+            
+            binding.tvPremiumStatus.setTextColor(onSurfaceVariant)
+            binding.switchUseCustomAccent.setTextColor(onSurfaceVariant)
+            binding.switchTools.setTextColor(onSurfaceVariant)
+            binding.switchHideBg.setTextColor(onSurfaceVariant)
+            binding.tvAccentColor.setTextColor(onSurfaceVariant)
+            binding.tvPanelBgColor.setTextColor(onSurfaceVariant)
         }
     }
 
@@ -180,41 +212,32 @@ class SettingsActivity : AppCompatActivity() {
             applyAndShow()
         }
 
-        binding.sbOpacity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    panelPrefs.panelOpacity = progress
-                    binding.tvOpacityValue.text = "$progress%"
-                    applyAndShow()
-                }
+        binding.sbOpacity.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                val progress = value.toInt()
+                panelPrefs.panelOpacity = progress
+                binding.tvOpacityValue.text = "$progress%"
+                applyAndShow()
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
-        })
+        }
 
-        binding.sbHandleHeight.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    panelPrefs.handleHeight = progress
-                    binding.tvHeightValue.text = "${progress}dp"
-                    applyAndShow()
-                }
+        binding.sbHandleHeight.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                val progress = value.toInt()
+                panelPrefs.handleHeight = progress
+                binding.tvHeightValue.text = "${progress}dp"
+                applyAndShow()
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
-        })
+        }
 
-        binding.sbHandleWidth.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    panelPrefs.handleWidth = progress
-                    binding.tvWidthValue.text = "${progress}dp"
-                    applyAndShow()
-                }
+        binding.sbHandleWidth.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                val progress = value.toInt()
+                panelPrefs.handleWidth = progress
+                binding.tvWidthValue.text = "${progress}dp"
+                applyAndShow()
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
-        })
+        }
 
         binding.btnGoPremium.setOnClickListener {
             panelPrefs.isPremium = true
@@ -222,30 +245,24 @@ class SettingsActivity : AppCompatActivity() {
             Toast.makeText(this, "Welcome to Premium!", Toast.LENGTH_SHORT).show()
         }
 
-        binding.sbHandleOffset.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    val offset = progress - 100
-                    panelPrefs.handleVerticalOffset = offset
-                    binding.tvOffsetValue.text = "${offset}dp"
-                    applyAndShow()
-                }
+        binding.sbHandleOffset.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                val progress = value.toInt()
+                val offset = progress - 100
+                panelPrefs.handleVerticalOffset = offset
+                binding.tvOffsetValue.text = "${offset}dp"
+                applyAndShow()
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
-        })
+        }
 
-        binding.sbPanelRadius.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    panelPrefs.panelCornerRadius = progress
-                    binding.tvRadiusValue.text = "${progress}dp"
-                    applyAndShow()
-                }
+        binding.sbPanelRadius.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                val progress = value.toInt()
+                panelPrefs.panelCornerRadius = progress
+                binding.tvRadiusValue.text = "${progress}dp"
+                applyAndShow()
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) { }
-        })
+        }
 
         binding.rgThemes.setOnCheckedChangeListener { _, checkedId ->
             panelPrefs.uiTheme = when (checkedId) {

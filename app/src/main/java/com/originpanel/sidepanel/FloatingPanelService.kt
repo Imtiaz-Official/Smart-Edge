@@ -96,8 +96,10 @@ class FloatingPanelService : Service() {
         initPickerPanel()
         addEdgeHandle()
 
-        // Register receiver for Home / Recent Apps presses
-        val filter = android.content.IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
+        // Register receiver for Home / Recent Apps presses and Open Picker requests
+        val filter = android.content.IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS).apply {
+            addAction("com.originpanel.sidepanel.ACTION_OPEN_PICKER")
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(systemDialogsReceiver, filter, Context.RECEIVER_EXPORTED)
         } else {

@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.originpanel.sidepanel.databinding.ActivityAppPickerBinding
+import com.originpanel.sidepanel.databinding.ActivityAppPickerM3Binding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -27,14 +27,14 @@ import kotlinx.coroutines.withContext
  */
 class AppPickerActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityAppPickerBinding
+    private lateinit var binding: ActivityAppPickerM3Binding
     private lateinit var panelPrefs: PanelPreferences
     private lateinit var pickerAdapter: AppPickerAdapter
     private var allApps: List<AppInfo> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAppPickerBinding.inflate(layoutInflater)
+        binding = ActivityAppPickerM3Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
         panelPrefs = PanelPreferences(this)
@@ -105,7 +105,7 @@ class AppPickerActivity : AppCompatActivity() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             PickerViewHolder(
                 LayoutInflater.from(parent.context)
-                    .inflate(R.layout.item_app_picker, parent, false)
+                    .inflate(R.layout.item_app_picker_m3, parent, false)
             )
 
         override fun onBindViewHolder(holder: PickerViewHolder, position: Int) {
