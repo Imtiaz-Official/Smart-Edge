@@ -277,9 +277,11 @@ class FloatingPanelService : Service() {
             onAddClick = { isEdit -> togglePicker(isEdit) }
             visibility = View.GONE 
             
-            // Handle touches outside the window bounds
+            // Handle touches outside the window bounds.
+            // Guard: do NOT close if the picker is open — touches on the picker window
+            // fire ACTION_OUTSIDE here too, which would incorrectly close the side panel.
             setOnTouchListener { _, event ->
-                if (event.action == android.view.MotionEvent.ACTION_OUTSIDE) {
+                if (event.action == android.view.MotionEvent.ACTION_OUTSIDE && !isPickerOpen) {
                     closePanel()
                     return@setOnTouchListener true
                 }
