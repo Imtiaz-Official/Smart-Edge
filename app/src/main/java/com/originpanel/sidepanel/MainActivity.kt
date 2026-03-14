@@ -45,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         binding.btnGrantPermission.setOnClickListener { requestOverlayPermission() }
+        binding.btnIgnoreBattery.setOnClickListener { requestIgnoreBatteryOptimization() }
         binding.btnStartStop.setOnClickListener { togglePanel() }
         binding.btnTogglePanel.setOnClickListener { triggerPanelToggle() }
         binding.btnManageApps.setOnClickListener {
@@ -80,10 +81,68 @@ class MainActivity : AppCompatActivity() {
         overlayPermissionLauncher.launch(intent)
     }
 
+    private fun isIgnoringBatteryOptimizations(): Boolean {
+        val powerManager = getSystemService(POWER_SERVICE) as android.os.PowerManager
+        return powerManager.isIgnoringBatteryOptimizations(packageName)
+    }
+
+    private fun requestIgnoreBatteryOptimization() {
+        // First, attempt the standard Android way
+        try {
+            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                data = Uri.parse("package:$packageName")
+            }
+            startActivity(intent)
+        } catch (e: Exception) {
+            // Fallback to general settings
+            try {
+                startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+            } catch (e2: Exception) {}
+        }
+
+        // For OriginOS / Vivo / iQOO devices, the standard way often isn't enough.
+        // We provide a small delay and then attempt to open their specific "High Power Consumption" or "BgStartUp" manager.
+        val manufacturer = Build.MANUFACTURER.lowercase()
+        if (manufacturer.contains("vivo") || manufacturer.contains("iqoo")) {
+            binding.root.postDelayed({
+                openVivoSpecificSettings()
+            }, 1000)
+        }
+    }
+
+    private fun openVivoSpecificSettings() {
+        val intents = arrayOf(
+            Intent().apply { setClassName("com.vivo.abe", "com.vivo.abe.unifiedpower.HighPowerConsumptionActivity") },
+            Intent().apply { setClassName("com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.BgStartUpManagerActivity") },
+            Intent().apply { setClassName("com.iqoo.secure", "com.iqoo.secure.ui.phoneoptimize.BgStartUpManager") },
+            Intent().apply { setClassName("com.vivo.abe", "com.vivo.abe.unifiedpower.UnifiedPowerActivity") }
+        )
+
+        for (intent in intents) {
+            try {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+                return // Success
+            } catch (e: Exception) {
+                // Try next one
+            }
+        }
+    }
+
     private fun updatePermissionUI() {
         val granted = hasOverlayPermission()
+        val standardBatteryIgnored = isIgnoringBatteryOptimizations()
+        
+        // On Vivo/iQOO, the standard check isn't enough to guarantee stability.
+        // We keep the card visible on these devices even if standard optimization is "ignored"
+        // so they can access the deep-link to "High Background Power Consumption".
+        val manufacturer = Build.MANUFACTURER.lowercase()
+        val isVivo = manufacturer.contains("vivo") || manufacturer.contains("iqoo")
+        val batteryCardVisible = !standardBatteryIgnored || isVivo
 
         binding.cardPermission.visibility = if (granted) View.GONE else View.VISIBLE
+        binding.cardBatteryOptimization.visibility = if (batteryCardVisible) View.VISIBLE else View.GONE
+        
         binding.btnStartStop.isEnabled = granted
 
         // Show Android 13 sideload note for users who can't find the permission toggle

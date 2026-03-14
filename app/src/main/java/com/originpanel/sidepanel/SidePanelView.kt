@@ -50,11 +50,14 @@ class SidePanelView @JvmOverloads constructor(
         override fun onFling(e1: android.view.MotionEvent?, e2: android.view.MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
             
-            // Fling outward to close
-            if (isRight && velocityX > 800f) {
+            // Ensure it's primarily a horizontal swipe (ignore vertical scrolls)
+            if (Math.abs(velocityY) > Math.abs(velocityX)) return false
+
+            // Fling outward to close - increased threshold to 1200f for "freedom"
+            if (isRight && velocityX > 1200f) {
                 onClose?.invoke()
                 return true
-            } else if (!isRight && velocityX < -800f) {
+            } else if (!isRight && velocityX < -1200f) {
                 onClose?.invoke()
                 return true
             }
@@ -287,6 +290,10 @@ class SidePanelView @JvmOverloads constructor(
 
         springRotation.cancel()
         springRotation.animateToFinalPosition(targetRotation)
+    }
+
+    fun getPanelCardRect(outRect: android.graphics.Rect) {
+        binding.panelCard.getGlobalVisibleRect(outRect)
     }
 
     private fun dpToPx(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()

@@ -241,6 +241,10 @@ class AppPickerPanelView @JvmOverloads constructor(
         adapter.submitList(filtered)
     }
 
+    fun getPickerCardRect(outRect: android.graphics.Rect) {
+        pickerPanelCard.getGlobalVisibleRect(outRect)
+    }
+
     inner class PickerAdapter : androidx.recyclerview.widget.ListAdapter<AppInfo, PickerViewHolder>(AppDiffCallback()) {
 
         private var accentColor: Int = Color.parseColor("#4DFFFFFF")

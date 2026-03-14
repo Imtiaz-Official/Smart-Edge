@@ -57,6 +57,19 @@ class FloatingPanelService : Service() {
     
     private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
 
+    // Standard Android system broadcast to detect Home / Recent Apps presses
+    // This works WITHOUT accessibility permission.
+    private val systemDialogsReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == Intent.ACTION_CLOSE_SYSTEM_DIALOGS) {
+                val reason = intent.getStringExtra("reason")
+                if (reason == "homekey" || reason == "recentapps") {
+                    closePanel()
+                }
+            }
+        }
+    }
+
     companion object {
         const val TAG = "FloatingPanelService"
         const val CHANNEL_ID = "side_panel_channel"
@@ -82,6 +95,15 @@ class FloatingPanelService : Service() {
         initSidePanel()
         initPickerPanel()
         addEdgeHandle()
+
+        // Register receiver for Home / Recent Apps presses
+        val filter = android.content.IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(systemDialogsReceiver, filter, Context.RECEIVER_EXPORTED)
+        } else {
+            @Suppress("UnspecifiedRegisterReceiverFlag")
+            registerReceiver(systemDialogsReceiver, filter)
+        }
 
 
 
@@ -274,6 +296,11 @@ class FloatingPanelService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         serviceScope.cancel()
+        
+        try {
+            unregisterReceiver(systemDialogsReceiver)
+        } catch (e: Exception) {}
+
         removeView(edgeHandleView)
         removeView(sidePanelView)
         removeView(pickerPanelView)
@@ -363,16 +390,45 @@ class FloatingPanelService : Service() {
     private fun initRootLayout() {
         if (rootLayout != null) return
         
-        rootLayout = android.widget.FrameLayout(this)
-        // No click listener here — touching dead space should NOT close the panel.
-        // Dismissal is handled explicitly via the close button / back-arrow in SidePanelView.
+        rootLayout = android.widget.FrameLayout(this).apply {
+            // Invisible but intercepts touches
+            setBackgroundColor(android.graphics.Color.parseColor("#01000000")) 
+            setOnTouchListener { _, event ->
+                val x = event.rawX.toInt()
+                val y = event.rawY.toInt()
+
+                // 1. Check if the touch is inside the Side Panel
+                val sideRect = android.graphics.Rect()
+                sidePanelView?.getPanelCardRect(sideRect)
+                
+                // 2. Check if the touch is inside the App Picker
+                val pickerRect = android.graphics.Rect()
+                if (isPickerOpen) {
+                    pickerPanelView?.getPickerCardRect(pickerRect)
+                }
+
+                val insideSide = sideRect.contains(x, y)
+                val insidePicker = isPickerOpen && pickerRect.contains(x, y)
+
+                if (insideSide || insidePicker) {
+                    // Let the touch pass through to the panel (for scrolling/clicking)
+                    return@setOnTouchListener false
+                }
+
+                // 3. Touch is in the "Void" (empty space)
+                // Close immediately on touch start for maximum responsiveness
+                if (event.action == android.view.MotionEvent.ACTION_DOWN) {
+                    closePanel()
+                }
+                true // Consume the touch sequence in the void
+            }
+        }
 
         rootParams = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or   // pass-through touches outside children
+            WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             PixelFormat.TRANSLUCENT
