@@ -60,15 +60,15 @@
 
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchGestures" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Edge Swipe Gestures" android:textColor="?attr/colorOnSurface" />
                     
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnAccessibility"
                         style="@style/Widget.Material3.Button.TonalButton"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="56dp"
                         android:layout_marginTop="12dp"
                         android:text="Enable Gesture Auto-Close (Accessibility)"
-                        android:textAllCaps="false"
-                        app:cornerRadius="12dp" />
+                        android:textSize="15sp"
+                        android:textAllCaps="false" />
 
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchTapOpen" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Tap Pill to Open" android:textColor="?attr/colorOnSurface" />
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchAutoStart" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Auto-start on Boot" android:textColor="?attr/colorOnSurface" />
@@ -262,27 +262,37 @@
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchHideBg" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Invisible Background" android:textColor="?attr/colorOnSurfaceVariant" />
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchColumns" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Double-Column Layout" android:textColor="?attr/colorOnSurfaceVariant" />
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnResetUIColors"
-                        style="@style/Widget.Material3.Button.TonalButton"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="56dp"
                         android:layout_marginTop="16dp"
                         android:text="Reset UI Colors"
+                        android:textSize="15sp"
                         android:textAllCaps="false" />
 
-                    <Button android:id="@+id/btnGoPremium" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Unlock Full Version" android:textAllCaps="false" style="@style/Widget.Material3.Button" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnGoPremium"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="16dp"
+                        android:text="Unlock Full Version"
+                        android:textSize="15sp"
+                        android:textAllCaps="false" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Reset Button -->
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnResetDefaults"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:text="Reset all to Defaults"
+                android:textSize="15sp"
                 android:textColor="?attr/colorError"
                 android:textAllCaps="false"
                 android:layout_marginBottom="40dp" />

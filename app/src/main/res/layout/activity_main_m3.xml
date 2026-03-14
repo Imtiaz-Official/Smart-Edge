@@ -96,13 +96,13 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnStartStop"
+                            style="@style/Widget.Material3.Button.TonalButton"
                             android:layout_width="wrap_content"
                             android:layout_height="54dp"
                             android:text="Start"
                             android:textAllCaps="false"
                             app:backgroundTint="?attr/colorPrimary"
-                            android:textColor="?attr/colorOnPrimary"
-                            app:cornerRadius="16dp" />
+                            android:textColor="?attr/colorOnPrimary" />
                     </LinearLayout>
 
                     <View
@@ -115,11 +115,11 @@
                         android:id="@+id/btnTogglePanel"
                         style="@style/Widget.Material3.Button.TonalButton"
                         android:layout_width="match_parent"
-                        android:layout_height="54dp"
+                        android:layout_height="64dp"
                         android:text="Test Sidebar Manually"
+                        android:textSize="16sp"
                         android:textAllCaps="false"
-                        app:cornerRadius="16dp"
-                        app:icon="@android:drawable/ic_menu_view"
+                        app:icon="@android:drawable/ic_input_add"
                         app:iconGravity="textStart" />
 
                 </LinearLayout>
