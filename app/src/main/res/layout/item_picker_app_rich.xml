@@ -63,14 +63,12 @@
                 android:ellipsize="end" />
         </LinearLayout>
 
-        <!-- Selection Plus Icon (IOS Style) -->
+        <!-- Selection Plus Icon - plain, no background/shadow -->
         <ImageView
             android:id="@+id/ivPickerCheck"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="@drawable/bg_close_btn"
-            android:backgroundTint="#4A9EFF"
-            android:padding="8dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:padding="4dp"
             android:src="@drawable/ic_plus_custom"
             android:tint="#FFFFFF"
             android:visibility="gone"
@@ -78,13 +76,11 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <!-- Background highlight for selected state -->
+        <!-- Highlight placeholder - kept so ViewHolder ref stays valid -->
         <View
             android:id="@+id/vPickerBgHighlight"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_close_btn"
-            android:backgroundTint="#1A4A9EFF"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:visibility="gone" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

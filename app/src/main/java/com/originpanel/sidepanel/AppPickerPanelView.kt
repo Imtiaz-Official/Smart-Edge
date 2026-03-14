@@ -277,14 +277,11 @@ class AppPickerPanelView @JvmOverloads constructor(
                 holder.ivCheck.visibility = View.VISIBLE
                 val isSelected = app.isInPanel
                 
-                // For PNG icon, use imageTintList to color the icon itself
+                // Color the plus icon itself
                 val iconTint = if (isSelected) accentColorStateList else android.content.res.ColorStateList.valueOf(Color.parseColor("#B3FFFFFF"))
                 if (holder.ivCheck is ImageView) {
                     holder.ivCheck.imageTintList = iconTint
                 }
-                
-                // Optional: keep the blue circle background only when selected
-                holder.ivCheck.backgroundTintList = if (isSelected) accentColorStateList else android.content.res.ColorStateList.valueOf(Color.parseColor("#33FFFFFF"))
                 
                 // Rotate to 'x' if selected, 'plus' if not
                 holder.ivCheck.rotation = if (isSelected) 45f else 0f
@@ -292,22 +289,21 @@ class AppPickerPanelView @JvmOverloads constructor(
                 holder.ivCheck.visibility = View.GONE
             }
 
-            holder.vHighlight.visibility = if (app.isInPanel && isEditMode) View.VISIBLE else View.GONE
-            holder.vHighlight.backgroundTintList = accentColorStateList
+            // vHighlight overlay removed — no shader/dim on icons
+            holder.vHighlight.visibility = View.GONE
 
+            // In normal mode: clicking the item launches the app.
+            // In edit mode: clicking the item does nothing — only the plus icon works.
             holder.itemView.setOnClickListener {
-                if (panelPrefs.hapticEnabled) {
-                    holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
-                }
-                
-                if (isEditMode) {
-                    toggleAppSelection(app, position, holder.ivCheck)
-                } else {
+                if (!isEditMode) {
+                    if (panelPrefs.hapticEnabled) {
+                        holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
+                    }
                     launchApp(app)
                 }
             }
 
-            // Also allow clicking the plus icon directly
+            // Only the plus icon triggers add/remove in edit mode
             holder.ivCheck.setOnClickListener {
                 if (isEditMode) {
                     if (panelPrefs.hapticEnabled) {
@@ -330,14 +326,18 @@ class AppPickerPanelView @JvmOverloads constructor(
             app.isInPanel = newState
             onToggleApp?.invoke(app, newState)
 
-            // Animation for the plus icon
+            // Animate plus icon: rotate to 'x' when selected, back to '+' when not
             plusView.animate()
                 .rotation(if (newState) 45f else 0f)
                 .setDuration(200)
                 .start()
-            
-            val tint = if (newState) accentColorStateList else android.content.res.ColorStateList.valueOf(Color.parseColor("#4DFFFFFF"))
-            plusView.backgroundTintList = tint
+
+            // Change icon tint only (no background — the icon has no circular shadow)
+            if (plusView is ImageView) {
+                val tint = if (newState) accentColorStateList
+                           else android.content.res.ColorStateList.valueOf(Color.parseColor("#B3FFFFFF"))
+                plusView.imageTintList = tint
+            }
 
             notifyItemChanged(position, "TOGGLE_STATE")
         }
@@ -367,12 +367,11 @@ class AppPickerPanelView @JvmOverloads constructor(
                     if (holder.ivCheck is ImageView) {
                         holder.ivCheck.imageTintList = iconTint
                     }
-                    holder.ivCheck.backgroundTintList = if (isSelected) accentColorStateList else android.content.res.ColorStateList.valueOf(Color.parseColor("#33FFFFFF"))
                     holder.ivCheck.rotation = if (isSelected) 45f else 0f
                 } else {
                     holder.ivCheck.visibility = View.GONE
                 }
-                holder.vHighlight.visibility = if (app.isInPanel && isEditMode) View.VISIBLE else View.GONE
+                holder.vHighlight.visibility = View.GONE
             }
         }
     }

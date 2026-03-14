@@ -4,15 +4,11 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp">
 
-    <!-- Background highlight for selected state -->
+    <!-- Highlight view kept as invisible placeholder so ViewHolder reference stays valid -->
     <View
         android:id="@+id/vPickerBgHighlight"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_gravity="center_horizontal|top"
-        android:layout_marginTop="2dp"
-        android:background="@drawable/bg_close_btn"
-        android:backgroundTint="#26FFFFFF"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:visibility="gone" />
 
     <LinearLayout
@@ -43,17 +39,15 @@
 
     </LinearLayout>
 
-    <!-- Selection Blue Plus Icon (IOS Style) -->
+    <!-- Plus icon - plain, no background/shadow -->
     <ImageView
         android:id="@+id/ivPickerCheck"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
         android:layout_gravity="top|end"
-        android:layout_marginTop="-2dp"
-        android:layout_marginEnd="2dp"
-        android:background="@drawable/bg_close_btn"
-        android:backgroundTint="#4A9EFF"
-        android:padding="7dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="4dp"
+        android:padding="4dp"
         android:src="@drawable/ic_plus_custom"
         android:tint="#FFFFFF"
         android:visibility="gone" />
