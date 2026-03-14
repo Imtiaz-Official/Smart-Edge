@@ -29,27 +29,27 @@ object SpringAnimator {
         return 400f
     }
 
-    fun animateOpen(view: View, panelWidth: Float, isPicker: Boolean = false, onEnd: (() -> Unit)? = null) {
+    fun animateOpen(view: View, panelWidth: Float, stiffness: Float = 400f, isPicker: Boolean = false, onEnd: (() -> Unit)? = null) {
         cancelExisting(view)
         
-        // Deterministic start position: if on right, start at +width, if on left, start at -width
-        // For picker, we use the sign of panelWidth passed from service
         val startX = if (panelWidth == 0f) (if (isPicker) -500f else 500f) else panelWidth
         
         view.translationX = startX
         view.alpha = 0f
         view.setLayerType(View.LAYER_TYPE_HARDWARE, null)
 
-        // Use post to ensure the initial state is captured by the renderer before starting animation
+        // Scale alpha duration inversely with stiffness (Balanced at 400f -> 200ms)
+        val alphaDuration = (200 * (400f / stiffness)).toLong().coerceIn(50, 600)
+
         view.post {
             view.animate()
                 .alpha(1f)
-                .setDuration(200) // Balanced fade
+                .setDuration(alphaDuration)
                 .setInterpolator(fadeInterpolator)
                 .start()
 
             val spring = SpringAnimation(view, DynamicAnimation.TRANSLATION_X, 0f).apply {
-                spring.stiffness = adaptiveStiffness()
+                spring.stiffness = stiffness
                 spring.dampingRatio = SPRING_DAMPING
                 addEndListener { _, _, _, _ ->
                     activeSprings.remove(view)
@@ -62,13 +62,16 @@ object SpringAnimator {
         }
     }
 
-    fun animateClose(view: View, panelWidth: Float, isPicker: Boolean = false, onEnd: (() -> Unit)? = null) {
+    fun animateClose(view: View, panelWidth: Float, stiffness: Float = 350f, isPicker: Boolean = false, onEnd: (() -> Unit)? = null) {
         cancelExisting(view)
         view.setLayerType(View.LAYER_TYPE_HARDWARE, null)
 
+        // Scale alpha duration inversely with stiffness
+        val alphaDuration = (170 * (350f / stiffness)).toLong().coerceIn(50, 500)
+
         view.animate()
             .alpha(0f)
-            .setDuration(170) // Balanced fade
+            .setDuration(alphaDuration)
             .setInterpolator(fadeInterpolator)
             .start()
 
@@ -77,7 +80,7 @@ object SpringAnimator {
         else (if (panelWidth > 0) panelWidth else 500f)
 
         val spring = SpringAnimation(view, DynamicAnimation.TRANSLATION_X, targetX).apply {
-            spring.stiffness = 350f // Slightly lower for closing
+            spring.stiffness = stiffness
             spring.dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
             addEndListener { _, _, _, _ ->
                 activeSprings.remove(view)

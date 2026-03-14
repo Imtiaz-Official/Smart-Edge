@@ -44,6 +44,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_BLUR_ENABLED = "blur_enabled"
         private const val KEY_BLUR_AMOUNT = "blur_amount"
         private const val KEY_SHOW_LOGS = "show_logs"
+        private const val KEY_ANIM_SPEED = "animation_speed"
         
         private const val DELIMITER = ","
 
@@ -86,6 +87,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_ICON_PACK = "none"
         const val DEFAULT_SHOW_LOGS = false
         const val DEFAULT_BLUR_AMOUNT = 15
+        const val DEFAULT_ANIM_SPEED = 400
     }
 
     /** Resets only UI colors (Accent and Background). */
@@ -124,6 +126,7 @@ class PanelPreferences(context: Context) {
             putString(KEY_ICON_PACK, DEFAULT_ICON_PACK)
             putInt(KEY_BLUR_AMOUNT, DEFAULT_BLUR_AMOUNT)
             putBoolean(KEY_BLUR_ENABLED, false)
+            putInt(KEY_ANIM_SPEED, DEFAULT_ANIM_SPEED)
             putString(KEY_PANEL_APPS, "")
         }
     }
@@ -223,6 +226,10 @@ class PanelPreferences(context: Context) {
     var isPremium: Boolean
         get() = prefs.getBoolean(KEY_IS_PREMIUM, false)
         set(value) = prefs.edit { putBoolean(KEY_IS_PREMIUM, value) }
+
+    var animSpeed: Int
+        get() = prefs.getInt(KEY_ANIM_SPEED, DEFAULT_ANIM_SPEED)
+        set(value) = prefs.edit { putInt(KEY_ANIM_SPEED, value) }
 
     fun getPanelApps(): List<String> {
         val raw = prefs.getString(KEY_PANEL_APPS, "") ?: ""

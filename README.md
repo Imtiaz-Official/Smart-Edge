@@ -1,65 +1,76 @@
-# SidePanel - Industry-Level Overlay Experience
+# SidePanel ✨
 
-SidePanel is a high-performance, aesthetically polished Android overlay application inspired by premium Android skins like OriginOS, HyperOS, and Realme UI. It provides users with a seamless side-access app launcher featuring physics-based animations, frosted glass aesthetics, and deep customization.
+<p align="center">
+  <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher_web.png" width="128" height="128" alt="SidePanel Logo">
+</p>
 
-## 🌟 Key Features
+<p align="center">
+  <b>A highly customizable Android side panel inspired by OriginOS.</b><br>
+  Access your favorite apps, tools, and shortcuts with a single swipe.
+</p>
 
-### 🎨 Premium UI Themes
-Experience multiple industry-standard design languages with a single tap:
-*   **OriginOS (Default):** The classic, smooth frosted pill aesthetic.
-*   **HyperOS:** Modern semi-transparent "Square Glass" look with sharp, refined corners.
-*   **Realme UI:** Minimalist dark theme with subtle accent borders.
-*   **Rich UI (Premium):** Advanced layout featuring a premium outer glow, vertical grab handles, and high-density information displays.
-
-### ⚙️ Deep Customization
-*   **Live Preview:** Real-time visual feedback in the settings menu as you tweak your configuration.
-*   **Dynamic Sizing:** Adjust edge handle height and width to fit your ergonomic needs.
-*   **Opacity Control:** Full 0-100% transparency control for the panel and triggers.
-*   **Vertical Positioning (Premium):** Slide the trigger handle to any vertical position on the screen edge.
-*   **Multi-Column Layout (Premium):** Toggle between sleek single-column and high-density double-column app grids.
-
-### 🚀 Performance & UX
-*   **Zero-Latency Loading:** Optimized asynchronous app indexing using Kotlin Coroutines to ensure the panel opens instantly without frame drops.
-*   **Physics-Based Animations:** Smooth, interruptible spring animations aligned with the device VSYNC.
-*   **Haptic Feedback:** Professional-grade tactile response across all interactions (launches, removals, and toggles).
-*   **Robust Persistence:** Smart caching of pinned apps ensures your setup is never lost, even after service restarts.
-
-## 🛠 Technical Stack
-
-*   **Language:** 100% Kotlin
-*   **Asynchrony:** Kotlin Coroutines & Flow
-*   **Animations:** Physics-based Spring Animations (`DynamicAnimation`)
-*   **UI Engine:** Custom `WindowManager` overlay service with hardware-accelerated rendering
-*   **Architecture:** Repository pattern for reliable `PackageManager` interaction
-*   **View System:** ViewBinding for type-safe layout management
-
-## 📸 Screenshots
-
-| OriginOS Style | HyperOS Style | Rich UI Theme |
-| :---: | :---: | :---: |
-| ![Origin](screen.png) | *(Coming Soon)* | *(Coming Soon)* |
-
-## 🚀 Getting Started
-
-### Prerequisites
-*   Android 8.0 (API 26) or higher.
-*   `SYSTEM_ALERT_WINDOW` permission (Display over other apps).
-
-### Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Imtiaz-Official/SidePanel.git
-   ```
-2. Open in Android Studio.
-3. Build and run on your device.
-4. Grant the "Display over other apps" permission when prompted.
-
-## 💎 Premium Features
-The project includes a simulated Premium system that unlocks:
-*   Vertical handle offset positioning.
-*   High-density 2-column mode.
-*   Advanced themes (HyperOS, Realme, Rich UI).
-*   Custom UI accent colors.
+<p align="center">
+  <img src="https://img.shields.io/badge/Platform-Android%2012%2B-brightgreen.svg" alt="Android 12+">
+  <img src="https://img.shields.io/badge/Language-Kotlin-blue.svg" alt="Kotlin">
+  <img src="https://img.shields.io/badge/License-MIT-orange.svg" alt="License MIT">
+  <img src="https://img.shields.io/badge/Design-Material%203-7b1fa2.svg" alt="Material 3">
+</p>
 
 ---
-Developed with ❤️ by [Imtiaz-Official](https://github.com/Imtiaz-Official)
+
+## 📸 Preview
+
+<p align="center">
+  <img src="home_screen.png" width="300" alt="SidePanel Home Screen">
+</p>
+
+## ✨ Features
+
+*   **🎨 Custom UI Themes:** Choose from **OriginOS**, **HyperOS (Glass)**, **Realme UI**, and **Rich UI** styles.
+*   **🫧 Glassmorphic Blur:** High-quality real-time background blur with **adjustable intensity** (Optimized for performance).
+*   **🌈 Material You:** Full support for dynamic accent colors that match your wallpaper and Material 3 components.
+*   **🚀 Smart App Picker:** Integrated search and management system to pin your most-used apps.
+*   **🛠️ Utility Tools:** Built-in tools like **Screenshot** (one-tap), **Home**, and **Recent Apps** shortcuts.
+*   **🍃 Premium Motion:** Physics-based spring animations with customizable feel (Calm to Instant).
+*   **📱 Edge Gestures:** Responsive edge-swipe triggers with adjustable height, width, and position.
+*   **🎭 Icon Customization:** Full support for **Icon Packs** and custom icon shapes (Circle, Squircle, Square).
+
+## 🚀 How to Use
+
+1.  **Install:** Download and install the latest APK.
+2.  **Permissions:** 
+    *   Grant **"Display over other apps"** to allow the panel to float.
+    *   Enable **"Side Panel"** in Accessibility Settings for gesture auto-close and system shortcuts.
+3.  **Setup:** Open the app and click **"Start"** to activate the service.
+4.  **Gesture:** Swipe from the edge of your screen (where the pill is) to open your new panel!
+
+## ⚙️ Customization
+
+SidePanel is built to be yours. In the settings, you can adjust:
+*   **Interaction:** Gesture sensitivity, haptic feedback, and tap-to-open behavior.
+*   **Animation:** Choose your preferred animation speed (Calm, Balanced, or Snappy).
+*   **Appearance:** Background opacity, corner radius, blur intensity, and grid columns.
+*   **Position:** Move the trigger handle to either the left or right side and adjust its vertical offset.
+
+## 🔧 Requirements
+
+*   **Android 12 (API 31) or higher:** Required for real-time background blur and Material You dynamic colors.
+*   **Accessibility Service:** Required for the "Gesture Auto-Close" feature and system navigation shortcuts.
+
+## 🛠️ Technical Details
+
+*   **Kotlin:** Written entirely in Kotlin for safety and performance.
+*   **Spring Physics:** Powered by `androidx.dynamicanimation` for natural, fluid motion.
+*   **Material 3:** Implements the latest Material Design components and styling.
+*   **Clean Architecture:** Separated concerns between Service, Repository, and UI layers.
+*   **Optimized Rendering:** Uses hardware-accelerated layers and LruCache for smooth, lag-free icon loading.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<p align="center">
+  Made with ❤️ by Imtiaz
+</p>

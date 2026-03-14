@@ -502,7 +502,8 @@ class FloatingPanelService : Service() {
             
             panel.post {
                 val panelWidth = panel.width.toFloat()
-                SpringAnimator.animateOpen(panel, if (isRight) panelWidth else -panelWidth)
+                val stiffness = panelPrefs.animSpeed.toFloat()
+                SpringAnimator.animateOpen(panel, if (isRight) panelWidth else -panelWidth, stiffness = stiffness)
             }
         }
         edgeHandleView?.visibility = View.GONE
@@ -548,7 +549,8 @@ class FloatingPanelService : Service() {
         sidePanelView?.let { panel ->
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
             val panelWidth = panel.width.toFloat()
-            SpringAnimator.animateClose(panel, if (isRight) panelWidth else -panelWidth) {
+            val stiffness = panelPrefs.animSpeed.toFloat()
+            SpringAnimator.animateClose(panel, if (isRight) panelWidth else -panelWidth, stiffness = stiffness) {
                 panel.visibility = View.GONE
                 updateBlur(false)
                 if (rootLayout?.parent != null) windowManager.removeView(rootLayout)
@@ -618,7 +620,8 @@ class FloatingPanelService : Service() {
                 val pickerWidth = picker.width.toFloat()
                 // Picker on right moves LEFT from panel (-width), on left moves RIGHT (+width)
                 val startX = if (isRight) -pickerWidth else pickerWidth
-                SpringAnimator.animateOpen(picker, startX, isPicker = true)
+                val stiffness = panelPrefs.animSpeed.toFloat()
+                SpringAnimator.animateOpen(picker, startX, isPicker = true, stiffness = stiffness)
             }
         }
     }
@@ -646,7 +649,8 @@ class FloatingPanelService : Service() {
             picker.invalidateAppList()      // Fix #9: force refresh next open (catches new installs)
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
             val pickerWidth = picker.width.toFloat()
-            SpringAnimator.animateClose(picker, if (isRight) pickerWidth else -pickerWidth, isPicker = true) {
+            val stiffness = panelPrefs.animSpeed.toFloat()
+            SpringAnimator.animateClose(picker, if (isRight) pickerWidth else -pickerWidth, isPicker = true, stiffness = stiffness) {
                 // Defensive check: only hide if we are still supposed to be closed
                 if (!isPickerOpen) {
                     picker.visibility = View.GONE

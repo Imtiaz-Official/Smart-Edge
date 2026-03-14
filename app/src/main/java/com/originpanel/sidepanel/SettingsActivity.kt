@@ -62,6 +62,16 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchShowPill.isChecked = panelPrefs.showPill
         binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
         binding.switchShowLogs.isChecked = panelPrefs.showLogs
+
+        val animSpeed = panelPrefs.animSpeed
+        binding.tvAnimFeelValue.text = when (animSpeed) {
+            200 -> "Calm (Slow)"
+            400 -> "Balanced (Default)"
+            700 -> "Snappy"
+            1000 -> "Instant"
+            else -> "Balanced (Default)"
+        }
+
         binding.switchBlur.isChecked = panelPrefs.blurEnabled
         binding.sbBlurAmount.value = panelPrefs.blurAmount.toFloat()
         binding.tvBlurAmountValue.text = panelPrefs.blurAmount.toString()
@@ -244,6 +254,25 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchShowLogs.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showLogs = isChecked
+        }
+
+        binding.layoutAnimFeel.setOnClickListener {
+            val options = arrayOf("Calm (Slow)", "Balanced (Default)", "Snappy", "Instant")
+            val values = intArrayOf(200, 400, 700, 1000)
+            
+            var selectedIndex = values.indexOf(panelPrefs.animSpeed)
+            if (selectedIndex == -1) selectedIndex = 1 // Default to Balanced
+
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Animation Feel")
+                .setSingleChoiceItems(options, selectedIndex) { dialog, which ->
+                    panelPrefs.animSpeed = values[which]
+                    binding.tvAnimFeelValue.text = options[which]
+                    applyOnly()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
 
         binding.switchBlur.setOnCheckedChangeListener { _, isChecked ->
