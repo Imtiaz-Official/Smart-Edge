@@ -8,12 +8,12 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import com.google.android.material.snackbar.Snackbar
 import com.originpanel.sidepanel.databinding.ActivityMainM3Binding
 
 /**
@@ -226,7 +226,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (!isAccessibilityServiceEnabled()) {
-            Toast.makeText(this, "Please enable 'SidePanel' in Accessibility Settings", Toast.LENGTH_LONG).show()
+            binding.root.showModernToast("Please enable 'SidePanel' in Accessibility Settings", Snackbar.LENGTH_LONG)
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             return
         }
@@ -281,7 +281,7 @@ class MainActivity : AppCompatActivity() {
         }
         
         if (!isAccessibilityServiceEnabled()) {
-            Toast.makeText(this, "Please enable 'SidePanel' in Accessibility Settings", Toast.LENGTH_LONG).show()
+            binding.root.showModernToast("Please enable 'SidePanel' in Accessibility Settings", Snackbar.LENGTH_LONG)
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             return
         }
@@ -291,6 +291,7 @@ class MainActivity : AppCompatActivity() {
             startPanel()
         }
 
+        binding.root.showModernToast("Opening Sidebar...")
         val intent = Intent(this, FloatingPanelService::class.java).apply {
             action = FloatingPanelService.ACTION_OPEN
         }

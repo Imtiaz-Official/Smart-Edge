@@ -7,6 +7,7 @@ import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import com.google.android.material.snackbar.Snackbar
 
 class ScreenshotActivity : Activity() {
 
@@ -36,7 +37,7 @@ class ScreenshotActivity : Activity() {
                 finish()
             } else {
                 Log.e("ScreenshotActivity", "Permission denied or data null")
-                Toast.makeText(this, "Screenshot permission denied", Toast.LENGTH_SHORT).show()
+                Snackbar.make(findViewById(android.R.id.content), "Screenshot permission denied", Snackbar.LENGTH_SHORT).show()
                 finish()
             }
         }

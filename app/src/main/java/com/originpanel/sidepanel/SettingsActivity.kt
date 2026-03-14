@@ -7,7 +7,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.SeekBar
-import android.widget.Toast
+import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowInsetsControllerCompat
 import com.originpanel.sidepanel.databinding.ActivitySettingsM3Binding
@@ -134,13 +134,13 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchHideBg.isEnabled = isPremium
         binding.switchColumns.isEnabled = isPremium
         
-        // Disable accent/bg customization for OriginOS theme
-        binding.switchUseCustomAccent.isEnabled = isPremium && !isOriginTheme
+        // Keep enabled so they can trigger Snackbars, but visually faded via alpha in updatePremiumUI
+        binding.switchUseCustomAccent.isEnabled = isPremium
         binding.sbPanelRadius.isEnabled = isPremium
-        binding.btnResetUIColors.isEnabled = isPremium && !isOriginTheme
+        binding.btnResetUIColors.isEnabled = isPremium
         
-        binding.btnPickAccent.isEnabled = isPremium && !isOriginTheme
-        binding.btnPickBg.isEnabled = isPremium && !isOriginTheme
+        binding.btnPickAccent.isEnabled = isPremium
+        binding.btnPickBg.isEnabled = isPremium
         binding.btnSelectIconPack.isEnabled = isPremium
 
         // Resolve theme colors for Material 3 styling
@@ -210,27 +210,27 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchGestures.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.gesturesEnabled = isChecked
-            applyAndShow()
+            applyOnly()
         }
 
         binding.btnAccessibility.setOnClickListener {
             try {
                 val intent = Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
                 startActivity(intent)
-                Toast.makeText(this, "Scroll down to 'Downloaded Apps' and enable 'Side Panel'", Toast.LENGTH_LONG).show()
+                binding.root.showModernToast("Scroll down to 'Downloaded Apps' and enable 'Side Panel'", Snackbar.LENGTH_LONG)
             } catch (e: Exception) {
-                Toast.makeText(this, "Could not open Accessibility Settings", Toast.LENGTH_SHORT).show()
+                binding.root.showModernToast("Could not open Accessibility Settings")
             }
         }
 
         binding.switchTapOpen.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.tapToOpen = isChecked
-            applyAndShow()
+            applyOnly()
         }
 
         binding.switchShowPill.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showPill = isChecked
-            applyAndShow()
+            applyOnly()
         }
 
         binding.switchHaptic.setOnCheckedChangeListener { _, isChecked ->
@@ -243,12 +243,12 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchBlur.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.blurEnabled = isChecked
-            applyAndShow()
+            applyOnly()
         }
 
         binding.switchColumns.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.panelColumns = if (isChecked) 2 else 1
-            applyAndShow()
+            applyOnly()
         }
 
         binding.sbOpacity.addOnChangeListener { _, value, fromUser ->
@@ -297,7 +297,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.btnGoPremium.setOnClickListener {
             panelPrefs.isPremium = true
             updatePremiumUI()
-            Toast.makeText(this, "Welcome to Premium!", Toast.LENGTH_SHORT).show()
+            binding.root.showModernToast("Welcome to Premium!")
         }
 
         binding.sbHandleOffset.addOnChangeListener { _, value, fromUser ->
@@ -342,7 +342,7 @@ class SettingsActivity : AppCompatActivity() {
                 binding.switchUseCustomAccent.isChecked = false
             }
             updatePremiumUI()
-            applyAndShow()
+            applyOnly()
         }
 
         binding.rgIconShape.setOnCheckedChangeListener { _, checkedId ->
@@ -352,12 +352,12 @@ class SettingsActivity : AppCompatActivity() {
                 R.id.rbShapeCircle -> PanelPreferences.SHAPE_CIRCLE
                 else -> PanelPreferences.SHAPE_SYSTEM
             }
-            applyAndShow()
+            applyOnly()
         }
 
         binding.switchUseCustomAccent.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.useCustomAccent = isChecked
-            applyAndShow()
+            applyOnly()
         }
 
         binding.btnSelectIconPack.setOnClickListener {
@@ -367,43 +367,60 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchTools.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showTools = isChecked
-            applyAndShow()
+            applyOnly()
         }
 
         binding.switchHideBg.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.hideBackground = isChecked
-            applyAndShow()
+            applyOnly()
         }
 
         binding.btnResetDefaults.setOnClickListener {
             panelPrefs.resetToDefaults()
             loadCurrentSettings() 
             applyAndShow()
-            Toast.makeText(this, "Settings Reset to Defaults", Toast.LENGTH_SHORT).show()
+            binding.root.showModernToast("Settings Reset to Defaults")
         }
 
         binding.btnResetUIColors.setOnClickListener {
             panelPrefs.resetUIColors()
             loadCurrentSettings() 
-            applyAndShow()
-            Toast.makeText(this, "UI Colors Restored to Default", Toast.LENGTH_SHORT).show()
+            applyOnly()
+            binding.root.showModernToast("UI Colors Restored to Default")
         }
 
         binding.btnPickAccent.setOnClickListener {
+            if (panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN) {
+                binding.root.showModernToast("Accent color is locked for OriginOS theme")
+                return@setOnClickListener
+            }
             openColorPicker(Color.parseColor(panelPrefs.accentColor)) { newColor ->
                 val hex = String.format("#%06X", (0xFFFFFF and newColor))
                 panelPrefs.accentColor = hex
                 loadCurrentSettings()
-                applyAndShow()
+                applyOnly()
             }
         }
 
         binding.btnPickBg.setOnClickListener {
+            if (panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN) {
+                binding.root.showModernToast("Background color is locked for OriginOS theme")
+                return@setOnClickListener
+            }
             openColorPicker(Color.parseColor(panelPrefs.panelBackgroundColor)) { newColor ->
                 val hex = String.format("#E6%06X", (0xFFFFFF and newColor))
                 panelPrefs.panelBackgroundColor = hex
                 loadCurrentSettings()
-                applyAndShow()
+                applyOnly()
+            }
+        }
+
+        binding.switchUseCustomAccent.setOnTouchListener { _, _ ->
+            if (panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN) {
+                binding.root.showModernToast("Custom accent is disabled for OriginOS theme")
+                true // Consume touch
+            } else {
+                false
             }
         }
     }

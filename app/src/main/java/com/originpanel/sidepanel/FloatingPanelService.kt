@@ -244,7 +244,7 @@ class FloatingPanelService : Service() {
                         projection.stop()
                         
                         Handler(Looper.getMainLooper()).post {
-                            Toast.makeText(applicationContext, "Screenshot Saved to DCIM/SidePanel", Toast.LENGTH_LONG).show()
+                            Toast.makeText(applicationContext, "Screenshot Saved to DCIM/SidePanel", Toast.LENGTH_SHORT).show()
                         }
                         
                         startForeground(NOTIFICATION_ID, buildNotification(), android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
