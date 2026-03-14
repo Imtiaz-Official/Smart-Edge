@@ -201,23 +201,39 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startPanel() {
+        // Optimistic UI: flip state immediately for speed
+        binding.btnStartStop.text = "Stop"
+        binding.tvStatus.text = "Service is Active"
+        binding.tvStatus.setTextColor(Color.parseColor("#00C853"))
+        val dot = findViewById<android.widget.ImageView>(R.id.statusDot)
+        dot?.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#00C853"))
+
         val intent = Intent(this, FloatingPanelService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent)
         } else {
             startService(intent)
         }
-        // UI will be updated via FloatingPanelService.isRunning + updateServiceStatus
-        binding.root.postDelayed({ updateServiceStatus() }, 500)
+        
+        // Final sync after a tiny bit just to be sure
+        binding.root.postDelayed({ updateServiceStatus() }, 200)
     }
 
     private fun stopPanel() {
+        // Optimistic UI: flip state immediately for speed
+        binding.btnStartStop.text = "Start"
+        binding.tvStatus.text = "Service is Stopped"
+        binding.tvStatus.setTextColor(Color.parseColor("#80FFFFFF"))
+        val dot = findViewById<android.widget.ImageView>(R.id.statusDot)
+        dot?.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#FF5252"))
+
         val intent = Intent(this, FloatingPanelService::class.java).apply {
             action = FloatingPanelService.ACTION_STOP
         }
         startService(intent)
-        // UI will be updated via FloatingPanelService.isRunning + updateServiceStatus
-        binding.root.postDelayed({ updateServiceStatus() }, 500)
+        
+        // Final sync after a tiny bit just to be sure
+        binding.root.postDelayed({ updateServiceStatus() }, 200)
     }
 
     private fun triggerPanelToggle() {
