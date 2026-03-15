@@ -10,10 +10,10 @@
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
         app:elevation="0dp">
-        <!-- We use an empty App Bar layout to provide the space, but keep the custom hero header below -->
     </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView
+        android:id="@+id/mainScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="@dimen/app_screen_padding">
 
             <!-- HEADER HERO -->
             <LinearLayout
@@ -37,7 +37,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="SidePanel"
+                    android:text="Smart Edge"
                     android:textColor="?attr/colorPrimary"
                     android:textSize="36sp"
                     android:textStyle="bold"
@@ -46,7 +46,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="OriginOS Control Center"
+                    android:text="Fluid Control Center"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="14sp"
                     android:layout_marginTop="4dp" />
@@ -54,16 +54,15 @@
 
             <!-- SERVICE STATUS CARD -->
             <com.google.android.material.card.MaterialCardView
+                style="@style/App_Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="?attr/materialCardViewStyle"
-                app:cardCornerRadius="28dp"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout
+                    style="@style/App_CardContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="wrap_content">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -96,11 +95,10 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnStartStop"
-                            style="@style/Widget.Material3.Button.TonalButton"
+                            style="@style/App_Button_Continue"
                             android:layout_width="wrap_content"
                             android:layout_height="54dp"
                             android:text="Start"
-                            android:textAllCaps="false"
                             app:backgroundTint="?attr/colorPrimary"
                             android:textColor="?attr/colorOnPrimary" />
                     </LinearLayout>
@@ -113,12 +111,11 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnTogglePanel"
-                        style="@style/Widget.Material3.Button.TonalButton"
+                        style="@style/App_Button_Tonal"
                         android:layout_width="match_parent"
                         android:layout_height="64dp"
                         android:text="Test Sidebar Manually"
                         android:textSize="16sp"
-                        android:textAllCaps="false"
                         app:icon="@android:drawable/ic_input_add"
                         app:iconGravity="textStart" />
 
@@ -126,23 +123,19 @@
             </com.google.android.material.card.MaterialCardView>
 
             <!-- BATTERY OPTIMIZATION ALERT -->
-
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardBatteryOptimization"
+                style="@style/App_Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="24dp"
                 app:cardBackgroundColor="#1A00C853"
-                app:strokeWidth="1dp"
-                app:strokeColor="#3300C853"
                 android:layout_marginBottom="24dp"
                 android:visibility="gone">
 
                 <LinearLayout
+                    style="@style/App_CardContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
+                    android:layout_height="wrap_content">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -160,15 +153,14 @@
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="12sp" />
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnIgnoreBattery"
-                        style="@style/Widget.Material3.Button"
+                        style="@style/App_Button_Tonal"
                         android:layout_width="match_parent"
-                        android:layout_height="44dp"
+                        android:layout_height="48dp"
                         android:layout_marginTop="16dp"
                         app:backgroundTint="#00C853"
                         android:text="Allow Background Use"
-                        android:textAllCaps="false"
                         android:textColor="#FFFFFF" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -176,19 +168,17 @@
             <!-- PERMISSION ALERT -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardPermission"
+                style="@style/App_Card"
+                app:cardBackgroundColor="?attr/colorErrorContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="24dp"
-                app:cardBackgroundColor="?attr/colorErrorContainer"
-                app:strokeWidth="0dp"
                 android:layout_marginBottom="24dp"
                 android:visibility="gone">
 
                 <LinearLayout
+                    style="@style/App_CardContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
+                    android:layout_height="wrap_content">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -206,37 +196,34 @@
                         android:textColor="?attr/colorOnErrorContainer"
                         android:textSize="12sp" />
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnGrantPermission"
-                        style="@style/Widget.Material3.Button"
+                        style="@style/App_Button_Tonal"
                         android:layout_width="match_parent"
-                        android:layout_height="44dp"
+                        android:layout_height="48dp"
                         android:layout_marginTop="16dp"
                         app:backgroundTint="?attr/colorError"
                         android:text="Grant Now"
-                        android:textAllCaps="false"
-                        android:textColor="?attr/colorOnError"
-                        app:cornerRadius="12dp" />
+                        android:textColor="?attr/colorOnError" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- ACTIVITY LOGS BUTTON (NEW) -->
+            <!-- ACTIVITY LOGS BUTTON -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnShowLogs"
+                style="@style/App_Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="24dp"
-                style="?attr/materialCardViewStyle"
                 android:layout_marginBottom="24dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:visibility="gone">
 
                 <LinearLayout
+                    style="@style/App_CardContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:padding="20dp"
                     android:gravity="center_vertical">
 
                     <ImageView
@@ -266,19 +253,18 @@
             <!-- SETTINGS QUICK ACTION -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnSettings"
+                style="@style/App_Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="24dp"
-                style="?attr/materialCardViewStyle"
                 android:layout_marginBottom="24dp"
                 android:clickable="true"
                 android:focusable="true">
 
                 <LinearLayout
+                    style="@style/App_CardContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:padding="20dp"
                     android:gravity="center_vertical">
 
                     <ImageView
@@ -306,53 +292,59 @@
             </com.google.android.material.card.MaterialCardView>
 
             <!-- TUTORIAL SECTION -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="How to use"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textAllCaps="true"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="12dp" />
-
-            <com.google.android.material.card.MaterialCardView
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnHowToUse"
+                style="@style/App_Button_Tonal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="24dp"
-                style="?attr/materialCardViewStyle"
-                app:strokeWidth="0dp"
-                android:layout_marginBottom="40dp">
+                android:text="How to use"
+                android:layout_marginBottom="12dp"
+                app:icon="@android:drawable/ic_menu_help"
+                app:iconGravity="textStart" />
 
-                <LinearLayout
+            <LinearLayout
+                android:id="@+id/layoutTutorialContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/App_Card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_marginBottom="40dp">
 
-                    <com.google.android.material.card.MaterialCardView
+                    <LinearLayout
+                        style="@style/App_CardContainer"
                         android:layout_width="match_parent"
-                        android:layout_height="320dp"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="0dp">
-                        
-                        <ImageView
-                            android:id="@+id/ivTutorialAnim"
+                        android:layout_height="wrap_content">
+
+                        <com.google.android.material.card.MaterialCardView
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="fitXY" />
-                    </com.google.android.material.card.MaterialCardView>
+                            android:layout_height="320dp"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:cardBackgroundColor="?attr/colorSurfaceContainerLow">
+                            
+                            <ImageView
+                                android:id="@+id/ivTutorialAnim"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="fitXY" />
+                        </com.google.android.material.card.MaterialCardView>
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Swipe from the screen edge and hold for a moment to reveal your floating panel. You can also tap the pill if enabled in settings."
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="13sp"
-                        android:lineSpacingExtra="4dp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:text="Swipe from the screen edge and hold for a moment to reveal your floating panel. You can also tap the pill if enabled in settings."
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textSize="13sp"
+                            android:lineSpacingExtra="4dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
             <!-- Sideload note -->
             <TextView

@@ -27,3 +27,7 @@ panel_gap*.png
 picker_collision.png
 polish_check.png
 xx.jpg
+
+# Signing Keys
+release-key.jks
+keystore.properties

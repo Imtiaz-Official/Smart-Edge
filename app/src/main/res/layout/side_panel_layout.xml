@@ -27,7 +27,7 @@
     android:paddingTop="12dp"
     android:paddingBottom="4dp">
 
-    <!-- Rich Vertical Handle (Premium feel) -->
+    <!-- Rich Vertical Handle -->
     <View
         android:id="@+id/panelHandle"
         android:layout_width="4dp"
@@ -55,7 +55,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/toolsContainer" />
 
-    <!-- Tools Section (Premium) -->
+    <!-- Tools Section -->
     <LinearLayout
         android:id="@+id/toolsContainer"
         android:layout_width="match_parent"

@@ -1,6 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="ShapeAppearanceOverlay.App.Corner50" parent="">
+    <!-- DESIGN SYSTEM: SMART EDGE -->
+
+    <!-- App Card Style -->
+    <style name="App_Card" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/app_card_radius</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainer</item>
+        <item name="contentPadding">0dp</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <!-- Specific for Setup/Onboarding Cards -->
+    <style name="App_Card_Setup" parent="App_Card">
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainerHigh</item>
+    </style>
+
+    <!-- Section Card: Contains multiple settings -->
+    <style name="App_Card_Section" parent="App_Card">
+        <item name="android:layout_marginBottom">@dimen/app_section_margin</item>
+    </style>
+
+    <!-- Section Title -->
+    <style name="App_SectionTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textSize">@dimen/app_text_size_title</item>
+        <item name="android:textStyle" >bold</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:layout_marginStart">@dimen/app_title_margin_start</item>
+        <item name="android:layout_marginBottom">@dimen/app_title_margin_bottom</item>
+        <item name="android:drawablePadding">@dimen/app_icon_padding</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <!-- App Buttons -->
+    <style name="App_Button_Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="cornerRadius">@dimen/app_button_radius</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <style name="App_Button_Continue" parent="App_Button_Tonal">
+        <item name="android:layout_height">54dp</item>
+        <item name="android:paddingHorizontal">32dp</item>
+    </style>
+
+    <style name="App_Button_Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">@dimen/app_button_radius</item>
+    </style>
+
+    <!-- Inner Card Containers -->
+    <style name="App_CardContainer">
+        <item name="android:padding">@dimen/app_card_padding</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay_App_Corner50" parent="">
         <item name="cornerSize">50%</item>
     </style>
 </resources>

@@ -1,14 +1,17 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
 }
 
 android {
-    namespace = "com.originpanel.sidepanel"
+    namespace = "com.imi.smartedge.sidebar.panel"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.originpanel.sidepanel"
+        applicationId = "com.imi.smartedge.sidebar.panel"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -17,9 +20,25 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    val keystorePropertiesFile = rootProject.file("keystore.properties")
+    val keystoreProperties = Properties()
+    if (keystorePropertiesFile.exists()) {
+        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+    }
+
+    signingConfigs {
+        create("release") {
+            keyAlias = keystoreProperties["KEY_ALIAS"] as? String
+            keyPassword = keystoreProperties["KEY_PASSWORD"] as? String
+            storeFile = keystoreProperties["STORE_FILE"]?.toString()?.let { file(it) }
+            storePassword = keystoreProperties["STORE_PASSWORD"] as? String
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

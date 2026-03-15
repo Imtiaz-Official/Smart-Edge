@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name">Side Panel</string>
+    <string name="app_name">Smart Edge</string>
     <string name="app_picker_title">Choose Apps</string>
     <string name="settings_title">Panel Settings</string>
-    <string name="panel_running">Side Panel is active</string>
-    <string name="panel_notification_channel">Side Panel Service</string>
+    <string name="panel_running">Smart Edge is active</string>
+    <string name="panel_notification_channel">Smart Edge Service</string>
     <string name="panel_notification_desc">Keeps the side panel available over all apps</string>
     <string name="start_panel">Start Panel</string>
     <string name="stop_panel">Stop Panel</string>

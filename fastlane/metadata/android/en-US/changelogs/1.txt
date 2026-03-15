@@ -1,0 +1,6 @@
+V1.0
+- Initial FOSS release for F-Droid.
+- Migrated to 100% Open Source model.
+- Implemented community-focused donation model.
+- Unlocked all features by default.
+- Modern Material 3 UI with Glassmorphic effects.
