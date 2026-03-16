@@ -9,6 +9,8 @@ AutoName: Smart Edge
 
 RepoType: git
 Repo: https://github.com/Imtiaz-Official/Smart-Edge.git
+Binaries: 
+ https://github.com/Imtiaz-Official/Smart-Edge/releases/download/v%v/app-release.apk
 
 Builds:
   - versionName: '1.0'
@@ -17,8 +19,6 @@ Builds:
     subdir: app
     gradle:
       - yes
-
-Binaries: https://github.com/Imtiaz-Official/Smart-Edge/releases/download/v%v/app-release.apk
 
 AllowedAPKSigningKeys: c0747f88d8069f1951fa151a33c23a8d3a759df8b0dd876ef550ca8b5ac42433
 
