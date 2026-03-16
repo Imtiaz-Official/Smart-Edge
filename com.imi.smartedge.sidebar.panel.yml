@@ -15,7 +15,7 @@ Binaries:
 Builds:
   - versionName: '1.0'
     versionCode: 1
-    commit: b475fee9f268393539823617163c631e879058b7
+    commit: 40295b26362f689f9ec006e88e2808c5eb3c035f
     subdir: app
     gradle:
       - yes
