@@ -18,7 +18,7 @@ Builds:
     gradle:
       - yes
 
-Binaries: https://github.com/Imtiaz-Official/Smart-Edge/releases/download/v1.0/app-release.apk
+Binaries: https://github.com/Imtiaz-Official/Smart-Edge/releases/download/v%v/app-release.apk
 
 AllowedAPKSigningKeys: c0747f88d8069f1951fa151a33c23a8d3a759df8b0dd876ef550ca8b5ac42433
 
