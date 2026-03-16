@@ -161,25 +161,29 @@ class SidePanelView @JvmOverloads constructor(
                 return@setOnClickListener
             }
             
-            com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
+            // Fix: Wrap context with a proper theme for MaterialAlertDialog
+            val themedContext = androidx.appcompat.view.ContextThemeWrapper(context, R.style.Theme_SidePanel)
+            val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(themedContext)
                 .setTitle("Power Menu")
                 .setItems(arrayOf("Reboot", "Reboot to Recovery", "Reboot to Bootloader")) { _, which ->
-                    val cmd = when(which) {
-                        0 -> "reboot"
-                        1 -> "reboot recovery"
-                        2 -> "reboot bootloader"
-                        else -> "reboot"
+                    val type = when(which) {
+                        0 -> ""
+                        1 -> "recovery"
+                        2 -> "bootloader"
+                        else -> ""
                     }
-                    try {
-                        val methods = rikka.shizuku.Shizuku::class.java.methods
-                        val newProcessMethod = methods.find { it.name == "newProcess" && it.parameterCount == 3 }
-                        newProcessMethod?.isAccessible = true
-                        newProcessMethod?.invoke(null, arrayOf("sh", "-c", "svc power $cmd || $cmd"), null, null)
-                    } catch (e: Exception) {
-                        android.widget.Toast.makeText(context, "Failed: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
-                    }
+                    ShizukuHelper.reboot(type)
                 }
-                .show()
+                .create()
+            
+            // Required for dialogs shown from a Service/Overlay
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                dialog.window?.setType(android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+            } else {
+                dialog.window?.setType(android.view.WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+            }
+            
+            dialog.show()
         }
     }
 
