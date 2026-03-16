@@ -42,9 +42,27 @@ class HandleSettingsActivity : AppCompatActivity() {
         
         binding.sbHandleOffset.value = (panelPrefs.handleVerticalOffset + 100).toFloat()
         binding.tvOffsetValue.text = "${panelPrefs.handleVerticalOffset}dp"
+
+        try {
+            val color = android.graphics.Color.parseColor(panelPrefs.pillColor)
+            binding.btnPickPillColor.backgroundTintList = android.content.res.ColorStateList.valueOf(color)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun setupListeners() {
+        binding.btnPickPillColor.setOnClickListener {
+            openColorPicker(android.graphics.Color.parseColor(panelPrefs.pillColor)) { newColor ->
+                val hex = String.format("#%06X", (0xFFFFFF and newColor))
+                panelPrefs.pillColor = hex
+                try {
+                    binding.btnPickPillColor.backgroundTintList = android.content.res.ColorStateList.valueOf(newColor)
+                } catch (e: Exception) {}
+                applyOnly()
+            }
+        }
+
         binding.switchShowPill.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showPill = isChecked
             applyOnly()
