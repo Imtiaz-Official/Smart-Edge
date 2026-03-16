@@ -84,6 +84,8 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchShowPill.isChecked = panelPrefs.showPill
         binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
         binding.switchShowLogs.isChecked = panelPrefs.showLogs
+        binding.switchSysInfo.isChecked = panelPrefs.showSysInfo
+        binding.switchPowerMenu.isChecked = panelPrefs.showPowerMenu
 
         val animSpeed = panelPrefs.animSpeed
         binding.tvAnimFeelValue.text = when (animSpeed) {
@@ -122,6 +124,7 @@ class SettingsActivity : AppCompatActivity() {
             PanelPreferences.THEME_HYPEROS -> "HyperOS (Glass)"
             PanelPreferences.THEME_REALME -> "Realme UI"
             PanelPreferences.THEME_RICH -> "Rich UI (Glow)"
+            PanelPreferences.THEME_M3 -> "Material 3 (Modern)"
             else -> "OriginOS (Rounded)"
         }
 
@@ -267,6 +270,16 @@ class SettingsActivity : AppCompatActivity() {
             panelPrefs.showLogs = isChecked
         }
 
+        binding.switchSysInfo.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.showSysInfo = isChecked
+            applyOnly()
+        }
+
+        binding.switchPowerMenu.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.showPowerMenu = isChecked
+            applyOnly()
+        }
+
         binding.layoutAnimFeel.setOnClickListener {
             val options = arrayOf("Calm (Slow)", "Balanced (Default)", "Snappy", "Instant")
             val values = intArrayOf(200, 400, 700, 1000)
@@ -402,12 +415,13 @@ class SettingsActivity : AppCompatActivity() {
         })
 
         binding.layoutUIStyle.setOnClickListener {
-            val options = arrayOf("OriginOS (Rounded)", "HyperOS (Glass)", "Realme UI", "Rich UI (Glow)")
+            val options = arrayOf("OriginOS (Rounded)", "HyperOS (Glass)", "Realme UI", "Rich UI (Glow)", "Material 3 (Modern)")
             val values = arrayOf(
                 PanelPreferences.THEME_ORIGIN,
                 PanelPreferences.THEME_HYPEROS,
                 PanelPreferences.THEME_REALME,
-                PanelPreferences.THEME_RICH
+                PanelPreferences.THEME_RICH,
+                PanelPreferences.THEME_M3
             )
             
             val selectedIndex = values.indexOf(panelPrefs.uiTheme).let { if (it == -1) 0 else it }

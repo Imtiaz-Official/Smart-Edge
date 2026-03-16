@@ -39,6 +39,34 @@ class SidePanelView @JvmOverloads constructor(
     private val width1ColDp = 72f
     private val width2ColDp = 150f
 
+    private val updateHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val updateRunnable = object : Runnable {
+        override fun run() {
+            updateSystemInfo()
+            updateHandler.postDelayed(this, 3000)
+        }
+    }
+
+    private fun updateSystemInfo() {
+        if (!panelPrefs.showSysInfo) return
+        
+        try {
+            // RAM Info
+            val mi = android.app.ActivityManager.MemoryInfo()
+            val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+            activityManager.getMemoryInfo(mi)
+            val availableMegs = mi.availMem / 1048576L
+            val totalMegs = mi.totalMem / 1048576L
+            val usedMegs = totalMegs - availableMegs
+            binding.tvRamUsage.text = "RAM: ${usedMegs}MB"
+
+            // Battery Info (Simple approach)
+            val intent = context.registerReceiver(null, android.content.IntentFilter(android.content.Intent.ACTION_BATTERY_CHANGED))
+            val temp = intent?.getIntExtra(android.os.BatteryManager.EXTRA_TEMPERATURE, 0) ?: 0
+            binding.tvBatTemp.text = "BAT: ${temp / 10}°C"
+        } catch (e: Exception) {}
+    }
+
     private val gestureDetector = android.view.GestureDetector(context, object : android.view.GestureDetector.SimpleOnGestureListener() {
         override fun onFling(e1: android.view.MotionEvent?, e2: android.view.MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
@@ -126,6 +154,45 @@ class SidePanelView @JvmOverloads constructor(
             }
             onScreenshot?.invoke()
         }
+
+        binding.btnReboot.setOnClickListener {
+            if (!ShizukuHelper.hasShizukuPermission()) {
+                android.widget.Toast.makeText(context, "Shizuku Permission Required", android.widget.Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
+                .setTitle("Power Menu")
+                .setItems(arrayOf("Reboot", "Reboot to Recovery", "Reboot to Bootloader")) { _, which ->
+                    val cmd = when(which) {
+                        0 -> "reboot"
+                        1 -> "reboot recovery"
+                        2 -> "reboot bootloader"
+                        else -> "reboot"
+                    }
+                    try {
+                        val methods = rikka.shizuku.Shizuku::class.java.methods
+                        val newProcessMethod = methods.find { it.name == "newProcess" && it.parameterCount == 3 }
+                        newProcessMethod?.isAccessible = true
+                        newProcessMethod?.invoke(null, arrayOf("sh", "-c", "svc power $cmd || $cmd"), null, null)
+                    } catch (e: Exception) {
+                        android.widget.Toast.makeText(context, "Failed: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .show()
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (panelPrefs.showSysInfo) {
+            updateHandler.post(updateRunnable)
+        }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        updateHandler.removeCallbacks(updateRunnable)
     }
 
     fun updateSideLayout() {
@@ -153,7 +220,18 @@ class SidePanelView @JvmOverloads constructor(
     fun updateStyles() {
         applyTheme()
         updateSideLayout()
+        
         binding.toolsContainer.visibility = if (panelPrefs.showTools) View.VISIBLE else View.GONE
+        binding.layoutPowerTools.visibility = if (panelPrefs.showPowerMenu && panelPrefs.showTools) View.VISIBLE else View.GONE
+        binding.layoutSysInfo.visibility = if (panelPrefs.showSysInfo && panelPrefs.showTools) View.VISIBLE else View.GONE
+        
+        if (panelPrefs.showSysInfo && panelPrefs.showTools) {
+            updateHandler.removeCallbacks(updateRunnable)
+            updateHandler.post(updateRunnable)
+        } else {
+            updateHandler.removeCallbacks(updateRunnable)
+        }
+
         binding.panelCard.alpha = panelPrefs.panelOpacity / 100f
         val cols = if (panelPrefs.isUnlocked) panelPrefs.panelColumns else 1
         val lp = binding.panelCard.layoutParams
@@ -180,6 +258,7 @@ class SidePanelView @JvmOverloads constructor(
         
         val themeBgColor = when (theme) {
             PanelPreferences.THEME_ORIGIN -> Color.parseColor("#1F1F1F")
+            PanelPreferences.THEME_M3 -> Color.parseColor("#E61C1B1F") // Modern M3 Dark Surface
             else -> Color.parseColor(panelPrefs.panelBackgroundColor)
         }
         drawable.setColor(themeBgColor)
@@ -192,6 +271,7 @@ class SidePanelView @JvmOverloads constructor(
                 PanelPreferences.THEME_HYPEROS -> Color.parseColor("#33FFFFFF")
                 PanelPreferences.THEME_REALME -> Color.parseColor("#26FFFFFF")
                 PanelPreferences.THEME_RICH -> Color.parseColor("#4DFFFFFF")
+                PanelPreferences.THEME_M3 -> Color.parseColor("#D0BCFF") // M3 Primary
                 else -> Color.parseColor("#26FFFFFF")
             }
         }
@@ -200,6 +280,12 @@ class SidePanelView @JvmOverloads constructor(
             PanelPreferences.THEME_ORIGIN -> {
                 drawable.setStroke(0, Color.TRANSPARENT)
                 binding.btnClose.backgroundTintList = ColorStateList.valueOf(accentColor)
+            }
+            PanelPreferences.THEME_M3 -> {
+                drawable.setStroke((1 * density).toInt(), Color.parseColor("#49454F")) // M3 Outline
+                drawable.cornerRadius = 28 * density // Standard M3 Card Corner
+                binding.btnClose.backgroundTintList = ColorStateList.valueOf(accentColor)
+                binding.btnClose.imageTintList = ColorStateList.valueOf(Color.parseColor("#381E72")) // M3 OnPrimary
             }
             PanelPreferences.THEME_HYPEROS -> {
                 drawable.setStroke((1.5 * density).toInt(), Color.parseColor("#4DFFFFFF"))

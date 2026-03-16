@@ -46,6 +46,8 @@ class PanelPreferences(context: Context) {
         private const val KEY_SHOW_LOGS = "show_logs"
         private const val KEY_ANIM_SPEED = "animation_speed"
         private const val KEY_PICKER_GAP = "picker_gap"
+        private const val KEY_SHOW_SYS_INFO = "show_sys_info"
+        private const val KEY_SHOW_POWER_MENU = "show_power_menu"
         
         private const val DELIMITER = ","
 
@@ -56,6 +58,7 @@ class PanelPreferences(context: Context) {
         const val THEME_HYPEROS = "hyperos"
         const val THEME_REALME = "realme"
         const val THEME_RICH = "rich"
+        const val THEME_M3 = "material3"
 
         const val SHAPE_SYSTEM = "system"
         const val SHAPE_CIRCLE = "circle"
@@ -130,9 +133,19 @@ class PanelPreferences(context: Context) {
             putBoolean(KEY_BLUR_ENABLED, false)
             putInt(KEY_ANIM_SPEED, DEFAULT_ANIM_SPEED)
             putInt(KEY_PICKER_GAP, DEFAULT_PICKER_GAP)
+            putBoolean(KEY_SHOW_SYS_INFO, false)
+            putBoolean(KEY_SHOW_POWER_MENU, false)
             // Removed: putString(KEY_PANEL_APPS, "") -> Keep user's apps!
         }
     }
+
+    var showSysInfo: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_SYS_INFO, false)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_SYS_INFO, value) }
+
+    var showPowerMenu: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_POWER_MENU, false)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_POWER_MENU, value) }
 
     var pickerGap: Int
         get() = prefs.getInt(KEY_PICKER_GAP, DEFAULT_PICKER_GAP)
