@@ -98,7 +98,7 @@ class AppPickerPanelView @JvmOverloads constructor(
         rvPickerGrid.adapter = adapter
 
         btnSettings.setOnClickListener {
-            val intent = android.content.Intent(context, SettingsActivity::class.java).apply {
+            val intent = android.content.Intent(context, SettingsMainActivity::class.java).apply {
                 addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(intent)
