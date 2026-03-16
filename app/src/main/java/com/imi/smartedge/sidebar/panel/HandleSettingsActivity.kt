@@ -69,6 +69,17 @@ class HandleSettingsActivity : AppCompatActivity() {
             }
         }
 
+        binding.btnResetPillColor.setOnClickListener {
+            val defaultColor = PanelPreferences.DEFAULT_PILL_COLOR
+            panelPrefs.pillColor = defaultColor
+            try {
+                val color = Color.parseColor(defaultColor)
+                binding.btnPickPillColor.backgroundTintList = ColorStateList.valueOf(color)
+            } catch (e: Exception) {}
+            applyOnly()
+            com.google.android.material.snackbar.Snackbar.make(binding.root, "Pill color restored to default", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show()
+        }
+
         binding.switchShowPill.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showPill = isChecked
             applyOnly()

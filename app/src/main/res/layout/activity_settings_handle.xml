@@ -84,6 +84,15 @@
                             app:iconGravity="textStart"
                             android:padding="0dp"
                             app:iconPadding="0dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnResetPillColor"
+                            style="@style/Widget.Material3.Button.IconButton"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_marginStart="8dp"
+                            app:icon="@drawable/ic_restore"
+                            app:iconTint="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
 
                 </LinearLayout>
