@@ -41,6 +41,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            android.util.Log.d("SmartEdge", "Applying broad HiddenApiBypass...")
+            org.lsposed.hiddenapibypass.HiddenApiBypass.setHiddenApiExemptions("L")
+        }
         panelPrefs = PanelPreferences(this)
         
         android.util.Log.d("SmartEdge", "MainActivity onCreate: setupCompleted = ${panelPrefs.setupCompleted}")

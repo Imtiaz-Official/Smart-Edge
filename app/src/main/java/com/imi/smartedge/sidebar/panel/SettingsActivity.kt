@@ -10,6 +10,8 @@ import android.widget.SeekBar
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowInsetsControllerCompat
+import rikka.shizuku.Shizuku
+import android.content.pm.PackageManager
 import com.imi.smartedge.sidebar.panel.databinding.ActivitySettingsM3Binding
 import yuku.ambilwarna.AmbilWarnaDialog
 
@@ -21,11 +23,26 @@ class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsM3Binding
     private lateinit var panelPrefs: PanelPreferences
+    private val SHIZUKU_CODE = 1001
+
+    private val requestPermissionResultListener = Shizuku.OnRequestPermissionResultListener { requestCode, grantResult ->
+        if (requestCode == SHIZUKU_CODE) {
+            if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                binding.root.showModernToast("Shizuku permission granted!")
+            } else {
+                binding.root.showModernToast("Shizuku permission denied")
+            }
+            updateShizukuStatus()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsM3Binding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Register Shizuku listener
+        Shizuku.addRequestPermissionResultListener(requestPermissionResultListener)
 
         // Set status bar color and icons
         val typedValue = android.util.TypedValue()
@@ -47,6 +64,11 @@ class SettingsActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressedDispatcher.onBackPressed()
         return true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Shizuku.removeRequestPermissionResultListener(requestPermissionResultListener)
     }
 
     private fun loadCurrentSettings() {
@@ -128,6 +150,29 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         updateSupportUI()
+        updateShizukuStatus()
+    }
+
+    private fun updateShizukuStatus() {
+        val available = ShizukuHelper.isShizukuAvailable()
+        val hasPermission = ShizukuHelper.hasShizukuPermission()
+
+        if (!available) {
+            binding.tvShizukuStatus.text = "Service Not Running"
+            binding.tvShizukuStatus.setTextColor(Color.RED)
+            binding.btnLinkShizuku.text = "How to Start Shizuku"
+            binding.btnLinkShizuku.isEnabled = true
+        } else if (!hasPermission) {
+            binding.tvShizukuStatus.text = "Service Running (No Permission)"
+            binding.tvShizukuStatus.setTextColor(Color.parseColor("#FFA500")) // Orange
+            binding.btnLinkShizuku.text = "Authorize Shizuku"
+            binding.btnLinkShizuku.isEnabled = true
+        } else {
+            binding.tvShizukuStatus.text = "Service Running & Authorized"
+            binding.tvShizukuStatus.setTextColor(Color.parseColor("#4CAF50")) // Green
+            binding.btnLinkShizuku.text = "Shizuku Ready"
+            binding.btnLinkShizuku.isEnabled = false
+        }
     }
 
     private fun updateSupportUI() {
@@ -167,6 +212,26 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchAutoStart.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.autoStart = isChecked
+        }
+
+        binding.btnLinkShizuku.setOnClickListener {
+            if (!ShizukuHelper.isShizukuAvailable()) {
+                // Open Shizuku app or guide
+                try {
+                    val intent = packageManager.getLaunchIntentForPackage("moe.shizuku.privileged.api")
+                    if (intent != null) {
+                        startActivity(intent)
+                    } else {
+                        // Open Play Store or website
+                        val browserIntent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://shizuku.rikka.app/download/"))
+                        startActivity(browserIntent)
+                    }
+                } catch (e: Exception) {
+                    binding.root.showModernToast("Could not open Shizuku")
+                }
+            } else if (!ShizukuHelper.hasShizukuPermission()) {
+                ShizukuHelper.requestShizukuPermission(SHIZUKU_CODE)
+            }
         }
 
         binding.switchGestures.setOnCheckedChangeListener { _, isChecked ->

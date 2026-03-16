@@ -12,6 +12,10 @@ import android.os.Build
 class BootReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            android.util.Log.d("SmartEdge", "BootReceiver: Applying broad HiddenApiBypass...")
+            org.lsposed.hiddenapibypass.HiddenApiBypass.setHiddenApiExemptions("L")
+        }
         val action = intent.action ?: return
         if (action != Intent.ACTION_BOOT_COMPLETED &&
             action != "android.intent.action.QUICKBOOT_POWERON") return

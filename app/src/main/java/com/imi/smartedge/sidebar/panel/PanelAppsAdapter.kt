@@ -100,10 +100,7 @@ class PanelAppsAdapter(
                 val launchIntent = context.packageManager
                     .getLaunchIntentForPackage(app.packageName)
                 if (launchIntent != null) {
-                    launchIntent.addFlags(
-                        android.content.Intent.FLAG_ACTIVITY_NEW_TASK or
-                        android.content.Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-                    )
+                    launchIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(launchIntent)
                 }
             }

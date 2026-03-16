@@ -67,6 +67,10 @@ class FloatingPanelService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            android.util.Log.d("SmartEdge", "FloatingPanelService: Applying broad HiddenApiBypass...")
+            org.lsposed.hiddenapibypass.HiddenApiBypass.setHiddenApiExemptions("L")
+        }
         isRunning = true
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         panelPrefs = PanelPreferences(this)

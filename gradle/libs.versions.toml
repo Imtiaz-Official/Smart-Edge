@@ -12,6 +12,8 @@ glide = "4.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
+hiddenApiBypass = "4.3"
+shizuku = "13.1.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -22,6 +24,9 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 androidx-dynamicanimation = { group = "androidx.dynamicanimation", name = "dynamicanimation", version.ref = "dynamicanimation" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+hidden-api-bypass = { group = "org.lsposed.hiddenapibypass", name = "hiddenapibypass", version.ref = "hiddenApiBypass" }
+shizuku-api = { group = "dev.rikka.shizuku", name = "api", version.ref = "shizuku" }
+shizuku-provider = { group = "dev.rikka.shizuku", name = "provider", version.ref = "shizuku" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

@@ -69,6 +69,9 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.dynamicanimation)
     implementation(libs.glide)
+    implementation(libs.hidden.api.bypass)
+    implementation(libs.shizuku.api)
+    implementation(libs.shizuku.provider)
     implementation("com.github.yukuku:ambilwarna:2.0.1")
 
     testImplementation(libs.junit)
