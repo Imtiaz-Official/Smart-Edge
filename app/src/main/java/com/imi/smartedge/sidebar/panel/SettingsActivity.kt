@@ -136,6 +136,10 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         binding.switchTools.isChecked = panelPrefs.showTools
+        binding.layoutToolsSubOptions.alpha = if (panelPrefs.showTools) 1.0f else 0.5f
+        binding.layoutToolsSubOptions.isEnabled = panelPrefs.showTools
+        binding.divTools.visibility = if (panelPrefs.showTools) View.VISIBLE else View.GONE
+
         binding.switchHideBg.isChecked = panelPrefs.hideBackground
         binding.switchUseCustomAccent.isChecked = panelPrefs.useCustomAccent
 
@@ -180,7 +184,7 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        updateShizukuStatus()
+        loadCurrentSettings() 
     }
 
     private fun updateSupportUI() {
@@ -486,6 +490,9 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchTools.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showTools = isChecked
+            binding.layoutToolsSubOptions.alpha = if (isChecked) 1.0f else 0.5f
+            binding.layoutToolsSubOptions.isEnabled = isChecked
+            binding.divTools.visibility = if (isChecked) View.VISIBLE else View.GONE
             applyOnly()
         }
 
@@ -542,11 +549,6 @@ class SettingsActivity : AppCompatActivity() {
                 false
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        loadCurrentSettings() 
     }
 
     private fun openColorPicker(initialColor: Int, onPick: (Int) -> Unit) {

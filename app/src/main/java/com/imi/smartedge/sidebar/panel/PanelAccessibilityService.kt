@@ -10,12 +10,18 @@ class PanelAccessibilityService : AccessibilityService() {
     companion object {
         private const val TAG = "PanelAccessibility"
         const val ACTION_TAKE_SCREENSHOT = "com.imi.smartedge.sidebar.panel.ACTION_TAKE_SCREENSHOT"
+        const val ACTION_SHOW_POWER_MENU = "com.imi.smartedge.sidebar.panel.ACTION_SHOW_POWER_MENU"
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_TAKE_SCREENSHOT) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT)
+        when (intent?.action) {
+            ACTION_TAKE_SCREENSHOT -> {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                    performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT)
+                }
+            }
+            ACTION_SHOW_POWER_MENU -> {
+                performGlobalAction(GLOBAL_ACTION_POWER_DIALOG)
             }
         }
         return START_NOT_STICKY

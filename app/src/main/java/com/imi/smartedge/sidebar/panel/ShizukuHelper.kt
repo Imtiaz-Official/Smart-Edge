@@ -64,27 +64,63 @@ object ShizukuHelper {
 
     fun reboot(type: String = ""): Boolean {
         if (!hasShizukuPermission()) return false
-        // Try multiple methods to reboot
-        executeCommand("svc power reboot $type")
-        executeCommand(if (type.isEmpty()) "reboot" else "reboot $type")
-        return true
+        try {
+            // Multiple methods to reboot
+            executeCommand("svc power reboot $type")
+            executeCommand(if (type.isEmpty()) "reboot" else "reboot $type")
+            return true
+        } catch (e: Exception) {
+            return false
+        }
     }
 
     fun triggerPowerMenu(): Boolean {
         if (!hasShizukuPermission()) return false
         
         return try {
-            // Method 1: Accessibility Service approach via shell
+            // Use GLOBAL_ACTION_POWER_DIALOG and GLOBAL_ACTIONS keyevent as robust fallbacks
             executeCommand("cmd accessibility call-system-action 6")
-            
-            // Method 2: Keyevent fallback
-            executeCommand("input keyevent 26")
-            executeCommand("input keyevent --longpress 26")
+            executeCommand("input keyevent 524")
             true
         } catch (e: Exception) {
-            Log.e(TAG, "Trigger power menu error", e)
             false
         }
+    }
+
+    /**
+     * Force stops an application.
+     */
+    fun forceStopApp(packageName: String): Boolean {
+        if (!hasShizukuPermission()) return false
+        val result = executeCommand("am force-stop $packageName")
+        return !result.contains("Error")
+    }
+
+    /**
+     * Performs system navigation actions.
+     * 1: Back, 2: Home, 3: Recents
+     */
+    fun performNavigation(action: Int): Boolean {
+        if (!hasShizukuPermission()) return false
+        val keycode = when (action) {
+            1 -> 4   // Back
+            2 -> 3   // Home
+            3 -> 187 // Recents
+            else -> return false
+        }
+        executeCommand("input keyevent $keycode")
+        return true
+    }
+
+    /**
+     * Freezes (disables) or unfreezes (enables) an app.
+     */
+    fun setAppEnabled(packageName: String, enabled: Boolean): Boolean {
+        if (!hasShizukuPermission()) return false
+        // 'pm disable-user' is safer than just 'pm disable'
+        val cmd = if (enabled) "pm enable $packageName" else "pm disable-user --user 0 $packageName"
+        val result = executeCommand(cmd)
+        return !result.contains("Error")
     }
 
     private fun executeCommand(command: String): String {

@@ -95,10 +95,6 @@ class SidePanelView @JvmOverloads constructor(
 
         binding.panelCard.setOnClickListener { }
 
-        applyTheme()
-        binding.toolsContainer.visibility = if (panelPrefs.showTools) View.VISIBLE else View.GONE
-        binding.panelCard.alpha = panelPrefs.panelOpacity / 100f
-
         adapter = PanelAppsAdapter(
             context,
             onRemove = { removedApp ->
@@ -156,34 +152,36 @@ class SidePanelView @JvmOverloads constructor(
         }
 
         binding.btnReboot.setOnClickListener {
-            android.util.Log.d("SmartEdge", "Power Menu btn clicked")
             if (panelPrefs.hapticEnabled) {
                 it.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
             }
-            if (!ShizukuHelper.hasShizukuPermission()) {
-                android.util.Log.d("SmartEdge", "No Shizuku permission for power menu")
-                android.widget.Toast.makeText(context, "Shizuku Permission Required", android.widget.Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+
+            // Always try Accessibility first as it's more reliable for System UI actions
+            val intent = Intent(context, PanelAccessibilityService::class.java).apply {
+                action = PanelAccessibilityService.ACTION_SHOW_POWER_MENU
             }
-            val res = ShizukuHelper.triggerPowerMenu()
-            android.util.Log.d("SmartEdge", "Trigger result: $res")
+            context.startService(intent)
             
-            // Short delay before closing to let the command execute
+            // Also try Shizuku as a simultaneous fallback
+            if (ShizukuHelper.hasShizukuPermission()) {
+                ShizukuHelper.triggerPowerMenu()
+            }
+            
+            // Short delay before closing
             binding.root.postDelayed({
                 onClose?.invoke()
-            }, 200)
+            }, 300)
         }
 
         binding.btnReboot.setOnLongClickListener {
-            if (!ShizukuHelper.hasShizukuPermission()) {
-                android.widget.Toast.makeText(context, "Shizuku Permission Required", android.widget.Toast.LENGTH_SHORT).show()
-                return@setOnLongClickListener true
-            }
-            
             val themedContext = androidx.appcompat.view.ContextThemeWrapper(context, R.style.Theme_SidePanel)
             val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(themedContext)
-                .setTitle("Advanced Reboot")
+                .setTitle("Power Options")
                 .setItems(arrayOf("Reboot to Recovery", "Reboot to Bootloader")) { _, which ->
+                    if (!ShizukuHelper.hasShizukuPermission()) {
+                        android.widget.Toast.makeText(context, "Shizuku Permission Required for Advanced Reboot", android.widget.Toast.LENGTH_SHORT).show()
+                        return@setItems
+                    }
                     val type = when(which) {
                         0 -> "recovery"
                         1 -> "bootloader"
@@ -202,6 +200,8 @@ class SidePanelView @JvmOverloads constructor(
             dialog.show()
             true
         }
+
+        updateStyles()
     }
 
     override fun onAttachedToWindow() {

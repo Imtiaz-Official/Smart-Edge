@@ -51,6 +51,31 @@
             android:theme="@style/Theme.SidePanel.M3" />
 
         <activity
+            android:name=".SettingsMainActivity"
+            android:label="Settings"
+            android:theme="@style/Theme.SidePanel.M3" />
+
+        <activity
+            android:name=".AppearanceSettingsActivity"
+            android:label="Appearance"
+            android:theme="@style/Theme.SidePanel.M3" />
+
+        <activity
+            android:name=".InteractionSettingsActivity"
+            android:label="Interaction"
+            android:theme="@style/Theme.SidePanel.M3" />
+
+        <activity
+            android:name=".HandleSettingsActivity"
+            android:label="Handle &amp; Pill"
+            android:theme="@style/Theme.SidePanel.M3" />
+
+        <activity
+            android:name=".ToolsSettingsActivity"
+            android:label="Dashboard Tools"
+            android:theme="@style/Theme.SidePanel.M3" />
+
+        <activity
             android:name=".SettingsActivity"
             android:label="@string/settings_title"
             android:theme="@style/Theme.SidePanel.M3" />

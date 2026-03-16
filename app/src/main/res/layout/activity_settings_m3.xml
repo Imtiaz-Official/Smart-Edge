@@ -309,7 +309,6 @@
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchTools" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Show Tools Section" android:textColor="?attr/colorOnSurface" />
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchHideBg" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Invisible Background" android:textColor="?attr/colorOnSurface" />
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchColumns" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Double-Column Layout" android:textColor="?attr/colorOnSurface" />
 
@@ -370,53 +369,65 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="System Access" android:textColor="?attr/colorOnSurface" android:textStyle="bold" />
-                    
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchSysInfo" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="System Info Overlay" android:textColor="?attr/colorOnSurface" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Shows real-time RAM and Battery stats in sidebar" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchTools" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Enable Dashboard Tools" android:textColor="?attr/colorOnSurface" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Master switch for the sidebar dashboard section" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
 
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchPowerMenu" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Advanced Power Menu" android:textColor="?attr/colorOnSurface" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add Reboot/Recovery tools (Requires Shizuku)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+                    <View android:id="@+id/divTools" android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
-                    <!-- Shizuku Section -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardShizuku"
+                    <LinearLayout
+                        android:id="@+id/layoutToolsSubOptions"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="1dp"
-                        app:strokeColor="?attr/colorOutlineVariant">
-                        <LinearLayout
+                        android:orientation="vertical">
+
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="System Access" android:textColor="?attr/colorOnSurface" android:textStyle="bold" />
+                        
+                        <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchSysInfo" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="System Info Overlay" android:textColor="?attr/colorOnSurface" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Shows real-time RAM and Battery stats in sidebar" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+
+                        <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchPowerMenu" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Power Menu" android:textColor="?attr/colorOnSurface" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add Power/Reboot tools to the sidebar" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+
+                        <!-- Shizuku Section -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardShizuku"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="12dp">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Shizuku Service"
-                                android:textStyle="bold"
-                                android:textSize="13sp"
-                                android:textColor="?attr/colorPrimary" />
-                            <TextView
-                                android:id="@+id/tvShizukuStatus"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:text="Not Connected"
-                                android:textSize="11sp" />
-                            <Button
-                                android:id="@+id/btnLinkShizuku"
-                                style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_marginTop="12dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="1dp"
+                            app:strokeColor="?attr/colorOutlineVariant">
+                            <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:text="Link Shizuku"
-                                android:textSize="12sp" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
+                                android:orientation="vertical"
+                                android:padding="12dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Shizuku Service"
+                                    android:textStyle="bold"
+                                    android:textSize="13sp"
+                                    android:textColor="?attr/colorPrimary" />
+                                <TextView
+                                    android:id="@+id/tvShizukuStatus"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="Not Connected"
+                                    android:textSize="11sp" />
+                                <Button
+                                    android:id="@+id/btnLinkShizuku"
+                                    style="@style/Widget.Material3.Button.TonalButton"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:text="Link Shizuku"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

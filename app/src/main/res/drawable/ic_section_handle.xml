@@ -1,10 +1,22 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="20dp"
-    android:height="20dp"
+    android:width="24dp"
+    android:height="24dp"
     android:viewportWidth="24"
-    android:viewportHeight="24"
-    android:tint="?attr/colorPrimary">
+    android:viewportHeight="24">
+    <!-- Phone Base -->
     <path
-        android:fillColor="@android:color/white"
-        android:pathData="M17,1H7C5.9,1 5,1.9 5,3V21C5,22.1 5.9,23 7,23H17C18.1,23 19,22.1 19,21V3C19,1.9 18.1,1 17,1z M17,19H7V5H17V19z M16,7H8V9H16V7z M16,11H8V13H16V11z M16,15H8V17H16V15z"/>
+        android:fillColor="#CFD8DC"
+        android:pathData="M17,1H7C5.9,1 5,1.9 5,3V21C5,22.1 5.9,23 7,23H17C18.1,23 19,22.1 19,21V3C19,1.9 18.1,1 17,1z"/>
+    <!-- Screen -->
+    <path
+        android:fillColor="#ffffff"
+        android:pathData="M17,19H7V5H17V19z"/>
+    <!-- Handle/Pill Highlight (Neon Blue) -->
+    <path
+        android:fillColor="#00B0FF"
+        android:pathData="M18.5,8h1c0.28,0 0.5,0.22 0.5,0.5v7c0,0.28 -0.22,0.5 -0.5,0.5h-1c-0.28,0 -0.5,-0.22 -0.5,-0.5v-7c0,-0.28 0.22,-0.5 0.5,-0.5z"/>
+    <!-- Internal details -->
+    <path
+        android:fillColor="#ECEFF1"
+        android:pathData="M16,7H8V9H16V7z M16,11H8V13H16V11z M16,15H8V17H16V15z"/>
 </vector>
