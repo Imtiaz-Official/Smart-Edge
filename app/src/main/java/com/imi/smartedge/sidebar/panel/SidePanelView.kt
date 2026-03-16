@@ -156,15 +156,22 @@ class SidePanelView @JvmOverloads constructor(
         }
 
         binding.btnReboot.setOnClickListener {
+            android.util.Log.d("SmartEdge", "Power Menu btn clicked")
             if (panelPrefs.hapticEnabled) {
                 it.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
             }
             if (!ShizukuHelper.hasShizukuPermission()) {
+                android.util.Log.d("SmartEdge", "No Shizuku permission for power menu")
                 android.widget.Toast.makeText(context, "Shizuku Permission Required", android.widget.Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            ShizukuHelper.triggerPowerMenu()
-            onClose?.invoke() // Close sidebar to see the system menu
+            val res = ShizukuHelper.triggerPowerMenu()
+            android.util.Log.d("SmartEdge", "Trigger result: $res")
+            
+            // Short delay before closing to let the command execute
+            binding.root.postDelayed({
+                onClose?.invoke()
+            }, 200)
         }
 
         binding.btnReboot.setOnLongClickListener {

@@ -45,6 +45,11 @@ class MainActivity : AppCompatActivity() {
             android.util.Log.d("SmartEdge", "Applying broad HiddenApiBypass...")
             org.lsposed.hiddenapibypass.HiddenApiBypass.setHiddenApiExemptions("L")
         }
+        
+        rikka.shizuku.Shizuku.addBinderReceivedListener {
+            android.util.Log.d("SmartEdge", "Shizuku Binder Received")
+        }
+        
         panelPrefs = PanelPreferences(this)
         
         android.util.Log.d("SmartEdge", "MainActivity onCreate: setupCompleted = ${panelPrefs.setupCompleted}")

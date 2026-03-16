@@ -72,9 +72,19 @@ object ShizukuHelper {
 
     fun triggerPowerMenu(): Boolean {
         if (!hasShizukuPermission()) return false
-        // This command triggers the global power menu on most modern Android versions
-        executeCommand("input keyevent --longpress 26")
-        return true
+        
+        return try {
+            // Method 1: Accessibility Service approach via shell
+            executeCommand("cmd accessibility call-system-action 6")
+            
+            // Method 2: Keyevent fallback
+            executeCommand("input keyevent 26")
+            executeCommand("input keyevent --longpress 26")
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Trigger power menu error", e)
+            false
+        }
     }
 
     private fun executeCommand(command: String): String {

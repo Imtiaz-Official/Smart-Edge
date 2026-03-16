@@ -178,6 +178,11 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateShizukuStatus()
+    }
+
     private fun updateSupportUI() {
         // All features unlocked by default for F-Droid version
         binding.sbHandleOffset.isEnabled = true
