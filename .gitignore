@@ -11,6 +11,10 @@ captures/
 *.apk
 *.jks
 
+# Allow test releases
+!test_releases/
+!test_releases/**
+
 # Logs
 *.log
 build_output.txt
@@ -21,7 +25,7 @@ log.txt
 .DS_Store
 Thumbs.db
 
-# Project images (maybe keep screen.png?)
+# Project images
 overlap_check.png
 panel_gap*.png
 picker_collision.png
