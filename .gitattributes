@@ -1,6 +1,6 @@
 # Handle line endings automatically for files detected as text
 # and leave all files untouched if they are not binary.
-* text=auto
+* text=auto eol=lf
 
 # Denote all files that are truly binary and should not be modified.
 *.png binary
@@ -15,3 +15,4 @@
 *.wav binary
 *.ogg binary
 *.pdf binary
+*.jks binary
