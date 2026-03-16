@@ -1,9 +1,15 @@
 package com.imi.smartedge.sidebar.panel
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
+import android.util.TypedValue
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowInsetsControllerCompat
 import com.imi.smartedge.sidebar.panel.databinding.ActivitySettingsHandleBinding
+import com.google.android.material.slider.Slider
+import yuku.ambilwarna.AmbilWarnaDialog
 
 class HandleSettingsActivity : AppCompatActivity() {
 
@@ -16,10 +22,10 @@ class HandleSettingsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Set status bar color and icons
-        val typedValue = android.util.TypedValue()
+        val typedValue = TypedValue()
         theme.resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true)
         window.statusBarColor = typedValue.data
-        androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
+        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -44,8 +50,8 @@ class HandleSettingsActivity : AppCompatActivity() {
         binding.tvOffsetValue.text = "${panelPrefs.handleVerticalOffset}dp"
 
         try {
-            val color = android.graphics.Color.parseColor(panelPrefs.pillColor)
-            binding.btnPickPillColor.backgroundTintList = android.content.res.ColorStateList.valueOf(color)
+            val color = Color.parseColor(panelPrefs.pillColor)
+            binding.btnPickPillColor.backgroundTintList = ColorStateList.valueOf(color)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -53,11 +59,11 @@ class HandleSettingsActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         binding.btnPickPillColor.setOnClickListener {
-            openColorPicker(android.graphics.Color.parseColor(panelPrefs.pillColor)) { newColor ->
+            openColorPicker(Color.parseColor(panelPrefs.pillColor)) { newColor ->
                 val hex = String.format("#%06X", (0xFFFFFF and newColor))
                 panelPrefs.pillColor = hex
                 try {
-                    binding.btnPickPillColor.backgroundTintList = android.content.res.ColorStateList.valueOf(newColor)
+                    binding.btnPickPillColor.backgroundTintList = ColorStateList.valueOf(newColor)
                 } catch (e: Exception) {}
                 applyOnly()
             }
@@ -75,9 +81,9 @@ class HandleSettingsActivity : AppCompatActivity() {
                 binding.tvHeightValue.text = "${progress}dp"
             }
         }
-        binding.sbHandleHeight.addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
-            override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) {}
-            override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) {
+        binding.sbHandleHeight.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: Slider) {}
+            override fun onStopTrackingTouch(slider: Slider) {
                 applyOnly()
             }
         })
@@ -89,9 +95,9 @@ class HandleSettingsActivity : AppCompatActivity() {
                 binding.tvWidthValue.text = "${progress}dp"
             }
         }
-        binding.sbHandleWidth.addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
-            override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) {}
-            override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) {
+        binding.sbHandleWidth.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: Slider) {}
+            override fun onStopTrackingTouch(slider: Slider) {
                 applyOnly()
             }
         })
@@ -104,12 +110,22 @@ class HandleSettingsActivity : AppCompatActivity() {
                 binding.tvOffsetValue.text = "${offset}dp"
             }
         }
-        binding.sbHandleOffset.addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
-            override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) {}
-            override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) {
+        binding.sbHandleOffset.addOnSliderTouchListener(object : Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: Slider) {}
+            override fun onStopTrackingTouch(slider: Slider) {
                 applyAndShow() // Vertical offset needs a full WindowManager update
             }
         })
+    }
+
+    private fun openColorPicker(initialColor: Int, onPick: (Int) -> Unit) {
+        val picker = AmbilWarnaDialog(this, initialColor, object : AmbilWarnaDialog.OnAmbilWarnaListener {
+            override fun onCancel(dialog: AmbilWarnaDialog?) {}
+            override fun onOk(dialog: AmbilWarnaDialog?, color: Int) {
+                onPick(color)
+            }
+        })
+        picker.show()
     }
 
     private fun applyOnly() {
