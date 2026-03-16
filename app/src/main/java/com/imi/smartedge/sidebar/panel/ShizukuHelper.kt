@@ -70,6 +70,13 @@ object ShizukuHelper {
         return true
     }
 
+    fun triggerPowerMenu(): Boolean {
+        if (!hasShizukuPermission()) return false
+        // This command triggers the global power menu on most modern Android versions
+        executeCommand("input keyevent --longpress 26")
+        return true
+    }
+
     private fun executeCommand(command: String): String {
         return try {
             val methods = Shizuku::class.java.methods

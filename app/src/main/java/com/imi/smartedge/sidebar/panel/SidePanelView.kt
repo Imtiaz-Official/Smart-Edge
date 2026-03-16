@@ -156,27 +156,36 @@ class SidePanelView @JvmOverloads constructor(
         }
 
         binding.btnReboot.setOnClickListener {
+            if (panelPrefs.hapticEnabled) {
+                it.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+            }
             if (!ShizukuHelper.hasShizukuPermission()) {
                 android.widget.Toast.makeText(context, "Shizuku Permission Required", android.widget.Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            ShizukuHelper.triggerPowerMenu()
+            onClose?.invoke() // Close sidebar to see the system menu
+        }
+
+        binding.btnReboot.setOnLongClickListener {
+            if (!ShizukuHelper.hasShizukuPermission()) {
+                android.widget.Toast.makeText(context, "Shizuku Permission Required", android.widget.Toast.LENGTH_SHORT).show()
+                return@setOnLongClickListener true
+            }
             
-            // Fix: Wrap context with a proper theme for MaterialAlertDialog
             val themedContext = androidx.appcompat.view.ContextThemeWrapper(context, R.style.Theme_SidePanel)
             val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(themedContext)
-                .setTitle("Power Menu")
-                .setItems(arrayOf("Reboot", "Reboot to Recovery", "Reboot to Bootloader")) { _, which ->
+                .setTitle("Advanced Reboot")
+                .setItems(arrayOf("Reboot to Recovery", "Reboot to Bootloader")) { _, which ->
                     val type = when(which) {
-                        0 -> ""
-                        1 -> "recovery"
-                        2 -> "bootloader"
+                        0 -> "recovery"
+                        1 -> "bootloader"
                         else -> ""
                     }
                     ShizukuHelper.reboot(type)
                 }
                 .create()
             
-            // Required for dialogs shown from a Service/Overlay
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 dialog.window?.setType(android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
             } else {
@@ -184,6 +193,7 @@ class SidePanelView @JvmOverloads constructor(
             }
             
             dialog.show()
+            true
         }
     }
 
