@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:title="Dashboard Tools"
-            app:navigationIcon="@drawable/ic_chevron_right"
+            app:navigationIcon="@drawable/ic_arrow_back"
             app:navigationIconTint="?attr/colorOnSurface" />
     </com.google.android.material.appbar.AppBarLayout>
 
