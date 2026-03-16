@@ -1,0 +1,26 @@
+Categories:
+  - System
+License: MIT
+AuthorName: Imtiaz
+SourceCode: https://github.com/Imtiaz-Official/Smart-Edge
+IssueTracker: https://github.com/Imtiaz-Official/Smart-Edge/issues
+
+AutoName: Smart Edge
+
+RepoType: git
+Repo: https://github.com/Imtiaz-Official/Smart-Edge.git
+
+Builds:
+  - versionName: '1.0'
+    versionCode: 1
+    commit: 6c10f5dccc5c853905e38e95830dfdaef9518ced
+    subdir: app
+    gradle:
+      - yes
+
+AllowedAPKSigningKeys: c0747f88d8069f1951fa151a33c23a8d3a759df8b0dd876ef550ca8b5ac42433
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: '1.0'
+CurrentVersionCode: 1
