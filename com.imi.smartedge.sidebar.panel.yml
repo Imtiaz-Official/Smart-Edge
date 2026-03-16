@@ -10,7 +10,7 @@ AutoName: Smart Edge
 RepoType: git
 Repo: https://github.com/Imtiaz-Official/Smart-Edge.git
 Binaries: 
- https://github.com/Imtiaz-Official/Smart-Edge/releases/download/v%v/app-release.apk
+  https://github.com/Imtiaz-Official/Smart-Edge/releases/download/v%v/app-release.apk
 
 Builds:
   - versionName: '1.0'
