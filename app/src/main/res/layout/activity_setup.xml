@@ -92,7 +92,7 @@
                             android:id="@+id/iconOverlay"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@android:drawable/ic_menu_preferences"
+                            android:src="@drawable/ic_overlay_permission"
                             android:layout_gravity="center"
                             app:tint="?attr/colorOnSurface" />
                     </com.google.android.material.card.MaterialCardView>
