@@ -46,6 +46,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_SHOW_LOGS = "show_logs"
         private const val KEY_ANIM_SPEED = "animation_speed"
         private const val KEY_PICKER_GAP = "picker_gap"
+        private const val KEY_SERVICE_ENABLED = "service_enabled"
         
         private const val DELIMITER = ","
 
@@ -137,6 +138,10 @@ class PanelPreferences(context: Context) {
     var pickerGap: Int
         get() = prefs.getInt(KEY_PICKER_GAP, DEFAULT_PICKER_GAP)
         set(value) = prefs.edit { putInt(KEY_PICKER_GAP, value) }
+
+    var serviceEnabled: Boolean
+        get() = prefs.getBoolean(KEY_SERVICE_ENABLED, true)
+        set(value) = prefs.edit { putBoolean(KEY_SERVICE_ENABLED, value) }
 
     var useCustomAccent: Boolean
         get() = prefs.getBoolean(KEY_USE_CUSTOM_ACCENT, DEFAULT_USE_CUSTOM_ACCENT)

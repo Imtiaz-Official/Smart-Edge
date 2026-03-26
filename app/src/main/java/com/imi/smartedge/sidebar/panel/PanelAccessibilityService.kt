@@ -7,6 +7,13 @@ import android.util.Log
 
 class PanelAccessibilityService : AccessibilityService() {
 
+    private lateinit var panelPrefs: PanelPreferences
+
+    override fun onCreate() {
+        super.onCreate()
+        panelPrefs = PanelPreferences(this)
+    }
+
     companion object {
         private const val TAG = "PanelAccessibility"
         const val ACTION_TAKE_SCREENSHOT = "com.imi.smartedge.sidebar.panel.ACTION_TAKE_SCREENSHOT"
@@ -44,10 +51,12 @@ class PanelAccessibilityService : AccessibilityService() {
             // (e.g. Launcher, Recents, Notification shade, another app), instantly close the panel.
             // This achieves 0-latency auto-close for all system gestures.
             if (packageName != "com.imi.smartedge.sidebar.panel" && packageName != imePackage) {
-                val closeIntent = Intent(this, FloatingPanelService::class.java).apply {
-                    action = FloatingPanelService.ACTION_CLOSE_PANEL
+                if (panelPrefs.serviceEnabled) {
+                    val closeIntent = Intent(this, FloatingPanelService::class.java).apply {
+                        action = FloatingPanelService.ACTION_CLOSE_PANEL
+                    }
+                    startService(closeIntent)
                 }
-                startService(closeIntent)
             }
         }
     }

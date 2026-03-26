@@ -17,7 +17,7 @@ class BootReceiver : BroadcastReceiver() {
             action != "android.intent.action.QUICKBOOT_POWERON") return
 
         val prefs = PanelPreferences(context)
-        if (!prefs.autoStart) return
+        if (!prefs.autoStart || !prefs.serviceEnabled) return
         
         if (!isAccessibilityServiceEnabled(context)) return
 

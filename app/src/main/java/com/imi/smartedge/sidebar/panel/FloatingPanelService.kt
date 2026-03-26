@@ -120,7 +120,7 @@ class FloatingPanelService : Service() {
                 }
             }
         }
-        return START_STICKY
+        return if (panelPrefs.serviceEnabled) START_STICKY else START_NOT_STICKY
     }
 
     fun triggerScreenshot() {

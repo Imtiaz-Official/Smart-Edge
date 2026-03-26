@@ -72,13 +72,14 @@ class SetupActivity : AppCompatActivity() {
         val hasOverlay = hasOverlayPermission()
         val hasAccessibility = isAccessibilityServiceEnabled()
         val hasBattery = isIgnoringBatteryOptimizations()
+        val hasAutoStart = hasAutoStartPermission()
 
         updateCardState(binding.cardOverlay, binding.actionOverlay, hasOverlay)
         updateCardState(binding.cardAccessibility, binding.actionAccessibility, hasAccessibility)
         updateCardState(binding.cardBattery, binding.actionBattery, hasBattery)
         
-        // Auto-start is hard to detect, so we use interaction flag
-        updateCardState(binding.cardAutoStart, binding.actionAutoStart, hasInteractedWithAutoStart)
+        // Auto-start is hard to detect on most OEMs, but we can detect on MIUI
+        updateCardState(binding.cardAutoStart, binding.actionAutoStart, hasAutoStart)
 
         val requiredGranted = hasOverlay && hasAccessibility
         binding.btnContinue.isEnabled = requiredGranted
@@ -92,7 +93,7 @@ class SetupActivity : AppCompatActivity() {
             binding.btnContinue.alpha = 0.3f // \"Blurred\" / Faded effect
         }
         
-        val allGranted = requiredGranted && hasBattery && hasInteractedWithAutoStart
+        val allGranted = requiredGranted && hasBattery && hasAutoStart
         binding.btnGrantAll.isEnabled = !allGranted
         
         if (allGranted) {
@@ -101,6 +102,14 @@ class SetupActivity : AppCompatActivity() {
         } else {
             binding.btnGrantAll.text = "Grant all"
             binding.btnGrantAll.alpha = 1.0f
+        }
+    }
+
+    private fun hasAutoStartPermission(): Boolean {
+        return when {
+            MIUIUtils.isMIUI() -> MIUIUtils.isAutoStartEnabled(this)
+            VivoUtils.isVivo() -> VivoUtils.isAutoStartEnabled(this)
+            else -> hasInteractedWithAutoStart
         }
     }
 

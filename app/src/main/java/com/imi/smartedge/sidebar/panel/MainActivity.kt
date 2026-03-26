@@ -257,6 +257,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startPanel() {
+        panelPrefs.serviceEnabled = true
         // Optimistic UI: flip state immediately for speed
         binding.btnStartStop.text = "Stop"
         binding.tvStatus.text = "Service is Active"
@@ -276,6 +277,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopPanel() {
+        panelPrefs.serviceEnabled = false
         // Optimistic UI: flip state immediately for speed
         binding.btnStartStop.text = "Start"
         binding.tvStatus.text = "Service is Stopped"
