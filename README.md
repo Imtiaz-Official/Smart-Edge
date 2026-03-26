@@ -9,6 +9,17 @@
   Access your favorite apps, tools, and shortcuts with a single swipe.
 </p>
 
+<div align="center">
+  <table>
+    <tr>
+      <td><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="200" /></td>
+      <td><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="200" /></td>
+      <td><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="200" /></td>
+      <td><img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="200" /></td>
+    </tr>
+  </table>
+</div>
+
 <p align="center">
   <img src="https://img.shields.io/badge/Platform-Android%208.0%2B-brightgreen.svg" alt="Android 8.0+">
   <img src="https://img.shields.io/badge/Language-Kotlin-blue.svg" alt="Kotlin">
