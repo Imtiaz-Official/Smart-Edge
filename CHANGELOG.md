@@ -7,6 +7,9 @@
 ---
 
 ### Latest Release (V1.1)
+- **fix(permission)**: Implemented programmatic auto-start detection for MIUI and OriginOS (Vivo) to fix false-positive 'granted' status.
+- **fix(service)**: Fixed service restart bug where the sidebar would reappear after manual stopping.
+- **feat(docs)**: Updated F-Droid metadata with new phone screenshots.
 - **feat(licensing)**: Migrated to a 100% Open Source model for **F-Droid** compliance.
 - **feat(donation)**: Implemented a community-focused "Support SidePanel" donation model.
 - **feat(branding)**: Finalized migration to **Smart Edge Sidebar** branding.

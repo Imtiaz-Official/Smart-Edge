@@ -1,0 +1,4 @@
+- Implemented programmatic auto-start detection for MIUI and OriginOS (Vivo) to fix false-positive 'granted' status.
+- Added 'service_enabled' preference to ensure FloatingPanelService respects user's stop request.
+- Fixed service restart bug where the sidebar would reappear after manual stopping.
+- Updated F-Droid metadata with new phone screenshots.
