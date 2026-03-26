@@ -24,7 +24,7 @@
 *   **🫧 Glassmorphic Blur:** High-quality real-time background blur with **adjustable intensity** (Optimized for Android 12+).
 *   **🌈 Material You:** Full support for dynamic accent colors and Material 3 components (Supports Android 12+ dynamic colors).
 *   **🚀 Smart App Picker:** Integrated search and management system to pin your most-used apps.
-*   **🛠️ Utility Tools:** Built-in tools like **Screenshot** (one-tap), **Home**, and **Recent Apps** shortcuts.
+*   **🛠️ Utility Tools:** Built-in tools like **Screenshot** (one-tap) shortcut (Home and Recent Apps coming soon).
 *   **🍃 Premium Motion:** Physics-based spring animations with customizable feel (Calm to Instant).
 *   **📱 Edge Gestures:** Responsive edge-swipe triggers with adjustable height, width, and position.
 *   **🎭 Icon Customization:** Full support for **Icon Packs** and custom icon shapes (Circle, Squircle, Square).
