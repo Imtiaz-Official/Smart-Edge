@@ -11,7 +11,11 @@ import android.graphics.Color
 import android.content.res.ColorStateList
 import android.app.AppOpsManager
 import android.content.Context
+import android.content.Intent
 import android.os.Binder
+import android.os.Build
+import android.os.Bundle
+import android.provider.Settings
 import java.lang.reflect.Method
 
 /**
@@ -80,6 +84,69 @@ fun View.showModernToast(message: String, duration: Int = Snackbar.LENGTH_SHORT)
     
     snackbarView.layoutParams = params
     snackbar.show()
+}
+
+/**
+ * Opens the accessibility settings. On Android 12+, it deep-links directly to 
+ * this app's specific service toggle. On older versions, it opens the general
+ * list and attempts to highlight this app if the OEM supports it.
+ */
+fun Context.openAccessibilitySettings() {
+    val componentName = android.content.ComponentName(this, PanelAccessibilityService::class.java)
+    val flattenedName = componentName.flattenToString()
+    
+    // We'll try the most specific action first (Android 12+)
+    val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        Intent("android.settings.ACCESSIBILITY_DETAILS_SETTINGS").apply {
+            putExtra(Intent.EXTRA_COMPONENT_NAME, flattenedName)
+            // System highlight/flash tricks for modern Android
+            putExtra(":settings:fragment_args_key", flattenedName)
+            putExtra(":settings:show_fragment_args", Bundle().apply {
+                putString(":settings:fragment_args_key", flattenedName)
+            })
+            // Force highlighting the specific preference
+            putExtra("highlight_key", flattenedName)
+        }
+    } else {
+        Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+            putExtra(":settings:fragment_args_key", flattenedName)
+            putExtra(":settings:show_fragment_args", Bundle().apply {
+                putString(":settings:fragment_args_key", flattenedName)
+            })
+            putExtra("EXTRA_FRAGMENT_ARG_KEY", flattenedName)
+            putExtra("EXTRA_SHOW_FRAGMENT_ARGUMENTS", Bundle().apply {
+                putString(":settings:fragment_args_key", flattenedName)
+            })
+            // Legacy highlight key
+            putExtra("highlight_key", flattenedName)
+        }
+    }
+    
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    
+    try {
+        startActivity(intent)
+    } catch (e: Exception) {
+        // Fallback 1: Specifically for Vivo/OriginOS/Chinese ROMs which often 
+        // have a dedicated "Downloaded Services" or "Installed Apps" list.
+        try {
+            val vivoIntent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                // This extra often forces the "Downloaded Apps" section to open on Funtouch/OriginOS
+                putExtra(":settings:show_fragment_args", Bundle().apply {
+                    putString(":settings:fragment_args_key", flattenedName)
+                })
+            }
+            startActivity(vivoIntent)
+        } catch (e2: Exception) {
+            // Ultimate fallback to general settings
+            try {
+                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            } catch (e3: Exception) {
+                startActivity(Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+        }
+    }
 }
 
 object MIUIUtils {

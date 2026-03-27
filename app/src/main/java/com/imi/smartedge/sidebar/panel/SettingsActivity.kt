@@ -175,13 +175,8 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         binding.btnAccessibility.setOnClickListener {
-            try {
-                val intent = Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                startActivity(intent)
-                binding.root.showModernToast("Scroll down to 'Downloaded Apps' and enable 'Smart Edge'", Snackbar.LENGTH_LONG)
-            } catch (e: Exception) {
-                binding.root.showModernToast("Could not open Accessibility Settings")
-            }
+            AccessibilityGuideDialog.newInstance()
+                .show(supportFragmentManager, AccessibilityGuideDialog.TAG)
         }
 
         binding.switchTapOpen.setOnCheckedChangeListener { _, isChecked ->

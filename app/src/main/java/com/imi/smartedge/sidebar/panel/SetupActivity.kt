@@ -186,8 +186,8 @@ class SetupActivity : AppCompatActivity() {
     }
 
     private fun requestAccessibilityPermission() {
-        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-        startActivity(intent)
+        AccessibilityGuideDialog.newInstance()
+            .show(supportFragmentManager, AccessibilityGuideDialog.TAG)
     }
 
     private fun requestIgnoreBatteryOptimization() {

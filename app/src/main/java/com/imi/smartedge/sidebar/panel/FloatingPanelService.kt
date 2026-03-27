@@ -242,25 +242,34 @@ class FloatingPanelService : Service() {
     private fun initRootLayout() {
         if (rootLayout != null) return
         
-        rootLayout = android.widget.FrameLayout(this).apply {
-            setBackgroundColor(android.graphics.Color.parseColor("#01000000")) 
-            setOnTouchListener { _, event ->
-                val x = event.rawX.toInt()
-                val y = event.rawY.toInt()
-                sidePanelView?.getPanelCardRect(sideRect)
-                val insidePicker = if (isPickerOpen) {
-                    pickerPanelView?.getPickerCardRect(pickerRect)
-                    pickerRect.contains(x, y)
-                } else false
-                val insideSide = sideRect.contains(x, y)
-                if (insideSide || insidePicker) {
-                    return@setOnTouchListener false
+        rootLayout = object : android.widget.FrameLayout(this) {
+            override fun onInterceptTouchEvent(ev: android.view.MotionEvent): Boolean {
+                // Only intercept a DOWN that lands outside both panels.
+                // Everything else (MOVE, UP, scroll chains) flows to children untouched.
+                if (ev.action == android.view.MotionEvent.ACTION_DOWN) {
+                    // Use ev.x/ev.y (local to this FrameLayout) and getHitRect (also local),
+                    // so hit-testing is accurate even during spring translation animations.
+                    val x = ev.x.toInt()
+                    val y = ev.y.toInt()
+                    val insideSide = sidePanelView?.let { v ->
+                        v.getHitRect(sideRect)
+                        sideRect.contains(x, y)
+                    } ?: false
+                    val insidePicker = if (isPickerOpen) {
+                        pickerPanelView?.let { v ->
+                            v.getHitRect(pickerRect)
+                            pickerRect.contains(x, y)
+                        } ?: false
+                    } else false
+                    if (!insideSide && !insidePicker) {
+                        closePanel()
+                        return true // consume this touch sequence
+                    }
                 }
-                if (event.action == android.view.MotionEvent.ACTION_DOWN) {
-                    closePanel()
-                }
-                true
+                return false // let children handle everything else
             }
+        }.apply {
+            setBackgroundColor(android.graphics.Color.parseColor("#01000000"))
         }
 
         rootParams = WindowManager.LayoutParams(

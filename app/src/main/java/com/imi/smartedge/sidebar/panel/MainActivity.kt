@@ -245,7 +245,7 @@ class MainActivity : AppCompatActivity() {
 
         if (!isAccessibilityServiceEnabled()) {
             binding.root.showModernToast("Please enable 'SidePanel' in Accessibility Settings", Snackbar.LENGTH_LONG)
-            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            openAccessibilitySettings()
             return
         }
 
@@ -302,7 +302,7 @@ class MainActivity : AppCompatActivity() {
         
         if (!isAccessibilityServiceEnabled()) {
             binding.root.showModernToast("Please enable 'SidePanel' in Accessibility Settings", Snackbar.LENGTH_LONG)
-            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            openAccessibilitySettings()
             return
         }
         
