@@ -73,6 +73,36 @@
             android:background="#33FFFFFF"
             android:layout_marginBottom="8dp" />
 
+        <!-- Power Menu Section (Shizuku) -->
+        <LinearLayout
+            android:id="@+id/layoutPowerTools"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:visibility="gone">
+            
+            <ImageButton
+                android:id="@+id/btnReboot"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_close_btn"
+                android:backgroundTint="#1AFFFFFF"
+                android:padding="8dp"
+                android:scaleType="fitCenter"
+                android:src="@android:drawable/ic_lock_power_off"
+                android:tint="#D9FFFFFF" />
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PWR"
+                android:textColor="#80FFFFFF"
+                android:textSize="7sp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="8dp" />
+        </LinearLayout>
+
         <!-- Screenshot Button -->
         <ImageButton
             android:id="@+id/btnScreenshot"
@@ -93,6 +123,31 @@
             android:textSize="7sp"
             android:layout_marginTop="2dp"
             android:layout_marginBottom="4dp" />
+
+        <!-- System Info -->
+        <LinearLayout
+            android:id="@+id/layoutSysInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="4dp"
+            android:visibility="gone">
+            <TextView
+                android:id="@+id/tvRamUsage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="RAM: --"
+                android:textColor="#B3FFFFFF"
+                android:textSize="6sp" />
+            <TextView
+                android:id="@+id/tvBatTemp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BAT: --"
+                android:textColor="#B3FFFFFF"
+                android:textSize="6sp" />
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -122,3 +177,4 @@
         </LinearLayout>
 
         </RelativeLayout>
+

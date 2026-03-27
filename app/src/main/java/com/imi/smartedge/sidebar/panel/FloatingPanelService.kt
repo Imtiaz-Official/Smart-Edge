@@ -40,6 +40,36 @@ class FloatingPanelService : Service() {
     
     private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
 
+    private val packageReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val action = intent?.action
+            if (action == Intent.ACTION_PACKAGE_ADDED || 
+                action == Intent.ACTION_PACKAGE_REMOVED || 
+                action == Intent.ACTION_PACKAGE_REPLACED) {
+                
+                val packageName = intent.data?.schemeSpecificPart
+                if (packageName != null) {
+                    // Invalidate system icon cache for this app
+                    AppRepository.clearSystemIconCache(packageName)
+                    
+                    // If it was removed, remove it from pinned apps too
+                    if (action == Intent.ACTION_PACKAGE_REMOVED && !intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                        panelPrefs.removeApp(packageName)
+                    }
+
+                    // Refresh lists if picker or panel is open
+                    if (isPanelOpen) {
+                        refreshApps()
+                    }
+                    if (isPickerOpen) {
+                        pickerPanelView?.invalidateAppList()
+                        pickerPanelView?.loadApps(forceRefresh = true)
+                    }
+                }
+            }
+        }
+    }
+
     private val systemDialogsReceiver = object : android.content.BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == Intent.ACTION_CLOSE_SYSTEM_DIALOGS) {
@@ -86,6 +116,14 @@ class FloatingPanelService : Service() {
             registerReceiver(systemDialogsReceiver, filter)
         }
 
+        val pkgFilter = android.content.IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addAction(Intent.ACTION_PACKAGE_REPLACED)
+            addDataScheme("package")
+        }
+        registerReceiver(packageReceiver, pkgFilter)
+
         serviceScope.launch {
             if (panelPrefs.getPanelApps().isEmpty()) {
                 val topApps = AppRepository(this@FloatingPanelService).getTop5Apps()
@@ -106,7 +144,9 @@ class FloatingPanelService : Service() {
             ACTION_REFRESH -> {
                 edgeHandleView?.updateFromPrefs()
                 sidePanelView?.updateStyles()
+                sidePanelView?.refreshIcons()
                 pickerPanelView?.applyTheme()
+                pickerPanelView?.clearIcons()
                 updateBlur(isPanelOpen)
                 if (isPickerOpen) {
                     pickerPanelView?.loadApps() 
@@ -139,6 +179,7 @@ class FloatingPanelService : Service() {
         serviceScope.cancel()
         try {
             unregisterReceiver(systemDialogsReceiver)
+            unregisterReceiver(packageReceiver)
         } catch (e: Exception) {}
         removeView(edgeHandleView)
         removeView(sidePanelView)
@@ -241,37 +282,81 @@ class FloatingPanelService : Service() {
 
     private fun initRootLayout() {
         if (rootLayout != null) return
-        
+
         rootLayout = object : android.widget.FrameLayout(this) {
-            override fun onInterceptTouchEvent(ev: android.view.MotionEvent): Boolean {
-                // Only intercept a DOWN that lands outside both panels.
-                // Everything else (MOVE, UP, scroll chains) flows to children untouched.
-                if (ev.action == android.view.MotionEvent.ACTION_DOWN) {
-                    // Use ev.x/ev.y (local to this FrameLayout) and getHitRect (also local),
-                    // so hit-testing is accurate even during spring translation animations.
-                    val x = ev.x.toInt()
-                    val y = ev.y.toInt()
+            override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+                if (event.action == android.view.KeyEvent.ACTION_UP && event.keyCode == android.view.KeyEvent.KEYCODE_BACK) {
+                    if (isPickerOpen) {
+                        val view = findFocus()
+                        if (view is android.widget.EditText && view.hasFocus()) {
+                            view.clearFocus()
+                            this.requestFocus()
+                            val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                            imm.hideSoftInputFromWindow(view.windowToken, 0)
+                            return true
+                        }
+                        closePicker()
+                        return true
+                    } else {
+                        closePanel()
+                        return true
+                    }
+                }
+                return super.dispatchKeyEvent(event)
+            }
+        }.apply {
+            setBackgroundColor(android.graphics.Color.parseColor("#01000000"))
+            isFocusable = true
+            isFocusableInTouchMode = true
+
+            // This captures the actual click
+            setOnClickListener {
+                val view = findFocus()
+                var closedKeyboard = false
+                if (view is android.widget.EditText && view.hasFocus()) {
+                    view.clearFocus()
+                    this.requestFocus() // take focus away from EditText
+                    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                    imm.hideSoftInputFromWindow(view.windowToken, 0)
+                    closedKeyboard = true
+                }
+
+                if (!closedKeyboard) {
+                    if (isPickerOpen) {
+                        closePicker()
+                    } else {
+                        closePanel()
+                    }
+                }
+            }
+
+            // This ensures we can detect if the touch was inside or outside our children
+            setOnTouchListener { _, event ->
+                if (event.action == android.view.MotionEvent.ACTION_DOWN) {
+                    val x = event.x.toInt()
+                    val y = event.y.toInt()
+
                     val insideSide = sidePanelView?.let { v ->
                         v.getHitRect(sideRect)
                         sideRect.contains(x, y)
                     } ?: false
+
                     val insidePicker = if (isPickerOpen) {
                         pickerPanelView?.let { v ->
                             v.getHitRect(pickerRect)
                             pickerRect.contains(x, y)
                         } ?: false
                     } else false
-                    if (!insideSide && !insidePicker) {
-                        closePanel()
-                        return true // consume this touch sequence
+
+                    if (insideSide || insidePicker) {
+                        // Let the touch pass through to the panel/picker
+                        return@setOnTouchListener false
                     }
                 }
-                return false // let children handle everything else
+                // Return false to allow setOnClickListener to handle the tap
+                false
             }
-        }.apply {
-            setBackgroundColor(android.graphics.Color.parseColor("#01000000"))
         }
-
         rootParams = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,

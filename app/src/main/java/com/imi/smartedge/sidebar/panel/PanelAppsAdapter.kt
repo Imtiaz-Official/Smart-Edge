@@ -9,6 +9,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 
 class PanelAppsAdapter(
     private val context: Context,
@@ -23,9 +25,12 @@ class PanelAppsAdapter(
     fun setShowAddButton(show: Boolean) {
         if (showAddButton != show) {
             showAddButton = show
-            // Use notifyDataSetChanged to avoid off-by-one if a submitList diff is in-flight
             notifyDataSetChanged()
         }
+    }
+
+    fun refreshIcons() {
+        notifyDataSetChanged()
     }
 
     companion object {
@@ -78,7 +83,16 @@ class PanelAppsAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is AppViewHolder) {
             val app = getItem(position)
-            holder.ivIcon.setImageDrawable(app.icon)
+            
+            // --- OPTIMIZED ICON LOADING WITH GLIDE ---
+            // Pass icon pack explicitly so Glide treats it as a new resource when pack changes
+            Glide.with(context)
+                .load(AppIconRequest(app.packageName, panelPrefs.selectedIconPack))
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(android.R.drawable.sym_def_app_icon)
+                .override(120, 120)
+                .into(holder.ivIcon)
+                
             holder.tvName.text = app.appName
             
             // Apply icon shape
@@ -109,7 +123,6 @@ class PanelAppsAdapter(
             }
 
             holder.itemView.setOnLongClickListener {
-                // Use bindingAdapterPosition to get the live index, not the captured one
                 val currentPos = holder.bindingAdapterPosition
                 if (currentPos != RecyclerView.NO_POSITION) {
                     if (panelPrefs.hapticEnabled) {
@@ -121,7 +134,6 @@ class PanelAppsAdapter(
                 true
             }
         } else if (holder is AddViewHolder) {
-            // ALWAYS reset properties first to prevent "tiny icon" from previous states
             holder.itemView.animate().cancel()
             holder.itemView.alpha = 1f
             holder.itemView.scaleX = 1f
@@ -143,7 +155,6 @@ class PanelAppsAdapter(
 
         override fun areContentsTheSame(oldItem: AppInfo, newItem: AppInfo) =
             oldItem.appName == newItem.appName && 
-            oldItem.isInPanel == newItem.isInPanel &&
-            oldItem.icon === newItem.icon // Reference comparison for icons
+            oldItem.isInPanel == newItem.isInPanel
     }
 }

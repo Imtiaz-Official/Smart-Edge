@@ -27,18 +27,18 @@
                 android:layout_marginBottom="56dp">
 
                 <com.google.android.material.card.MaterialCardView
-                    android:layout_width="140dp"
-                    android:layout_height="140dp"
-                    app:cardCornerRadius="70dp"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    app:cardCornerRadius="60dp"
                     app:cardElevation="0dp"
-                    app:cardBackgroundColor="?attr/colorPrimaryContainer"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:strokeWidth="0dp"
                     android:layout_marginBottom="32dp">
-                    
+
                     <ImageView
-                        android:layout_width="84dp"
-                        android:layout_height="84dp"
-                        android:src="@mipmap/ic_launcher_round"
-                        android:layout_gravity="center" />
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@mipmap/ic_launcher_round" />
                 </com.google.android.material.card.MaterialCardView>
 
                 <TextView
@@ -157,7 +157,7 @@
                             android:id="@+id/iconAccessibility"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@android:drawable/ic_menu_manage"
+                            android:src="@drawable/ic_setup_accessibility"
                             android:layout_gravity="center"
                             app:tint="?attr/colorOnSurface" />
                     </com.google.android.material.card.MaterialCardView>
@@ -293,7 +293,7 @@
                             android:id="@+id/iconAutoStart"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@android:drawable/ic_menu_rotate"
+                            android:src="@drawable/ic_setup_autostart"
                             android:layout_gravity="center"
                             app:tint="?attr/colorOnSurface" />
                     </com.google.android.material.card.MaterialCardView>

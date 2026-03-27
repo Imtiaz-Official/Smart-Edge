@@ -2,17 +2,12 @@ package com.imi.smartedge.sidebar.panel
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Loads all user-installed, launchable apps from the PackageManager.
- * Also cross-references with PanelPreferences to mark which apps are pinned.
- *
- * Uses two-pass icon loading:
- *   1. getAllApps() returns metadata immediately with null icons (fast).
- *   2. loadIconForApp() loads a single icon on demand (call from worker thread).
+ * Loads metadata for all user-installed, launchable apps from the PackageManager.
+ * Icons are handled separately by Glide using the package name.
  */
 class AppRepository(context: Context) {
 
@@ -22,18 +17,53 @@ class AppRepository(context: Context) {
     private val iconPackManager = IconPackManager(appContext)
 
     companion object {
-        // LRU cache capped at 150 entries to prevent unbounded memory growth.
-        // Key: iconPackName + "|" + packageName
-        private val iconCache = object : android.util.LruCache<String, Drawable>(150) {}
-        
-        fun clearCache() {
-            iconCache.evictAll()
+        // Fast in-memory cache specifically for SYSTEM icons.
+        // System icons don't change when switching packs, so caching them here 
+        // bypasses the expensive PackageManager IPC calls entirely.
+        private val systemIconCache = java.util.concurrent.ConcurrentHashMap<String, android.graphics.drawable.Drawable>()
+
+        fun clearSystemIconCache(packageName: String) {
+            systemIconCache.remove(packageName)
         }
     }
 
     /**
-     * Returns all launchable apps with metadata only (icon = null).
-     * Call [loadIconForApp] afterwards to populate icons lazily.
+     * Loads and returns the icon for a single app.
+     * Synchronous version for background threads.
+     */
+    fun loadIconForAppSync(packageName: String): android.graphics.drawable.Drawable? {
+        val selectedPack = panelPrefs.selectedIconPack
+        
+        // Always try custom pack first
+        val customIcon = iconPackManager.getIcon(packageName, selectedPack)
+        if (customIcon != null) return customIcon
+
+        // If no custom pack or it's "none", we need the system icon.
+        // Check our fast memory cache first before asking the OS.
+        systemIconCache[packageName]?.let { return it }
+
+        return try {
+            val appInfo = packageManager.getApplicationInfo(packageName, 0)
+            val icon = appInfo.loadIcon(packageManager)
+            if (icon != null) {
+                systemIconCache[packageName] = icon
+            }
+            icon
+        } catch (e: Exception) {
+            try {
+                val icon = packageManager.getApplicationIcon(packageName)
+                if (icon != null) {
+                    systemIconCache[packageName] = icon
+                }
+                icon
+            } catch (e2: Exception) {
+                null
+            }
+        }
+    }
+
+    /**
+     * Returns all launchable apps with metadata only.
      */
     suspend fun getAllApps(): List<AppInfo> = withContext(Dispatchers.IO) {
         val intent = android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
@@ -49,38 +79,10 @@ class AppRepository(context: Context) {
                 AppInfo(
                     packageName = pkg,
                     appName = resolveInfo.loadLabel(packageManager).toString(),
-                    icon = null, // Loaded lazily via loadIconForApp()
                     isInPanel = panelPackages.contains(pkg)
                 )
             }
             .sortedBy { it.appName.lowercase() }
-    }
-
-    /**
-     * Loads and returns the icon for a single app.
-     * Must be called from a background thread (Dispatchers.IO).
-     */
-    suspend fun loadIconForApp(packageName: String): Drawable? = withContext(Dispatchers.IO) {
-        val selectedPack = panelPrefs.selectedIconPack
-        val cacheKey = "$selectedPack|$packageName"
-        iconCache.get(cacheKey)?.let { return@withContext it }
-
-        val customIcon = iconPackManager.getIcon(packageName, selectedPack)
-        val finalIcon = if (customIcon != null) customIcon else {
-            try {
-                val appInfo = packageManager.getApplicationInfo(packageName, 0)
-                appInfo.loadIcon(packageManager)
-            } catch (e: Exception) {
-                try {
-                    packageManager.getApplicationIcon(packageName)
-                } catch (e2: Exception) {
-                    null
-                }
-            }
-        }
-        
-        if (finalIcon != null) iconCache.put(cacheKey, finalIcon)
-        return@withContext finalIcon
     }
 
     /**
@@ -90,8 +92,6 @@ class AppRepository(context: Context) {
         val panelPackages = panelPrefs.getPanelApps().distinct()
         if (panelPackages.isEmpty()) return@withContext emptyList()
 
-        val selectedPack = panelPrefs.selectedIconPack
-
         val intent = android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
             addCategory(android.content.Intent.CATEGORY_LAUNCHER)
         }
@@ -99,48 +99,24 @@ class AppRepository(context: Context) {
             .associateBy { it.activityInfo.packageName }
 
         panelPackages.mapNotNull { pkg ->
-            val cacheKey = "$selectedPack|$pkg"
-            val cachedIcon = iconCache.get(cacheKey)
-            
-            if (cachedIcon != null) {
-                // If we have resolveInfo, we can load label too
-                val resolveInfo = allLaunchable[pkg]
-                val appName = if (resolveInfo != null) {
-                    resolveInfo.loadLabel(packageManager).toString()
-                } else {
-                    try {
-                        val appInfo = packageManager.getApplicationInfo(pkg, 0)
-                        packageManager.getApplicationLabel(appInfo).toString()
-                    } catch (e: Exception) { pkg }
-                }
-                return@mapNotNull AppInfo(pkg, appName, cachedIcon, true)
-            }
-
             val resolveInfo = allLaunchable[pkg]
-            val customIcon = iconPackManager.getIcon(pkg, selectedPack)
-
-            val finalIcon = if (resolveInfo != null) {
-                customIcon ?: resolveInfo.loadIcon(packageManager)
+            if (resolveInfo != null) {
+                AppInfo(
+                    packageName = pkg,
+                    appName = resolveInfo.loadLabel(packageManager).toString(),
+                    isInPanel = true
+                )
             } else {
                 try {
                     val appInfo = packageManager.getApplicationInfo(pkg, 0)
-                    customIcon ?: packageManager.getApplicationIcon(appInfo)
-                } catch (e: Exception) { null }
-            }
-
-            if (finalIcon != null) {
-                iconCache.put(cacheKey, finalIcon)
-                val appName = if (resolveInfo != null) {
-                    resolveInfo.loadLabel(packageManager).toString()
-                } else {
-                    try {
-                        val appInfo = packageManager.getApplicationInfo(pkg, 0)
-                        packageManager.getApplicationLabel(appInfo).toString()
-                    } catch (e: Exception) { pkg }
+                    AppInfo(
+                        packageName = pkg,
+                        appName = packageManager.getApplicationLabel(appInfo).toString(),
+                        isInPanel = true
+                    )
+                } catch (e: Exception) {
+                    null
                 }
-                AppInfo(pkg, appName, finalIcon, true)
-            } else {
-                null
             }
         }
     }

@@ -9,8 +9,13 @@ import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class IconPackActivity : AppCompatActivity() {
 
@@ -39,14 +44,13 @@ class IconPackActivity : AppCompatActivity() {
 
         rv.adapter = IconPackAdapter(packs, panelPrefs.selectedIconPack) { selectedPkg ->
             panelPrefs.selectedIconPack = selectedPkg
-            AppRepository.clearCache() // IMPORTANT: Clear cache before refresh
             
-            // Notify service to refresh icons immediately
-            val intent = android.content.Intent(this, FloatingPanelService::class.java).apply {
+            // Notify service to refresh icons immediately.
+            // Glide automatically handles the cache via the unique AppIconRequest key.
+            val intent = android.content.Intent(this@IconPackActivity, FloatingPanelService::class.java).apply {
                 action = FloatingPanelService.ACTION_REFRESH
             }
             startForegroundService(intent)
-            
             finish()
         }    }
 

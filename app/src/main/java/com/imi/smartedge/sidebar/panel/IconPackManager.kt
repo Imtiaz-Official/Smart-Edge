@@ -8,6 +8,7 @@ import android.util.Log
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 import java.io.InputStreamReader
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Utility to manage and retrieve icons from external Icon Packs.
@@ -16,8 +17,58 @@ import java.io.InputStreamReader
 class IconPackManager(private val context: Context) {
 
     private val packageManager: PackageManager = context.packageManager
-    private var iconMap = HashMap<String, String>()
-    private var currentPackForMap = ""
+
+    companion object {
+        private val iconMap = ConcurrentHashMap<String, String>()
+        @Volatile private var currentPackForMap = ""
+
+        @Synchronized
+        private fun loadAppFilter(context: Context, iconPackPackage: String) {
+            if (currentPackForMap == iconPackPackage) return
+            iconMap.clear()
+            currentPackForMap = iconPackPackage
+            
+            try {
+                val packageManager = context.packageManager
+                val iconPackRes = packageManager.getResourcesForApplication(iconPackPackage)
+                val am = iconPackRes.assets
+                val inputStream = am.open("appfilter.xml")
+                
+                val factory = XmlPullParserFactory.newInstance()
+                val parser = factory.newPullParser()
+                parser.setInput(InputStreamReader(inputStream))
+
+                var eventType = parser.eventType
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    if (eventType == XmlPullParser.START_TAG && parser.name == "item") {
+                        val component = parser.getAttributeValue(null, "component")
+                        val drawable = parser.getAttributeValue(null, "drawable")
+                        
+                        if (component != null && drawable != null) {
+                            val pkg = extractPackage(component)
+                            if (pkg.isNotEmpty()) {
+                                iconMap[pkg] = drawable
+                            }
+                        }
+                    }
+                    eventType = parser.next()
+                }
+                inputStream.close()
+                Log.d("IconPackManager", "Loaded ${iconMap.size} mappings from $iconPackPackage")
+            } catch (e: Exception) {
+                Log.e("IconPackManager", "Error parsing appfilter for $iconPackPackage: ${e.message}")
+            }
+        }
+
+        private fun extractPackage(component: String): String {
+            val start = component.indexOf("{") + 1
+            val end = component.indexOf("/")
+            if (start > 0 && end > start) {
+                return component.substring(start, end)
+            }
+            return ""
+        }
+    }
 
     fun getInstalledIconPacks(): List<IconPackInfo> {
         val iconPacks = mutableListOf<IconPackInfo>()
@@ -35,57 +86,10 @@ class IconPackManager(private val context: Context) {
         return iconPacks.sortedBy { it.label.lowercase() }
     }
 
-    private fun loadAppFilter(iconPackPackage: String) {
-        if (currentPackForMap == iconPackPackage) return
-        iconMap.clear()
-        currentPackForMap = iconPackPackage
-        
-        try {
-            val iconPackRes = packageManager.getResourcesForApplication(iconPackPackage)
-            val am = iconPackRes.assets
-            val inputStream = am.open("appfilter.xml")
-            
-            val factory = XmlPullParserFactory.newInstance()
-            val parser = factory.newPullParser()
-            parser.setInput(InputStreamReader(inputStream))
-
-            var eventType = parser.eventType
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.START_TAG && parser.name == "item") {
-                    val component = parser.getAttributeValue(null, "component")
-                    val drawable = parser.getAttributeValue(null, "drawable")
-                    
-                    if (component != null && drawable != null) {
-                        // Extract package from ComponentInfo{pkg/activity}
-                        val pkg = extractPackage(component)
-                        if (pkg.isNotEmpty()) {
-                            iconMap[pkg] = drawable
-                        }
-                    }
-                }
-                eventType = parser.next()
-            }
-            inputStream.close()
-            Log.d("IconPackManager", "Loaded ${iconMap.size} mappings from $iconPackPackage")
-        } catch (e: Exception) {
-            Log.e("IconPackManager", "Error parsing appfilter for $iconPackPackage: ${e.message}")
-        }
-    }
-
-    private fun extractPackage(component: String): String {
-        // Format: ComponentInfo{com.android.chrome/com.google.android.apps.chrome.Main}
-        val start = component.indexOf("{") + 1
-        val end = component.indexOf("/")
-        if (start > 0 && end > start) {
-            return component.substring(start, end)
-        }
-        return ""
-    }
-
     fun getIcon(packageName: String, iconPackPackage: String): Drawable? {
         if (iconPackPackage == "none") return null
         
-        loadAppFilter(iconPackPackage)
+        loadAppFilter(context, iconPackPackage)
         
         val drawableName = iconMap[packageName]
         if (drawableName != null) {

@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         binding.btnStartStop.setOnClickListener { togglePanel() }
         binding.btnTogglePanel.setOnClickListener { triggerPanelToggle() }
         binding.btnSettings.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
+            startActivity(Intent(this, SettingsMainActivity::class.java))
         }
         binding.btnShowLogs.setOnClickListener {
             showLogsDialog()

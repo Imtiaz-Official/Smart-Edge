@@ -29,14 +29,14 @@ class PanelPreferences(context: Context) {
         private const val KEY_PANEL_COLUMNS = "panel_columns"
         private const val KEY_UI_THEME = "ui_theme"
         private const val KEY_IS_UNLOCKED = "is_unlocked"
-        
+
         private const val KEY_PANEL_RADIUS = "panel_radius"
         private const val KEY_PANEL_BG_COLOR = "panel_bg_color"
         private const val KEY_HIDE_BG = "hide_bg"
         private const val KEY_SHOW_TOOLS = "show_tools"
         private const val KEY_ICON_SHAPE = "icon_shape"
         private const val KEY_GESTURES_ENABLED = "gestures_enabled"
-        
+
         private const val KEY_PILL_WIDTH = "pill_width"
         private const val KEY_PILL_COLOR = "pill_color"
         private const val KEY_TAP_TO_OPEN = "tap_to_open"
@@ -46,17 +46,19 @@ class PanelPreferences(context: Context) {
         private const val KEY_SHOW_LOGS = "show_logs"
         private const val KEY_ANIM_SPEED = "animation_speed"
         private const val KEY_PICKER_GAP = "picker_gap"
-        private const val KEY_SERVICE_ENABLED = "service_enabled"
-        
+        private const val KEY_SHOW_SYS_INFO = "show_sys_info"
+        private const val KEY_SHOW_POWER_MENU = "show_power_menu"
+
         private const val DELIMITER = ","
 
         const val SIDE_RIGHT = "right"
         const val SIDE_LEFT = "left"
-        
+
         const val THEME_ORIGIN = "origin"
         const val THEME_HYPEROS = "hyperos"
         const val THEME_REALME = "realme"
         const val THEME_RICH = "rich"
+        const val THEME_M3 = "material3"
 
         const val SHAPE_SYSTEM = "system"
         const val SHAPE_CIRCLE = "circle"
@@ -77,7 +79,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_USE_CUSTOM_ACCENT = false // OFF BY DEFAULT
         const val DEFAULT_PANEL_COLS = 1
         const val DEFAULT_THEME = THEME_ORIGIN
-        const val DEFAULT_PANEL_RADIUS = 20 
+        const val DEFAULT_PANEL_RADIUS = 20
         const val DEFAULT_PANEL_BG = "#E61A1C1E"
         const val DEFAULT_HIDE_BG = false
         const val DEFAULT_SHOW_TOOLS = true
@@ -131,17 +133,23 @@ class PanelPreferences(context: Context) {
             putBoolean(KEY_BLUR_ENABLED, false)
             putInt(KEY_ANIM_SPEED, DEFAULT_ANIM_SPEED)
             putInt(KEY_PICKER_GAP, DEFAULT_PICKER_GAP)
+            putBoolean(KEY_SHOW_SYS_INFO, false)
+            putBoolean(KEY_SHOW_POWER_MENU, false)
             // Removed: putString(KEY_PANEL_APPS, "") -> Keep user's apps!
         }
     }
 
+    var showSysInfo: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_SYS_INFO, false)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_SYS_INFO, value) }
+
+    var showPowerMenu: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_POWER_MENU, false)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_POWER_MENU, value) }
+
     var pickerGap: Int
         get() = prefs.getInt(KEY_PICKER_GAP, DEFAULT_PICKER_GAP)
         set(value) = prefs.edit { putInt(KEY_PICKER_GAP, value) }
-
-    var serviceEnabled: Boolean
-        get() = prefs.getBoolean(KEY_SERVICE_ENABLED, true)
-        set(value) = prefs.edit { putBoolean(KEY_SERVICE_ENABLED, value) }
 
     var useCustomAccent: Boolean
         get() = prefs.getBoolean(KEY_USE_CUSTOM_ACCENT, DEFAULT_USE_CUSTOM_ACCENT)
@@ -246,6 +254,10 @@ class PanelPreferences(context: Context) {
     var setupCompleted: Boolean
         get() = prefs.getBoolean("setup_completed_new", false)
         set(value) = prefs.edit { putBoolean("setup_completed_new", value) }
+
+    var serviceEnabled: Boolean
+        get() = prefs.getBoolean("service_enabled", true)
+        set(value) = prefs.edit { putBoolean("service_enabled", value) }
 
     fun getPanelApps(): List<String> {
         val raw = prefs.getString(KEY_PANEL_APPS, "") ?: ""

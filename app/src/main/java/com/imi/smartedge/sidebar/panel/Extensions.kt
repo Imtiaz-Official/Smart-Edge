@@ -127,7 +127,21 @@ fun Context.openAccessibilitySettings() {
     try {
         startActivity(intent)
     } catch (e: Exception) {
-        // Fallback 1: Specifically for Vivo/OriginOS/Chinese ROMs which often 
+        // Fallback 1: Specifically for Xiaomi/MIUI/HyperOS to open the "Downloaded Apps" section
+        if (MIUIUtils.isMIUI()) {
+            try {
+                val miuiIntent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    putExtra(":settings:show_fragment", "com.android.settings.accessibility.AccessibilitySettingsForUnderO")
+                }
+                startActivity(miuiIntent)
+                return
+            } catch (e2: Exception) {
+                // Ignore and fall through to other fallbacks
+            }
+        }
+
+        // Fallback 2: Specifically for Vivo/OriginOS/Chinese ROMs which often 
         // have a dedicated "Downloaded Services" or "Installed Apps" list.
         try {
             val vivoIntent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {

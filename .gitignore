@@ -31,3 +31,9 @@ xx.jpg
 # Signing Keys
 release-key.jks
 keystore.properties
+
+build_log.txt
+
+com.imi.smartedge.sidebar.panel.yml
+
+source_log.txt

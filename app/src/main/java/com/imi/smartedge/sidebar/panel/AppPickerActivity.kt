@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.imi.smartedge.sidebar.panel.databinding.ActivityAppPickerM3Binding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -69,6 +71,14 @@ class AppPickerActivity : AppCompatActivity() {
         loadApps()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Force rebind so Glide picks up new icon pack if it changed
+        if (::pickerAdapter.isInitialized) {
+            pickerAdapter.notifyDataSetChanged()
+        }
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         onBackPressedDispatcher.onBackPressed()
         return true
@@ -110,7 +120,16 @@ class AppPickerActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: PickerViewHolder, position: Int) {
             val app = getItem(position)
-            holder.ivIcon.setImageDrawable(app.icon)
+            
+            // --- OPTIMIZED ICON LOADING WITH GLIDE ---
+            // Pass icon pack explicitly so Glide treats it as a new resource when pack changes
+            Glide.with(this@AppPickerActivity)
+                .load(AppIconRequest(app.packageName, panelPrefs.selectedIconPack))
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(android.R.drawable.sym_def_app_icon)
+                .override(120, 120)
+                .into(holder.ivIcon)
+
             holder.tvName.text = app.appName
 
             // Reset listener before setting checked (avoid spurious callbacks)

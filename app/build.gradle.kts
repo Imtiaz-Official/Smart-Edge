@@ -14,8 +14,8 @@ android {
         applicationId = "com.imi.smartedge.sidebar.panel"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.androidx.dynamicanimation)
     implementation(libs.glide)
     implementation("com.github.yukuku:ambilwarna:2.0.1")
+    implementation("dev.rikka.shizuku:api:13.1.5")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
