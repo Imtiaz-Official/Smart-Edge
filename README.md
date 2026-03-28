@@ -9,6 +9,19 @@
   Access your favorite apps, tools, and shortcuts with a single swipe.
 </p>
 
+<p align="center">
+  <img src="https://img.shields.io/f-droid/v/com.imi.smartedge.sidebar.panel?logo=f-droid&logoColor=white" alt="F-Droid">
+  <img src="https://img.shields.io/badge/Platform-Android%208.0%2B-brightgreen.svg" alt="Android 8.0+">
+  <img src="https://img.shields.io/badge/Language-Kotlin-blue.svg" alt="Kotlin">
+  <img src="https://img.shields.io/badge/License-MIT-orange.svg" alt="License MIT">
+  <img src="https://img.shields.io/badge/Design-Material%203-7b1fa2.svg" alt="Material 3">
+</p>
+
+<p align="center">
+  <a href="https://f-droid.org/en/packages/com.imi.smartedge.sidebar.panel/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80" border="0"></a>
+  <a href="https://github.com/Imtiaz-Official/Smart-Edge/releases/latest"><img src="https://raw.githubusercontent.com/machiav3lli/oandbackupx/master/badge_github.png" alt="Get it on GitHub" height="80" border="0"></a>
+</p>
+
 <div align="center">
   <table>
     <tr>
@@ -19,13 +32,6 @@
     </tr>
   </table>
 </div>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Platform-Android%208.0%2B-brightgreen.svg" alt="Android 8.0+">
-  <img src="https://img.shields.io/badge/Language-Kotlin-blue.svg" alt="Kotlin">
-  <img src="https://img.shields.io/badge/License-MIT-orange.svg" alt="License MIT">
-  <img src="https://img.shields.io/badge/Design-Material%203-7b1fa2.svg" alt="Material 3">
-</p>
 
 ---
 
