@@ -295,7 +295,7 @@
                     <ImageView
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:src="@android:drawable/ic_menu_preferences"
+                        android:src="@drawable/ic_settings_advanced"
                         app:tint="@color/accent_blue" />
 
                     <TextView

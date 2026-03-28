@@ -106,7 +106,10 @@ class FloatingPanelService : Service() {
 
         initSidePanel()
         initPickerPanel()
-        addEdgeHandle()
+        
+        if (panelPrefs.serviceEnabled) {
+            addEdgeHandle()
+        }
 
         val filter = android.content.IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -432,6 +435,10 @@ class FloatingPanelService : Service() {
             if (rootLayout?.parent != null) windowManager.removeView(rootLayout)
             edgeHandleView?.visibility = View.VISIBLE
             sidePanelView?.animatePickerToggle(false)
+            
+            if (!panelPrefs.serviceEnabled) {
+                stopSelf()
+            }
             return
         }
         if (isPickerOpen) closePicker()
@@ -445,6 +452,11 @@ class FloatingPanelService : Service() {
                 if (rootLayout?.parent != null) windowManager.removeView(rootLayout)
                 edgeHandleView?.visibility = View.VISIBLE
                 panel.animatePickerToggle(false) 
+                
+                // If service is NOT enabled in prefs, stop it now (Test mode over)
+                if (!panelPrefs.serviceEnabled) {
+                    stopSelf()
+                }
             }
         }
     }

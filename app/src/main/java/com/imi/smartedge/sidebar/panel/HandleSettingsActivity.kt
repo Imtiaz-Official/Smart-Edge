@@ -2,6 +2,7 @@ package com.imi.smartedge.sidebar.panel
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.imi.smartedge.sidebar.panel.databinding.ActivitySettingsHandleBinding
 
@@ -29,10 +30,26 @@ class HandleSettingsActivity : AppCompatActivity() {
         
         loadCurrentSettings()
         setupListeners()
+        handleDeepLink()
+    }
+
+    private fun handleDeepLink() {
+        val targetId = intent.getStringExtra(SettingsMainActivity.EXTRA_SCROLL_TO) ?: return
+        val viewId = resources.getIdentifier(targetId, "id", packageName)
+        if (viewId != 0) {
+            val targetView = findViewById<View>(viewId)
+            targetView?.post {
+                val rect = android.graphics.Rect()
+                targetView.getDrawingRect(rect)
+                binding.root.offsetDescendantRectToMyCoords(targetView, rect)
+                binding.handleScrollView.smoothScrollTo(0, rect.top - 200)
+                targetView.highlightView()
+            }
+        }
     }
 
     private fun loadCurrentSettings() {
-        binding.switchShowPill.isChecked = panelPrefs.showPill
+        binding.featureShowPill.isChecked = panelPrefs.showPill
         
         binding.sbHandleHeight.value = panelPrefs.handleHeight.toFloat()
         binding.tvHeightValue.text = "${panelPrefs.handleHeight}dp"
@@ -45,7 +62,7 @@ class HandleSettingsActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        binding.switchShowPill.setOnCheckedChangeListener { _, isChecked ->
+        binding.featureShowPill.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showPill = isChecked
             applyOnly()
         }

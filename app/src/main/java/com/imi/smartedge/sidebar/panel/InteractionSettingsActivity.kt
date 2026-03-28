@@ -2,7 +2,7 @@ package com.imi.smartedge.sidebar.panel
 
 import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.imi.smartedge.sidebar.panel.databinding.ActivitySettingsInteractionBinding
 import com.google.android.material.snackbar.Snackbar
@@ -31,20 +31,36 @@ class InteractionSettingsActivity : AppCompatActivity() {
         
         loadCurrentSettings()
         setupListeners()
+        handleDeepLink()
+    }
+
+    private fun handleDeepLink() {
+        val targetId = intent.getStringExtra(SettingsMainActivity.EXTRA_SCROLL_TO) ?: return
+        val viewId = resources.getIdentifier(targetId, "id", packageName)
+        if (viewId != 0) {
+            val targetView = findViewById<View>(viewId)
+            targetView?.post {
+                val rect = android.graphics.Rect()
+                targetView.getDrawingRect(rect)
+                binding.root.offsetDescendantRectToMyCoords(targetView, rect)
+                binding.interactionScrollView.smoothScrollTo(0, rect.top - 200)
+                targetView.highlightView()
+            }
+        }
     }
 
     private fun loadCurrentSettings() {
         if (panelPrefs.panelSide == PanelPreferences.SIDE_LEFT) {
-            binding.rgPanelSide.check(R.id.rbLeft)
+            binding.featurePanelSide.check(R.id.rbLeft)
         } else {
-            binding.rgPanelSide.check(R.id.rbRight)
+            binding.featurePanelSide.check(R.id.rbRight)
         }
 
-        binding.switchAutoStart.isChecked = panelPrefs.autoStart
-        binding.switchGestures.isChecked = panelPrefs.gesturesEnabled
-        binding.switchTapOpen.isChecked = panelPrefs.tapToOpen
-        binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
-        binding.switchShowLogs.isChecked = panelPrefs.showLogs
+        binding.featureAutoStart.isChecked = panelPrefs.autoStart
+        binding.featureGestures.isChecked = panelPrefs.gesturesEnabled
+        binding.featureTapOpen.isChecked = panelPrefs.tapToOpen
+        binding.featureHaptic.isChecked = panelPrefs.hapticEnabled
+        binding.featureShowLogs.isChecked = panelPrefs.showLogs
 
         val animSpeed = panelPrefs.animSpeed
         binding.tvAnimFeelValue.text = when (animSpeed) {
@@ -60,35 +76,35 @@ class InteractionSettingsActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        binding.rgPanelSide.setOnCheckedChangeListener { _, checkedId ->
+        binding.featurePanelSide.setOnCheckedChangeListener { _, checkedId ->
             panelPrefs.panelSide = if (checkedId == R.id.rbLeft)
                 PanelPreferences.SIDE_LEFT else PanelPreferences.SIDE_RIGHT
             applyAndShow()
         }
 
-        binding.switchAutoStart.setOnCheckedChangeListener { _, isChecked ->
+        binding.featureAutoStart.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.autoStart = isChecked
         }
 
-        binding.switchGestures.setOnCheckedChangeListener { _, isChecked ->
+        binding.featureGestures.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.gesturesEnabled = isChecked
             applyOnly()
         }
 
-        binding.switchTapOpen.setOnCheckedChangeListener { _, isChecked ->
+        binding.featureTapOpen.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.tapToOpen = isChecked
             applyOnly()
         }
 
-        binding.switchHaptic.setOnCheckedChangeListener { _, isChecked ->
+        binding.featureHaptic.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.hapticEnabled = isChecked
         }
 
-        binding.switchShowLogs.setOnCheckedChangeListener { _, isChecked ->
+        binding.featureShowLogs.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showLogs = isChecked
         }
 
-        binding.layoutAnimFeel.setOnClickListener {
+        binding.featureAnimFeel.setOnClickListener {
             val options = arrayOf("Calm (Slow)", "Balanced (Default)", "Snappy", "Instant")
             val values = intArrayOf(200, 400, 700, 1000)
             

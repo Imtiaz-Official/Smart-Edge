@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
+import android.view.View.GONE
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -16,44 +17,25 @@ import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.Snackbar
 import com.imi.smartedge.sidebar.panel.databinding.ActivityMainM3Binding
 
-/**
- * Entry-point activity.
- *
- * Responsibilities:
- * 1. Check SYSTEM_ALERT_WINDOW permission — guide user if not granted
- * 2. Start / Stop FloatingPanelService
- * 3. Launch AppPickerActivity and SettingsActivity
- * 4. Show Android 13 sideload restriction notice if relevant
- */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainM3Binding
     private lateinit var panelPrefs: PanelPreferences
-    private var isPanelRunning = false
 
-    // Launcher for overlay permission settings screen
     private val overlayPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
-        // Re-check permission when user returns from settings
         updatePermissionUI()
+        updateServiceStatus()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        panelPrefs = PanelPreferences(this)
-        
-        android.util.Log.d("SmartEdge", "MainActivity onCreate: setupCompleted = ${panelPrefs.setupCompleted}")
-
-        if (!panelPrefs.setupCompleted) {
-            android.util.Log.d("SmartEdge", "Launching SetupActivity...")
-            startActivity(Intent(this, SetupActivity::class.java))
-            finish()
-            return
-        }
-
         binding = ActivityMainM3Binding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Hide default action bar
+        supportActionBar?.hide()
 
         // Set status bar color and icons
         val typedValue = android.util.TypedValue()
@@ -61,12 +43,19 @@ class MainActivity : AppCompatActivity() {
         window.statusBarColor = typedValue.data
         androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
 
-        // Hide default action bar — our layout provides the header
-        supportActionBar?.hide()
+        panelPrefs = PanelPreferences(this)
 
+        setupListeners()
+    }
+
+    private fun setupListeners() {
         binding.btnGrantPermission.setOnClickListener { requestOverlayPermission() }
         binding.btnIgnoreBattery.setOnClickListener { requestIgnoreBatteryOptimization() }
-        binding.btnStartStop.setOnClickListener { togglePanel() }
+        
+        val toggleListener = View.OnClickListener { togglePanel() }
+        binding.btnStartStop.setOnClickListener(toggleListener)
+        binding.btnStartStopClassic.setOnClickListener(toggleListener)
+
         binding.btnTogglePanel.setOnClickListener { triggerPanelToggle() }
         binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsMainActivity::class.java))
@@ -97,22 +86,54 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        applyHomeButtonStyle()
         updatePermissionUI()
         updateServiceStatus()
     }
 
+    private fun applyHomeButtonStyle() {
+        val isPowerStyle = panelPrefs.homeButtonStyle == PanelPreferences.STYLE_POWER
+        binding.btnStartStop.visibility = if (isPowerStyle) View.VISIBLE else View.GONE
+        binding.btnStartStopClassic.visibility = if (isPowerStyle) GONE else View.VISIBLE
+    }
+
     private fun updateServiceStatus() {
-        val isRunning = FloatingPanelService.isRunning
-        isPanelRunning = isRunning
+        val isEnabled = panelPrefs.serviceEnabled
         
-        binding.btnStartStop.text = if (isRunning) "Stop" else "Start"
-        binding.tvStatus.text = if (isRunning) "Service is Active" else "Service is Stopped"
-        binding.tvStatus.setTextColor(if (isRunning) Color.parseColor("#00C853") else Color.parseColor("#80FFFFFF"))
+        val typedValue = android.util.TypedValue()
         
-        val dot = findViewById<android.widget.ImageView>(R.id.statusDot)
-        dot?.imageTintList = android.content.res.ColorStateList.valueOf(
-            if (isRunning) Color.parseColor("#00C853") else Color.parseColor("#FF5252")
-        )
+        // Update UI based on preference state (not just service running state)
+        if (isEnabled) {
+            // Power Style - ACTIVE (Emerald Green for status)
+            binding.btnStartStop.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2ECC71"))
+            binding.btnStartStop.setIconTintResource(android.R.color.white)
+            
+            // Classic Style
+            binding.btnStartStopClassic.text = "Stop"
+            binding.btnStartStopClassic.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2ECC71"))
+            binding.btnStartStopClassic.setTextColor(Color.WHITE)
+
+            binding.tvStatus.text = "Service is Active"
+            theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
+            binding.tvStatus.setTextColor(typedValue.data)
+            binding.statusDot.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2ECC71"))
+        } else {
+            // Power Style - STOPPED (Modern Slate instead of Blue)
+            binding.btnStartStop.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#475569"))
+            binding.btnStartStop.setIconTintResource(com.google.android.material.R.color.material_dynamic_neutral90)
+            
+            // Classic Style
+            binding.btnStartStopClassic.text = "Start"
+            binding.btnStartStopClassic.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#475569"))
+            binding.btnStartStopClassic.setTextColor(Color.WHITE)
+
+            binding.tvStatus.text = "Service is Stopped"
+            theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
+            binding.tvStatus.setTextColor(typedValue.data)
+            binding.statusDot.imageTintList = android.content.res.ColorStateList.valueOf(typedValue.data)
+        }
+        
+        binding.btnStartStop.text = "" 
     }
 
     // ── Permission ────────────────────────────────────────────────────────────
@@ -228,6 +249,7 @@ class MainActivity : AppCompatActivity() {
         binding.cardBatteryOptimization.visibility = if (batteryCardVisible) View.VISIBLE else View.GONE
         
         binding.btnStartStop.isEnabled = granted
+        binding.btnStartStopClassic.isEnabled = granted
 
         // Show Android 13 sideload note for users who can't find the permission toggle
         if (!granted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -238,6 +260,15 @@ class MainActivity : AppCompatActivity() {
     // ── Service Toggle ────────────────────────────────────────────────────────
 
     private fun togglePanel() {
+        val activeBtn = if (panelPrefs.homeButtonStyle == PanelPreferences.STYLE_POWER) 
+            binding.btnStartStop else binding.btnStartStopClassic
+            
+        // Haptic feedback for tactile feel
+        activeBtn.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+        
+        // Scale animation
+        SpringAnimator.scalePulse(activeBtn)
+
         if (!hasOverlayPermission()) {
             requestOverlayPermission()
             return
@@ -249,7 +280,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        if (isPanelRunning) {
+        if (panelPrefs.serviceEnabled) {
             stopPanel()
         } else {
             startPanel()
@@ -258,12 +289,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun startPanel() {
         panelPrefs.serviceEnabled = true
-        // Optimistic UI: flip state immediately for speed
-        binding.btnStartStop.text = "Stop"
+        // Optimistic UI: Emerald Green
+        binding.btnStartStop.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2ECC71"))
+        binding.btnStartStopClassic.text = "Stop"
+        binding.btnStartStopClassic.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2ECC71"))
+        binding.btnStartStopClassic.setTextColor(Color.WHITE)
+
         binding.tvStatus.text = "Service is Active"
-        binding.tvStatus.setTextColor(Color.parseColor("#00C853"))
-        val dot = findViewById<android.widget.ImageView>(R.id.statusDot)
-        dot?.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#00C853"))
+        val typedValue = android.util.TypedValue()
+        theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
+        binding.tvStatus.setTextColor(typedValue.data)
+        binding.statusDot.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2ECC71"))
 
         val intent = Intent(this, FloatingPanelService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -271,27 +307,26 @@ class MainActivity : AppCompatActivity() {
         } else {
             startService(intent)
         }
-        
-        // Final sync after a tiny bit just to be sure
-        binding.root.postDelayed({ updateServiceStatus() }, 200)
     }
 
     private fun stopPanel() {
         panelPrefs.serviceEnabled = false
-        // Optimistic UI: flip state immediately for speed
-        binding.btnStartStop.text = "Start"
+        // Optimistic UI: Modern Slate
+        binding.btnStartStop.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#475569"))
+        binding.btnStartStopClassic.text = "Start"
+        binding.btnStartStopClassic.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#475569"))
+        binding.btnStartStopClassic.setTextColor(Color.WHITE)
+
         binding.tvStatus.text = "Service is Stopped"
-        binding.tvStatus.setTextColor(Color.parseColor("#80FFFFFF"))
-        val dot = findViewById<android.widget.ImageView>(R.id.statusDot)
-        dot?.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#FF5252"))
+        val typedValue = android.util.TypedValue()
+        theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
+        binding.tvStatus.setTextColor(typedValue.data)
+        binding.statusDot.imageTintList = android.content.res.ColorStateList.valueOf(typedValue.data)
 
         val intent = Intent(this, FloatingPanelService::class.java).apply {
             action = FloatingPanelService.ACTION_STOP
         }
         startService(intent)
-        
-        // Final sync after a tiny bit just to be sure
-        binding.root.postDelayed({ updateServiceStatus() }, 200)
     }
 
     private fun triggerPanelToggle() {
@@ -306,16 +341,16 @@ class MainActivity : AppCompatActivity() {
             return
         }
         
-        // Ensure service is started first
-        if (!isPanelRunning) {
-            startPanel()
-        }
-
         binding.root.showModernToast("Opening Sidebar...")
         val intent = Intent(this, FloatingPanelService::class.java).apply {
             action = FloatingPanelService.ACTION_OPEN
         }
-        startForegroundService(intent)
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
     }
 
     private fun isAccessibilityServiceEnabled(): Boolean {

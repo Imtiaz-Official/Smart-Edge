@@ -32,15 +32,36 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         
         loadCurrentSettings()
         setupListeners()
+        handleDeepLink()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadCurrentSettings()
+    }
+
+    private fun handleDeepLink() {
+        val targetId = intent.getStringExtra(SettingsMainActivity.EXTRA_SCROLL_TO) ?: return
+        val viewId = resources.getIdentifier(targetId, "id", packageName)
+        if (viewId != 0) {
+            val targetView = findViewById<View>(viewId)
+            targetView?.post {
+                val rect = android.graphics.Rect()
+                targetView.getDrawingRect(rect)
+                binding.root.offsetDescendantRectToMyCoords(targetView, rect)
+                binding.appearanceScrollView.smoothScrollTo(0, rect.top - 200)
+                targetView.highlightView()
+            }
+        }
     }
 
     private fun loadCurrentSettings() {
-        binding.switchBlur.isChecked = panelPrefs.blurEnabled
+        binding.featureBlur.isChecked = panelPrefs.blurEnabled
         binding.sbBlurAmount.value = panelPrefs.blurAmount.toFloat()
         binding.tvBlurAmountValue.text = panelPrefs.blurAmount.toString()
-        binding.layoutBlurAmount.visibility = if (panelPrefs.blurEnabled) View.VISIBLE else View.GONE
+        binding.featureBlurIntensity.visibility = if (panelPrefs.blurEnabled) View.VISIBLE else View.GONE
         
-        binding.switchColumns.isChecked = panelPrefs.panelColumns == 2
+        binding.featureColumns.isChecked = panelPrefs.panelColumns == 2
         binding.sbOpacity.value = panelPrefs.panelOpacity.toFloat()
         binding.tvOpacityValue.text = "${panelPrefs.panelOpacity}%"
         
@@ -62,11 +83,15 @@ class AppearanceSettingsActivity : AppCompatActivity() {
             else -> "System Default"
         }
 
-        binding.switchHideBg.isChecked = panelPrefs.hideBackground
-        binding.switchUseCustomAccent.isChecked = panelPrefs.useCustomAccent
+        binding.tvHomeButtonStyleValue.text = when (panelPrefs.homeButtonStyle) {
+            PanelPreferences.STYLE_CLASSIC -> "Classic (Text Button)"
+            else -> "Modern (Power Icon)"
+        }
 
-        val pack = panelPrefs.selectedIconPack
-        binding.tvCurrentIconPack.text = if (pack == "none") "System Default" else pack
+        binding.featureHideBg.isChecked = panelPrefs.hideBackground
+        binding.featureCustomAccent.isChecked = panelPrefs.useCustomAccent
+
+        binding.tvCurrentIconPack.text = panelPrefs.iconPackLabel
 
         try {
             val accentColor = Color.parseColor(panelPrefs.accentColor)
@@ -80,9 +105,9 @@ class AppearanceSettingsActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        binding.switchBlur.setOnCheckedChangeListener { _, isChecked ->
+        binding.featureBlur.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.blurEnabled = isChecked
-            binding.layoutBlurAmount.visibility = if (isChecked) View.VISIBLE else View.GONE
+            binding.featureBlurIntensity.visibility = if (isChecked) View.VISIBLE else View.GONE
             applyOnly()
         }
 
@@ -100,7 +125,7 @@ class AppearanceSettingsActivity : AppCompatActivity() {
             }
         })
 
-        binding.switchColumns.setOnCheckedChangeListener { _, isChecked ->
+        binding.featureColumns.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.panelColumns = if (isChecked) 2 else 1
             applyOnly()
         }
@@ -153,7 +178,7 @@ class AppearanceSettingsActivity : AppCompatActivity() {
                     
                     if (panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN) {
                         panelPrefs.useCustomAccent = false
-                        binding.switchUseCustomAccent.isChecked = false
+                        binding.featureCustomAccent.isChecked = false
                     }
                     
                     applyAndShow()
@@ -163,7 +188,7 @@ class AppearanceSettingsActivity : AppCompatActivity() {
                 .show()
         }
 
-        binding.layoutIconShape.setOnClickListener {
+        binding.featureIconShape.setOnClickListener {
             val options = arrayOf("System Default", "Circle", "Squircle", "Square")
             val values = arrayOf(
                 PanelPreferences.SHAPE_SYSTEM,
@@ -186,7 +211,28 @@ class AppearanceSettingsActivity : AppCompatActivity() {
                 .show()
         }
 
-        binding.switchUseCustomAccent.setOnCheckedChangeListener { _, isChecked ->
+        binding.featureHomeButton.setOnClickListener {
+            val options = arrayOf("Modern (Power Icon)", "Classic (Text Button)")
+            val values = arrayOf(
+                PanelPreferences.STYLE_POWER,
+                PanelPreferences.STYLE_CLASSIC
+            )
+            
+            val selectedIndex = values.indexOf(panelPrefs.homeButtonStyle).let { if (it == -1) 0 else it }
+
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Home Button Style")
+                .setSingleChoiceItems(options, selectedIndex) { dialog, which ->
+                    panelPrefs.homeButtonStyle = values[which]
+                    binding.tvHomeButtonStyleValue.text = options[which]
+                    // Refresh current activity if needed (though it will refresh on resume if we go back)
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+
+        binding.featureCustomAccent.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.useCustomAccent = isChecked
             applyOnly()
         }
@@ -196,7 +242,7 @@ class AppearanceSettingsActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        binding.switchHideBg.setOnCheckedChangeListener { _, isChecked ->
+        binding.featureHideBg.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.hideBackground = isChecked
             applyOnly()
         }

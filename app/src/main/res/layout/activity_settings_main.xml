@@ -16,20 +16,65 @@
             android:layout_height="?attr/actionBarSize"
             app:title="Smart Edge Settings"
             app:titleCentered="true" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorOutlineVariant">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_search"
+                    app:tint="?attr/colorOnSurfaceVariant" />
+
+                <EditText
+                    android:id="@+id/etSettingsSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/transparent"
+                    android:hint="Search settings..."
+                    android:imeOptions="actionSearch"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:paddingStart="12dp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textColorHint="?attr/colorOnSurfaceVariant"
+                    android:textSize="15sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <ScrollView
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingBottom="40dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
+        <ScrollView
+            android:id="@+id/settingsMainContent"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="@dimen/app_screen_padding">
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="40dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/app_screen_padding">
 
             <!-- Category: UI & Appearance -->
             <com.google.android.material.card.MaterialCardView
@@ -54,7 +99,8 @@
                         android:background="@drawable/bg_close_btn"
                         android:backgroundTint="#F0F4F8"
                         android:padding="10dp"
-                        android:src="@drawable/ic_section_appearance" />
+                        android:src="@drawable/ic_section_appearance"
+                        app:tint="?attr/colorOnSurface" />
                         
                     <LinearLayout
                         android:layout_width="0dp"
@@ -110,7 +156,8 @@
                         android:background="@drawable/bg_close_btn"
                         android:backgroundTint="#F8F0F4"
                         android:padding="10dp"
-                        android:src="@drawable/ic_section_interaction" />
+                        android:src="@drawable/ic_section_interaction"
+                        app:tint="?attr/colorOnSurface" />
                         
                     <LinearLayout
                         android:layout_width="0dp"
@@ -166,7 +213,8 @@
                         android:background="@drawable/bg_close_btn"
                         android:backgroundTint="#F4F8F0"
                         android:padding="10dp"
-                        android:src="@drawable/ic_section_handle" />
+                        android:src="@drawable/ic_section_handle"
+                        app:tint="?attr/colorOnSurface" />
                         
                     <LinearLayout
                         android:layout_width="0dp"
@@ -222,7 +270,8 @@
                         android:background="@drawable/bg_close_btn"
                         android:backgroundTint="#FFF4F4"
                         android:padding="10dp"
-                        android:src="@drawable/ic_section_tools" />
+                        android:src="@drawable/ic_section_tools"
+                        app:tint="?attr/colorOnSurface" />
                         
                     <LinearLayout
                         android:layout_width="0dp"
@@ -282,4 +331,15 @@
 
         </LinearLayout>
     </ScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSettingsResults"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/colorSurface"
+        android:visibility="gone"
+        android:paddingTop="8dp"
+        android:clipToPadding="false" />
+
+</FrameLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

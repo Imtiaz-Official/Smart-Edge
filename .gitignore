@@ -37,3 +37,12 @@ build_log.txt
 com.imi.smartedge.sidebar.panel.yml
 
 source_log.txt
+
+# Session Artifacts
+build_out.txt
+commit_msg.txt
+dev_yml_content.txt
+icon_issue.png
+keytool_output.txt
+screenshot*.png
+FDROID_SETUP_HISTORY.md

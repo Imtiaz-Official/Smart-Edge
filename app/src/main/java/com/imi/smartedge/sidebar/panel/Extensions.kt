@@ -81,13 +81,66 @@ fun View.showModernToast(message: String, duration: Int = Snackbar.LENGTH_SHORT)
         params.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
         params.setMargins(0, 0, 0, marginPx)
     }
-    
     snackbarView.layoutParams = params
     snackbar.show()
-}
+    }
 
 /**
- * Opens the accessibility settings. On Android 12+, it deep-links directly to 
+ * Modern highlight animation for search results.
+ * Uses a foreground overlay and scale pulse for a professional feel.
+ */
+fun View.highlightView() {
+    val typedValue = android.util.TypedValue()
+    context.theme.resolveAttribute(com.google.android.material.R.attr.colorPrimaryContainer, typedValue, true)
+    val highlightColor = typedValue.data
+    
+    // 1. Gentle Scale Pulse
+    this.animate()
+        .scaleX(1.025f)
+        .scaleY(1.025f)
+        .setDuration(400)
+        .setInterpolator(android.view.animation.CycleInterpolator(1f))
+        .start()
+
+    // 2. Sophisticated Foreground Flash (Android M+)
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        val originalForeground = foreground
+        val highlightDrawable = android.graphics.drawable.ColorDrawable(highlightColor)
+        foreground = highlightDrawable
+        highlightDrawable.alpha = 0
+        
+        android.animation.ValueAnimator.ofInt(0, 120, 0).apply {
+            duration = 1000
+            interpolator = android.view.animation.AccelerateDecelerateInterpolator()
+            addUpdateListener { animator ->
+                highlightDrawable.alpha = animator.animatedValue as Int
+            }
+            addListener(object : android.animation.AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: android.animation.Animator) {
+                    foreground = originalForeground
+                }
+            })
+            start()
+        }
+    } else {
+        // Fallback for older versions
+        val originalBackground = background
+        android.animation.ValueAnimator.ofArgb(Color.TRANSPARENT, highlightColor, Color.TRANSPARENT).apply {
+            duration = 800
+            addUpdateListener { setBackgroundColor(it.animatedValue as Int) }
+            addListener(object : android.animation.AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: android.animation.Animator) {
+                    background = originalBackground
+                }
+            })
+            start()
+        }
+    }
+}
+
+    /**
+    * Opens the accessibility settings. On Android 12+, it deep-links directly to 
+    ...
  * this app's specific service toggle. On older versions, it opens the general
  * list and attempts to highlight this app if the OEM supports it.
  */

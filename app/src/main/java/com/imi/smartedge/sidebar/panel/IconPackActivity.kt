@@ -42,8 +42,9 @@ class IconPackActivity : AppCompatActivity() {
         packs.add(IconPackInfo("none", "System Default", getDrawable(android.R.drawable.sym_def_app_icon)!!))
         packs.addAll(iconPackManager.getInstalledIconPacks())
 
-        rv.adapter = IconPackAdapter(packs, panelPrefs.selectedIconPack) { selectedPkg ->
-            panelPrefs.selectedIconPack = selectedPkg
+        rv.adapter = IconPackAdapter(packs, panelPrefs.selectedIconPack) { item ->
+            panelPrefs.selectedIconPack = item.packageName
+            panelPrefs.iconPackLabel = item.label
             
             // Notify service to refresh icons immediately.
             // Glide automatically handles the cache via the unique AppIconRequest key.
@@ -62,7 +63,7 @@ class IconPackActivity : AppCompatActivity() {
     class IconPackAdapter(
         private val items: List<IconPackInfo>,
         private val currentPack: String,
-        private val onSelect: (String) -> Unit
+        private val onSelect: (IconPackInfo) -> Unit
     ) : RecyclerView.Adapter<IconPackAdapter.VH>() {
 
         class VH(v: View) : RecyclerView.ViewHolder(v) {
@@ -85,7 +86,7 @@ class IconPackActivity : AppCompatActivity() {
             holder.radio.isChecked = item.packageName == currentPack
 
             holder.itemView.setOnClickListener {
-                onSelect(item.packageName)
+                onSelect(item)
             }
         }
 

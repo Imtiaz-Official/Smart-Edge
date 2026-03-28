@@ -30,18 +30,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="32dp"
+                android:layout_marginTop="48dp"
+                android:layout_marginBottom="40dp"
                 android:gravity="center">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Smart Edge"
-                    android:textColor="?attr/colorPrimary"
-                    android:textSize="36sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="-0.02" />
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="32sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="-0.01" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -49,6 +49,7 @@
                     android:text="Fluid Control Center"
                     android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="14sp"
+                    android:alpha="0.7"
                     android:layout_marginTop="4dp" />
             </LinearLayout>
 
@@ -57,67 +58,113 @@
                 style="@style/App_Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutlineVariant">
 
                 <LinearLayout
-                    style="@style/App_CardContainer"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp">
 
-                    <LinearLayout
+                    <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:layout_height="wrap_content">
 
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true">
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Sidebar Service"
                                 android:textColor="?attr/colorOnSurface"
-                                android:textSize="18sp"
+                                android:textSize="20sp"
                                 android:textStyle="bold" />
 
-                            <TextView
-                                android:id="@+id/tvStatus"
+                            <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Stopped"
-                                android:textColor="?attr/colorOnSurfaceVariant"
-                                android:textSize="13sp" />
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginTop="4dp">
+                                
+                                <ImageView
+                                    android:id="@+id/statusDot"
+                                    android:layout_width="10dp"
+                                    android:layout_height="10dp"
+                                    android:src="@android:drawable/presence_online"
+                                    android:layout_marginEnd="8dp"
+                                    app:tint="?attr/colorOnSurfaceVariant" />
+
+                                <TextView
+                                    android:id="@+id/tvStatus"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Service is Stopped"
+                                    android:textColor="?attr/colorOnSurfaceVariant"
+                                    android:textSize="14sp" />
+                            </LinearLayout>
                         </LinearLayout>
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnStartStop"
+                            android:layout_width="72dp"
+                            android:layout_height="72dp"
+                            android:layout_alignParentEnd="true"
+                            android:padding="0dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:insetLeft="0dp"
+                            android:insetRight="0dp"
+                            app:icon="@drawable/ic_power"
+                            app:iconSize="36dp"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            app:cornerRadius="36dp"
+                            app:backgroundTint="?attr/colorPrimary"
+                            android:textColor="?attr/colorOnPrimary"
+                            app:elevation="6dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnStartStopClassic"
                             style="@style/App_Button_Continue"
                             android:layout_width="wrap_content"
                             android:layout_height="54dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
                             android:text="Start"
                             app:backgroundTint="?attr/colorPrimary"
-                            android:textColor="?attr/colorOnPrimary" />
-                    </LinearLayout>
+                            android:textColor="?attr/colorOnPrimary"
+                            android:visibility="gone" />
+
+                    </RelativeLayout>
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:background="?attr/colorOutlineVariant"
-                        android:layout_marginVertical="20dp" />
+                        android:layout_marginVertical="24dp" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnTogglePanel"
-                        style="@style/App_Button_Tonal"
+                        style="@style/App_Button_Continue"
                         android:layout_width="match_parent"
                         android:layout_height="64dp"
-                        android:text="Test Sidebar Manually"
+                        android:text="Test Sidebar Now"
                         android:textSize="16sp"
-                        app:icon="@android:drawable/ic_input_add"
-                        app:iconGravity="textStart" />
+                        app:icon="@drawable/ic_test_directions"
+                        app:iconGravity="textStart"
+                        app:iconTint="?attr/colorOnPrimary"
+                        app:backgroundTint="?attr/colorPrimary"
+                        android:textColor="?attr/colorOnPrimary"
+                        app:cornerRadius="24dp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -128,7 +175,9 @@
                 style="@style/App_Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#1A00C853"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+                app:strokeWidth="1dp"
+                app:strokeColor="#2ECC71"
                 android:layout_marginBottom="24dp"
                 android:visibility="gone">
 
@@ -141,7 +190,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Improve Stability"
-                        android:textColor="#00C853"
+                        android:textColor="#2ECC71"
                         android:textStyle="bold"
                         android:textSize="15sp" />
 
@@ -159,7 +208,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:layout_marginTop="16dp"
-                        app:backgroundTint="#00C853"
+                        app:backgroundTint="#2ECC71"
                         android:text="Allow Background Use"
                         android:textColor="#FFFFFF" />
                 </LinearLayout>
@@ -169,7 +218,9 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardPermission"
                 style="@style/App_Card"
-                app:cardBackgroundColor="?attr/colorErrorContainer"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorError"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
@@ -184,7 +235,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Permission Required"
-                        android:textColor="?attr/colorOnErrorContainer"
+                        android:textColor="?attr/colorError"
                         android:textStyle="bold"
                         android:textSize="15sp" />
 
@@ -193,7 +244,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="Please allow 'Display over other apps' to use the sidebar."
-                        android:textColor="?attr/colorOnErrorContainer"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="12sp" />
 
                     <com.google.android.material.button.MaterialButton
@@ -214,7 +265,10 @@
                 style="@style/App_Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="20dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutlineVariant"
                 android:clickable="true"
                 android:focusable="true"
                 android:visibility="gone">
@@ -230,14 +284,14 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@android:drawable/ic_menu_info_details"
-                        app:tint="?attr/colorPrimary" />
+                        app:tint="?attr/colorOnSurfaceVariant" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="16dp"
-                        android:text="Activity Logs"
+                        android:text="System Activity Logs"
                         android:textColor="?attr/colorOnSurface"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -257,6 +311,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorOutlineVariant"
                 android:clickable="true"
                 android:focusable="true">
 
@@ -270,8 +327,8 @@
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@android:drawable/ic_menu_preferences"
-                        app:tint="?attr/colorPrimary" />
+                        android:src="@drawable/ic_settings_advanced"
+                        app:tint="?attr/colorOnSurface" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -294,13 +351,17 @@
             <!-- TUTORIAL SECTION -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnHowToUse"
-                style="@style/App_Button_Tonal"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:text="How to use"
                 android:layout_marginBottom="12dp"
                 app:icon="@android:drawable/ic_menu_help"
-                app:iconGravity="textStart" />
+                app:iconGravity="textStart"
+                app:iconTint="?attr/colorOnSurfaceVariant"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                app:strokeColor="?attr/colorOutlineVariant"
+                app:cornerRadius="20dp" />
 
             <LinearLayout
                 android:id="@+id/layoutTutorialContent"

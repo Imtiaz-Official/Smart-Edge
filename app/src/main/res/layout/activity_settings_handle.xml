@@ -20,6 +20,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView
+        android:id="@+id/handleScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -40,26 +41,26 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switchShowPill" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Visible Pill Handle" android:textColor="?attr/colorOnSurface" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_show_pill" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Visible Pill Handle" android:textColor="?attr/colorOnSurface" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Shows a visual indicator at the edge of the screen" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="4dp">
+                    <LinearLayout android:id="@+id/feature_handle_height" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="4dp">
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Handle Height" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                         <TextView android:id="@+id/tvHeightValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="80dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
                     <com.imi.smartedge.sidebar.panel.DefaultMarkerSlider style="@style/Widget.App.Slider"
                         android:id="@+id/sbHandleHeight" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="300.0" android:value="80.0" app:tickVisible="false" android:layout_marginBottom="12dp" />
 
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="8dp" android:layout_marginBottom="4dp">
+                    <LinearLayout android:id="@+id/feature_handle_width" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="8dp" android:layout_marginBottom="4dp">
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Trigger Area Width" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                         <TextView android:id="@+id/tvWidthValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="24dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
                     <com.imi.smartedge.sidebar.panel.DefaultMarkerSlider style="@style/Widget.App.Slider"
                         android:id="@+id/sbHandleWidth" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="24.0" android:valueTo="100.0" android:value="24.0" app:tickVisible="false" android:layout_marginBottom="12dp" />
 
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="8dp" android:layout_marginBottom="4dp">
+                    <LinearLayout android:id="@+id/feature_handle_position" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="8dp" android:layout_marginBottom="4dp">
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Vertical Position" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                         <TextView android:id="@+id/tvOffsetValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>

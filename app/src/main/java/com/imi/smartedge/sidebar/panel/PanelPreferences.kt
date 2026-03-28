@@ -41,6 +41,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_PILL_COLOR = "pill_color"
         private const val KEY_TAP_TO_OPEN = "tap_to_open"
         private const val KEY_ICON_PACK = "selected_icon_pack"
+        private const val KEY_ICON_PACK_LABEL = "selected_icon_pack_label"
         private const val KEY_BLUR_ENABLED = "blur_enabled"
         private const val KEY_BLUR_AMOUNT = "blur_amount"
         private const val KEY_SHOW_LOGS = "show_logs"
@@ -48,6 +49,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_PICKER_GAP = "picker_gap"
         private const val KEY_SHOW_SYS_INFO = "show_sys_info"
         private const val KEY_SHOW_POWER_MENU = "show_power_menu"
+        private const val KEY_HOME_BUTTON_STYLE = "home_button_style"
 
         private const val DELIMITER = ","
 
@@ -65,6 +67,9 @@ class PanelPreferences(context: Context) {
         const val SHAPE_SQUIRCLE = "squircle"
         const val SHAPE_SQUARE = "square"
         const val SHAPE_ROUNDED = "rounded"
+
+        const val STYLE_POWER = "power"
+        const val STYLE_CLASSIC = "classic"
 
         // Perfect Industry-Standard Defaults
         val DEFAULT_SIDE = SIDE_RIGHT
@@ -93,6 +98,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_BLUR_AMOUNT = 15
         const val DEFAULT_ANIM_SPEED = 400
         const val DEFAULT_PICKER_GAP = 36
+        const val DEFAULT_HOME_BUTTON_STYLE = STYLE_POWER
     }
 
     /** Resets only UI colors (Accent and Background). */
@@ -129,15 +135,21 @@ class PanelPreferences(context: Context) {
             putString(KEY_PILL_COLOR, DEFAULT_PILL_COLOR)
             putBoolean(KEY_TAP_TO_OPEN, DEFAULT_TAP_TO_OPEN)
             putString(KEY_ICON_PACK, DEFAULT_ICON_PACK)
+            putString(KEY_ICON_PACK_LABEL, "System Default")
             putInt(KEY_BLUR_AMOUNT, DEFAULT_BLUR_AMOUNT)
             putBoolean(KEY_BLUR_ENABLED, false)
             putInt(KEY_ANIM_SPEED, DEFAULT_ANIM_SPEED)
             putInt(KEY_PICKER_GAP, DEFAULT_PICKER_GAP)
             putBoolean(KEY_SHOW_SYS_INFO, false)
             putBoolean(KEY_SHOW_POWER_MENU, false)
+            putString(KEY_HOME_BUTTON_STYLE, DEFAULT_HOME_BUTTON_STYLE)
             // Removed: putString(KEY_PANEL_APPS, "") -> Keep user's apps!
         }
     }
+
+    var homeButtonStyle: String
+        get() = prefs.getString(KEY_HOME_BUTTON_STYLE, DEFAULT_HOME_BUTTON_STYLE) ?: DEFAULT_HOME_BUTTON_STYLE
+        set(value) = prefs.edit { putString(KEY_HOME_BUTTON_STYLE, value) }
 
     var showSysInfo: Boolean
         get() = prefs.getBoolean(KEY_SHOW_SYS_INFO, false)
@@ -158,6 +170,10 @@ class PanelPreferences(context: Context) {
     var selectedIconPack: String
         get() = prefs.getString(KEY_ICON_PACK, DEFAULT_ICON_PACK) ?: DEFAULT_ICON_PACK
         set(value) = prefs.edit { putString(KEY_ICON_PACK, value) }
+
+    var iconPackLabel: String
+        get() = prefs.getString(KEY_ICON_PACK_LABEL, "System Default") ?: "System Default"
+        set(value) = prefs.edit { putString(KEY_ICON_PACK_LABEL, value) }
 
     var tapToOpen: Boolean
         get() = prefs.getBoolean(KEY_TAP_TO_OPEN, DEFAULT_TAP_TO_OPEN)
