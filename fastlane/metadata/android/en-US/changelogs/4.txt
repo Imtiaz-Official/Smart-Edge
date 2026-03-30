@@ -1,0 +1,8 @@
+- Implemented Freeform Window multitasking with smart orientation-aware aspect ratios.
+- Added Superior Icon Pack support with full appfilter.xml parsing and icon masking.
+- New professional System Automation dialog for ADB/Root setup.
+- Added Sidebar Max Height customization in Appearance settings.
+- Improved device compatibility for Android 14+ and optimized service stability.
+- Enhanced theme visuals for Realme UI and Rich UI (Glow).
+- Fixed SetupActivity redirect issue on fresh installations.
+- Locked icon scaling to 1.0f for phones to maintain perfect visual balance.

@@ -45,8 +45,6 @@
         android:id="@+id/rvPanelApps"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constrainedHeight="true"
-        app:layout_constraintHeight_max="320dp"
         android:clipToPadding="false"
         android:overScrollMode="ifContentScrolls"
         android:paddingBottom="4dp"

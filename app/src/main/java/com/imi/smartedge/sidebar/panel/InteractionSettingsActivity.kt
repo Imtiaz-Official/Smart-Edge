@@ -34,6 +34,11 @@ class InteractionSettingsActivity : AppCompatActivity() {
         handleDeepLink()
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateSecureSettingsUI()
+    }
+
     private fun handleDeepLink() {
         val targetId = intent.getStringExtra(SettingsMainActivity.EXTRA_SCROLL_TO) ?: return
         val viewId = resources.getIdentifier(targetId, "id", packageName)
@@ -45,11 +50,28 @@ class InteractionSettingsActivity : AppCompatActivity() {
                 binding.root.offsetDescendantRectToMyCoords(targetView, rect)
                 binding.interactionScrollView.smoothScrollTo(0, rect.top - 200)
                 targetView.highlightView()
+                
+                // If fixing freeform from MainActivity, try direct toggle first
+                if (targetId == "feature_freeform" && !isFreeformEnabled()) {
+                    if (putGlobalSetting("freeform_window_management", 1)) {
+                        binding.root.showModernToast("System Freeform Mode Enabled")
+                        return@post
+                    }
+                    
+                    com.google.android.material.snackbar.Snackbar.make(
+                        binding.root,
+                        "System freeform mode is disabled in Developer Options",
+                        com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                    ).setAction("FIX") {
+                        openFreeformDeveloperSettings()
+                    }.show()
+                }
             }
         }
     }
 
     private fun loadCurrentSettings() {
+        updateSecureSettingsUI()
         if (panelPrefs.panelSide == PanelPreferences.SIDE_LEFT) {
             binding.featurePanelSide.check(R.id.rbLeft)
         } else {
@@ -60,7 +82,21 @@ class InteractionSettingsActivity : AppCompatActivity() {
         binding.featureGestures.isChecked = panelPrefs.gesturesEnabled
         binding.featureTapOpen.isChecked = panelPrefs.tapToOpen
         binding.featureHaptic.isChecked = panelPrefs.hapticEnabled
+        binding.featureFreeform.isChecked = panelPrefs.freeformEnabled
         binding.featureShowLogs.isChecked = panelPrefs.showLogs
+
+        // Window size picker — visible only when freeform is on
+        val freeformOn = panelPrefs.freeformEnabled
+        binding.layoutFreeformSize.visibility = if (freeformOn) View.VISIBLE else View.GONE
+        binding.tvFreeformSizeValue.text = freeformModeLabel(panelPrefs.freeformWindowMode)
+
+        // Custom size sliders — only visible when Custom mode is active
+        val customVisible = freeformOn && panelPrefs.freeformWindowMode == PanelPreferences.FREEFORM_MODE_CUSTOM
+        binding.layoutFreeformCustom.visibility = if (customVisible) View.VISIBLE else View.GONE
+        binding.sbFreeformCustomW.value = panelPrefs.freeformCustomWidth.toFloat()
+        binding.sbFreeformCustomH.value = panelPrefs.freeformCustomHeight.toFloat()
+        binding.tvFreeformCustomW.text = "${panelPrefs.freeformCustomWidth}%"
+        binding.tvFreeformCustomH.text = "${panelPrefs.freeformCustomHeight}%"
 
         val animSpeed = panelPrefs.animSpeed
         binding.tvAnimFeelValue.text = when (animSpeed) {
@@ -75,7 +111,24 @@ class InteractionSettingsActivity : AppCompatActivity() {
         binding.tvPickerGapValue.text = "${panelPrefs.pickerGap}dp"
     }
 
+    private fun updateSecureSettingsUI() {
+        val hasPermission = checkSelfPermission(android.Manifest.permission.WRITE_SECURE_SETTINGS) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        if (hasPermission) {
+            binding.tvSecureSettingsStatus.text = "Granted"
+            binding.tvSecureSettingsStatus.setTextColor(getColor(android.R.color.holo_green_dark))
+        } else {
+            binding.tvSecureSettingsStatus.text = "Not Granted"
+            binding.tvSecureSettingsStatus.setTextColor(getColor(android.R.color.holo_red_dark))
+        }
+    }
+
     private fun setupListeners() {
+        binding.btnSecureSettings.setOnClickListener {
+            SecureSettingsDialog.show(this) {
+                updateSecureSettingsUI()
+            }
+        }
+
         binding.featurePanelSide.setOnCheckedChangeListener { _, checkedId ->
             panelPrefs.panelSide = if (checkedId == R.id.rbLeft)
                 PanelPreferences.SIDE_LEFT else PanelPreferences.SIDE_RIGHT
@@ -98,6 +151,78 @@ class InteractionSettingsActivity : AppCompatActivity() {
 
         binding.featureHaptic.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.hapticEnabled = isChecked
+        }
+
+        binding.featureFreeform.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.freeformEnabled = isChecked
+            binding.layoutFreeformSize.visibility = if (isChecked) View.VISIBLE else View.GONE
+            // Hide custom sliders when freeform is turned off
+            if (!isChecked) binding.layoutFreeformCustom.visibility = View.GONE
+            if (isChecked && !isFreeformEnabled()) {
+                // 1. Try direct toggle (requires WRITE_SECURE_SETTINGS)
+                val success1 = putGlobalSetting("freeform_window_management", 1)
+                val success2 = putGlobalSetting("force_resizable_activities", 1)
+
+                if (success1 || success2) {
+                    binding.root.showModernToast("System Freeform Mode Enabled")
+                    return@setOnCheckedChangeListener
+                }
+
+                // 2. Fallback to Deep-link
+                com.google.android.material.snackbar.Snackbar.make(
+                    binding.root,
+                    "System freeform mode is disabled in Developer Options",
+                    com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                ).setAction("FIX") {
+                    openFreeformDeveloperSettings()
+                }.show()
+            }
+        }
+
+        binding.layoutFreeformSize.setOnClickListener {
+            val options = arrayOf("Standard (80%)", "Portrait (Narrow)", "Maximized", "Custom…")
+            val values = arrayOf(
+                PanelPreferences.FREEFORM_MODE_STANDARD,
+                PanelPreferences.FREEFORM_MODE_PORTRAIT,
+                PanelPreferences.FREEFORM_MODE_MAXIMIZED,
+                PanelPreferences.FREEFORM_MODE_CUSTOM
+            )
+            val selectedIndex = values.indexOf(panelPrefs.freeformWindowMode).coerceAtLeast(0)
+
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Window Size")
+                .setSingleChoiceItems(options, selectedIndex) { dialog, which ->
+                    val mode = values[which]
+                    panelPrefs.freeformWindowMode = mode
+                    binding.tvFreeformSizeValue.text = freeformModeLabel(mode)
+                    // Show/hide custom sliders immediately
+                    val isCustom = mode == PanelPreferences.FREEFORM_MODE_CUSTOM
+                    binding.layoutFreeformCustom.visibility = if (isCustom) View.VISIBLE else View.GONE
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+
+        // Custom Width slider
+        binding.sbFreeformCustomW.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                val pct = value.toInt()
+                panelPrefs.freeformCustomWidth = pct
+                binding.tvFreeformCustomW.text = "$pct%"
+                // Refresh the subtitle so it reflects the new size
+                binding.tvFreeformSizeValue.text = freeformModeLabel(PanelPreferences.FREEFORM_MODE_CUSTOM)
+            }
+        }
+
+        // Custom Height slider
+        binding.sbFreeformCustomH.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                val pct = value.toInt()
+                panelPrefs.freeformCustomHeight = pct
+                binding.tvFreeformCustomH.text = "$pct%"
+                binding.tvFreeformSizeValue.text = freeformModeLabel(PanelPreferences.FREEFORM_MODE_CUSTOM)
+            }
         }
 
         binding.featureShowLogs.setOnCheckedChangeListener { _, isChecked ->
@@ -156,5 +281,12 @@ class InteractionSettingsActivity : AppCompatActivity() {
             }
             startForegroundService(start)
         }, 300)
+    }
+
+    private fun freeformModeLabel(mode: String): String = when (mode) {
+        PanelPreferences.FREEFORM_MODE_PORTRAIT  -> "Portrait (Narrow)"
+        PanelPreferences.FREEFORM_MODE_MAXIMIZED -> "Maximized"
+        PanelPreferences.FREEFORM_MODE_CUSTOM    -> "Custom (${panelPrefs.freeformCustomWidth}% × ${panelPrefs.freeformCustomHeight}%)"
+        else                                      -> "Standard (80%)"
     }
 }

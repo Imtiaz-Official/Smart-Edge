@@ -34,15 +34,8 @@ class AppRepository(context: Context) {
     fun loadIconForAppSync(packageName: String): android.graphics.drawable.Drawable? {
         val selectedPack = panelPrefs.selectedIconPack
         
-        // Always try custom pack first
-        val customIcon = iconPackManager.getIcon(packageName, selectedPack)
-        if (customIcon != null) return customIcon
-
-        // If no custom pack or it's "none", we need the system icon.
-        // Check our fast memory cache first before asking the OS.
-        systemIconCache[packageName]?.let { return it }
-
-        return try {
+        // Always load the base system icon first
+        val systemIcon = systemIconCache[packageName] ?: try {
             val appInfo = packageManager.getApplicationInfo(packageName, 0)
             val icon = appInfo.loadIcon(packageManager)
             if (icon != null) {
@@ -60,6 +53,11 @@ class AppRepository(context: Context) {
                 null
             }
         }
+
+        if (systemIcon == null) return null
+
+        // Apply icon pack (with masking support)
+        return iconPackManager.getThemedIcon(packageName, systemIcon, selectedPack)
     }
 
     /**

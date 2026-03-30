@@ -140,7 +140,6 @@ fun View.highlightView() {
 
     /**
     * Opens the accessibility settings. On Android 12+, it deep-links directly to 
-    ...
  * this app's specific service toggle. On older versions, it opens the general
  * list and attempts to highlight this app if the OEM supports it.
  */
@@ -282,4 +281,91 @@ object VivoUtils {
         val manufacturer = android.os.Build.MANUFACTURER.lowercase()
         return manufacturer.contains("vivo") || manufacturer.contains("iqoo")
     }
+}
+
+/**
+ * Checks if 'Enable freeform windows' is turned on in Developer Options.
+ */
+fun Context.isFreeformEnabled(): Boolean {
+    val freeformPref = android.provider.Settings.Global.getInt(contentResolver, "freeform_window_management", 0) != 0
+    val freeformSupport = android.provider.Settings.Global.getInt(contentResolver, "enable_freeform_support", 0) != 0
+    val forceResizable = android.provider.Settings.Global.getInt(contentResolver, "force_resizable_activities", 0) != 0
+    
+    val result = freeformPref || freeformSupport || forceResizable
+    android.util.Log.d("SmartEdgeExt", "Freeform Check: pref=$freeformPref, support=$freeformSupport, resizable=$forceResizable -> Result=$result")
+    return result
+}
+
+/**
+ * Attempts to open Developer Options and highlight the Freeform windows toggle.
+ */
+fun Context.openFreeformDeveloperSettings() {
+    val highlightKey = "freeform_window_management"
+    val intent = Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        // Modern Android highlight keys
+        putExtra(":settings:fragment_args_key", highlightKey)
+        putExtra(":settings:show_fragment_args", Bundle().apply {
+            putString(":settings:fragment_args_key", highlightKey)
+        })
+        putExtra("highlight_key", highlightKey)
+        putExtra("EXTRA_FRAGMENT_ARG_KEY", highlightKey)
+        putExtra("EXTRA_SHOW_FRAGMENT_ARGUMENTS", Bundle().apply {
+            putString(":settings:fragment_args_key", highlightKey)
+        })
+    }
+    
+    try {
+        startActivity(intent)
+    } catch (e: Exception) {
+        // Fallback to general developer settings if deep-link fails
+        try {
+            startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        } catch (e2: Exception) {
+            android.widget.Toast.makeText(this, "Developer Options not found", android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+}
+
+/**
+ * Attempts to write a Global system setting. Requires WRITE_SECURE_SETTINGS.
+ */
+fun Context.putGlobalSetting(setting: String, value: Int): Boolean {
+    return try {
+        android.provider.Settings.Global.putInt(contentResolver, setting, value)
+        true
+    } catch (e: SecurityException) {
+        false
+    }
+}
+
+/**
+ * Calculates an automatic scaling factor based on screen size and orientation.
+ * Returns 1.0f for all devices to keep original sizes as requested.
+ */
+fun Context.getAutoScalingFactor(): Float {
+    return 1.0f
+}
+
+/**
+ * Detects if an app's primary activity prefers landscape orientation.
+ */
+fun Context.isLandscapeApp(packageName: String): Boolean {
+    return try {
+        val intent = packageManager.getLaunchIntentForPackage(packageName) ?: return false
+        val componentName = intent.component ?: return false
+        val activityInfo = packageManager.getActivityInfo(componentName, 0)
+        activityInfo.screenOrientation == android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ||
+                activityInfo.screenOrientation == android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE ||
+                activityInfo.screenOrientation == android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+    } catch (e: Exception) {
+        false
+    }
+}
+
+/**
+ * Extension to convert DP to PX.
+ */
+fun Context.dpToPx(dp: Int): Int {
+    return (dp * resources.displayMetrics.density).toInt()
 }

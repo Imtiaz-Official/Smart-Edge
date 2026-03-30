@@ -14,36 +14,42 @@ android {
         applicationId = "com.imi.smartedge.sidebar.panel"
         minSdk = 26
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = 4
+        versionName = "1.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     val keystorePropertiesFile = rootProject.file("keystore.properties")
-    val keystoreProperties = Properties()
     if (keystorePropertiesFile.exists()) {
+        val keystoreProperties = Properties()
         keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-    }
 
-    signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["KEY_ALIAS"] as? String
-            keyPassword = keystoreProperties["KEY_PASSWORD"] as? String
-            storeFile = keystoreProperties["STORE_FILE"]?.toString()?.let { file(it) }
-            storePassword = keystoreProperties["STORE_PASSWORD"] as? String
+        signingConfigs {
+            create("release") {
+                keyAlias = keystoreProperties["KEY_ALIAS"] as String
+                keyPassword = keystoreProperties["KEY_PASSWORD"] as String
+                storeFile = file(keystoreProperties["STORE_FILE"] as String)
+                storePassword = keystoreProperties["STORE_PASSWORD"] as String
+            }
         }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
-            signingConfig = signingConfigs.getByName("release")
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
+    }
+
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = true
     }
 
     dependenciesInfo {
@@ -69,13 +75,12 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.dynamicanimation)
     implementation(libs.glide)
     implementation("com.github.yukuku:ambilwarna:2.0.1")
-    implementation("dev.rikka.shizuku:api:13.1.5")
+    implementation("org.lsposed.hiddenapibypass:hiddenapibypass:4.3")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

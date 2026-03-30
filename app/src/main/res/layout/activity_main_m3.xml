@@ -214,6 +214,51 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- FREEFORM OPTIMIZATION ALERT -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardFreeformOptimization"
+                style="@style/App_Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorSecondary"
+                android:layout_marginBottom="24dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    style="@style/App_CardContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Multitasking Mode"
+                        android:textColor="?attr/colorSecondary"
+                        android:textStyle="bold"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Freeform Window Mode is enabled in settings but disabled in your system Developer Options."
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="12sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnFixFreeform"
+                        style="@style/App_Button_Tonal"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="16dp"
+                        app:backgroundTint="?attr/colorSecondary"
+                        android:text="Fix in Settings"
+                        android:textColor="?attr/colorOnSecondary" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <!-- PERMISSION ALERT -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardPermission"
