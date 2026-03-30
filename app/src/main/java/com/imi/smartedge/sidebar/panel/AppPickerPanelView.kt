@@ -139,7 +139,7 @@ class AppPickerPanelView @JvmOverloads constructor(
         val themeBgColor = when (theme) {
             PanelPreferences.THEME_ORIGIN -> Color.parseColor("#1F1F1F") 
             PanelPreferences.THEME_HYPEROS -> Color.parseColor("#E6252525")
-            else -> Color.parseColor(panelPrefs.panelBackgroundColor)
+            else -> try { Color.parseColor(panelPrefs.panelBackgroundColor) } catch (e: Exception) { Color.parseColor("#E61A1C1E") }
         }
         drawable.setColor(themeBgColor)
         
@@ -148,6 +148,15 @@ class AppPickerPanelView @JvmOverloads constructor(
 
         if (theme == PanelPreferences.THEME_HYPEROS) {
             drawable.setStroke((1.5 * density).toInt(), Color.parseColor("#4DFFFFFF"))
+        } else if (theme == PanelPreferences.THEME_RICH) {
+            val accent = try { Color.parseColor(panelPrefs.accentColor) } catch (e: Exception) { Color.parseColor("#4A9EFF") }
+            drawable.setStroke((2 * density).toInt(), accent)
+        } else if (theme == PanelPreferences.THEME_REALME) {
+            val color1 = Color.parseColor("#333333")
+            val color2 = Color.parseColor("#1A1A1A")
+            drawable.colors = intArrayOf(color1, color2)
+            drawable.orientation = android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM
+            drawable.setStroke((1 * density).toInt(), Color.parseColor("#33FFFFFF"))
         }
         
         pickerPanelCard.background = drawable
@@ -351,9 +360,104 @@ class AppPickerPanelView @JvmOverloads constructor(
             val intent = context.packageManager.getLaunchIntentForPackage(app.packageName)
             if (intent != null) {
                 intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
+                if (panelPrefs.freeformEnabled && context.isFreeformEnabled()) {
+                    launchFreeform(intent)
+                } else {
+                    context.startActivity(intent)
+                }
             }
             onAppLaunched?.invoke()
+        }
+
+        @android.annotation.SuppressLint("BlockedPrivateApi")
+        private fun launchFreeform(intent: android.content.Intent) {
+            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+            try {
+                val options = android.app.ActivityOptions
+                    .makeCustomAnimation(context, android.R.anim.fade_in, 0)
+
+                val displayMetrics = context.resources.displayMetrics
+                val w = displayMetrics.widthPixels
+                val h = displayMetrics.heightPixels
+
+                val prefersLandscape = detectLandscapeOrientation(intent.`package`)
+
+                val bounds: android.graphics.Rect = when (panelPrefs.freeformWindowMode) {
+                    PanelPreferences.FREEFORM_MODE_PORTRAIT -> {
+                        val left = w / 3
+                        val top = h / 15
+                        android.graphics.Rect(left, top, w - left, h - top)
+                    }
+                    PanelPreferences.FREEFORM_MODE_MAXIMIZED -> {
+                        android.graphics.Rect(0, 0, w, h)
+                    }
+                    PanelPreferences.FREEFORM_MODE_CUSTOM -> {
+                        val winW = (w * panelPrefs.freeformCustomWidth / 100.0).toInt()
+                        val winH = (h * panelPrefs.freeformCustomHeight / 100.0).toInt()
+                        val left = (w - winW) / 2
+                        val top = (h - winH) / 2
+                        android.graphics.Rect(left, top, left + winW, top + winH)
+                    }
+                    else -> {
+                        if (prefersLandscape) {
+                            // 16:9 wide aspect for games/landscape apps
+                            val targetW = if (w > h) (w * 0.80).toInt() else (w * 0.90).toInt()
+                            val targetH = (targetW / 1.77).toInt().coerceAtMost((h * 0.85).toInt())
+                            val left = (w - targetW) / 2
+                            val top = (h - targetH) / 2
+                            android.graphics.Rect(left, top, left + targetW, top + targetH)
+                        } else {
+                            // 9:16 portrait aspect for normal apps (fixed for landscape host)
+                            val targetH = (h * 0.85).toInt()
+                            val targetW = (targetH * 9 / 16).toInt().coerceAtMost((w * 0.85).toInt())
+                            val left = (w - targetW) / 2
+                            val top = (h - targetH) / 2
+                            android.graphics.Rect(left, top, left + targetW, top + targetH)
+                        }
+                    }
+                }
+                options.launchBounds = bounds
+
+                try {
+                    val method = android.app.ActivityOptions::class.java
+                        .getDeclaredMethod("setLaunchWindowingMode", Int::class.javaPrimitiveType)
+                    method.isAccessible = true
+                    method.invoke(options, 5)
+                } catch (e: Exception) {
+                    try {
+                        val method = android.app.ActivityOptions::class.java
+                            .getMethod("setLaunchWindowingMode", Int::class.javaPrimitiveType)
+                        method.invoke(options, 5)
+                    } catch (e2: Exception) {
+                        // ignore
+                    }
+                }
+
+                context.startActivity(intent, options.toBundle())
+            } catch (e: Exception) {
+                context.startActivity(intent)
+            }
+        }
+
+        private fun detectLandscapeOrientation(packageName: String?): Boolean {
+            if (packageName == null) return false
+            return try {
+                val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
+                val component = launchIntent?.component ?: return false
+                val activityInfo = context.packageManager
+                    .getActivityInfo(component, android.content.pm.PackageManager.GET_META_DATA)
+
+                when (activityInfo.screenOrientation) {
+                    android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE,
+                    android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE,
+                    android.content.pm.ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE,
+                    android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+                    -> true
+                    else -> false
+                }
+            } catch (e: Exception) {
+                false
+            }
         }
 
         override fun onBindViewHolder(holder: PickerViewHolder, position: Int, payloads: List<Any>) {

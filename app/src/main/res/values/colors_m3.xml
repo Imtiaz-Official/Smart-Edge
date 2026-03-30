@@ -32,8 +32,37 @@
     <!-- Error state -->
     <color name="md_theme_error">#EF4444</color>
     <color name="md_theme_onError">#FFFFFF</color>
+    <color name="md_theme_errorContainer">#FEE2E2</color>
+    <color name="md_theme_onErrorContainer">#7F1D1D</color>
 
-    <!-- Keep existing names but update values for consistency -->
+    <!-- Tertiary -->
     <color name="md_theme_tertiary">#EC4899</color>
     <color name="md_theme_onTertiary">#FFFFFF</color>
+    <color name="md_theme_tertiaryContainer">#FCE7F3</color>
+    <color name="md_theme_onTertiaryContainer">#500724</color>
+
+    <color name="md_theme_scrim">#000000</color>
+    <color name="md_theme_inverseSurface">#1E293B</color>
+    <color name="md_theme_inverseOnSurface">#F8FAFC</color>
+    <color name="md_theme_inversePrimary">#AAC7FF</color>
+
+    <color name="md_theme_primaryFixed">#D6E3FF</color>
+    <color name="md_theme_onPrimaryFixed">#001B3E</color>
+    <color name="md_theme_primaryFixedDim">#AAC7FF</color>
+    <color name="md_theme_onPrimaryFixedVariant">#00468D</color>
+
+    <color name="md_theme_secondaryFixed">#D6E3FF</color>
+    <color name="md_theme_onSecondaryFixed">#001B3E</color>
+    <color name="md_theme_secondaryFixedDim">#ACC7FB</color>
+    <color name="md_theme_onSecondaryFixedVariant">#2B4773</color>
+
+    <color name="md_theme_tertiaryFixed">#F9D8FF</color>
+    <color name="md_theme_onTertiaryFixed">#320046</color>
+    <color name="md_theme_tertiaryFixedDim">#EDB1FF</color>
+    <color name="md_theme_onTertiaryFixedVariant">#711793</color>
+
+    <color name="md_theme_surfaceDim">#DEE2EB</color>
+    <color name="md_theme_surfaceBright">#F8FAFC</color>
+    <color name="md_theme_surfaceContainerLowest">#FFFFFF</color>
+    <color name="md_theme_surfaceContainerLow">#F1F5F9</color>
 </resources>

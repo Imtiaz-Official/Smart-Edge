@@ -14,8 +14,8 @@ android {
         applicationId = "com.imi.smartedge.sidebar.panel"
         minSdk = 26
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = 4
+        versionName = "1.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -44,6 +44,11 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = true
     }
 
     dependenciesInfo {
@@ -75,7 +80,7 @@ dependencies {
     implementation(libs.androidx.dynamicanimation)
     implementation(libs.glide)
     implementation("com.github.yukuku:ambilwarna:2.0.1")
-    implementation("dev.rikka.shizuku:api:13.1.5")
+    implementation("org.lsposed.hiddenapibypass:hiddenapibypass:4.3")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

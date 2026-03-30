@@ -68,11 +68,13 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         binding.sbPanelRadius.value = panelPrefs.panelCornerRadius.toFloat()
         binding.tvRadiusValue.text = "${panelPrefs.panelCornerRadius}dp"
 
+        binding.sbMaxHeight.value = panelPrefs.panelMaxHeight.toFloat()
+        binding.tvMaxHeightValue.text = "${panelPrefs.panelMaxHeight}dp"
+
         binding.tvUIStyleValue.text = when (panelPrefs.uiTheme) {
             PanelPreferences.THEME_HYPEROS -> "HyperOS (Glass)"
             PanelPreferences.THEME_REALME -> "Realme UI"
             PanelPreferences.THEME_RICH -> "Rich UI (Glow)"
-            PanelPreferences.THEME_M3 -> "Material 3 (Modern)"
             else -> "OriginOS (Rounded)"
         }
 
@@ -158,14 +160,27 @@ class AppearanceSettingsActivity : AppCompatActivity() {
             }
         })
 
+        binding.sbMaxHeight.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                val progress = value.toInt()
+                panelPrefs.panelMaxHeight = progress
+                binding.tvMaxHeightValue.text = "${progress}dp"
+            }
+        }
+        binding.sbMaxHeight.addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) {}
+            override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) {
+                applyOnly()
+            }
+        })
+
         binding.layoutUIStyle.setOnClickListener {
-            val options = arrayOf("OriginOS (Rounded)", "HyperOS (Glass)", "Realme UI", "Rich UI (Glow)", "Material 3 (Modern)")
+            val options = arrayOf("OriginOS (Rounded)", "HyperOS (Glass)", "Realme UI", "Rich UI (Glow)")
             val values = arrayOf(
                 PanelPreferences.THEME_ORIGIN,
                 PanelPreferences.THEME_HYPEROS,
                 PanelPreferences.THEME_REALME,
-                PanelPreferences.THEME_RICH,
-                PanelPreferences.THEME_M3
+                PanelPreferences.THEME_RICH
             )
             
             val selectedIndex = values.indexOf(panelPrefs.uiTheme).let { if (it == -1) 0 else it }

@@ -1,6 +1,9 @@
 package com.imi.smartedge.sidebar.panel
 
 import android.content.Context
+import android.content.Intent
+import android.graphics.Rect
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +18,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 class PanelAppsAdapter(
     private val context: Context,
     private val onRemove: (AppInfo) -> Unit,
-    private val onAddClick: (Boolean) -> Unit, // Accept Boolean for Edit Mode
+    private val onAddClick: (Boolean) -> Unit,
     private val onAppLaunched: () -> Unit
 ) : ListAdapter<AppInfo, RecyclerView.ViewHolder>(AppDiffCallback()) {
 
@@ -81,27 +84,36 @@ class PanelAppsAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val scale = context.getAutoScalingFactor() * panelPrefs.scaleFactor
+        val isRich = panelPrefs.uiTheme == PanelPreferences.THEME_RICH
+        
         if (holder is AppViewHolder) {
+            // Restore original sizes + scaling
+            val baseIconSize = if (isRich) 44 else 40
+            val baseTextSize = if (isRich) 9f else 8f
+
+            holder.ivIcon.layoutParams.let { lp ->
+                lp.width = (context.dpToPx(baseIconSize) * scale).toInt()
+                lp.height = (context.dpToPx(baseIconSize) * scale).toInt()
+                holder.ivIcon.layoutParams = lp
+            }
+            holder.tvName.textSize = baseTextSize * scale
+
             val app = getItem(position)
             
-            // --- OPTIMIZED ICON LOADING WITH GLIDE ---
-            // Pass icon pack explicitly so Glide treats it as a new resource when pack changes
             Glide.with(context)
                 .load(AppIconRequest(app.packageName, panelPrefs.selectedIconPack))
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(android.R.drawable.sym_def_app_icon)
-                .override(120, 120)
+                .override((120 * scale).toInt(), (120 * scale).toInt())
                 .into(holder.ivIcon)
                 
             holder.tvName.text = app.appName
-            
-            // Apply icon shape
             IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
 
-            // Visual feedback for newly added app
             if (app.packageName == highlightPackage) {
                 SpringAnimator.scalePulse(holder.itemView)
-                highlightPackage = null // Only pulse once
+                highlightPackage = null
             }
 
             holder.itemView.setOnClickListener {
@@ -111,14 +123,17 @@ class PanelAppsAdapter(
                 SpringAnimator.scalePulse(holder.itemView)
                 onAppLaunched()
 
-                val launchIntent = context.packageManager
-                    .getLaunchIntentForPackage(app.packageName)
+                val launchIntent = context.packageManager.getLaunchIntentForPackage(app.packageName)
                 if (launchIntent != null) {
                     launchIntent.addFlags(
                         android.content.Intent.FLAG_ACTIVITY_NEW_TASK or
                         android.content.Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
                     )
-                    context.startActivity(launchIntent)
+                    if (panelPrefs.freeformEnabled && context.isFreeformEnabled()) {
+                        launchFreeform(launchIntent)
+                    } else {
+                        context.startActivity(launchIntent)
+                    }
                 }
             }
 
@@ -134,6 +149,13 @@ class PanelAppsAdapter(
                 true
             }
         } else if (holder is AddViewHolder) {
+            val baseIconSize = 40
+            holder.ivAdd.layoutParams.let { lp ->
+                lp.width = (context.dpToPx(baseIconSize) * scale).toInt()
+                lp.height = (context.dpToPx(baseIconSize) * scale).toInt()
+                holder.ivAdd.layoutParams = lp
+            }
+
             holder.itemView.animate().cancel()
             holder.itemView.alpha = 1f
             holder.itemView.scaleX = 1f
@@ -144,17 +166,91 @@ class PanelAppsAdapter(
                     holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
                 }
                 SpringAnimator.scalePulse(holder.itemView)
-                onAddClick(true) // Open in Edit Mode
+                onAddClick(true)
             }
         }
     }
 
-    private class AppDiffCallback : DiffUtil.ItemCallback<AppInfo>() {
-        override fun areItemsTheSame(oldItem: AppInfo, newItem: AppInfo) =
-            oldItem.packageName == newItem.packageName
+    @android.annotation.SuppressLint("BlockedPrivateApi")
+    private fun launchFreeform(intent: Intent) {
+        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        try {
+            val options = android.app.ActivityOptions.makeCustomAnimation(context, android.R.anim.fade_in, 0)
+            val displayMetrics = context.resources.displayMetrics
+            val w = displayMetrics.widthPixels
+            val h = displayMetrics.heightPixels
+            val prefersLandscape = detectLandscapeOrientation(intent.`package`)
 
-        override fun areContentsTheSame(oldItem: AppInfo, newItem: AppInfo) =
-            oldItem.appName == newItem.appName && 
-            oldItem.isInPanel == newItem.isInPanel
+            val bounds: Rect = when (panelPrefs.freeformWindowMode) {
+                PanelPreferences.FREEFORM_MODE_PORTRAIT -> {
+                    val left = w / 3
+                    val top = h / 15
+                    Rect(left, top, w - left, h - top)
+                }
+                PanelPreferences.FREEFORM_MODE_MAXIMIZED -> Rect(0, 0, w, h)
+                PanelPreferences.FREEFORM_MODE_CUSTOM -> {
+                    val winW = (w * panelPrefs.freeformCustomWidth / 100.0).toInt()
+                    val winH = (h * panelPrefs.freeformCustomHeight / 100.0).toInt()
+                    val left = (w - winW) / 2
+                    val top = (h - winH) / 2
+                    Rect(left, top, left + winW, top + winH)
+                }
+                else -> {
+                    if (prefersLandscape) {
+                        // 16:9 wide aspect for games/landscape apps
+                        val targetW = if (w > h) (w * 0.80).toInt() else (w * 0.90).toInt()
+                        val targetH = (targetW / 1.77).toInt().coerceAtMost((h * 0.85).toInt())
+                        val left = (w - targetW) / 2
+                        val top = (h - targetH) / 2
+                        Rect(left, top, left + targetW, top + targetH)
+                    } else {
+                        // 9:16 portrait aspect for normal apps (fixed for landscape host)
+                        val targetH = (h * 0.85).toInt()
+                        val targetW = (targetH * 9 / 16).toInt().coerceAtMost((w * 0.85).toInt())
+                        val left = (w - targetW) / 2
+                        val top = (h - targetH) / 2
+                        Rect(left, top, left + targetW, top + targetH)
+                    }
+                }
+            }
+            options.launchBounds = bounds
+
+            try {
+                val method = android.app.ActivityOptions::class.java.getDeclaredMethod("setLaunchWindowingMode", Int::class.javaPrimitiveType)
+                method.isAccessible = true
+                method.invoke(options, 5)
+            } catch (e: Exception) {
+                try {
+                    val method = android.app.ActivityOptions::class.java.getMethod("setLaunchWindowingMode", Int::class.javaPrimitiveType)
+                    method.invoke(options, 5)
+                } catch (e2: Exception) {}
+            }
+            context.startActivity(intent, options.toBundle())
+        } catch (e: Exception) {
+            context.startActivity(intent)
+        }
+    }
+
+    private fun detectLandscapeOrientation(packageName: String?): Boolean {
+        if (packageName == null) return false
+        return try {
+            val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
+            val component = launchIntent?.component ?: return false
+            val activityInfo = context.packageManager.getActivityInfo(component, android.content.pm.PackageManager.GET_META_DATA)
+            when (activityInfo.screenOrientation) {
+                android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE,
+                android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE,
+                android.content.pm.ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE,
+                android.content.pm.ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE -> true
+                else -> false
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private class AppDiffCallback : DiffUtil.ItemCallback<AppInfo>() {
+        override fun areItemsTheSame(oldItem: AppInfo, newItem: AppInfo) = oldItem.packageName == newItem.packageName
+        override fun areContentsTheSame(oldItem: AppInfo, newItem: AppInfo) = oldItem.appName == newItem.appName && oldItem.isInPanel == newItem.isInPanel
     }
 }

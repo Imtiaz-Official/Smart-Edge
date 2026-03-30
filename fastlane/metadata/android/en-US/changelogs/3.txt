@@ -1,0 +1,14 @@
+- Refactored settings into a multi-page dashboard (Appearance, Interaction, Handle, Tools).
+- Replaced slow, synchronous PackageManager icon loading with Glide.
+- Implemented a custom AppIconModelLoader for seamless Icon Pack support in Glide.
+- Added a fast in-memory cache for system default icons.
+- Implemented a BroadcastReceiver to instantly refresh icons upon app install/uninstall.
+- Improved FloatingPanelService touch interception for reliable outside clicks.
+- Restored original Support Development button styling.
+- Standardized Accessibility Icon to native Android Material Vector with internal padding.
+- Refined Hero App Icon design with invisible circular mask.
+- Added Xiaomi/MIUI/HyperOS specific intent fallback for accessibility settings.
+- Cleaned up unused PNGs and custom XMLs.
+- Fixed back arrow direction in sub-settings.
+- Implemented sequential dismissal: closes keyboard -> picker -> panel.
+- Added gitignore for local build logs and FDroid metadata.

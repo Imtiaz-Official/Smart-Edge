@@ -41,10 +41,26 @@ jobs:
       - name: Build Release APK
         run: ./gradlew assembleRelease
 
+      - name: Get Changelog
+        id: changelog
+        run: |
+          VERSION_CODE=$(grep "versionCode =" app/build.gradle.kts | awk '{print $3}')
+          CHANGELOG_PATH="fastlane/metadata/android/en-US/changelogs/${VERSION_CODE}.txt"
+          if [ -f "$CHANGELOG_PATH" ]; then
+            {
+              echo 'body<<EOF'
+              cat "$CHANGELOG_PATH"
+              echo 'EOF'
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "body=No changelog found for version code ${VERSION_CODE}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Upload APK to Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: app/build/outputs/apk/release/app-release.apk
+          body: ${{ steps.changelog.outputs.body }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

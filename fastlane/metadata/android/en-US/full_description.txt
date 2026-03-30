@@ -2,11 +2,14 @@ Smart Edge is a highly customizable Android side panel inspired by OriginOS. Acc
 
 ✨ Features:
 * 🎨 Custom UI Themes: Choose from OriginOS, HyperOS, Realme UI, and Rich UI styles.
+* 🖼️ Freeform Multitasking: Launch any app in a floating, resizable window for true multitasking (requires system support).
 * 🫧 Glassmorphic Blur: High-quality real-time background blur with adjustable intensity.
 * 🌈 Material You: Full support for dynamic accent colors and Material 3 components.
 * 🚀 Smart App Picker: Integrated search and management system to pin your most-used apps.
-* 🛠️ Utility Tools: Built-in tools like Screenshot, Home, and Recent Apps shortcuts.
+* 🎭 Superior Icon Packs: Advanced support for appfilter.xml and icon masking for a consistent look.
+* 🛠️ Utility Tools: Built-in tools like Screenshot, Power Menu, and system shortcuts.
+* ⚡ System Automation: Advanced ADB/Root integration to automatically toggle system multitasking settings.
 * 🍃 Premium Motion: Physics-based spring animations with customizable feel.
-* 🎭 Icon Customization: Support for Icon Packs and custom icon shapes.
+* 📐 Dynamic Layouts: Highly customizable sidebar width, maximum height, and icon scaling.
 
 Smart Edge is built for performance and safety, using modern Kotlin and Material Design 3.

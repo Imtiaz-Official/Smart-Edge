@@ -81,8 +81,15 @@ Smart Edge is built to be yours. In the settings, you can adjust:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🙏 Credits
+
+Special thanks to the following developers and projects for their inspiration and open-source contributions:
+
+*   **[Axel358/SmartDock](https://github.com/axel358/smartdock)** - Project inspiration and open-source contributions.
+*   **[LSPosed/HiddenApiBypass](https://github.com/LSPosed/Android-HiddenApiBypass)** - For enabling access to restricted windowing APIs.
+
 ---
 
 <p align="center">
-  Made with ❤️ by Imtiaz
+  Built with ❤️ for the Android Community
 </p>
