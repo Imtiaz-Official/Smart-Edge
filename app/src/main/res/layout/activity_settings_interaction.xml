@@ -58,6 +58,7 @@
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_tap_open" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Tap Pill to Open" android:textColor="?attr/colorOnSurface" />
                     
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_haptic" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Haptic Feedback" android:textColor="?attr/colorOnSurface" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_show_landscape" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Show Panel in Landscape" android:textColor="?attr/colorOnSurface" />
                     
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_freeform" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Freeform Window Mode" android:textColor="?attr/colorOnSurface" />
 
@@ -114,6 +115,15 @@
                                 android:text="Width"
                                 android:textColor="?attr/colorOnSurfaceVariant"
                                 android:textSize="12sp" />
+                            <ImageView
+                                android:id="@+id/btnResetFreeformW"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_restore"
+                                android:layout_marginEnd="8dp"
+                                android:background="?attr/selectableItemBackground"
+                                android:padding="2dp"
+                                app:tint="?attr/colorPrimary" />
                             <TextView
                                 android:id="@+id/tv_freeform_custom_w"
                                 android:layout_width="wrap_content"
@@ -147,6 +157,15 @@
                                 android:text="Height"
                                 android:textColor="?attr/colorOnSurfaceVariant"
                                 android:textSize="12sp" />
+                            <ImageView
+                                android:id="@+id/btnResetFreeformH"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_restore"
+                                android:layout_marginEnd="8dp"
+                                android:background="?attr/selectableItemBackground"
+                                android:padding="2dp"
+                                app:tint="?attr/colorPrimary" />
                             <TextView
                                 android:id="@+id/tv_freeform_custom_h"
                                 android:layout_width="wrap_content"
@@ -263,6 +282,7 @@
                     <LinearLayout android:id="@+id/feature_picker_gap" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="8dp">
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="4dp">
                             <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Picker Gap (Spacing)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
+                            <ImageView android:id="@+id/btnResetPickerGap" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_restore" android:layout_marginEnd="8dp" android:background="?attr/selectableItemBackground" android:padding="2dp" app:tint="?attr/colorPrimary" />
                             <TextView android:id="@+id/tvPickerGapValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="36dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                         </LinearLayout>
                         <com.imi.smartedge.sidebar.panel.DefaultMarkerSlider style="@style/Widget.App.Slider"

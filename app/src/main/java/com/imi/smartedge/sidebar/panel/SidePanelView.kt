@@ -162,9 +162,45 @@ class SidePanelView @JvmOverloads constructor(
         lp.width = context.dpToPx(((if (cols == 2) width2ColDp else width1ColDp) * scale).toInt())
         binding.panelCard.layoutParams = lp
 
+        // Calculate maximum allowed height for the RecyclerView to ensure the panel fits on screen
+        val displayMetrics = context.resources.displayMetrics
+        val screenHeightPx = displayMetrics.heightPixels
+        val screenHeightDp = screenHeightPx / displayMetrics.density
+        
+        // Subtract estimated height of other UI elements (paddings, tools, close button)
+        // Top Padding (12) + Bottom Padding (4) + Tools Margin (4) + Close Btn (48) = 68dp
+        var nonAppHeightDp = 68f
+        if (panelPrefs.showTools) {
+            nonAppHeightDp += 50f // Divider + Screenshot + Labels
+            if (panelPrefs.showPowerMenu) nonAppHeightDp += 42f
+            if (panelPrefs.showSysInfo) nonAppHeightDp += 24f
+        }
+        
+        // Maximum allowed height for RV to keep panel within screen (with 24dp safety margin)
+        val maxAllowedRvHeightDp = (screenHeightDp - nonAppHeightDp - 24).coerceAtLeast(100f)
+        val targetRvHeightDp = panelPrefs.panelMaxHeight.toFloat().coerceAtMost(maxAllowedRvHeightDp)
+
         // Apply dynamic height directly to the RecyclerView
         val rvLp = binding.rvPanelApps.layoutParams
-        rvLp.height = context.dpToPx((panelPrefs.panelMaxHeight * scale).toInt())
+        val maxRvHeightPx = context.dpToPx((targetRvHeightDp * scale).toInt())
+        
+        // Use wrap_content for few apps, but cap at maxRvHeightPx
+        // We can use a custom view or just calculate items.
+        val itemsCount = adapter.itemCount
+        val isRich = panelPrefs.uiTheme == PanelPreferences.THEME_RICH
+        val baseItemHeightDp = if (isRich) 68 else 62 // Rich theme items are slightly taller
+        val itemHeightPx = context.dpToPx((baseItemHeightDp * scale).toInt())
+        
+        val rows = Math.ceil(itemsCount.toDouble() / cols).toInt()
+        val estimatedContentHeightPx = rows * itemHeightPx
+        
+        if (estimatedContentHeightPx > 0 && estimatedContentHeightPx < maxRvHeightPx) {
+            rvLp.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        } else if (itemsCount == 0) {
+            rvLp.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        } else {
+            rvLp.height = maxRvHeightPx
+        }
         binding.rvPanelApps.layoutParams = rvLp
 
         val containerLp = binding.panelContainer.layoutParams as? android.widget.RelativeLayout.LayoutParams    
@@ -214,10 +250,12 @@ class SidePanelView @JvmOverloads constructor(
 
     fun setEditButtonVisible(visible: Boolean) {
         adapter.setShowAddButton(visible)
+        updateSideLayout()
     }
 
     fun setApps(apps: List<AppInfo>, onComplete: (() -> Unit)? = null) {
         adapter.submitList(apps) {
+            updateSideLayout()
             onComplete?.invoke()
         }
     }

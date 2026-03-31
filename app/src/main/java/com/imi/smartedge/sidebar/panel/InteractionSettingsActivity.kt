@@ -82,6 +82,7 @@ class InteractionSettingsActivity : AppCompatActivity() {
         binding.featureGestures.isChecked = panelPrefs.gesturesEnabled
         binding.featureTapOpen.isChecked = panelPrefs.tapToOpen
         binding.featureHaptic.isChecked = panelPrefs.hapticEnabled
+        binding.featureShowLandscape.isChecked = panelPrefs.showInLandscape
         binding.featureFreeform.isChecked = panelPrefs.freeformEnabled
         binding.featureShowLogs.isChecked = panelPrefs.showLogs
 
@@ -153,6 +154,11 @@ class InteractionSettingsActivity : AppCompatActivity() {
             panelPrefs.hapticEnabled = isChecked
         }
 
+        binding.featureShowLandscape.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.showInLandscape = isChecked
+            applyOnly()
+        }
+
         binding.featureFreeform.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.freeformEnabled = isChecked
             binding.layoutFreeformSize.visibility = if (isChecked) View.VISIBLE else View.GONE
@@ -214,6 +220,13 @@ class InteractionSettingsActivity : AppCompatActivity() {
                 binding.tvFreeformSizeValue.text = freeformModeLabel(PanelPreferences.FREEFORM_MODE_CUSTOM)
             }
         }
+        binding.btnResetFreeformW.setOnClickListener {
+            val default = 80
+            panelPrefs.freeformCustomWidth = default
+            binding.sbFreeformCustomW.value = default.toFloat()
+            binding.tvFreeformCustomW.text = "$default%"
+            binding.tvFreeformSizeValue.text = freeformModeLabel(PanelPreferences.FREEFORM_MODE_CUSTOM)
+        }
 
         // Custom Height slider
         binding.sbFreeformCustomH.addOnChangeListener { _, value, fromUser ->
@@ -223,6 +236,13 @@ class InteractionSettingsActivity : AppCompatActivity() {
                 binding.tvFreeformCustomH.text = "$pct%"
                 binding.tvFreeformSizeValue.text = freeformModeLabel(PanelPreferences.FREEFORM_MODE_CUSTOM)
             }
+        }
+        binding.btnResetFreeformH.setOnClickListener {
+            val default = 80
+            panelPrefs.freeformCustomHeight = default
+            binding.sbFreeformCustomH.value = default.toFloat()
+            binding.tvFreeformCustomH.text = "$default%"
+            binding.tvFreeformSizeValue.text = freeformModeLabel(PanelPreferences.FREEFORM_MODE_CUSTOM)
         }
 
         binding.featureShowLogs.setOnCheckedChangeListener { _, isChecked ->
@@ -261,6 +281,14 @@ class InteractionSettingsActivity : AppCompatActivity() {
                 applyOnly()
             }
         })
+
+        binding.btnResetPickerGap.setOnClickListener {
+            val default = 36
+            panelPrefs.pickerGap = default
+            binding.sbPickerGap.value = default.toFloat()
+            binding.tvPickerGapValue.text = "${default}dp"
+            applyOnly()
+        }
     }
 
     private fun applyOnly() {

@@ -18,6 +18,15 @@ class PanelAccessibilityService : AccessibilityService() {
         private const val TAG = "PanelAccessibility"
         const val ACTION_TAKE_SCREENSHOT = "com.imi.smartedge.sidebar.panel.ACTION_TAKE_SCREENSHOT"
         const val ACTION_SHOW_POWER_MENU = "com.imi.smartedge.sidebar.panel.ACTION_SHOW_POWER_MENU"
+        
+        @Volatile
+        var isRunning = false
+            private set
+    }
+
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        isRunning = true
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -74,6 +83,7 @@ class PanelAccessibilityService : AccessibilityService() {
     override fun onUnbind(intent: Intent?): Boolean {
         // When the user toggles Accessibility OFF, Android unbinds this service.
         // We should immediately stop the floating panel if it is running.
+        isRunning = false
         val stopIntent = Intent(this, FloatingPanelService::class.java).apply {
             action = FloatingPanelService.ACTION_STOP
         }

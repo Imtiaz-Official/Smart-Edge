@@ -128,6 +128,44 @@ class AppPickerPanelView @JvmOverloads constructor(
         loadApps()
     }
 
+    private var lastMaxPx: Int = -1
+
+    fun setMaxRecyclerViewHeight(maxPx: Int) {
+        lastMaxPx = maxPx
+        updatePickerHeight()
+    }
+
+    private fun updatePickerHeight() {
+        if (lastMaxPx == -1) return
+        
+        val lp = rvPickerGrid.layoutParams
+        val itemsCount = allApps.size
+        if (itemsCount == 0) {
+            lp.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            rvPickerGrid.layoutParams = lp
+            return
+        }
+
+        val density = context.resources.displayMetrics.density
+        val theme = panelPrefs.uiTheme
+        val isRich = theme == PanelPreferences.THEME_RICH
+        
+        // Accurate estimation for Picker height
+        // Modern: 100dp approx, Rich: 72dp approx
+        val itemHeightDp = if (isRich) 72 else 100
+        val itemHeightPx = (itemHeightDp * density).toInt()
+        val cols = if (isRich) 1 else 2
+        val rows = Math.ceil(itemsCount.toDouble() / cols).toInt()
+        val estimatedContentHeightPx = rows * itemHeightPx
+
+        if (estimatedContentHeightPx < lastMaxPx) {
+            lp.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        } else {
+            lp.height = lastMaxPx
+        }
+        rvPickerGrid.layoutParams = lp
+    }
+
     fun applyTheme() {
         val theme = panelPrefs.uiTheme
         val density = context.resources.displayMetrics.density
@@ -221,14 +259,18 @@ class AppPickerPanelView @JvmOverloads constructor(
         _scope.launch {
             val apps = withContext(Dispatchers.IO) { repository.getAllApps() }
             allApps = apps
-            adapter.submitList(allApps.toList())
+            adapter.submitList(allApps.toList()) {
+                updatePickerHeight()
+            }
         }
     }
 
     fun resetSearch() {
         if (etSearch.text.isNotEmpty()) {
             etSearch.setText("")
-            adapter.submitList(allApps.toList())
+            adapter.submitList(allApps.toList()) {
+                updatePickerHeight()
+            }
         }
     }
 
@@ -242,7 +284,9 @@ class AppPickerPanelView @JvmOverloads constructor(
 
     private fun filter(query: String) {
         val filtered = allApps.filter { it.appName.contains(query, ignoreCase = true) }
-        adapter.submitList(filtered)
+        adapter.submitList(filtered) {
+            updatePickerHeight()
+        }
     }
 
     fun getPickerCardRect(outRect: android.graphics.Rect) {

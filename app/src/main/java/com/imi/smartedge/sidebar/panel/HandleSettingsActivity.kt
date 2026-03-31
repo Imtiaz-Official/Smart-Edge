@@ -57,7 +57,7 @@ class HandleSettingsActivity : AppCompatActivity() {
         binding.sbHandleWidth.value = panelPrefs.handleWidth.toFloat()
         binding.tvWidthValue.text = "${panelPrefs.handleWidth}dp"
         
-        binding.sbHandleOffset.value = (panelPrefs.handleVerticalOffset + 100).toFloat()
+        binding.sbHandleOffset.value = panelPrefs.handleVerticalOffset.toFloat()
         binding.tvOffsetValue.text = "${panelPrefs.handleVerticalOffset}dp"
     }
 
@@ -81,6 +81,14 @@ class HandleSettingsActivity : AppCompatActivity() {
             }
         })
 
+        binding.btnResetHeight.setOnClickListener {
+            val default = 80
+            panelPrefs.handleHeight = default
+            binding.sbHandleHeight.value = default.toFloat()
+            binding.tvHeightValue.text = "${default}dp"
+            applyOnly()
+        }
+
         binding.sbHandleWidth.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
                 val progress = value.toInt()
@@ -95,10 +103,17 @@ class HandleSettingsActivity : AppCompatActivity() {
             }
         })
 
+        binding.btnResetWidth.setOnClickListener {
+            val default = 24
+            panelPrefs.handleWidth = default
+            binding.sbHandleWidth.value = default.toFloat()
+            binding.tvWidthValue.text = "${default}dp"
+            applyOnly()
+        }
+
         binding.sbHandleOffset.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
-                val progress = value.toInt()
-                val offset = progress - 100
+                val offset = value.toInt()
                 panelPrefs.handleVerticalOffset = offset
                 binding.tvOffsetValue.text = "${offset}dp"
             }
@@ -109,6 +124,14 @@ class HandleSettingsActivity : AppCompatActivity() {
                 applyAndShow() // Vertical offset needs a full WindowManager update
             }
         })
+
+        binding.btnResetOffset.setOnClickListener {
+            val default = 0
+            panelPrefs.handleVerticalOffset = default
+            binding.sbHandleOffset.value = default.toFloat()
+            binding.tvOffsetValue.text = "${default}dp"
+            applyAndShow()
+        }
     }
 
     private fun applyOnly() {

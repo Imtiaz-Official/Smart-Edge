@@ -71,6 +71,9 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         binding.sbMaxHeight.value = panelPrefs.panelMaxHeight.toFloat()
         binding.tvMaxHeightValue.text = "${panelPrefs.panelMaxHeight}dp"
 
+        binding.sbPickerMaxHeight.value = panelPrefs.pickerMaxHeight.toFloat()
+        binding.tvPickerMaxHeightValue.text = "${panelPrefs.pickerMaxHeight}dp"
+
         binding.tvUIStyleValue.text = when (panelPrefs.uiTheme) {
             PanelPreferences.THEME_HYPEROS -> "HyperOS (Glass)"
             PanelPreferences.THEME_REALME -> "Realme UI"
@@ -127,6 +130,14 @@ class AppearanceSettingsActivity : AppCompatActivity() {
             }
         })
 
+        binding.btnResetBlur.setOnClickListener {
+            val default = 15
+            panelPrefs.blurAmount = default
+            binding.sbBlurAmount.value = default.toFloat()
+            binding.tvBlurAmountValue.text = default.toString()
+            applyOnly()
+        }
+
         binding.featureColumns.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.panelColumns = if (isChecked) 2 else 1
             applyOnly()
@@ -146,6 +157,14 @@ class AppearanceSettingsActivity : AppCompatActivity() {
             }
         })
 
+        binding.btnResetOpacity.setOnClickListener {
+            val default = 100
+            panelPrefs.panelOpacity = default
+            binding.sbOpacity.value = default.toFloat()
+            binding.tvOpacityValue.text = "$default%"
+            applyOnly()
+        }
+
         binding.sbPanelRadius.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
                 val progress = value.toInt()
@@ -160,6 +179,14 @@ class AppearanceSettingsActivity : AppCompatActivity() {
             }
         })
 
+        binding.btnResetRadius.setOnClickListener {
+            val default = 20
+            panelPrefs.panelCornerRadius = default
+            binding.sbPanelRadius.value = default.toFloat()
+            binding.tvRadiusValue.text = "${default}dp"
+            applyOnly()
+        }
+
         binding.sbMaxHeight.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
                 val progress = value.toInt()
@@ -173,6 +200,36 @@ class AppearanceSettingsActivity : AppCompatActivity() {
                 applyOnly()
             }
         })
+
+        binding.btnResetMaxHeight.setOnClickListener {
+            val default = 350
+            panelPrefs.panelMaxHeight = default
+            binding.sbMaxHeight.value = default.toFloat()
+            binding.tvMaxHeightValue.text = "${default}dp"
+            applyOnly()
+        }
+
+        binding.sbPickerMaxHeight.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                val progress = value.toInt()
+                panelPrefs.pickerMaxHeight = progress
+                binding.tvPickerMaxHeightValue.text = "${progress}dp"
+            }
+        }
+        binding.sbPickerMaxHeight.addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) {}
+            override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) {
+                applyOnly()
+            }
+        })
+
+        binding.btnResetPickerMaxHeight.setOnClickListener {
+            val default = 450
+            panelPrefs.pickerMaxHeight = default
+            binding.sbPickerMaxHeight.value = default.toFloat()
+            binding.tvPickerMaxHeightValue.text = "${default}dp"
+            applyOnly()
+        }
 
         binding.layoutUIStyle.setOnClickListener {
             val options = arrayOf("OriginOS (Rounded)", "HyperOS (Glass)", "Realme UI", "Rich UI (Glow)")

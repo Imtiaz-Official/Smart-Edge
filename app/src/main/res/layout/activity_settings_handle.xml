@@ -48,13 +48,15 @@
 
                     <LinearLayout android:id="@+id/feature_handle_height" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="4dp">
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Handle Height" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
+                        <ImageView android:id="@+id/btnResetHeight" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_restore" android:layout_marginEnd="8dp" android:background="?attr/selectableItemBackground" android:padding="2dp" app:tint="?attr/colorPrimary" />
                         <TextView android:id="@+id/tvHeightValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="80dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
                     <com.imi.smartedge.sidebar.panel.DefaultMarkerSlider style="@style/Widget.App.Slider"
-                        android:id="@+id/sbHandleHeight" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="300.0" android:value="80.0" app:tickVisible="false" android:layout_marginBottom="12dp" />
+                        android:id="@+id/sbHandleHeight" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="20.0" android:valueTo="300.0" android:value="80.0" app:tickVisible="false" android:layout_marginBottom="12dp" />
 
                     <LinearLayout android:id="@+id/feature_handle_width" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="8dp" android:layout_marginBottom="4dp">
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Trigger Area Width" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
+                        <ImageView android:id="@+id/btnResetWidth" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_restore" android:layout_marginEnd="8dp" android:background="?attr/selectableItemBackground" android:padding="2dp" app:tint="?attr/colorPrimary" />
                         <TextView android:id="@+id/tvWidthValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="24dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
                     <com.imi.smartedge.sidebar.panel.DefaultMarkerSlider style="@style/Widget.App.Slider"
@@ -62,10 +64,11 @@
 
                     <LinearLayout android:id="@+id/feature_handle_position" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginTop="8dp" android:layout_marginBottom="4dp">
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Vertical Position" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
+                        <ImageView android:id="@+id/btnResetOffset" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_restore" android:layout_marginEnd="8dp" android:background="?attr/selectableItemBackground" android:padding="2dp" app:tint="?attr/colorPrimary" />
                         <TextView android:id="@+id/tvOffsetValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
                     <com.imi.smartedge.sidebar.panel.DefaultMarkerSlider style="@style/Widget.App.Slider"
-                        android:id="@+id/sbHandleOffset" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="200.0" android:value="100.0" app:tickVisible="false" />
+                        android:id="@+id/sbHandleOffset" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="-100.0" android:valueTo="100.0" android:value="0.0" app:tickVisible="false" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

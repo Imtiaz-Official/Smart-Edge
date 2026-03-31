@@ -149,7 +149,13 @@ class FloatingPanelService : Service() {
                 }
             }
             ACTION_REFRESH -> {
-                edgeHandleView?.updateFromPrefs()
+                val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+                if (isLandscape && !panelPrefs.showInLandscape) {
+                    edgeHandleView?.visibility = View.GONE
+                } else {
+                    addEdgeHandle() // Re-add instead of just update to ensure it forces UI rebuilds
+                    edgeHandleView?.visibility = if (isPanelOpen) View.GONE else View.VISIBLE
+                }
                 sidePanelView?.updateStyles()
                 sidePanelView?.refreshIcons()
                 pickerPanelView?.applyTheme()
@@ -195,6 +201,26 @@ class FloatingPanelService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        
+        // Always close panel on orientation change to prevent layout corruption
+        if (isPanelOpen) {
+            closePanel(immediate = true)
+        }
+
+        if (panelPrefs.serviceEnabled) {
+            val isLandscape = newConfig.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            if (isLandscape && !panelPrefs.showInLandscape) {
+                edgeHandleView?.visibility = View.GONE
+            } else {
+                // Re-add the handle to guarantee WindowManager bounds are perfectly mapped to the new orientation
+                addEdgeHandle()
+                edgeHandleView?.visibility = View.VISIBLE
+            }
+        }
+    }
+
     private fun removeView(view: View?) {
         if (view == null) return
         try {
@@ -229,6 +255,7 @@ class FloatingPanelService : Service() {
         val handleHeight = if (isPillVisible) dpToPx(panelPrefs.handleHeight) 
                            else (resources.displayMetrics.heightPixels * 0.60f).toInt()
 
+        // Fix: Use FLAG_LAYOUT_NO_LIMITS carefully or ensure GRAVITY_CENTER doesn't overflow
         val params = WindowManager.LayoutParams(
             dpToPx(handleWidth),
             handleHeight,
@@ -241,7 +268,16 @@ class FloatingPanelService : Service() {
         ).apply {
             gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL
                       else Gravity.START or Gravity.CENTER_VERTICAL
-            y = dpToPx(panelPrefs.handleVerticalOffset)
+            
+            // Calculate absolute max offset to keep handle on screen
+            val screenH = resources.displayMetrics.heightPixels
+            val safeMargin = dpToPx(50) // Keep away from extreme top/bottom edges
+            val maxOffset = (screenH / 2) - (handleHeight / 2) - safeMargin
+            
+            val requestedOffset = dpToPx(panelPrefs.handleVerticalOffset)
+            y = requestedOffset.coerceIn(-maxOffset, maxOffset)
+            
+            // Log.d(TAG, "Handle Params: width=$width, height=$height, y=$y (requested=$requestedOffset, max=$maxOffset)")
         }
 
         windowManager.addView(edgeHandleView, params)
@@ -496,11 +532,29 @@ class FloatingPanelService : Service() {
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
             val density = resources.displayMetrics.density
             val sidePanelWidthDp = 72
+            
+            // Dynamic Height calculation for Picker Panel based on Screen Height
+            val displayMetrics = resources.displayMetrics
+            val screenHeightPx = displayMetrics.heightPixels
+            val screenHeightDp = screenHeightPx / displayMetrics.density
+            
+            // Max height for picker: User preference, with a sane minimum for usability
+            val maxAllowedHeightDp = Math.max(300f, panelPrefs.pickerMaxHeight.toFloat())
+            val maxPickerHeightPx = (maxAllowedHeightDp * displayMetrics.density).toInt()
+
             val lp = android.widget.FrameLayout.LayoutParams(dpToPx(240), android.widget.FrameLayout.LayoutParams.WRAP_CONTENT)
+            lp.height = android.widget.FrameLayout.LayoutParams.WRAP_CONTENT // Start with wrap
+            // We'll set the actual height constraint on the RecyclerView in AppPickerPanelView if needed, 
+            // or just ensure the whole LP doesn't exceed screen height
+            
             lp.gravity = if (isRight) Gravity.CENTER_VERTICAL or Gravity.END
                          else Gravity.CENTER_VERTICAL or Gravity.START
-            val gapPx = ((sidePanelWidthDp + panelPrefs.pickerGap) * density).toInt()
+            val gapPx = ((sidePanelWidthDp + panelPrefs.pickerGap) * displayMetrics.density).toInt()
             if (isRight) lp.marginEnd = gapPx else lp.marginStart = gapPx
+            
+            picker.layoutParams = lp
+            // Force the internal RecyclerView to not exceed a certain height
+            picker.setMaxRecyclerViewHeight(maxPickerHeightPx - dpToPx(80)) // Subtract header space (approx 80dp)
             picker.layoutParams = lp
             picker.alpha = 0f
             picker.visibility = View.VISIBLE

@@ -30,6 +30,8 @@ class BootReceiver : BroadcastReceiver() {
     }
 
     private fun isAccessibilityServiceEnabled(context: Context): Boolean {
+        if (PanelAccessibilityService.isRunning) return true
+        
         val enabledServices = android.provider.Settings.Secure.getString(
             context.contentResolver,
             android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES

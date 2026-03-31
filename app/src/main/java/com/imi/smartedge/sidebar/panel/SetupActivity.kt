@@ -155,6 +155,8 @@ class SetupActivity : AppCompatActivity() {
     private fun hasOverlayPermission(): Boolean = Settings.canDrawOverlays(this)
 
     private fun isAccessibilityServiceEnabled(): Boolean {
+        if (PanelAccessibilityService.isRunning) return true
+        
         val enabledServices = Settings.Secure.getString(
             contentResolver,
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES

@@ -90,7 +90,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.sbHandleWidth.value = panelPrefs.handleWidth.toFloat()
         binding.tvWidthValue.text = "${panelPrefs.handleWidth}dp"
         
-        binding.sbHandleOffset.value = (panelPrefs.handleVerticalOffset + 100).toFloat()
+        binding.sbHandleOffset.value = panelPrefs.handleVerticalOffset.toFloat()
         binding.tvOffsetValue.text = "${panelPrefs.handleVerticalOffset}dp"
 
         binding.sbPickerGap.value = panelPrefs.pickerGap.toFloat()
@@ -236,6 +236,14 @@ class SettingsActivity : AppCompatActivity() {
             }
         })
 
+        binding.btnResetBlur.setOnClickListener {
+            val default = 15
+            panelPrefs.blurAmount = default
+            binding.sbBlurAmount.value = default.toFloat()
+            binding.tvBlurAmountValue.text = default.toString()
+            applyOnly()
+        }
+
         binding.switchColumns.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.panelColumns = if (isChecked) 2 else 1
             applyOnly()
@@ -255,6 +263,14 @@ class SettingsActivity : AppCompatActivity() {
             }
         })
 
+        binding.btnResetOpacity.setOnClickListener {
+            val default = 100
+            panelPrefs.panelOpacity = default
+            binding.sbOpacity.value = default.toFloat()
+            binding.tvOpacityValue.text = "$default%"
+            applyOnly()
+        }
+
         binding.sbHandleHeight.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
                 val progress = value.toInt()
@@ -268,6 +284,14 @@ class SettingsActivity : AppCompatActivity() {
                 applyOnly()
             }
         })
+
+        binding.btnResetHeight.setOnClickListener {
+            val default = 80
+            panelPrefs.handleHeight = default
+            binding.sbHandleHeight.value = default.toFloat()
+            binding.tvHeightValue.text = "${default}dp"
+            applyOnly()
+        }
 
         binding.sbHandleWidth.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
@@ -283,6 +307,14 @@ class SettingsActivity : AppCompatActivity() {
             }
         })
 
+        binding.btnResetWidth.setOnClickListener {
+            val default = 24
+            panelPrefs.handleWidth = default
+            binding.sbHandleWidth.value = default.toFloat()
+            binding.tvWidthValue.text = "${default}dp"
+            applyOnly()
+        }
+
         binding.btnGoPremium.setOnClickListener {
             val intent = Intent(this, SupportActivity::class.java)
             startActivity(intent)
@@ -290,8 +322,7 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.sbHandleOffset.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
-                val progress = value.toInt()
-                val offset = progress - 100
+                val offset = value.toInt()
                 panelPrefs.handleVerticalOffset = offset
                 binding.tvOffsetValue.text = "${offset}dp"
             }
@@ -302,6 +333,14 @@ class SettingsActivity : AppCompatActivity() {
                 applyAndShow() // Vertical offset needs a full WindowManager update
             }
         })
+
+        binding.btnResetOffset.setOnClickListener {
+            val default = 0
+            panelPrefs.handleVerticalOffset = default
+            binding.sbHandleOffset.value = default.toFloat()
+            binding.tvOffsetValue.text = "${default}dp"
+            applyAndShow()
+        }
 
         binding.sbPickerGap.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
@@ -317,6 +356,14 @@ class SettingsActivity : AppCompatActivity() {
             }
         })
 
+        binding.btnResetPickerGap.setOnClickListener {
+            val default = 36
+            panelPrefs.pickerGap = default
+            binding.sbPickerGap.value = default.toFloat()
+            binding.tvPickerGapValue.text = "${default}dp"
+            applyOnly()
+        }
+
         binding.sbPanelRadius.addOnChangeListener { _, value, fromUser ->
             if (fromUser) {
                 val progress = value.toInt()
@@ -330,6 +377,14 @@ class SettingsActivity : AppCompatActivity() {
                 applyOnly()
             }
         })
+
+        binding.btnResetRadius.setOnClickListener {
+            val default = 20
+            panelPrefs.panelCornerRadius = default
+            binding.sbPanelRadius.value = default.toFloat()
+            binding.tvRadiusValue.text = "${default}dp"
+            applyOnly()
+        }
 
         binding.layoutUIStyle.setOnClickListener {
             val options = arrayOf("OriginOS (Rounded)", "HyperOS (Glass)", "Realme UI", "Rich UI (Glow)")

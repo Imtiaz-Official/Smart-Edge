@@ -36,6 +36,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_SHOW_TOOLS = "show_tools"
         private const val KEY_ICON_SHAPE = "icon_shape"
         private const val KEY_GESTURES_ENABLED = "gestures_enabled"
+        private const val KEY_SHOW_IN_LANDSCAPE = "show_in_landscape"
 
         private const val KEY_PILL_WIDTH = "pill_width"
         private const val KEY_PILL_COLOR = "pill_color"
@@ -56,6 +57,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_FREEFORM_CUSTOM_H = "freeform_custom_height"
         private const val KEY_SCALE_FACTOR = "scale_factor"
         private const val KEY_PANEL_MAX_HEIGHT = "panel_max_height"
+        private const val KEY_PICKER_MAX_HEIGHT = "picker_max_height"
 
         private const val DELIMITER = ","
 
@@ -90,7 +92,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_OPACITY = 100
         const val DEFAULT_HANDLE_HEIGHT = 80
         const val DEFAULT_HANDLE_WIDTH = 24
-        const val DEFAULT_HANDLE_OFFSET = 0
+        const val DEFAULT_HANDLE_OFFSET = 0 // Center
         const val DEFAULT_ACCENT_COLOR = "#4A9EFF"
         const val DEFAULT_USE_CUSTOM_ACCENT = false // OFF BY DEFAULT
         const val DEFAULT_PANEL_COLS = 1
@@ -101,6 +103,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_SHOW_TOOLS = true
         val DEFAULT_ICON_SHAPE = SHAPE_SQUIRCLE
         const val DEFAULT_GESTURES = true
+        const val DEFAULT_SHOW_LANDSCAPE = true
         const val DEFAULT_PILL_WIDTH = 3
         const val DEFAULT_PILL_COLOR = "#FFFFFF"
         const val DEFAULT_TAP_TO_OPEN = false
@@ -142,6 +145,7 @@ class PanelPreferences(context: Context) {
             putBoolean(KEY_SHOW_TOOLS, DEFAULT_SHOW_TOOLS)
             putString(KEY_ICON_SHAPE, DEFAULT_ICON_SHAPE)
             putBoolean(KEY_GESTURES_ENABLED, DEFAULT_GESTURES)
+            putBoolean(KEY_SHOW_IN_LANDSCAPE, DEFAULT_SHOW_LANDSCAPE)
             putInt(KEY_PILL_WIDTH, DEFAULT_PILL_WIDTH)
             putString(KEY_PILL_COLOR, DEFAULT_PILL_COLOR)
             putBoolean(KEY_TAP_TO_OPEN, DEFAULT_TAP_TO_OPEN)
@@ -161,12 +165,17 @@ class PanelPreferences(context: Context) {
             putInt(KEY_FREEFORM_CUSTOM_H, 80)
             putFloat(KEY_SCALE_FACTOR, 1.0f)
             putInt(KEY_PANEL_MAX_HEIGHT, 350)
+            putInt(KEY_PICKER_MAX_HEIGHT, 450)
         }
     }
 
     var panelMaxHeight: Int
         get() = prefs.getInt(KEY_PANEL_MAX_HEIGHT, 350)
         set(value) = prefs.edit { putInt(KEY_PANEL_MAX_HEIGHT, value) }
+
+    var pickerMaxHeight: Int
+        get() = prefs.getInt(KEY_PICKER_MAX_HEIGHT, 450)
+        set(value) = prefs.edit { putInt(KEY_PICKER_MAX_HEIGHT, value) }
 
     var freeformEnabled: Boolean
         get() = prefs.getBoolean(KEY_FREEFORM_ENABLED, false)
@@ -223,6 +232,10 @@ class PanelPreferences(context: Context) {
     var gesturesEnabled: Boolean
         get() = prefs.getBoolean(KEY_GESTURES_ENABLED, DEFAULT_GESTURES)
         set(value) = prefs.edit { putBoolean(KEY_GESTURES_ENABLED, value) }
+
+    var showInLandscape: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_IN_LANDSCAPE, DEFAULT_SHOW_LANDSCAPE)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_IN_LANDSCAPE, value) }
 
     var iconShape: String
         get() = prefs.getString(KEY_ICON_SHAPE, DEFAULT_ICON_SHAPE) ?: DEFAULT_ICON_SHAPE
