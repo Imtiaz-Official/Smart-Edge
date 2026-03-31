@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:insetRight="20dp"> <!-- 24dp window - 4dp pill = 20dp inset -->
+    android:insetRight="20dp"> <!-- Default 24dp window - 4dp pill = 20dp inset -->
     <shape android:shape="rectangle">
         <solid android:color="#B31A1C1E" />
         <corners

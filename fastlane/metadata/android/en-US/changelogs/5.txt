@@ -1,0 +1,7 @@
+- Added Pill Color and Pill Thickness customization options.
+- Improved sidebar and app picker compactness with dynamic height.
+- Added 'Restore Default' buttons for all customization sliders.
+- Fixed accessibility service detection on certain devices (e.g., Vivo).
+- Improved handle stability and screen boundary enforcement.
+- Simplified handle settings by consolidating trigger and visual controls.
+- Brighter and more balanced default appearance.

@@ -63,24 +63,42 @@ class EdgeHandleView @JvmOverloads constructor(
 
     init {
         setLayerType(LAYER_TYPE_HARDWARE, null)
+        setWillNotDraw(false)
         post { updatePill() }
     }
 
     fun updatePill() {
         if (showPill) {
-            setBackgroundResource(
-                if (isRightSide) R.drawable.bg_pill_handle_right
-                else R.drawable.bg_pill_handle_left
-            )
-            val density = resources.displayMetrics.density
-            layoutParams?.width = (panelPrefs.pillWidth * density).toInt()
+            val drawableRes = if (isRightSide) R.drawable.bg_pill_handle_right
+                             else R.drawable.bg_pill_handle_left
+            val insetDrawable = context.getDrawable(drawableRes) as? android.graphics.drawable.InsetDrawable
+
+            if (insetDrawable != null) {
+                val density = resources.displayMetrics.density
+                val triggerWidthDp = 24 // Fixed touch area
+                val pillWidthDp = panelPrefs.pillWidth
+                val insetDp = (triggerWidthDp - pillWidthDp).coerceAtLeast(0)
+                val insetPx = (insetDp * density).toInt()
+
+                // Update insets programmatically
+                val baseShape = insetDrawable.drawable
+                val newInset = if (isRightSide) {
+                    android.graphics.drawable.InsetDrawable(baseShape, insetPx, 0, 0, 0)
+                } else {
+                    android.graphics.drawable.InsetDrawable(baseShape, 0, 0, insetPx, 0)
+                }
+                background = newInset
+            } else {
+                setBackgroundResource(drawableRes)
+            }
+
             try {
                 val color = Color.parseColor(panelPrefs.pillColor)
                 backgroundTintList = ColorStateList.valueOf(color)
             } catch (e: Exception) {
                 backgroundTintList = null
             }
-            alpha = (panelPrefs.panelOpacity / 100f) * 0.8f
+            alpha = panelPrefs.panelOpacity / 100f
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 post { systemGestureExclusionRects = listOf(Rect(0, 0, width, height)) }
             }
@@ -91,6 +109,7 @@ class EdgeHandleView @JvmOverloads constructor(
                 systemGestureExclusionRects = listOf(Rect(0, 0, width, height))
             }
         }
+        invalidate()
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -169,7 +188,7 @@ class EdgeHandleView @JvmOverloads constructor(
         val params = layoutParams as? android.view.WindowManager.LayoutParams
         if (params != null) {
             params.y = (prefs.handleVerticalOffset * resources.displayMetrics.density).toInt()
-            params.width = (prefs.handleWidth * resources.displayMetrics.density).toInt()
+            params.width = (24 * resources.displayMetrics.density).toInt() // Fixed touch area
             params.height = if (showPill) (prefs.handleHeight * resources.displayMetrics.density).toInt()
                             else (resources.displayMetrics.heightPixels * 0.60f).toInt()
             

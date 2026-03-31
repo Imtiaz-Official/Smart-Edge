@@ -50,18 +50,75 @@ class HandleSettingsActivity : AppCompatActivity() {
 
     private fun loadCurrentSettings() {
         binding.featureShowPill.isChecked = panelPrefs.showPill
+        updatePillColorUI()
+        
+        binding.sbPillWidth.value = panelPrefs.pillWidth.toFloat()
+        binding.tvPillWidthValue.text = "${panelPrefs.pillWidth}dp"
         
         binding.sbHandleHeight.value = panelPrefs.handleHeight.toFloat()
         binding.tvHeightValue.text = "${panelPrefs.handleHeight}dp"
-        
-        binding.sbHandleWidth.value = panelPrefs.handleWidth.toFloat()
-        binding.tvWidthValue.text = "${panelPrefs.handleWidth}dp"
         
         binding.sbHandleOffset.value = panelPrefs.handleVerticalOffset.toFloat()
         binding.tvOffsetValue.text = "${panelPrefs.handleVerticalOffset}dp"
     }
 
+    private fun updatePillColorUI() {
+        try {
+            val color = android.graphics.Color.parseColor(panelPrefs.pillColor)
+            binding.btnPickPillColor.backgroundTintList = android.content.res.ColorStateList.valueOf(color)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     private fun setupListeners() {
+        binding.btnPickPillColor.setOnClickListener {
+            val currentColor = try {
+                android.graphics.Color.parseColor(panelPrefs.pillColor)
+            } catch (e: Exception) {
+                android.graphics.Color.WHITE
+            }
+            
+            val picker = yuku.ambilwarna.AmbilWarnaDialog(this, currentColor, object : yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener {
+                override fun onCancel(dialog: yuku.ambilwarna.AmbilWarnaDialog?) {}
+                override fun onOk(dialog: yuku.ambilwarna.AmbilWarnaDialog?, color: Int) {
+                    val hex = String.format("#%08X", color)
+                    panelPrefs.pillColor = hex
+                    updatePillColorUI()
+                    applyOnly()
+                }
+            })
+            picker.show()
+        }
+
+        binding.btnResetPillColor.setOnClickListener {
+            panelPrefs.pillColor = PanelPreferences.DEFAULT_PILL_COLOR
+            updatePillColorUI()
+            applyOnly()
+        }
+
+        binding.sbPillWidth.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                val progress = value.toInt()
+                panelPrefs.pillWidth = progress
+                binding.tvPillWidthValue.text = "${progress}dp"
+            }
+        }
+        binding.sbPillWidth.addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) {}
+            override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) {
+                applyOnly()
+            }
+        })
+
+        binding.btnResetPillWidth.setOnClickListener {
+            val default = 5
+            panelPrefs.pillWidth = default
+            binding.sbPillWidth.value = default.toFloat()
+            binding.tvPillWidthValue.text = "${default}dp"
+            applyOnly()
+        }
+
         binding.featureShowPill.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showPill = isChecked
             applyOnly()
@@ -86,28 +143,6 @@ class HandleSettingsActivity : AppCompatActivity() {
             panelPrefs.handleHeight = default
             binding.sbHandleHeight.value = default.toFloat()
             binding.tvHeightValue.text = "${default}dp"
-            applyOnly()
-        }
-
-        binding.sbHandleWidth.addOnChangeListener { _, value, fromUser ->
-            if (fromUser) {
-                val progress = value.toInt()
-                panelPrefs.handleWidth = progress
-                binding.tvWidthValue.text = "${progress}dp"
-            }
-        }
-        binding.sbHandleWidth.addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
-            override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) {}
-            override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) {
-                applyOnly()
-            }
-        })
-
-        binding.btnResetWidth.setOnClickListener {
-            val default = 24
-            panelPrefs.handleWidth = default
-            binding.sbHandleWidth.value = default.toFloat()
-            binding.tvWidthValue.text = "${default}dp"
             applyOnly()
         }
 

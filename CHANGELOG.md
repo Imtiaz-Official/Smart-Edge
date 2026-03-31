@@ -6,7 +6,18 @@
 
 ---
 
-### v1.2.1 (Latest)
+### v1.2.2 (Latest)
+- **feat(handle)**: Introduced Pill Color and Pill Thickness customization for the side handle.
+- **feat(layout)**: Improved sidebar and app picker compactness with dynamic height wrapping and capped limits.
+- **feat(ux)**: Added 'Restore Default' buttons for all customization sliders across all settings.
+- **fix(accessibility)**: Robust accessibility service detection using a static status flag (fixes issues on Vivo and high-res devices).
+- **fix(stability)**: Enforced strict screen boundaries for the edge handle to prevent it from disappearing on large screens.
+- **refactor**: Simplified handle settings by consolidating trigger area and visual appearance controls.
+- **design**: Brighter and more balanced default look for the pill indicator.
+
+---
+
+### v1.2.1
 - **feat(freeform)**: Implemented Freeform Window multitasking with smart orientation-aware aspect ratios.
 - **feat(icons)**: Added Superior Icon Pack support with full appfilter.xml parsing and heuristic mapping.
 - **feat(automation)**: New professional System Automation dialog for ADB/Root setup.

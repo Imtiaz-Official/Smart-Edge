@@ -39,6 +39,7 @@ class FloatingPanelService : Service() {
     private var lastPickerToggleTime = 0L
     
     private val serviceScope = CoroutineScope(Dispatchers.Main + Job())
+    private val handler = Handler(Looper.getMainLooper())
 
     private val packageReceiver = object : android.content.BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -156,6 +157,7 @@ class FloatingPanelService : Service() {
                     addEdgeHandle() // Re-add instead of just update to ensure it forces UI rebuilds
                     edgeHandleView?.visibility = if (isPanelOpen) View.GONE else View.VISIBLE
                 }
+                
                 sidePanelView?.updateStyles()
                 sidePanelView?.refreshIcons()
                 pickerPanelView?.applyTheme()
@@ -168,9 +170,12 @@ class FloatingPanelService : Service() {
             }
             ACTION_CLOSE_PANEL -> closePanel(immediate = false)
             ACTION_SHOW_TEMP -> {
-                refreshApps {
-                    openPanel()
-                }
+                addEdgeHandle()
+                edgeHandleView?.alpha = 1.0f
+                
+                handler.postDelayed({
+                    edgeHandleView?.alpha = panelPrefs.panelOpacity / 100f
+                }, 3000)
             }
         }
         return if (panelPrefs.serviceEnabled) START_STICKY else START_NOT_STICKY
@@ -251,7 +256,7 @@ class FloatingPanelService : Service() {
             alpha = panelPrefs.panelOpacity / 100f
         }
 
-        val handleWidth = panelPrefs.handleWidth
+        val handleWidth = 24 // Fixed touch area width
         val handleHeight = if (isPillVisible) dpToPx(panelPrefs.handleHeight) 
                            else (resources.displayMetrics.heightPixels * 0.60f).toInt()
 

@@ -84,7 +84,7 @@ class PanelPreferences(context: Context) {
         const val FREEFORM_MODE_MAXIMIZED = "maximized" // Full screen freeform
         const val FREEFORM_MODE_CUSTOM    = "custom"    // User-defined width & height %
 
-        // Perfect Industry-Standard Defaults
+        // Defaults
         val DEFAULT_SIDE = SIDE_RIGHT
         const val DEFAULT_AUTO_START = true
         const val DEFAULT_SHOW_PILL = true
@@ -92,20 +92,20 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_OPACITY = 100
         const val DEFAULT_HANDLE_HEIGHT = 80
         const val DEFAULT_HANDLE_WIDTH = 24
-        const val DEFAULT_HANDLE_OFFSET = 0 // Center
+        const val DEFAULT_HANDLE_OFFSET = 0
         const val DEFAULT_ACCENT_COLOR = "#4A9EFF"
-        const val DEFAULT_USE_CUSTOM_ACCENT = false // OFF BY DEFAULT
+        const val DEFAULT_USE_CUSTOM_ACCENT = false
         const val DEFAULT_PANEL_COLS = 1
         const val DEFAULT_THEME = THEME_ORIGIN
         const val DEFAULT_PANEL_RADIUS = 20
         const val DEFAULT_PANEL_BG = "#E61A1C1E"
+        const val DEFAULT_PILL_COLOR = "#FFFFFF"
         const val DEFAULT_HIDE_BG = false
         const val DEFAULT_SHOW_TOOLS = true
         val DEFAULT_ICON_SHAPE = SHAPE_SQUIRCLE
         const val DEFAULT_GESTURES = true
         const val DEFAULT_SHOW_LANDSCAPE = true
-        const val DEFAULT_PILL_WIDTH = 3
-        const val DEFAULT_PILL_COLOR = "#FFFFFF"
+        const val DEFAULT_PILL_WIDTH = 5
         const val DEFAULT_TAP_TO_OPEN = false
         const val DEFAULT_ICON_PACK = "none"
         const val DEFAULT_SHOW_LOGS = false
@@ -124,7 +124,6 @@ class PanelPreferences(context: Context) {
         }
     }
 
-    /** Resets all configuration to perfect defaults. */
     fun resetToDefaults() {
         prefs.edit {
             putString(KEY_PANEL_SIDE, DEFAULT_SIDE)
@@ -176,6 +175,10 @@ class PanelPreferences(context: Context) {
     var pickerMaxHeight: Int
         get() = prefs.getInt(KEY_PICKER_MAX_HEIGHT, 450)
         set(value) = prefs.edit { putInt(KEY_PICKER_MAX_HEIGHT, value) }
+
+    var pillColor: String
+        get() = prefs.getString(KEY_PILL_COLOR, DEFAULT_PILL_COLOR) ?: DEFAULT_PILL_COLOR
+        set(value) = prefs.edit { putString(KEY_PILL_COLOR, value) }
 
     var freeformEnabled: Boolean
         get() = prefs.getBoolean(KEY_FREEFORM_ENABLED, false)
@@ -305,10 +308,6 @@ class PanelPreferences(context: Context) {
         get() = prefs.getInt(KEY_PILL_WIDTH, DEFAULT_PILL_WIDTH)
         set(value) = prefs.edit { putInt(KEY_PILL_WIDTH, value) }
 
-    var pillColor: String
-        get() = prefs.getString(KEY_PILL_COLOR, DEFAULT_PILL_COLOR) ?: DEFAULT_PILL_COLOR
-        set(value) = prefs.edit { putString(KEY_PILL_COLOR, value) }
-
     var showTools: Boolean
         get() = prefs.getBoolean(KEY_SHOW_TOOLS, DEFAULT_SHOW_TOOLS)
         set(value) = prefs.edit { putBoolean(KEY_SHOW_TOOLS, value) }
@@ -334,7 +333,7 @@ class PanelPreferences(context: Context) {
         return if (raw.isBlank()) emptyList()
         else raw.split(DELIMITER)
             .filter { it.isNotBlank() }
-            .distinct() // Remove any existing duplicates
+            .distinct()
     }
 
     fun setPanelApps(packages: List<String>) {
