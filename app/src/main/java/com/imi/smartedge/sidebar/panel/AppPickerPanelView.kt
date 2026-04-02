@@ -104,6 +104,20 @@ class AppPickerPanelView @JvmOverloads constructor(
         
         rvPickerGrid.adapter = adapter
 
+        // Hide keyboard when scrolling the app list
+        rvPickerGrid.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: androidx.recyclerview.widget.RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_DRAGGING) {
+                    if (etSearch.hasFocus()) {
+                        etSearch.clearFocus()
+                        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                        imm.hideSoftInputFromWindow(etSearch.windowToken, 0)
+                    }
+                }
+            }
+        })
+
         btnSettings.setOnClickListener {
             val intent = android.content.Intent(context, SettingsMainActivity::class.java).apply {
                 addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -123,6 +137,18 @@ class AppPickerPanelView @JvmOverloads constructor(
             }
             override fun afterTextChanged(s: Editable?) {}
         })
+
+        // Hide keyboard when tapping outside the search bar
+        pickerPanelCard.setOnTouchListener { _, event ->
+            if (event.action == android.view.MotionEvent.ACTION_DOWN) {
+                if (etSearch.hasFocus()) {
+                    etSearch.clearFocus()
+                    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                    imm.hideSoftInputFromWindow(etSearch.windowToken, 0)
+                }
+            }
+            false // don't consume the event completely
+        }
 
         applyTheme()
         loadApps()
