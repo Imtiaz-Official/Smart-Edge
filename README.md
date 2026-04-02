@@ -81,12 +81,14 @@ Smart Edge is built to be yours. In the settings, you can adjust:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Credits
+## 💎 Credits & Acknowledgments
 
-Special thanks to the following developers and projects for their inspiration and open-source contributions:
+This project is made possible thanks to the following open-source contributions and inspirations:
 
-*   **[Axel358/SmartDock](https://github.com/axel358/smartdock)** - Project inspiration and open-source contributions.
-*   **[LSPosed/HiddenApiBypass](https://github.com/LSPosed/Android-HiddenApiBypass)** - For enabling access to restricted windowing APIs.
+*   **[SmartDock (Axel358)](https://github.com/Axel358/SmartDock)**: Conceptual inspiration and foundational open-source contributions to desktop-style interactions on Android.
+*   **[HiddenApiBypass (LSPosed)](https://github.com/LSPosed/Android-HiddenApiBypass)**: A critical library for enabling stable access to restricted windowing and system APIs on modern Android versions (API 28+).
+*   **[AmbilWarna](https://github.com/yukuku/ambilwarna)**: Simple and effective color picker dialog for UI customization.
+*   **[Glide](https://github.com/bumptech/glide)**: Efficient media management and image loading framework for Android.
 
 ---
 

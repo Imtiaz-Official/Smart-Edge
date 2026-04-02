@@ -10,19 +10,38 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface"
         app:elevation="0dp">
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="Smart Edge Settings"
-            app:titleCentered="true" />
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:title="Smart Edge Settings"
+                app:titleCentered="true" />
+
+            <ImageView
+                android:id="@+id/btnGithubTop"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                android:src="@drawable/ic_github"
+                app:tint="?attr/colorOnSurface" />
+        </RelativeLayout>
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginHorizontal="20dp"
+            android:layout_height="46dp"
+            android:layout_marginHorizontal="64dp"
+            android:layout_marginTop="4dp"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="28dp"
+            app:cardCornerRadius="23dp"
             app:cardElevation="0dp"
             app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
             app:strokeWidth="1dp"
@@ -33,11 +52,12 @@
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingHorizontal="16dp">
+                android:paddingStart="16dp"
+                android:paddingEnd="12dp">
 
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:src="@android:drawable/ic_menu_search"
                     app:tint="?attr/colorOnSurfaceVariant" />
 
@@ -50,10 +70,14 @@
                     android:imeOptions="actionSearch"
                     android:inputType="text"
                     android:maxLines="1"
-                    android:paddingStart="12dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
+                    android:gravity="center_vertical"
                     android:textColor="?attr/colorOnSurface"
                     android:textColorHint="?attr/colorOnSurfaceVariant"
-                    android:textSize="15sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </com.google.android.material.appbar.AppBarLayout>

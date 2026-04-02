@@ -54,6 +54,10 @@ class SettingsMainActivity : AppCompatActivity() {
         initializeSettingsList()
         setupSearch()
         setupListeners()
+        
+        binding.btnGithubTop.setOnClickListener {
+            openGithub()
+        }
     }
 
     private fun initializeSettingsList() {
@@ -171,6 +175,15 @@ class SettingsMainActivity : AppCompatActivity() {
                 }
                 .setNegativeButton("Cancel", null)
                 .show()
+        }
+    }
+
+    private fun openGithub() {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/Imtiaz-Official/Smart-Edge"))
+            startActivity(intent)
+        } catch (e: Exception) {
+            binding.root.showModernToast("Could not open browser")
         }
     }
 
