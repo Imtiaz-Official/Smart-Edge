@@ -7,7 +7,6 @@
         <item name="colorSurface">@color/md_theme_dark_surface</item>
         <item name="colorOnSurface">@color/md_theme_dark_onSurface</item>
         <item name="android:windowBackground">@color/bg_main</item>
-        <item name="android:statusBarColor">#0A0F0D</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:fontFamily">sans-serif</item>

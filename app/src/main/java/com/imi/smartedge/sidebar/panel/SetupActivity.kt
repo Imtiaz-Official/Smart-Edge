@@ -29,11 +29,7 @@ class SetupActivity : AppCompatActivity() {
 
         supportActionBar?.hide()
 
-        // Set status bar color to match background
-        val typedValue = android.util.TypedValue()
-        theme.resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true)
-        window.statusBarColor = typedValue.data
-        androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
+
 
         binding.cardOverlay.setOnClickListener { requestOverlayPermission() }
         binding.cardAccessibility.setOnClickListener { requestAccessibilityPermission() }

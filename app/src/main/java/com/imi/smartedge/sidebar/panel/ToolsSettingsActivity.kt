@@ -20,11 +20,7 @@ class ToolsSettingsActivity : AppCompatActivity() {
         binding = ActivitySettingsToolsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Set status bar color and icons
-        val typedValue = android.util.TypedValue()
-        theme.resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true)
-        window.statusBarColor = typedValue.data
-        androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
+
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

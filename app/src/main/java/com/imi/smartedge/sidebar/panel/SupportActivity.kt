@@ -22,10 +22,7 @@ class SupportActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
-        val typedValue = android.util.TypedValue()
-        theme.resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true)
-        window.statusBarColor = typedValue.data
-        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = true
+
 
         binding.toolbar.title = "Support SidePanel"
         binding.toolbar.setNavigationOnClickListener { finish() }
