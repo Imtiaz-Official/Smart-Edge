@@ -54,6 +54,9 @@ class HandleSettingsActivity : AppCompatActivity() {
         
         binding.sbPillWidth.value = panelPrefs.pillWidth.toFloat()
         binding.tvPillWidthValue.text = "${panelPrefs.pillWidth}dp"
+
+        binding.sbHandleWidth.value = panelPrefs.handleWidth.toFloat()
+        binding.tvHandleWidthValue.text = "${panelPrefs.handleWidth}dp"
         
         binding.sbHandleHeight.value = panelPrefs.handleHeight.toFloat()
         binding.tvHeightValue.text = "${panelPrefs.handleHeight}dp"
@@ -117,6 +120,28 @@ class HandleSettingsActivity : AppCompatActivity() {
             binding.sbPillWidth.value = default.toFloat()
             binding.tvPillWidthValue.text = "${default}dp"
             applyOnly()
+        }
+
+        binding.sbHandleWidth.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                val progress = value.toInt()
+                panelPrefs.handleWidth = progress
+                binding.tvHandleWidthValue.text = "${progress}dp"
+            }
+        }
+        binding.sbHandleWidth.addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) {}
+            override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) {
+                applyAndShow() // Touch area change needs a full WindowManager update
+            }
+        })
+
+        binding.btnResetHandleWidth.setOnClickListener {
+            val default = 32
+            panelPrefs.handleWidth = default
+            binding.sbHandleWidth.value = default.toFloat()
+            binding.tvHandleWidthValue.text = "${default}dp"
+            applyAndShow()
         }
 
         binding.featureShowPill.setOnCheckedChangeListener { _, isChecked ->

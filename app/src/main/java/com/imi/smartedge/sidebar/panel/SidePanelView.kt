@@ -33,8 +33,10 @@ class SidePanelView @JvmOverloads constructor(
     private val binding: SidePanelLayoutBinding = SidePanelLayoutBinding.inflate(LayoutInflater.from(context), this, true)
     private val adapter: PanelAppsAdapter
     private val panelPrefs = PanelPreferences(context)
+    private var currentCols = 1
+    private var isPickerOpenInternal = false
 
-    private val springRotation: SpringAnimation = SpringAnimation(binding.btnClose, SpringAnimation.ROTATION)   
+    private val springRotation: SpringAnimation = SpringAnimation(binding.btnClose, SpringAnimation.ROTATION)
 
     private val width1ColDp = 72f
     private val width2ColDp = 150f
@@ -107,8 +109,8 @@ class SidePanelView @JvmOverloads constructor(
             onAppLaunched = { onClose?.invoke() }
         )
 
-        val cols = if (panelPrefs.isUnlocked) panelPrefs.panelColumns else 1
-        binding.rvPanelApps.layoutManager = GridLayoutManager(context, cols)
+        currentCols = panelPrefs.panelColumns
+        binding.rvPanelApps.layoutManager = GridLayoutManager(context, currentCols)
         binding.rvPanelApps.adapter = adapter
 
         binding.rvPanelApps.setHasFixedSize(true)
@@ -156,10 +158,9 @@ class SidePanelView @JvmOverloads constructor(
         val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
         binding.btnClose.rotation = if (isRight) 180f else 0f
 
-        val cols = if (panelPrefs.isUnlocked) panelPrefs.panelColumns else 1
         val scale = getFinalScaleFactor()
         val lp = binding.panelCard.layoutParams
-        lp.width = context.dpToPx(((if (cols == 2) width2ColDp else width1ColDp) * scale).toInt())
+        lp.width = context.dpToPx(((if (currentCols == 2) width2ColDp else width1ColDp) * scale).toInt())
         binding.panelCard.layoutParams = lp
 
         // Calculate maximum allowed height for the RecyclerView to ensure the panel fits on screen
@@ -191,7 +192,7 @@ class SidePanelView @JvmOverloads constructor(
         val baseItemHeightDp = if (isRich) 68 else 62 // Rich theme items are slightly taller
         val itemHeightPx = context.dpToPx((baseItemHeightDp * scale).toInt())
         
-        val rows = Math.ceil(itemsCount.toDouble() / cols).toInt()
+        val rows = Math.ceil(itemsCount.toDouble() / currentCols).toInt()
         val estimatedContentHeightPx = rows * itemHeightPx
         
         if (estimatedContentHeightPx > 0 && estimatedContentHeightPx < maxRvHeightPx) {
@@ -239,12 +240,14 @@ class SidePanelView @JvmOverloads constructor(
     }
 
     fun animatePickerToggle(isOpen: Boolean) {
+        isPickerOpenInternal = isOpen
         val targetRotation = if (isOpen) 90f else (if (panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT) 180f else 0f)
         springRotation.animateToFinalPosition(targetRotation)
     }
 
     fun setColumns(cols: Int) {
-        (binding.rvPanelApps.layoutManager as? GridLayoutManager)?.spanCount = cols
+        currentCols = cols
+        (binding.rvPanelApps.layoutManager as? GridLayoutManager)?.spanCount = currentCols
         updateSideLayout()
     }
 
@@ -261,6 +264,10 @@ class SidePanelView @JvmOverloads constructor(
     }
 
     fun updateStyles() {
+        if (!isPickerOpenInternal) {
+            currentCols = panelPrefs.panelColumns
+            (binding.rvPanelApps.layoutManager as? GridLayoutManager)?.spanCount = currentCols
+        }
         applyTheme()
         updateSideLayout()
     }

@@ -36,8 +36,8 @@ class EdgeHandleView @JvmOverloads constructor(
     private var hasPassedThreshold = false
     private var isTriggered = false
 
-    private val triggerThreshold = 24 * resources.displayMetrics.density
-    private val holdDurationMs = 300L
+    private val triggerThreshold = 16 * resources.displayMetrics.density
+    private val holdDurationMs = 250L
 
     private val holdRunnable = Runnable {
         if (!hasPassedThreshold) return@Runnable
@@ -71,17 +71,17 @@ class EdgeHandleView @JvmOverloads constructor(
         if (showPill) {
             val drawableRes = if (isRightSide) R.drawable.bg_pill_handle_right
                              else R.drawable.bg_pill_handle_left
-            val insetDrawable = context.getDrawable(drawableRes) as? android.graphics.drawable.InsetDrawable
+            val insetDrawable = context.getDrawable(drawableRes)?.mutate() as? android.graphics.drawable.InsetDrawable
 
             if (insetDrawable != null) {
                 val density = resources.displayMetrics.density
-                val triggerWidthDp = 24 // Fixed touch area
+                val triggerWidthDp = panelPrefs.handleWidth 
                 val pillWidthDp = panelPrefs.pillWidth
                 val insetDp = (triggerWidthDp - pillWidthDp).coerceAtLeast(0)
                 val insetPx = (insetDp * density).toInt()
 
                 // Update insets programmatically
-                val baseShape = insetDrawable.drawable
+                val baseShape = insetDrawable.drawable?.mutate() ?: return
                 val newInset = if (isRightSide) {
                     android.graphics.drawable.InsetDrawable(baseShape, insetPx, 0, 0, 0)
                 } else {
@@ -123,23 +123,26 @@ class EdgeHandleView @JvmOverloads constructor(
                 startY = event.rawY
                 hasPassedThreshold = false
                 isTriggered = false
-                if (showPill) {
+                if (showPill && panelPrefs.gesturesEnabled) {
                     animate().scaleX(0.85f).scaleY(0.95f).setDuration(100).start()
                 }
                 return true
             }
 
             MotionEvent.ACTION_MOVE -> {
-                if (isTriggered) return true
+                if (!panelPrefs.gesturesEnabled || isTriggered) return true
                 val dx = if (isRightSide) (startX - event.rawX) else (event.rawX - startX)
+
                 if (!hasPassedThreshold && dx > triggerThreshold) {
                     hasPassedThreshold = true
                     handler.postDelayed(holdRunnable, holdDurationMs)
                     if (showPill) {
-                        animate().scaleX(0.75f).scaleY(0.9f).setDuration(holdDurationMs).start()
+                        animate().scaleX(0.7f).scaleY(0.9f).setDuration(holdDurationMs).start()
                     }
                 }
-                if (hasPassedThreshold && dx < triggerThreshold / 2) {
+
+                // Only cancel if they swipe significantly back towards the edge (less than 4dp)
+                if (hasPassedThreshold && dx < 4 * resources.displayMetrics.density) {
                     hasPassedThreshold = false
                     handler.removeCallbacks(holdRunnable)
                     if (showPill) {
@@ -151,7 +154,7 @@ class EdgeHandleView @JvmOverloads constructor(
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 handler.removeCallbacks(holdRunnable)
-                if (showPill) {
+                if (showPill && !isTriggered && panelPrefs.gesturesEnabled) {
                     animate().scaleX(1f).scaleY(1f).setDuration(150).start()
                 }
                 hasPassedThreshold = false
@@ -188,7 +191,7 @@ class EdgeHandleView @JvmOverloads constructor(
         val params = layoutParams as? android.view.WindowManager.LayoutParams
         if (params != null) {
             params.y = (prefs.handleVerticalOffset * resources.displayMetrics.density).toInt()
-            params.width = (24 * resources.displayMetrics.density).toInt() // Fixed touch area
+            params.width = (prefs.handleWidth * resources.displayMetrics.density).toInt() 
             params.height = if (showPill) (prefs.handleHeight * resources.displayMetrics.density).toInt()
                             else (resources.displayMetrics.heightPixels * 0.60f).toInt()
             

@@ -1,0 +1,8 @@
+- Fixed double-column layout not working by removing "isUnlocked" restriction.
+- Improved Accessibility Sync: Added a "Yellow/Accessibility Required" status state in the app.
+- Added "Touch Area Width" customization (16dp to 100dp) for the handle.
+- Improved swipe-to-open gesture reliability and responsiveness.
+- Fixed duplicate pills ("ghosting") when adjusting handle settings.
+- Fixed layout jitter when toggling double-column layout while the picker is open.
+- Synchronized visual pill alignment with dynamic touch area widths.
+- Refined gesture timing and sensitivity for a smoother experience.

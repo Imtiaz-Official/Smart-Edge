@@ -6,7 +6,17 @@
 
 ---
 
-### v1.2.2 (Latest)
+### v1.2.3 (Latest)
+- **feat(handle)**: Added "Touch Area Width" customization (16dp to 100dp) in Handle & Pill settings.
+- **fix(gesture)**: Improved swipe-to-open gesture reliability by reducing sensitivity to backward movement and jitter.
+- **fix(handle)**: Fixed "ghosting" or duplicate pills when adjusting settings (enforced aggressive removeViewImmediate).
+- **fix(handle)**: Fixed issue where the pill would disappear if gestures were disabled while tap-to-open was still active.
+- **fix(layout)**: Synchronized visual pill alignment with dynamic touch area widths.
+- **refactor**: Optimized gesture timing and hold duration for a more responsive feel.
+
+---
+
+### v1.2.2
 - **feat(handle)**: Introduced Pill Color and Pill Thickness customization for the side handle.
 - **feat(layout)**: Improved sidebar and app picker compactness with dynamic height wrapping and capped limits.
 - **feat(ux)**: Added 'Restore Default' buttons for all customization sliders across all settings.

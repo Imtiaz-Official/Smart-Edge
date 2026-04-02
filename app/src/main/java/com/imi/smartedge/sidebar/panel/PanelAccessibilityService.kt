@@ -43,9 +43,6 @@ class PanelAccessibilityService : AccessibilityService() {
         return START_NOT_STICKY
     }
 
-    // We intentionally do NOT override onServiceConnected to auto-start the Side Panel UI
-    // because the user should have to explicitly press the "Start" button in the MainActivity.
-
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
         
@@ -60,11 +57,6 @@ class PanelAccessibilityService : AccessibilityService() {
             )
             val imePackage = defaultIme?.substringBefore("/") ?: ""
             
-            // Log.d(TAG, "Window State Changed. Package: $packageName, Class: $className")
-            
-            // If the system transitions to ANY window that is not our app OR the soft keyboard
-            // (e.g. Launcher, Recents, Notification shade, another app), instantly close the panel.
-            // This achieves 0-latency auto-close for all system gestures.
             if (packageName != "com.imi.smartedge.sidebar.panel" && packageName != imePackage) {
                 if (panelPrefs.serviceEnabled) {
                     val closeIntent = Intent(this, FloatingPanelService::class.java).apply {
@@ -76,13 +68,9 @@ class PanelAccessibilityService : AccessibilityService() {
         }
     }
 
-    override fun onInterrupt() {
-        // Required override, but nothing to teardown for our simple usecase
-    }
+    override fun onInterrupt() {}
 
     override fun onUnbind(intent: Intent?): Boolean {
-        // When the user toggles Accessibility OFF, Android unbinds this service.
-        // We should immediately stop the floating panel if it is running.
         isRunning = false
         val stopIntent = Intent(this, FloatingPanelService::class.java).apply {
             action = FloatingPanelService.ACTION_STOP

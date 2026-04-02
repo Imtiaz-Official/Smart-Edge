@@ -111,16 +111,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateServiceStatus() {
         val isEnabled = panelPrefs.serviceEnabled
+        val isAccessibilityEnabled = isAccessibilityServiceEnabled()
         
         val typedValue = android.util.TypedValue()
         
-        // Update UI based on preference state (not just service running state)
-        if (isEnabled) {
-            // Power Style - ACTIVE (Emerald Green for status)
+        if (isEnabled && isAccessibilityEnabled) {
+            // Service is fully ACTIVE (Green)
             binding.btnStartStop.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2ECC71"))
             binding.btnStartStop.setIconTintResource(android.R.color.white)
             
-            // Classic Style
             binding.btnStartStopClassic.text = "Stop"
             binding.btnStartStopClassic.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2ECC71"))
             binding.btnStartStopClassic.setTextColor(Color.WHITE)
@@ -129,12 +128,23 @@ class MainActivity : AppCompatActivity() {
             theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
             binding.tvStatus.setTextColor(typedValue.data)
             binding.statusDot.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2ECC71"))
+        } else if (isEnabled && !isAccessibilityEnabled) {
+            // Preference is ON, but Accessibility is MISSING (Yellow warning)
+            binding.btnStartStop.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#F1C40F"))
+            binding.btnStartStop.setIconTintResource(android.R.color.white)
+            
+            binding.btnStartStopClassic.text = "Fix"
+            binding.btnStartStopClassic.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#F1C40F"))
+            binding.btnStartStopClassic.setTextColor(Color.WHITE)
+
+            binding.tvStatus.text = "Accessibility Required"
+            binding.tvStatus.setTextColor(Color.parseColor("#F1C40F"))
+            binding.statusDot.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#F1C40F"))
         } else {
-            // Power Style - STOPPED (Modern Slate instead of Blue)
+            // Service is STOPPED (Slate)
             binding.btnStartStop.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#475569"))
             binding.btnStartStop.setIconTintResource(com.google.android.material.R.color.material_dynamic_neutral90)
             
-            // Classic Style
             binding.btnStartStopClassic.text = "Start"
             binding.btnStartStopClassic.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#475569"))
             binding.btnStartStopClassic.setTextColor(Color.WHITE)

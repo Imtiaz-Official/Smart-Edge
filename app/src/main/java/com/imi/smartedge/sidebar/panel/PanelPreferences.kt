@@ -28,7 +28,6 @@ class PanelPreferences(context: Context) {
         private const val KEY_USE_CUSTOM_ACCENT = "use_custom_accent"
         private const val KEY_PANEL_COLUMNS = "panel_columns"
         private const val KEY_UI_THEME = "ui_theme"
-        private const val KEY_IS_UNLOCKED = "is_unlocked"
 
         private const val KEY_PANEL_RADIUS = "panel_radius"
         private const val KEY_PANEL_BG_COLOR = "panel_bg_color"
@@ -91,7 +90,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_HAPTIC = true
         const val DEFAULT_OPACITY = 100
         const val DEFAULT_HANDLE_HEIGHT = 80
-        const val DEFAULT_HANDLE_WIDTH = 24
+        const val DEFAULT_HANDLE_WIDTH = 32
         const val DEFAULT_HANDLE_OFFSET = 0
         const val DEFAULT_ACCENT_COLOR = "#4A9EFF"
         const val DEFAULT_USE_CUSTOM_ACCENT = false
@@ -287,10 +286,6 @@ class PanelPreferences(context: Context) {
     var uiTheme: String
         get() = prefs.getString(KEY_UI_THEME, DEFAULT_THEME) ?: DEFAULT_THEME
         set(value) = prefs.edit { putString(KEY_UI_THEME, value) }
-
-    var isUnlocked: Boolean
-        get() = prefs.getBoolean(KEY_IS_UNLOCKED, false)
-        set(value) = prefs.edit { putBoolean(KEY_IS_UNLOCKED, value) }
 
     var panelCornerRadius: Int
         get() = prefs.getInt(KEY_PANEL_RADIUS, DEFAULT_PANEL_RADIUS)

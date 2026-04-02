@@ -70,6 +70,14 @@
                     <com.imi.smartedge.sidebar.panel.DefaultMarkerSlider style="@style/Widget.App.Slider"
                         android:id="@+id/sbPillWidth" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="2.0" android:valueTo="24.0" android:value="5.0" app:tickVisible="false" android:layout_marginBottom="12dp" />
 
+                    <LinearLayout android:id="@+id/feature_handle_width" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="4dp">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Touch Area Width" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
+                        <ImageView android:id="@+id/btnResetHandleWidth" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_restore" android:layout_marginEnd="8dp" android:background="?attr/selectableItemBackground" android:padding="2dp" app:tint="?attr/colorPrimary" />
+                        <TextView android:id="@+id/tvHandleWidthValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="32dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
+                    </LinearLayout>
+                    <com.imi.smartedge.sidebar.panel.DefaultMarkerSlider style="@style/Widget.App.Slider"
+                        android:id="@+id/sbHandleWidth" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="16.0" android:valueTo="100.0" android:value="32.0" app:tickVisible="false" android:layout_marginBottom="12dp" />
+
                     <LinearLayout android:id="@+id/feature_handle_height" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="4dp">
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Handle Height" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                         <ImageView android:id="@+id/btnResetHeight" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_restore" android:layout_marginEnd="8dp" android:background="?attr/selectableItemBackground" android:padding="2dp" app:tint="?attr/colorPrimary" />

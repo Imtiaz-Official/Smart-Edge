@@ -216,20 +216,19 @@ class PanelAppsAdapter(
             options.launchBounds = bounds
             Log.d("PanelAppsAdapter", "Launching Freeform: pkg=${intent.`package`}, bounds=$bounds")
 
+            // Use HiddenApiBypass instead of direct reflection to avoid F-Droid lint errors
             try {
-                val method = android.app.ActivityOptions::class.java.getDeclaredMethod("setLaunchWindowingMode", Int::class.javaPrimitiveType)
-                method.isAccessible = true
-                method.invoke(options, 5)
-                Log.d("PanelAppsAdapter", "Reflection: setLaunchWindowingMode(5) success")
-            } catch (e: Exception) {
-                Log.e("PanelAppsAdapter", "Reflection fail 1: ${e.message}")
-                try {
-                    val method = android.app.ActivityOptions::class.java.getMethod("setLaunchWindowingMode", Int::class.javaPrimitiveType)
-                    method.invoke(options, 5)
-                    Log.d("PanelAppsAdapter", "Reflection fail 2 (getMethod) success")
-                } catch (e2: Exception) {
-                    Log.e("PanelAppsAdapter", "Reflection fail 2: ${e2.message}")
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                    org.lsposed.hiddenapibypass.HiddenApiBypass.invoke(
+                        android.app.ActivityOptions::class.java,
+                        options,
+                        "setLaunchWindowingMode",
+                        5
+                    )
+                    Log.d("PanelAppsAdapter", "HiddenApiBypass: setLaunchWindowingMode(5) success")
                 }
+            } catch (e: Exception) {
+                Log.e("PanelAppsAdapter", "HiddenApiBypass fail: ${e.message}")
             }
             context.startActivity(intent, options.toBundle())
             Log.d("PanelAppsAdapter", "startActivity called with options")

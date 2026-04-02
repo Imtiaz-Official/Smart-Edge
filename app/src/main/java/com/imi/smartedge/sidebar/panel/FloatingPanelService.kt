@@ -229,16 +229,24 @@ class FloatingPanelService : Service() {
     private fun removeView(view: View?) {
         if (view == null) return
         try {
+            // More aggressive removal to ensure no 'permanent' ghosts remain
             if (view.isAttachedToWindow) {
+                windowManager.removeViewImmediate(view)
+            } else {
+                // Try removing anyway to catch any edge cases
                 windowManager.removeView(view)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error removing view: ${e.message}")
+            // View was likely already removed or never attached
         }
     }
 
     private fun addEdgeHandle() {
-        if (!panelPrefs.gesturesEnabled) return
+        if (!panelPrefs.gesturesEnabled && !panelPrefs.tapToOpen) {
+            removeView(edgeHandleView)
+            edgeHandleView = null
+            return
+        }
         removeView(edgeHandleView)
         edgeHandleView = null
 
@@ -256,7 +264,7 @@ class FloatingPanelService : Service() {
             alpha = panelPrefs.panelOpacity / 100f
         }
 
-        val handleWidth = 24 // Fixed touch area width
+        val handleWidth = panelPrefs.handleWidth // Use user-defined width
         val handleHeight = if (isPillVisible) dpToPx(panelPrefs.handleHeight) 
                            else (resources.displayMetrics.heightPixels * 0.60f).toInt()
 
@@ -579,7 +587,7 @@ class FloatingPanelService : Service() {
         sidePanelView?.scrollToTop()
         Handler(Looper.getMainLooper()).postDelayed({
             if (!isPickerOpen) {
-                val originalCols = if (panelPrefs.isUnlocked) panelPrefs.panelColumns else 1
+                val originalCols = panelPrefs.panelColumns
                 sidePanelView?.setEditButtonVisible(false) 
                 sidePanelView?.setColumns(originalCols)
             }

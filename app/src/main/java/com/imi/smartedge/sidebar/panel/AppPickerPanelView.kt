@@ -462,19 +462,18 @@ class AppPickerPanelView @JvmOverloads constructor(
                 }
                 options.launchBounds = bounds
 
+                // Use HiddenApiBypass instead of direct reflection to avoid F-Droid lint errors
                 try {
-                    val method = android.app.ActivityOptions::class.java
-                        .getDeclaredMethod("setLaunchWindowingMode", Int::class.javaPrimitiveType)
-                    method.isAccessible = true
-                    method.invoke(options, 5)
-                } catch (e: Exception) {
-                    try {
-                        val method = android.app.ActivityOptions::class.java
-                            .getMethod("setLaunchWindowingMode", Int::class.javaPrimitiveType)
-                        method.invoke(options, 5)
-                    } catch (e2: Exception) {
-                        // ignore
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                        org.lsposed.hiddenapibypass.HiddenApiBypass.invoke(
+                            android.app.ActivityOptions::class.java,
+                            options,
+                            "setLaunchWindowingMode",
+                            5
+                        )
                     }
+                } catch (e: Exception) {
+                    // ignore
                 }
 
                 context.startActivity(intent, options.toBundle())
