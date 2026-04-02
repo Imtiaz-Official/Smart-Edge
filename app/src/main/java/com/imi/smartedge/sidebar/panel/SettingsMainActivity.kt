@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DiffUtil
@@ -58,60 +59,121 @@ class SettingsMainActivity : AppCompatActivity() {
         binding.btnGithubTop.setOnClickListener {
             openGithub()
         }
+
+        // Handle System Back to close search
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (binding.rvSettingsResults.visibility == View.VISIBLE || binding.etSettingsSearch.visibility == View.VISIBLE) {
+                    collapseSearch()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
     }
 
     private fun initializeSettingsList() {
-        // --- Appearance ---
-        allSettings.add(SettingItem("UI Style Theme", "Change panel theme (OriginOS, HyperOS, etc.)", "Appearance", "theme style skin origin hyperos realme rich m3 material design", AppearanceSettingsActivity::class.java, "layoutUIStyle"))
-        allSettings.add(SettingItem("Glassmorphic Blur", "Enable background blur effect", "Appearance", "blur glass transparency frost acrylic background effect", AppearanceSettingsActivity::class.java, "feature_blur"))
-        allSettings.add(SettingItem("Blur Intensity", "Adjust the background blur strength", "Appearance", "blur level transparency strength depth amount", AppearanceSettingsActivity::class.java, "feature_blur_intensity"))
-        allSettings.add(SettingItem("Invisible Background", "Make the sidebar background fully transparent", "Appearance", "hide background invisible transparency clear alpha", AppearanceSettingsActivity::class.java, "feature_hide_bg"))
-        allSettings.add(SettingItem("Double-Column Layout", "Show two columns of apps", "Appearance", "column grid layout width dual rows columns", AppearanceSettingsActivity::class.java, "feature_columns"))
-        allSettings.add(SettingItem("Icon Shape", "Change app icon masks", "Appearance", "icon shape mask circle square squircle round adaptive", AppearanceSettingsActivity::class.java, "feature_icon_shape"))
-        allSettings.add(SettingItem("Icon Pack", "Apply third-party icon packs", "Appearance", "icon pack theme customize iconpack icons", AppearanceSettingsActivity::class.java, "feature_icon_pack"))
-        allSettings.add(SettingItem("Use Custom Accent", "Toggle custom highlight color", "Appearance", "custom accent enable primary toggle color", AppearanceSettingsActivity::class.java, "feature_custom_accent"))
-        allSettings.add(SettingItem("Accent Color", "Change UI highlight color", "Appearance", "color accent highlight tint primary custom", AppearanceSettingsActivity::class.java, "feature_accent_color"))
-        allSettings.add(SettingItem("Panel Background", "Choose custom background color", "Appearance", "background color customize primary bg", AppearanceSettingsActivity::class.java, "feature_bg_color"))
-        allSettings.add(SettingItem("Reset UI Colors", "Restore default colors and theme", "Appearance", "reset color restore defaults factory", AppearanceSettingsActivity::class.java, "btnResetUIColors"))
-        allSettings.add(SettingItem("Service Button Style", "Toggle between Power and Classic home button", "Appearance", "home button power classic style start stop toggle", AppearanceSettingsActivity::class.java, "feature_home_button"))
-        allSettings.add(SettingItem("Panel Opacity", "Adjust panel transparency", "Appearance", "opacity transparent alpha background visibility", AppearanceSettingsActivity::class.java, "feature_opacity"))
-        allSettings.add(SettingItem("Corner Radius", "Change panel roundness", "Appearance", "corner radius roundness shape curve smooth", AppearanceSettingsActivity::class.java, "feature_radius"))
+        allSettings.clear()
+        
+        // Map of Layouts to their corresponding Activities
+        val layoutMap = mapOf(
+            R.layout.activity_settings_appearance to AppearanceSettingsActivity::class.java,
+            R.layout.activity_settings_interaction to InteractionSettingsActivity::class.java,
+            R.layout.activity_settings_handle to HandleSettingsActivity::class.java,
+            R.layout.activity_settings_tools to ToolsSettingsActivity::class.java
+        )
 
-        // --- Interaction ---
-        allSettings.add(SettingItem("Screen Side", "Choose left or right screen edge", "Interaction", "side edge left right position hand layout", InteractionSettingsActivity::class.java, "feature_panel_side"))
-        allSettings.add(SettingItem("Edge Swipe Gestures", "Enable swipe and hold gestures", "Interaction", "gesture swipe hold interaction touch triggers", InteractionSettingsActivity::class.java, "feature_gestures"))
-        allSettings.add(SettingItem("Tap Pill to Open", "Open panel with a simple tap", "Interaction", "tap click open interaction touch trigger", InteractionSettingsActivity::class.java, "feature_tap_open"))
-        allSettings.add(SettingItem("Haptic Feedback", "Tactile vibration on touch", "Interaction", "haptic vibration tactile feel feedback shake touch", InteractionSettingsActivity::class.java, "feature_haptic"))
-        allSettings.add(SettingItem("Auto Start", "Start service on device boot", "Interaction", "boot autostart service background startup run", InteractionSettingsActivity::class.java, "feature_auto_start"))
-        allSettings.add(SettingItem("Activity Logs", "Show debug logs on home screen", "Interaction", "logs activity debug show developer info", InteractionSettingsActivity::class.java, "feature_show_logs"))
-        allSettings.add(SettingItem("Animation Feel", "Adjust UI animation speed", "Interaction", "animation speed feel calm snappy instant smooth performance", InteractionSettingsActivity::class.java, "feature_anim_feel"))
-        allSettings.add(SettingItem("Picker Gap", "Space between app categories", "Interaction", "gap margin picker space categories spacing", InteractionSettingsActivity::class.java, "feature_picker_gap"))
+        val inflater = LayoutInflater.from(this)
+        
+        layoutMap.forEach { (layoutId, activityClass) ->
+            val root = inflater.inflate(layoutId, null) as ViewGroup
+            discoverSettingsInView(root, activityClass, layoutId)
+        }
 
-        // --- Handle & Pill ---
-        allSettings.add(SettingItem("Visible Pill Handle", "Toggle visual handle visibility", "Handle", "pill handle indicator visibility show hide look", HandleSettingsActivity::class.java, "feature_show_pill"))
-        allSettings.add(SettingItem("Handle Height", "Adjust trigger area height", "Handle", "height size length handle vertical long short", HandleSettingsActivity::class.java, "feature_handle_height"))
-        allSettings.add(SettingItem("Handle Width", "Adjust trigger area width", "Handle", "width thickness handle horizontal fat thin", HandleSettingsActivity::class.java, "feature_handle_width"))
-        allSettings.add(SettingItem("Vertical Position", "Adjust handle offset from center", "Handle", "position offset center vertical move up down height", HandleSettingsActivity::class.java, "feature_handle_position"))
-
-        // --- Tools ---
-        allSettings.add(SettingItem("Dashboard Tools", "Toggle bottom tools section", "Tools", "tools visibility dashboard utilities bottom", ToolsSettingsActivity::class.java, "feature_tools_master"))
-        allSettings.add(SettingItem("System Info Overlay", "Show RAM and Battery info", "Tools", "ram memory battery usage system info monitor stats hardware", ToolsSettingsActivity::class.java, "feature_sys_info"))
-        allSettings.add(SettingItem("Power Menu", "Add reboot/screenshot options", "Tools", "power reboot screenshot restart shutdown menu tools", ToolsSettingsActivity::class.java, "feature_power_menu"))
-
-        // --- Extra Actions ---
+        // Add static actions that aren't in standard layouts
         allSettings.add(SettingItem("Manage Apps", "Choose which apps appear in sidebar", "General", "apps choose select picker manage add remove", AppPickerActivity::class.java))
-        allSettings.add(SettingItem("Support Development", "Donate or support the project", "Support", "donate support heart love money contribute", SupportActivity::class.java))
+        allSettings.add(SettingItem("View Repository", "Check source code on GitHub", "Project", "github source code open repo smartedge", SettingsMainActivity::class.java, "btnGithubTop"))
         allSettings.add(SettingItem("Reset to Defaults", "Reset all settings to factory state", "General", "reset all factory wipe restore settings", SettingsMainActivity::class.java, "btnReset"))
+    }
+
+    private fun discoverSettingsInView(view: View, activityClass: Class<*>, layoutId: Int) {
+        val viewId = view.id
+        if (viewId != View.NO_ID) {
+            val idName = resources.getResourceEntryName(viewId)
+            
+            // "Intelligent" Discovery: Any view starting with 'feature_' or 'layout_' is indexed
+            if (idName.startsWith("feature_") || idName.startsWith("layout_")) {
+                val category = getCategoryFromLayout(layoutId)
+                val (title, description) = extractMetadata(view)
+                
+                if (title.isNotEmpty()) {
+                    allSettings.add(SettingItem(title, description, category, "$title $description $idName".lowercase(), activityClass, idName))
+                }
+            }
+        }
+
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                discoverSettingsInView(view.getChildAt(i), activityClass, layoutId)
+            }
+        }
+    }
+
+    private fun extractMetadata(view: View): Pair<String, String> {
+        var title = ""
+        var description = ""
+
+        if (view is ViewGroup) {
+            val textViews = mutableListOf<TextView>()
+            findAllTextViews(view, textViews)
+            
+            if (textViews.isNotEmpty()) {
+                // The first TextView is almost always the Title in our layouts
+                title = textViews[0].text.toString()
+                
+                // The second TextView is usually the Description/Value
+                if (textViews.size > 1) {
+                    description = textViews[1].text.toString()
+                }
+            }
+        } else if (view is com.google.android.material.materialswitch.MaterialSwitch) {
+            title = view.text.toString()
+        }
+
+        return title to description
+    }
+
+    private fun findAllTextViews(view: View, list: MutableList<TextView>) {
+        if (view is TextView && view !is com.google.android.material.materialswitch.MaterialSwitch) {
+            list.add(view)
+        } else if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                findAllTextViews(view.getChildAt(i), list)
+            }
+        }
+    }
+
+    private fun getCategoryFromLayout(layoutId: Int): String = when (layoutId) {
+        R.layout.activity_settings_appearance -> "Appearance"
+        R.layout.activity_settings_interaction -> "Interaction"
+        R.layout.activity_settings_handle -> "Handle"
+        R.layout.activity_settings_tools -> "Tools"
+        else -> "General"
     }
 
     private fun setupSearch() {
         searchAdapter = SearchResultsAdapter { item ->
-            if (item.targetActivity == SettingsMainActivity::class.java && item.targetId == "btnReset") {
-                // If it's reset, just close search and scroll to reset button
-                binding.etSettingsSearch.setText("")
-                binding.settingsMainContent.post {
-                    binding.settingsMainContent.fullScroll(View.FOCUS_DOWN)
-                    binding.btnReset.highlightView()
+            collapseSearch()
+            
+            if (item.targetActivity == SettingsMainActivity::class.java) {
+                if (item.targetId == "btnReset") {
+                    binding.settingsMainContent.post {
+                        binding.settingsMainContent.fullScroll(View.FOCUS_DOWN)
+                        binding.btnReset.highlightView()
+                    }
+                } else if (item.targetId == "btnGithubTop") {
+                    openGithub()
                 }
                 return@SearchResultsAdapter
             }
@@ -132,11 +194,18 @@ class SettingsMainActivity : AppCompatActivity() {
             }
             override fun afterTextChanged(s: android.text.Editable?) {}
         })
+
+        // Setup expansion animation
+        binding.searchCard.setOnClickListener {
+            if (binding.etSettingsSearch.visibility == View.GONE) {
+                expandSearch()
+            }
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        if (binding.rvSettingsResults.visibility == View.VISIBLE) {
-            binding.etSettingsSearch.setText("")
+        if (binding.rvSettingsResults.visibility == View.VISIBLE || binding.etSettingsSearch.visibility == View.VISIBLE) {
+            collapseSearch()
             return true
         }
         onBackPressedDispatcher.onBackPressed()
@@ -185,6 +254,65 @@ class SettingsMainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             binding.root.showModernToast("Could not open browser")
         }
+    }
+
+    private fun dpToPx(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
+
+    private fun expandSearch() {
+        val transition = android.transition.TransitionSet().apply {
+            addTransition(android.transition.ChangeBounds())
+            addTransition(android.transition.Fade())
+            duration = 300
+            interpolator = android.view.animation.DecelerateInterpolator()
+        }
+        
+        android.transition.TransitionManager.beginDelayedTransition(binding.searchCard.parent as ViewGroup, transition)
+        
+        val lp = binding.searchCard.layoutParams as FrameLayout.LayoutParams
+        lp.width = FrameLayout.LayoutParams.MATCH_PARENT
+        lp.setMargins(dpToPx(20), 0, dpToPx(20), 0)
+        binding.searchCard.layoutParams = lp
+
+        val containerLp = binding.searchContainer.layoutParams
+        containerLp.width = ViewGroup.LayoutParams.MATCH_PARENT
+        binding.searchContainer.layoutParams = containerLp
+        
+        binding.tvSearchHint.visibility = View.GONE
+        binding.etSettingsSearch.visibility = View.VISIBLE
+        binding.etSettingsSearch.requestFocus()
+        
+        // Show keyboard
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+        imm.showSoftInput(binding.etSettingsSearch, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    private fun collapseSearch() {
+        val transition = android.transition.TransitionSet().apply {
+            addTransition(android.transition.ChangeBounds())
+            addTransition(android.transition.Fade())
+            duration = 250
+            interpolator = android.view.animation.AccelerateInterpolator()
+        }
+        
+        android.transition.TransitionManager.beginDelayedTransition(binding.searchCard.parent as ViewGroup, transition)
+        
+        binding.etSettingsSearch.setText("")
+        binding.etSettingsSearch.visibility = View.GONE
+        binding.tvSearchHint.visibility = View.VISIBLE
+        binding.etSettingsSearch.clearFocus()
+        
+        val lp = binding.searchCard.layoutParams as FrameLayout.LayoutParams
+        lp.width = FrameLayout.LayoutParams.WRAP_CONTENT
+        lp.setMargins(0, 0, 0, 0)
+        binding.searchCard.layoutParams = lp
+
+        val containerLp = binding.searchContainer.layoutParams
+        containerLp.width = ViewGroup.LayoutParams.WRAP_CONTENT
+        binding.searchContainer.layoutParams = containerLp
+
+        // Hide keyboard
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+        imm.hideSoftInputFromWindow(binding.etSettingsSearch.windowToken, 0)
     }
 
     private fun filterSettings(query: String) {
