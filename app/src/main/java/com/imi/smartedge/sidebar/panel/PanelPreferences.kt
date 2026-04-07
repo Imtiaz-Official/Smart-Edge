@@ -40,6 +40,8 @@ class PanelPreferences(context: Context) {
         private const val KEY_PILL_WIDTH = "pill_width"
         private const val KEY_PILL_COLOR = "pill_color"
         private const val KEY_TAP_TO_OPEN = "tap_to_open"
+        private const val KEY_DOUBLE_TAP_TO_OPEN = "double_tap_to_open"
+        private const val KEY_TRIPLE_TAP_TO_OPEN = "triple_tap_to_open"
         private const val KEY_ICON_PACK = "selected_icon_pack"
         private const val KEY_ICON_PACK_LABEL = "selected_icon_pack_label"
         private const val KEY_BLUR_ENABLED = "blur_enabled"
@@ -106,6 +108,8 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_SHOW_LANDSCAPE = true
         const val DEFAULT_PILL_WIDTH = 5
         const val DEFAULT_TAP_TO_OPEN = false
+        const val DEFAULT_DOUBLE_TAP_TO_OPEN = false
+        const val DEFAULT_TRIPLE_TAP_TO_OPEN = false
         const val DEFAULT_ICON_PACK = "none"
         const val DEFAULT_SHOW_LOGS = false
         const val DEFAULT_BLUR_AMOUNT = 15
@@ -147,6 +151,8 @@ class PanelPreferences(context: Context) {
             putInt(KEY_PILL_WIDTH, DEFAULT_PILL_WIDTH)
             putString(KEY_PILL_COLOR, DEFAULT_PILL_COLOR)
             putBoolean(KEY_TAP_TO_OPEN, DEFAULT_TAP_TO_OPEN)
+            putBoolean(KEY_DOUBLE_TAP_TO_OPEN, DEFAULT_DOUBLE_TAP_TO_OPEN)
+            putBoolean(KEY_TRIPLE_TAP_TO_OPEN, DEFAULT_TRIPLE_TAP_TO_OPEN)
             putString(KEY_ICON_PACK, DEFAULT_ICON_PACK)
             putString(KEY_ICON_PACK_LABEL, "System Default")
             putInt(KEY_BLUR_AMOUNT, DEFAULT_BLUR_AMOUNT)
@@ -230,6 +236,14 @@ class PanelPreferences(context: Context) {
     var tapToOpen: Boolean
         get() = prefs.getBoolean(KEY_TAP_TO_OPEN, DEFAULT_TAP_TO_OPEN)
         set(value) = prefs.edit { putBoolean(KEY_TAP_TO_OPEN, value) }
+
+    var doubleTapToOpen: Boolean
+        get() = prefs.getBoolean(KEY_DOUBLE_TAP_TO_OPEN, DEFAULT_DOUBLE_TAP_TO_OPEN)
+        set(value) = prefs.edit { putBoolean(KEY_DOUBLE_TAP_TO_OPEN, value) }
+
+    var tripleTapToOpen: Boolean
+        get() = prefs.getBoolean(KEY_TRIPLE_TAP_TO_OPEN, DEFAULT_TRIPLE_TAP_TO_OPEN)
+        set(value) = prefs.edit { putBoolean(KEY_TRIPLE_TAP_TO_OPEN, value) }
 
     var gesturesEnabled: Boolean
         get() = prefs.getBoolean(KEY_GESTURES_ENABLED, DEFAULT_GESTURES)

@@ -54,7 +54,12 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.switchAutoStart.isChecked = panelPrefs.autoStart
         binding.switchGestures.isChecked = panelPrefs.gesturesEnabled
-        binding.switchTapOpen.isChecked = panelPrefs.tapToOpen
+        binding.tvTapGesturesValue.text = when {
+            panelPrefs.tripleTapToOpen -> "Triple Tap"
+            panelPrefs.doubleTapToOpen -> "Double Tap"
+            panelPrefs.tapToOpen -> "Single Tap"
+            else -> "Disabled"
+        }
         binding.switchShowPill.isChecked = panelPrefs.showPill
         binding.switchHaptic.isChecked = panelPrefs.hapticEnabled
         binding.switchShowLogs.isChecked = panelPrefs.showLogs
@@ -175,9 +180,24 @@ class SettingsActivity : AppCompatActivity() {
                 .show(supportFragmentManager, AccessibilityGuideDialog.TAG)
         }
 
-        binding.switchTapOpen.setOnCheckedChangeListener { _, isChecked ->
-            panelPrefs.tapToOpen = isChecked
-            applyOnly()
+        binding.layoutTapGestures.setOnClickListener {
+            val options = arrayOf("Disabled", "Single Tap", "Double Tap", "Triple Tap")
+            var selectedIndex = 0
+            if (panelPrefs.tapToOpen) selectedIndex = 1
+            if (panelPrefs.doubleTapToOpen) selectedIndex = 2
+            if (panelPrefs.tripleTapToOpen) selectedIndex = 3
+
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Tap to Open")
+                .setSingleChoiceItems(options, selectedIndex) { dialog, which ->
+                    panelPrefs.tapToOpen = (which == 1)
+                    panelPrefs.doubleTapToOpen = (which == 2)
+                    panelPrefs.tripleTapToOpen = (which == 3)
+                    binding.tvTapGesturesValue.text = options[which]
+                    applyOnly()
+                    dialog.dismiss()
+                }
+                .show()
         }
 
         binding.switchShowPill.setOnCheckedChangeListener { _, isChecked ->

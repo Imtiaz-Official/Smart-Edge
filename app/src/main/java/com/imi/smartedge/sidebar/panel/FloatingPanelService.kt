@@ -242,7 +242,12 @@ class FloatingPanelService : Service() {
     }
 
     private fun addEdgeHandle() {
-        if (!panelPrefs.gesturesEnabled && !panelPrefs.tapToOpen) {
+        val anyTriggerEnabled = panelPrefs.gesturesEnabled || 
+                                panelPrefs.tapToOpen || 
+                                panelPrefs.doubleTapToOpen || 
+                                panelPrefs.tripleTapToOpen
+
+        if (!anyTriggerEnabled) {
             removeView(edgeHandleView)
             edgeHandleView = null
             return

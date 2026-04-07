@@ -50,16 +50,47 @@ class EdgeHandleView @JvmOverloads constructor(
     }
 
     // Tap Detection
-    private val gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-        override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-            if (panelPrefs.tapToOpen) {
-                vibrateHaptic()
-                onTrigger?.invoke()
-                return true
-            }
-            return false
+    private var tapCount = 0
+    private val tapTimeoutMs = android.view.ViewConfiguration.getDoubleTapTimeout().toLong()
+    private val tapRunnable = Runnable {
+        if (tapCount == 1 && panelPrefs.tapToOpen) {
+            triggerPanel()
+        } else if (tapCount == 2 && panelPrefs.doubleTapToOpen) {
+            triggerPanel()
+        } else if (tapCount >= 3 && panelPrefs.tripleTapToOpen) {
+            triggerPanel()
         }
-    })
+        tapCount = 0
+    }
+
+    private fun triggerPanel() {
+        vibrateHaptic()
+        onTrigger?.invoke()
+    }
+
+    private fun handleTap() {
+        tapCount++
+        handler.removeCallbacks(tapRunnable)
+
+        val maxEnabled = when {
+            panelPrefs.tripleTapToOpen -> 3
+            panelPrefs.doubleTapToOpen -> 2
+            panelPrefs.tapToOpen -> 1
+            else -> 0
+        }
+
+        if (maxEnabled == 0) {
+            tapCount = 0
+            return
+        }
+
+        if (tapCount >= maxEnabled) {
+            triggerPanel()
+            tapCount = 0
+        } else {
+            handler.postDelayed(tapRunnable, tapTimeoutMs)
+        }
+    }
 
     init {
         setLayerType(LAYER_TYPE_HARDWARE, null)
@@ -112,15 +143,16 @@ class EdgeHandleView @JvmOverloads constructor(
         invalidate()
     }
 
+    private var downTime = 0L
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (onTrigger == null) return false 
-
-        gestureDetector.onTouchEvent(event)
 
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 startX = event.rawX
                 startY = event.rawY
+                downTime = System.currentTimeMillis()
                 hasPassedThreshold = false
                 isTriggered = false
                 if (showPill && panelPrefs.gesturesEnabled) {
@@ -157,6 +189,14 @@ class EdgeHandleView @JvmOverloads constructor(
                 if (showPill && !isTriggered && panelPrefs.gesturesEnabled) {
                     animate().scaleX(1f).scaleY(1f).setDuration(150).start()
                 }
+                
+                if (!hasPassedThreshold && !isTriggered && event.action == MotionEvent.ACTION_UP) {
+                    val duration = System.currentTimeMillis() - downTime
+                    if (duration < android.view.ViewConfiguration.getTapTimeout()) {
+                        handleTap()
+                    }
+                }
+                
                 hasPassedThreshold = false
                 return true
             }
