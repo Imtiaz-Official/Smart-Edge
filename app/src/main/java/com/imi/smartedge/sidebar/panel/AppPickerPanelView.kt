@@ -230,8 +230,16 @@ class AppPickerPanelView @JvmOverloads constructor(
         searchBg?.let {
             val sd = android.graphics.drawable.GradientDrawable().apply {
                 shape = android.graphics.drawable.GradientDrawable.RECTANGLE
-                cornerRadius = 20 * density
-                setColor(Color.parseColor("#4D000000")) 
+                cornerRadius = 22 * density
+                
+                // Slightly lighter than panel background to make it "pop" or darker to recessed
+                val baseColor = themeBgColor
+                val alpha = (Color.alpha(baseColor) * 0.5f).toInt()
+                val r = (Color.red(baseColor) * 0.8f).toInt()
+                val g = (Color.green(baseColor) * 0.8f).toInt()
+                val b = (Color.blue(baseColor) * 0.8f).toInt()
+                setColor(Color.argb(alpha, r, g, b))
+                setStroke((1 * density).toInt(), Color.parseColor("#1AFFFFFF"))
             }
             it.background = sd
         }
@@ -287,6 +295,23 @@ class AppPickerPanelView @JvmOverloads constructor(
             allApps = apps
             adapter.submitList(allApps.toList()) {
                 updatePickerHeight()
+                
+                // --- STAGGERED ENTRY ANIMATION ---
+                rvPickerGrid.post {
+                    val layoutManager = rvPickerGrid.layoutManager ?: return@post
+                    for (i in 0 until layoutManager.childCount) {
+                        val v = layoutManager.getChildAt(i) ?: continue
+                        v.alpha = 0f
+                        v.translationY = 50f
+                        v.animate()
+                            .alpha(1f)
+                            .translationY(0f)
+                            .setDuration(400)
+                            .setStartDelay(i * 30L)
+                            .setInterpolator(android.view.animation.DecelerateInterpolator())
+                            .start()
+                    }
+                }
             }
         }
     }
@@ -296,6 +321,23 @@ class AppPickerPanelView @JvmOverloads constructor(
             etSearch.setText("")
             adapter.submitList(allApps.toList()) {
                 updatePickerHeight()
+                
+                // --- STAGGERED ENTRY ANIMATION ---
+                rvPickerGrid.post {
+                    val layoutManager = rvPickerGrid.layoutManager ?: return@post
+                    for (i in 0 until layoutManager.childCount) {
+                        val v = layoutManager.getChildAt(i) ?: continue
+                        v.alpha = 0f
+                        v.translationY = 50f
+                        v.animate()
+                            .alpha(1f)
+                            .translationY(0f)
+                            .setDuration(400)
+                            .setStartDelay(i * 30L)
+                            .setInterpolator(android.view.animation.DecelerateInterpolator())
+                            .start()
+                    }
+                }
             }
         }
     }
@@ -312,6 +354,23 @@ class AppPickerPanelView @JvmOverloads constructor(
         val filtered = allApps.filter { it.appName.contains(query, ignoreCase = true) }
         adapter.submitList(filtered) {
             updatePickerHeight()
+            
+            // --- STAGGERED ENTRY ANIMATION FOR SEARCH RESULTS ---
+            rvPickerGrid.post {
+                val layoutManager = rvPickerGrid.layoutManager ?: return@post
+                for (i in 0 until layoutManager.childCount) {
+                    val v = layoutManager.getChildAt(i) ?: continue
+                    v.alpha = 0f
+                    v.translationY = 30f
+                    v.animate()
+                        .alpha(1f)
+                        .translationY(0f)
+                        .setDuration(300)
+                        .setStartDelay(i * 20L)
+                        .setInterpolator(android.view.animation.DecelerateInterpolator())
+                        .start()
+                }
+            }
         }
     }
 

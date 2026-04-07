@@ -86,51 +86,75 @@ fun View.showModernToast(message: String, duration: Int = Snackbar.LENGTH_SHORT)
     }
 
 /**
- * Modern highlight animation for search results.
- * Uses a foreground overlay and scale pulse for a professional feel.
+ * Highly visible modern highlight animation for search results.
+ * Uses a prominent rounded foreground pill that fades out, plus a gentle bounce.
  */
 fun View.highlightView() {
     val typedValue = android.util.TypedValue()
-    context.theme.resolveAttribute(com.google.android.material.R.attr.colorPrimaryContainer, typedValue, true)
+    // Use colorPrimary for maximum contrast and brand consistency
+    context.theme.resolveAttribute(com.google.android.material.R.attr.colorPrimary, typedValue, true)
     val highlightColor = typedValue.data
     
-    // 1. Gentle Scale Pulse
+    // 1. Attention-grabbing Bounce
     this.animate()
-        .scaleX(1.025f)
-        .scaleY(1.025f)
-        .setDuration(400)
-        .setInterpolator(android.view.animation.CycleInterpolator(1f))
+        .scaleX(1.05f)
+        .scaleY(1.05f)
+        .setDuration(200)
+        .setInterpolator(android.view.animation.OvershootInterpolator())
+        .withEndAction {
+            this.animate()
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(300)
+                .setInterpolator(android.view.animation.DecelerateInterpolator())
+                .start()
+        }
         .start()
 
-    // 2. Sophisticated Foreground Flash (Android M+)
+    // 2. High-visibility rounded flash overlay
+    val flashDrawable = android.graphics.drawable.GradientDrawable().apply {
+        shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+        cornerRadius = 12f * resources.displayMetrics.density // Modern 12dp rounded corners
+        setColor(highlightColor)
+    }
+
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-        val originalForeground = foreground
-        val highlightDrawable = android.graphics.drawable.ColorDrawable(highlightColor)
-        foreground = highlightDrawable
-        highlightDrawable.alpha = 0
+        val originalForeground = this.foreground
+        this.foreground = flashDrawable
         
-        android.animation.ValueAnimator.ofInt(0, 120, 0).apply {
-            duration = 1000
-            interpolator = android.view.animation.AccelerateDecelerateInterpolator()
+        android.animation.ValueAnimator.ofInt(120, 0).apply { // ~45% opacity
+            duration = 1800
+            startDelay = 200 // Hold peak color for a moment
+            interpolator = android.view.animation.DecelerateInterpolator()
             addUpdateListener { animator ->
-                highlightDrawable.alpha = animator.animatedValue as Int
+                flashDrawable.alpha = animator.animatedValue as Int
             }
             addListener(object : android.animation.AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: android.animation.Animator) {
-                    foreground = originalForeground
+                    this@highlightView.foreground = originalForeground
                 }
             })
             start()
         }
     } else {
-        // Fallback for older versions
-        val originalBackground = background
-        android.animation.ValueAnimator.ofArgb(Color.TRANSPARENT, highlightColor, Color.TRANSPARENT).apply {
-            duration = 800
-            addUpdateListener { setBackgroundColor(it.animatedValue as Int) }
+        val originalBackground = this.background
+        val layerDrawable = if (originalBackground != null) {
+            android.graphics.drawable.LayerDrawable(arrayOf(originalBackground, flashDrawable))
+        } else {
+            flashDrawable
+        }
+        this.background = layerDrawable
+
+        android.animation.ValueAnimator.ofInt(120, 0).apply {
+            duration = 1800
+            startDelay = 200
+            interpolator = android.view.animation.DecelerateInterpolator()
+            addUpdateListener { animator ->
+                flashDrawable.alpha = animator.animatedValue as Int
+            }
             addListener(object : android.animation.AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: android.animation.Animator) {
-                    background = originalBackground
+                    this@highlightView.background = originalBackground
                 }
             })
             start()

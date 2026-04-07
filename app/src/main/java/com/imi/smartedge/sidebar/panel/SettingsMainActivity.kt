@@ -315,7 +315,7 @@ class SettingsMainActivity : AppCompatActivity() {
         val lowerQuery = query.lowercase().trim()
         if (lowerQuery.isEmpty()) {
             binding.rvSettingsResults.visibility = View.GONE
-            binding.settingsMainContent.visibility = View.VISIBLE
+            binding.settingsCategoriesContainer.visibility = View.VISIBLE
             return
         }
 
@@ -325,7 +325,7 @@ class SettingsMainActivity : AppCompatActivity() {
             item.keywords.lowercase().contains(lowerQuery)
         }
 
-        binding.settingsMainContent.visibility = View.GONE
+        binding.settingsCategoriesContainer.visibility = View.GONE
         binding.rvSettingsResults.visibility = View.VISIBLE
         searchAdapter.submitList(filtered)
     }
@@ -347,9 +347,10 @@ class SettingsMainActivity : AppCompatActivity() {
 
             fun bind(item: SettingItem) {
                 title.text = item.title
-                title.setTextColor(Color.WHITE)
+                title.setTextColor(com.google.android.material.color.MaterialColors.getColor(title, com.google.android.material.R.attr.colorOnSurface))
+                
                 desc.text = "${item.category} • ${item.description}"
-                desc.setTextColor(Color.parseColor("#B3FFFFFF"))
+                desc.setTextColor(com.google.android.material.color.MaterialColors.getColor(desc, com.google.android.material.R.attr.colorOnSurfaceVariant))
                 itemView.setOnClickListener { onClick(item) }
             }
         }

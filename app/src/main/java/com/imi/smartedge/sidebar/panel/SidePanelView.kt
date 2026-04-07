@@ -39,7 +39,7 @@ class SidePanelView @JvmOverloads constructor(
     private val springRotation: SpringAnimation = SpringAnimation(binding.btnClose, SpringAnimation.ROTATION)
 
     private val width1ColDp = 72f
-    private val width2ColDp = 150f
+    private val width2ColDp = 140f
 
     private fun getFinalScaleFactor(): Float {
         return context.getAutoScalingFactor() * panelPrefs.scaleFactor
@@ -110,6 +110,7 @@ class SidePanelView @JvmOverloads constructor(
         )
 
         currentCols = panelPrefs.panelColumns
+        adapter.setColumns(currentCols)
         binding.rvPanelApps.layoutManager = GridLayoutManager(context, currentCols)
         binding.rvPanelApps.adapter = adapter
 
@@ -247,6 +248,7 @@ class SidePanelView @JvmOverloads constructor(
 
     fun setColumns(cols: Int) {
         currentCols = cols
+        adapter.setColumns(cols)
         (binding.rvPanelApps.layoutManager as? GridLayoutManager)?.spanCount = currentCols
         updateSideLayout()
     }

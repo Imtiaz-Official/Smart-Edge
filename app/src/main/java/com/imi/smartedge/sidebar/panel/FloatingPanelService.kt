@@ -547,6 +547,7 @@ class FloatingPanelService : Service() {
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
             val density = resources.displayMetrics.density
             val sidePanelWidthDp = 72
+            val sidePanelMarginDp = 12
             
             // Dynamic Height calculation for Picker Panel based on Screen Height
             val displayMetrics = resources.displayMetrics
@@ -559,12 +560,12 @@ class FloatingPanelService : Service() {
 
             val lp = android.widget.FrameLayout.LayoutParams(dpToPx(240), android.widget.FrameLayout.LayoutParams.WRAP_CONTENT)
             lp.height = android.widget.FrameLayout.LayoutParams.WRAP_CONTENT // Start with wrap
-            // We'll set the actual height constraint on the RecyclerView in AppPickerPanelView if needed, 
-            // or just ensure the whole LP doesn't exceed screen height
             
             lp.gravity = if (isRight) Gravity.CENTER_VERTICAL or Gravity.END
                          else Gravity.CENTER_VERTICAL or Gravity.START
-            val gapPx = ((sidePanelWidthDp + panelPrefs.pickerGap) * displayMetrics.density).toInt()
+            
+            // Fixed alignment calculation: Sidepanel occupies (margin + width) space
+            val gapPx = ((sidePanelWidthDp + sidePanelMarginDp + panelPrefs.pickerGap) * displayMetrics.density).toInt()
             if (isRight) lp.marginEnd = gapPx else lp.marginStart = gapPx
             
             picker.layoutParams = lp

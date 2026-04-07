@@ -110,7 +110,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_SHOW_LOGS = false
         const val DEFAULT_BLUR_AMOUNT = 15
         const val DEFAULT_ANIM_SPEED = 400
-        const val DEFAULT_PICKER_GAP = 36
+        const val DEFAULT_PICKER_GAP = 20
         const val DEFAULT_HOME_BUTTON_STYLE = STYLE_POWER
     }
 

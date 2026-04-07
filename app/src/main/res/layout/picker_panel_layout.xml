@@ -9,7 +9,7 @@
     android:orientation="vertical"
     android:padding="12dp">
 
-    <!-- Compact Header -->
+    <!-- Modern Header Dashboard -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,10 +17,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <!-- Modern Search Bar -->
+        <!-- Modern Search Capsule -->
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="44dp"
             android:layout_weight="1"
             android:background="@drawable/bg_close_btn"
             android:backgroundTint="#1AFFFFFF"
@@ -28,17 +28,19 @@
             android:paddingHorizontal="16dp">
 
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:src="@android:drawable/ic_menu_search"
-                android:tint="#B3FFFFFF" />
+                android:tint="#80FFFFFF" />
 
             <EditText
                 android:id="@+id/etPickerSearch"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:background="@android:color/transparent"
-                android:hint="Search apps..."
+                android:gravity="center_vertical"
+                android:hint="Search Smart Edge..."
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:maxLines="1"
@@ -48,51 +50,54 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
-        <!-- Settings Icon -->
+        <!-- Settings Cog - Pill Shape -->
         <ImageButton
             android:id="@+id/btnPickerClose"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:layout_marginStart="12dp"
             android:background="@drawable/bg_close_btn"
             android:backgroundTint="#1AFFFFFF"
-            android:padding="10dp"
+            android:padding="12dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_settings"
             android:tint="#B3FFFFFF" />
     </LinearLayout>
 
-    <!-- Category Header with Edit Toggle -->
-    <RelativeLayout
+    <!-- Header Stats/Actions Row -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp">
+        android:layout_marginBottom="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tvPickerHeader"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
+            android:layout_weight="1"
             android:fontFamily="sans-serif-medium"
             android:text="All Apps"
             android:textColor="#FFFFFF"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:alpha="0.8" />
 
+        <!-- Edit/Done Toggle Chip -->
         <TextView
             android:id="@+id/btnPickerEdit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/bg_close_btn"
+            android:backgroundTint="#1AFFFFFF"
             android:fontFamily="sans-serif-medium"
-            android:padding="4dp"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
             android:text="EDIT"
             android:textColor="#4A9EFF"
-            android:textSize="12sp"
+            android:textSize="11sp"
             android:textAllCaps="true" />
-    </RelativeLayout>
+    </LinearLayout>
 
     <!-- Grid with fixed max height -->
     <androidx.recyclerview.widget.RecyclerView

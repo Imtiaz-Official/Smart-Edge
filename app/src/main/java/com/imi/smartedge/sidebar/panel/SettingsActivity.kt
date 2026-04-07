@@ -353,7 +353,7 @@ class SettingsActivity : AppCompatActivity() {
         })
 
         binding.btnResetPickerGap.setOnClickListener {
-            val default = 36
+            val default = 20
             panelPrefs.pickerGap = default
             binding.sbPickerGap.value = default.toFloat()
             binding.tvPickerGapValue.text = "${default}dp"

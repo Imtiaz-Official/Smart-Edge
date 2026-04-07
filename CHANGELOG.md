@@ -6,7 +6,16 @@
 
 ---
 
-### v1.2.3 (Latest)
+### v1.3.0 (Latest)
+- **feat(ui)**: Redesigned App Picker UI with a modern dashboard header and staggered entry animations.
+- **feat(ui)**: Enhanced 2-column mode with tighter panel width and 10% larger icons.
+- **feat(ui)**: Redesigned search result highlights with a satisfying 3D bounce and prominent pill flash.
+- **fix(ui)**: Fixed Settings search bar layout bug that caused typed text to be invisible.
+- **chore**: Adjusted default picker gap spacing (20dp) for a cleaner layout.
+
+---
+
+### v1.2.3
 - **feat(handle)**: Added "Touch Area Width" customization (16dp to 100dp) in Handle & Pill settings.
 - **fix(gesture)**: Improved swipe-to-open gesture reliability by reducing sensitivity to backward movement and jitter.
 - **fix(handle)**: Fixed "ghosting" or duplicate pills when adjusting settings (enforced aggressive removeViewImmediate).

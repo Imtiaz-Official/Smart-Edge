@@ -24,10 +24,18 @@ class PanelAppsAdapter(
 
     private val panelPrefs = PanelPreferences(context)
     private var showAddButton: Boolean = false
+    private var currentColumns: Int = 1
 
     fun setShowAddButton(show: Boolean) {
         if (showAddButton != show) {
             showAddButton = show
+            notifyDataSetChanged()
+        }
+    }
+
+    fun setColumns(cols: Int) {
+        if (currentColumns != cols) {
+            currentColumns = cols
             notifyDataSetChanged()
         }
     }
@@ -89,7 +97,9 @@ class PanelAppsAdapter(
         
         if (holder is AppViewHolder) {
             // Restore original sizes + scaling
-            val baseIconSize = if (isRich) 44 else 40
+            var baseIconSize = if (isRich) 44 else 40
+            if (currentColumns == 2) baseIconSize = (baseIconSize * 1.1).toInt() // 10% larger in 2-col
+            
             val baseTextSize = if (isRich) 9f else 8f
 
             holder.ivIcon.layoutParams.let { lp ->
@@ -98,6 +108,13 @@ class PanelAppsAdapter(
                 holder.ivIcon.layoutParams = lp
             }
             holder.tvName.textSize = baseTextSize * scale
+            
+            // Adjust padding for 2-column mode to look more centered
+            if (currentColumns == 2) {
+                holder.itemView.setPadding(context.dpToPx(8), holder.itemView.paddingTop, context.dpToPx(8), holder.itemView.paddingBottom)
+            } else {
+                holder.itemView.setPadding(context.dpToPx(2), holder.itemView.paddingTop, context.dpToPx(2), holder.itemView.paddingBottom)
+            }
 
             val app = getItem(position)
             

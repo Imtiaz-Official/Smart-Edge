@@ -283,10 +283,10 @@
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="4dp">
                             <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Picker Gap (Spacing)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
                             <ImageView android:id="@+id/btnResetPickerGap" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_restore" android:layout_marginEnd="8dp" android:background="?attr/selectableItemBackground" android:padding="2dp" app:tint="?attr/colorPrimary" />
-                            <TextView android:id="@+id/tvPickerGapValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="36dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
+                            <TextView android:id="@+id/tvPickerGapValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="20dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                         </LinearLayout>
                         <com.imi.smartedge.sidebar.panel.DefaultMarkerSlider style="@style/Widget.App.Slider"
-                            android:id="@+id/sbPickerGap" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="100.0" android:value="36.0" app:tickVisible="false" />
+                            android:id="@+id/sbPickerGap" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="100.0" android:value="20.0" app:tickVisible="false" />
                     </LinearLayout>
 
                 </LinearLayout>
