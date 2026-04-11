@@ -32,6 +32,9 @@ class FloatingPanelService : Service() {
     
     private var rootLayout: android.widget.FrameLayout? = null
     private var rootParams: WindowManager.LayoutParams? = null
+    
+    private var dragOverlay: android.widget.FrameLayout? = null
+    private var dragOverlayParams: WindowManager.LayoutParams? = null
 
     private var isPanelOpen = false
     private var isPickerOpen = false
@@ -426,6 +429,56 @@ class FloatingPanelService : Service() {
                 // Return false to allow setOnClickListener to handle the tap
                 false
             }
+
+            setOnDragListener { v, event ->
+                when (event.action) {
+                    android.view.DragEvent.ACTION_DRAG_STARTED -> {
+                        showDragOverlay(true)
+                        true
+                    }
+                    android.view.DragEvent.ACTION_DRAG_LOCATION -> {
+                        updateDragOverlay(event.y, v.height)
+                        true
+                    }
+                    android.view.DragEvent.ACTION_DROP -> {
+                        showDragOverlay(false) // Hide immediately on drop
+                        val packageName = event.localState as? String
+                        if (packageName != null) {
+                            val dropY = event.y
+                            val screenHeight = v.height
+                            
+                            val mode = when {
+                                dropY < screenHeight * 0.30 -> SplitScreenHelper.MODE_TOP
+                                dropY > screenHeight * 0.70 -> SplitScreenHelper.MODE_BOTTOM
+                                else -> SplitScreenHelper.MODE_FREEFORM
+                            }
+                            
+                            // Close sidebar BEFORE launching the new app
+                            closePanel(immediate = true)
+                            
+                            // Delegate to Accessibility Service for higher privilege launch
+                            val splitIntent = Intent(this@FloatingPanelService, PanelAccessibilityService::class.java).apply {
+                                action = PanelAccessibilityService.ACTION_SPLIT_SCREEN
+                                putExtra(PanelAccessibilityService.EXTRA_PKG, packageName)
+                                putExtra(PanelAccessibilityService.EXTRA_MODE, mode)
+                            }
+                            startService(splitIntent)
+                        }
+                        true
+                    }
+                    android.view.DragEvent.ACTION_DRAG_ENDED -> {
+                        showDragOverlay(false) // Safety cleanup
+                        // If drop wasn't successful (result is false), we might want to keep panel open
+                        if (!event.result) {
+                            // If user just cancelled, do nothing, keep panel open
+                        } else {
+                            closePanel(immediate = true)
+                        }
+                        true
+                    }
+                    else -> false
+                }
+            }
         }
         rootParams = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -452,7 +505,6 @@ class FloatingPanelService : Service() {
         }
         updateBlur(true)
         sidePanelView?.updateSideLayout() // Force layout update based on side
-        sidePanelView?.scrollToTop() 
         sidePanelView?.let { panel ->
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
             val lp = panel.layoutParams as android.widget.FrameLayout.LayoutParams
@@ -601,7 +653,6 @@ class FloatingPanelService : Service() {
         if (!isPickerOpen) return
         isPickerOpen = false
         sidePanelView?.animatePickerToggle(false)
-        sidePanelView?.scrollToTop()
         Handler(Looper.getMainLooper()).postDelayed({
             if (!isPickerOpen) {
                 val originalCols = panelPrefs.panelColumns
@@ -670,4 +721,161 @@ class FloatingPanelService : Service() {
 
     private fun dpToPx(dp: Int): Int =
         (dp * resources.displayMetrics.density).toInt()
+
+    private var indicatorText: android.widget.TextView? = null
+    private var indicatorFadeRunnable: Runnable? = null
+
+    private var tvTopZone: android.widget.TextView? = null
+    private var tvBottomZone: android.widget.TextView? = null
+    private var tvFreeformZone: android.widget.TextView? = null
+
+    private fun initDragOverlay() {
+        if (dragOverlay != null) return
+        
+        val density = resources.displayMetrics.density
+        dragOverlay = android.widget.FrameLayout(this).apply {
+            setBackgroundColor(android.graphics.Color.parseColor("#4D000000")) // 30% Dim
+        }
+
+        val createZone = { text: String, grav: Int ->
+            android.widget.TextView(this).apply {
+                this.text = text
+                setTextColor(android.graphics.Color.WHITE)
+                textSize = 18f
+                gravity = android.view.Gravity.CENTER
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    setColor(android.graphics.Color.parseColor("#33FFFFFF"))
+                    setStroke(dpToPx(2), android.graphics.Color.parseColor("#80FFFFFF"))
+                    cornerRadius = dpToPx(16).toFloat()
+                }
+                alpha = 0.5f
+                layoutParams = android.widget.FrameLayout.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    0
+                ).apply {
+                    gravity = grav
+                    val m = dpToPx(20)
+                    setMargins(m, m, m, m)
+                }
+            }
+        }
+
+        tvTopZone = createZone("TOP SPLIT", Gravity.TOP).apply { 
+            layoutParams.height = (resources.displayMetrics.heightPixels * 0.28).toInt()
+        }
+        tvBottomZone = createZone("BOTTOM SPLIT", Gravity.BOTTOM).apply { 
+            layoutParams.height = (resources.displayMetrics.heightPixels * 0.28).toInt()
+        }
+        tvFreeformZone = createZone("FREEFORM WINDOW", Gravity.CENTER).apply { 
+            layoutParams.height = (resources.displayMetrics.heightPixels * 0.30).toInt()
+        }
+
+        dragOverlay?.addView(tvTopZone)
+        dragOverlay?.addView(tvBottomZone)
+        dragOverlay?.addView(tvFreeformZone)
+
+        dragOverlayParams = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+            PixelFormat.TRANSLUCENT
+        )
+    }
+
+    private fun showDragOverlay(show: Boolean) {
+        if (show) {
+            initDragOverlay()
+            val overlay = dragOverlay ?: return
+            if (!overlay.isAttachedToWindow && dragOverlayParams != null) {
+                try {
+                    windowManager.addView(overlay, dragOverlayParams)
+                } catch (e: Exception) { e.printStackTrace() }
+            }
+            overlay.visibility = View.VISIBLE
+            overlay.animate().cancel()
+            overlay.alpha = 0f
+            overlay.animate().alpha(1f).setDuration(200).start()
+        } else {
+            val overlay = dragOverlay ?: return
+            overlay.animate().cancel()
+            overlay.animate().alpha(0f).setDuration(200).withEndAction {
+                overlay.visibility = View.GONE
+                if (overlay.isAttachedToWindow) {
+                    try {
+                        windowManager.removeView(overlay)
+                    } catch (e: Exception) { e.printStackTrace() }
+                }
+            }.start()
+        }
+    }
+
+    private fun updateDragOverlay(y: Float, screenHeight: Int) {
+        val reset = { v: View? -> 
+            v?.alpha = 0.5f
+            (v?.background as? android.graphics.drawable.GradientDrawable)?.setColor(android.graphics.Color.parseColor("#33FFFFFF"))
+        }
+        val highlight = { v: View? -> 
+            v?.alpha = 1.0f
+            (v?.background as? android.graphics.drawable.GradientDrawable)?.setColor(android.graphics.Color.parseColor("#804A9EFF"))
+        }
+
+        reset(tvTopZone)
+        reset(tvBottomZone)
+        reset(tvFreeformZone)
+
+        when {
+            y < screenHeight * 0.30 -> highlight(tvTopZone)
+            y > screenHeight * 0.70 -> highlight(tvBottomZone)
+            else -> highlight(tvFreeformZone)
+        }
+    }
+
+    private fun showIndicator(text: String) {
+        val root = rootLayout
+        if (root != null) {
+            if (indicatorText == null) {
+                val density = resources.displayMetrics.density
+
+                indicatorText = android.widget.TextView(this).apply {
+                    setTextColor(android.graphics.Color.WHITE)
+                    textSize = 14f
+                    setPadding((16 * density).toInt(), (10 * density).toInt(), (16 * density).toInt(), (10 * density).toInt())
+                    gravity = android.view.Gravity.CENTER
+                    
+                    background = android.graphics.drawable.GradientDrawable().apply {
+                        setColor(android.graphics.Color.parseColor("#E6303030"))
+                        cornerRadius = 24f * density
+                    }
+
+                    layoutParams = android.widget.FrameLayout.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        gravity = android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL
+                        bottomMargin = (90 * density).toInt()
+                    }
+                    elevation = 8f * density
+                }
+                root.addView(indicatorText)
+            }
+
+            indicatorText?.text = text
+            indicatorText?.visibility = View.VISIBLE
+            indicatorText?.alpha = 1f
+            indicatorText?.animate()?.cancel()
+            
+            indicatorFadeRunnable?.let { handler.removeCallbacks(it) }
+            indicatorFadeRunnable = Runnable {
+                indicatorText?.animate()
+                    ?.alpha(0f)
+                    ?.setDuration(300)
+                    ?.withEndAction { indicatorText?.visibility = View.GONE }
+                    ?.start()
+            }
+            handler.postDelayed(indicatorFadeRunnable!!, 1500)
+        }
+    }
 }

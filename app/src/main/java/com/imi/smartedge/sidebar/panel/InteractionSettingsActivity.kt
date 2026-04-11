@@ -86,6 +86,8 @@ class InteractionSettingsActivity : AppCompatActivity() {
         binding.featureShowLandscape.isChecked = panelPrefs.showInLandscape
         binding.featureFreeform.isChecked = panelPrefs.freeformEnabled
         binding.featureNotificationApps.isChecked = panelPrefs.showNotificationApps
+        binding.featureDragSplit.isChecked = panelPrefs.dragToSplit
+        binding.featureRememberScroll.isChecked = panelPrefs.rememberScroll
         binding.featureShowLogs.isChecked = panelPrefs.showLogs
 
         // Window size picker — visible only when freeform is on
@@ -204,6 +206,16 @@ class InteractionSettingsActivity : AppCompatActivity() {
 
         binding.featureNotificationApps.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showNotificationApps = isChecked
+            applyOnly()
+        }
+
+        binding.featureDragSplit.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.dragToSplit = isChecked
+            applyOnly()
+        }
+
+        binding.featureRememberScroll.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.rememberScroll = isChecked
             applyOnly()
         }
 

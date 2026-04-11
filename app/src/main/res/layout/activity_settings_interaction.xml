@@ -96,6 +96,12 @@
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_notification_apps" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Notification Apps Section" android:textColor="?attr/colorOnSurface" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Show apps with active notifications in the side panel" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
 
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_drag_split" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Drag to Split-Screen" android:textColor="?attr/colorOnSurface" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Drag icons to top/bottom edge to launch in split mode" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_remember_scroll" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Remember Scroll Position" android:textColor="?attr/colorOnSurface" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Restore last scroll position when opening sidebar" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+
                     <!-- Window size mode picker — only visible when freeform is ON -->
                     <LinearLayout
                         android:id="@+id/layout_freeform_size"

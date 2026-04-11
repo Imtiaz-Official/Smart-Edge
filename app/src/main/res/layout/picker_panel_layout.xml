@@ -137,7 +137,7 @@
                 android:layout_height="14dp"
                 android:src="@drawable/ic_chevron_right"
                 android:rotation="90"
-                app:tint="#80FFFFFF" />
+                android:tint="#80FFFFFF" />
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView

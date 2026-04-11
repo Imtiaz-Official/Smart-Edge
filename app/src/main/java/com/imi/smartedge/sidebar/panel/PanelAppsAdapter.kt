@@ -163,14 +163,33 @@ class PanelAppsAdapter(
             }
 
             holder.itemView.setOnLongClickListener {
-                val currentPos = holder.bindingAdapterPosition
-                if (currentPos != RecyclerView.NO_POSITION) {
-                    if (panelPrefs.hapticEnabled) {
-                        holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                if (!panelPrefs.dragToSplit) {
+                    val currentPos = holder.bindingAdapterPosition
+                    if (currentPos != RecyclerView.NO_POSITION) {
+                        if (panelPrefs.hapticEnabled) {
+                            holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                        }
+                        SpringAnimator.scalePulse(holder.itemView)
+                        onRemove(getItem(currentPos))
                     }
-                    SpringAnimator.scalePulse(holder.itemView)
-                    onRemove(getItem(currentPos))
+                    return@setOnLongClickListener true
                 }
+
+                // Drag to Split Logic
+                if (panelPrefs.hapticEnabled) {
+                    holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+                }
+                
+                val clipData = android.content.ClipData.newPlainText("pkg", app.packageName)
+                val shadow = View.DragShadowBuilder(holder.ivIcon)
+                
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    holder.itemView.startDragAndDrop(clipData, shadow, app.packageName, 0)
+                } else {
+                    @Suppress("DEPRECATION")
+                    holder.itemView.startDrag(clipData, shadow, app.packageName, 0)
+                }
+                
                 true
             }
         } else if (holder is AddViewHolder) {

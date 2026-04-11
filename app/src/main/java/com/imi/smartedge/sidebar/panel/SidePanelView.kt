@@ -120,6 +120,14 @@ class SidePanelView @JvmOverloads constructor(
         (binding.rvPanelApps.itemAnimator as? androidx.recyclerview.widget.SimpleItemAnimator)?.supportsChangeAnimations = false
         binding.rvPanelApps.recycledViewPool.setMaxRecycledViews(0, 30)
 
+        binding.rvPanelApps.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+                if (panelPrefs.rememberScroll) {
+                    panelPrefs.lastSidebarScroll = recyclerView.computeVerticalScrollOffset()
+                }
+            }
+        })
+
         updateSideLayout()
 
         binding.btnClose.setOnClickListener {
@@ -416,6 +424,18 @@ class SidePanelView @JvmOverloads constructor(
     fun setApps(apps: List<AppInfo>, onComplete: (() -> Unit)? = null) {
         adapter.submitList(apps) {
             updateSideLayout()
+            
+            // Restore scroll position if enabled
+            if (panelPrefs.rememberScroll) {
+                binding.rvPanelApps.post {
+                    binding.rvPanelApps.scrollBy(0, panelPrefs.lastSidebarScroll)
+                }
+            } else {
+                binding.rvPanelApps.post {
+                    binding.rvPanelApps.scrollToPosition(0)
+                }
+            }
+            
             onComplete?.invoke()
         }
     }

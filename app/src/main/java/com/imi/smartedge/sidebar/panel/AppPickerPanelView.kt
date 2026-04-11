@@ -147,6 +147,14 @@ class AppPickerPanelView @JvmOverloads constructor(
         
         rvPickerGrid.adapter = adapter
 
+        rvPickerGrid.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+                if (panelPrefs.rememberScroll) {
+                    panelPrefs.lastPickerScroll = recyclerView.computeVerticalScrollOffset()
+                }
+            }
+        })
+
         val rvNotifications = view.findViewById<RecyclerView>(R.id.rvPickerNotifications)
         rvNotifications.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         rvNotifications.adapter = notificationAdapter.apply { setIsNotificationType(true) }
@@ -156,10 +164,8 @@ class AppPickerPanelView @JvmOverloads constructor(
         btnToggleNotifs.setOnClickListener {
             val isHidden = rvNotifications.visibility == View.GONE
             rvNotifications.visibility = if (isHidden) View.VISIBLE else View.GONE
-            ivChevron.rotation = if (isHidden) 90f else 0f
-            
-            // Persist state if needed, but for now just toggle
             findViewById<View>(R.id.divNotifications).visibility = rvNotifications.visibility
+            ivChevron.rotation = if (isHidden) 90f else 0f
         }
 
         // Hide keyboard when scrolling the app list
@@ -347,13 +353,21 @@ class AppPickerPanelView @JvmOverloads constructor(
             }
             return
         }
-
         _scope.launch {
             val apps = withContext(Dispatchers.IO) { repository.getAllApps() }
             allApps = apps
             adapter.submitList(allApps.toList()) {
+                if (panelPrefs.rememberScroll) {
+                    rvPickerGrid.post {
+                        rvPickerGrid.scrollBy(0, panelPrefs.lastPickerScroll)
+                    }
+                } else {
+                    rvPickerGrid.post {
+                        rvPickerGrid.scrollToPosition(0)
+                    }
+                }
                 updatePickerHeight()
-                
+
                 // --- STAGGERED ENTRY ANIMATION ---
                 rvPickerGrid.post {
                     val layoutManager = rvPickerGrid.layoutManager ?: return@post

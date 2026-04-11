@@ -62,6 +62,10 @@ class PanelPreferences(context: Context) {
         private const val KEY_PANEL_MAX_HEIGHT = "panel_max_height"
         private const val KEY_PICKER_MAX_HEIGHT = "picker_max_height"
         private const val KEY_SHOW_NOTIFICATION_APPS = "show_notification_apps"
+        private const val KEY_DRAG_TO_SPLIT = "drag_to_split"
+        private const val KEY_REMEMBER_SCROLL = "remember_scroll"
+        private const val KEY_SIDEBAR_SCROLL = "last_sidebar_scroll"
+        private const val KEY_PICKER_SCROLL = "last_picker_scroll"
 
         private const val DELIMITER = ","
 
@@ -174,8 +178,28 @@ class PanelPreferences(context: Context) {
             putInt(KEY_PANEL_MAX_HEIGHT, 350)
             putInt(KEY_PICKER_MAX_HEIGHT, 450)
             putBoolean(KEY_SHOW_NOTIFICATION_APPS, true)
+            putBoolean(KEY_DRAG_TO_SPLIT, true)
+            putBoolean(KEY_REMEMBER_SCROLL, true)
+            putInt(KEY_SIDEBAR_SCROLL, 0)
+            putInt(KEY_PICKER_SCROLL, 0)
         }
     }
+
+    var rememberScroll: Boolean
+        get() = prefs.getBoolean(KEY_REMEMBER_SCROLL, true)
+        set(value) = prefs.edit { putBoolean(KEY_REMEMBER_SCROLL, value) }
+
+    var lastSidebarScroll: Int
+        get() = prefs.getInt(KEY_SIDEBAR_SCROLL, 0)
+        set(value) = prefs.edit { putInt(KEY_SIDEBAR_SCROLL, value) }
+
+    var lastPickerScroll: Int
+        get() = prefs.getInt(KEY_PICKER_SCROLL, 0)
+        set(value) = prefs.edit { putInt(KEY_PICKER_SCROLL, value) }
+
+    var dragToSplit: Boolean
+        get() = prefs.getBoolean(KEY_DRAG_TO_SPLIT, true)
+        set(value) = prefs.edit { putBoolean(KEY_DRAG_TO_SPLIT, value) }
 
     var showNotificationApps: Boolean
         get() = prefs.getBoolean(KEY_SHOW_NOTIFICATION_APPS, true)
