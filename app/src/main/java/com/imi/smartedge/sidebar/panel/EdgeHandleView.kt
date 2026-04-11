@@ -230,10 +230,19 @@ class EdgeHandleView @JvmOverloads constructor(
         
         val params = layoutParams as? android.view.WindowManager.LayoutParams
         if (params != null) {
-            params.y = (prefs.handleVerticalOffset * resources.displayMetrics.density).toInt()
-            params.width = (prefs.handleWidth * resources.displayMetrics.density).toInt() 
-            params.height = if (showPill) (prefs.handleHeight * resources.displayMetrics.density).toInt()
-                            else (resources.displayMetrics.heightPixels * 0.60f).toInt()
+            val density = resources.displayMetrics.density
+            val screenH = resources.displayMetrics.heightPixels
+            val safeMargin = (10 * density).toInt()
+            
+            val h = if (showPill) (prefs.handleHeight * density).toInt()
+                    else (screenH * 0.60f).toInt()
+            
+            val maxOffset = (screenH / 2) - (h / 2) - safeMargin
+            val requestedOffset = (prefs.handleVerticalOffset * density).toInt()
+            
+            params.y = requestedOffset.coerceIn(-maxOffset, maxOffset)
+            params.width = (prefs.handleWidth * density).toInt() 
+            params.height = h
             
             val wm = context.getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager
             if (isAttachedToWindow) {

@@ -92,7 +92,7 @@
                         <TextView android:id="@+id/tvOffsetValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
                     </LinearLayout>
                     <com.imi.smartedge.sidebar.panel.DefaultMarkerSlider style="@style/Widget.App.Slider"
-                        android:id="@+id/sbHandleOffset" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="-100.0" android:valueTo="100.0" android:value="0.0" app:tickVisible="false" />
+                        android:id="@+id/sbHandleOffset" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="-500.0" android:valueTo="500.0" android:value="0.0" app:tickVisible="false" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

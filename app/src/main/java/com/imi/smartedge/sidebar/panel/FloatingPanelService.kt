@@ -289,7 +289,7 @@ class FloatingPanelService : Service() {
             
             // Calculate absolute max offset to keep handle on screen
             val screenH = resources.displayMetrics.heightPixels
-            val safeMargin = dpToPx(50) // Keep away from extreme top/bottom edges
+            val safeMargin = dpToPx(10) // Keep away from extreme top/bottom edges
             val maxOffset = (screenH / 2) - (handleHeight / 2) - safeMargin
             
             val requestedOffset = dpToPx(panelPrefs.handleVerticalOffset)
