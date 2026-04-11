@@ -91,6 +91,7 @@ class FloatingPanelService : Service() {
         const val NOTIFICATION_ID = 1001
         const val ACTION_STOP = "com.imi.smartedge.sidebar.panel.STOP"
         const val ACTION_OPEN = "com.imi.smartedge.sidebar.panel.OPEN"
+        const val ACTION_OPEN_HUB = "com.imi.smartedge.sidebar.panel.OPEN_HUB"
         const val ACTION_REFRESH = "com.imi.smartedge.sidebar.panel.REFRESH"
         const val ACTION_CLOSE_PANEL = "com.imi.smartedge.sidebar.panel.CLOSE_PANEL"
         const val ACTION_SHOW_TEMP = "com.imi.smartedge.sidebar.panel.SHOW_TEMP"
@@ -148,6 +149,14 @@ class FloatingPanelService : Service() {
                 refreshApps {
                     openPanel()
                 }
+            }
+            ACTION_OPEN_HUB -> {
+                refreshApps {
+                    togglePicker(false)
+                }
+            }
+            PanelAccessibilityService.ACTION_TAKE_SCREENSHOT -> {
+                handler.postDelayed({ triggerScreenshot() }, 200)
             }
             ACTION_REFRESH -> {
                 val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE

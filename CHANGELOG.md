@@ -6,7 +6,22 @@
 
 ---
 
-### v1.3.0 (Latest)
+### v1.3.1 (Latest)
+- **feat(shortcuts)**: Added **Quick Action Shortcut** (Toggle Sidebar) accessible via app icon long-press and launcher widgets.
+- **feat(gestures)**: Added **Advanced Tap Gestures** support (Double Tap and Triple Tap) with a smart gesture detection engine and redesigned settings UI.
+- **feat(productivity)**: Added **Notification Hub** to the dashboard. View active notifications and launch apps in **Freeform Windows** instantly.
+- **feat(ui)**: Completely revamped **Color Picker** with modern skydoves implementation. Added **Hex input**, live preview, and Alpha/Brightness sliders.
+- **feat(ui)**: Added **Icon Scale** customization (0.8x to 2.0x). Enlarged icons everywhere while keeping the panel slim.
+- **feat(tools)**: Integrated **Volume and Brightness** system controls with continuous hold-to-adjust support and real-time status indicators.
+- **feat(handle)**: Significantly expanded **Vertical Offset** range (+/- 500dp) for extreme top/bottom placement.
+- **feat(onboarding)**: Modernized **Setup Screen** with Material 3 theme and integrated Notification Access guide.
+- **fix**: Fixed bug where disabling swipe hid the pill handle when tap gestures were active.
+- **fix**: Optimized panel width calculation to prevent layout bloating when scaling icons.
+- **fix**: Fixed various stability issues and crashes related to background service context.
+
+---
+
+### v1.3.0
 - **feat(ui)**: Redesigned App Picker UI with a modern dashboard header and staggered entry animations.
 - **feat(ui)**: Enhanced 2-column mode with tighter panel width and 10% larger icons.
 - **feat(ui)**: Redesigned search result highlights with a satisfying 3D bounce and prominent pill flash.

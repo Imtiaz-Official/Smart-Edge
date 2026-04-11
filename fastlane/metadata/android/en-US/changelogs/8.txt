@@ -1,0 +1,10 @@
+- feat(shortcuts): Added Quick Action Shortcut (Toggle Sidebar) accessible via app icon long-press and widgets.
+- feat(gestures): Added Advanced Tap Gestures (Double Tap and Triple Tap) support.
+- feat(productivity): Added Notification Hub to the dashboard. Launch notifying apps in Freeform Windows instantly.
+- feat(ui): Completely revamped Color Picker with Hex input support, live preview, and Alpha/Brightness sliders.
+- feat(ui): Added Icon Scale customization (0.8x to 2.0x) with optimized panel width calculation.
+- feat(tools): Integrated Volume and Brightness system controls with hold-to-adjust support and real-time indicators.
+- feat(handle): Significantly expanded Vertical Offset range (+/- 500dp) for flexible top/bottom placement.
+- feat(onboarding): Modernized Setup Screen with Material 3 theme and integrated Notification Access guide.
+- fix: Fixed bug where disabling swipe hid the pill handle when tap gestures were active.
+- fix: Resolved various stability issues and crashes related to background service context.

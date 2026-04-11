@@ -48,6 +48,29 @@ class MainActivity : AppCompatActivity() {
         }
 
         setupListeners()
+        registerPinnedShortcut()
+    }
+
+    private fun registerPinnedShortcut() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val shortcutManager = getSystemService(android.content.pm.ShortcutManager::class.java)
+            
+            val toggleIntent = Intent(this, ToggleActivity::class.java).apply {
+                action = ToggleActivity.ACTION_TOGGLE
+            }
+
+            val shortcut = android.content.pm.ShortcutInfo.Builder(this, "toggle_sidebar")
+                .setShortLabel("Toggle Sidebar")
+                .setIcon(android.graphics.drawable.Icon.createWithResource(this, R.mipmap.ic_launcher))
+                .setIntent(toggleIntent)
+                .build()
+
+            try {
+                shortcutManager.dynamicShortcuts = listOf(shortcut)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun setupListeners() {

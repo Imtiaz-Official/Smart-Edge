@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="toggle_sidebar"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_toggle_short"
+        android:shortcutLongLabel="@string/shortcut_toggle_short">
+        <intent
+            android:action="com.imi.smartedge.sidebar.panel.TOGGLE"
+            android:targetPackage="com.imi.smartedge.sidebar.panel"
+            android:targetClass="com.imi.smartedge.sidebar.panel.ToggleActivity" />
+    </shortcut>
+</shortcuts>

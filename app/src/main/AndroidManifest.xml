@@ -47,12 +47,30 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
 
         <activity
             android:name=".SetupActivity"
             android:exported="false"
             android:theme="@style/Theme.SidePanel.M3" />
+
+        <activity
+            android:name=".ToggleActivity"
+            android:label="Toggle Sidebar"
+            android:icon="@mipmap/ic_launcher"
+            android:theme="@style/Theme.Transparent"
+            android:excludeFromRecents="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.SHORTCUT" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".SettingsMainActivity"
