@@ -61,6 +61,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_SCALE_FACTOR = "scale_factor"
         private const val KEY_PANEL_MAX_HEIGHT = "panel_max_height"
         private const val KEY_PICKER_MAX_HEIGHT = "picker_max_height"
+        private const val KEY_SHOW_NOTIFICATION_APPS = "show_notification_apps"
 
         private const val DELIMITER = ","
 
@@ -172,8 +173,13 @@ class PanelPreferences(context: Context) {
             putFloat(KEY_SCALE_FACTOR, 1.0f)
             putInt(KEY_PANEL_MAX_HEIGHT, 350)
             putInt(KEY_PICKER_MAX_HEIGHT, 450)
+            putBoolean(KEY_SHOW_NOTIFICATION_APPS, true)
         }
     }
+
+    var showNotificationApps: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_NOTIFICATION_APPS, true)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_NOTIFICATION_APPS, value) }
 
     var panelMaxHeight: Int
         get() = prefs.getInt(KEY_PANEL_MAX_HEIGHT, 350)

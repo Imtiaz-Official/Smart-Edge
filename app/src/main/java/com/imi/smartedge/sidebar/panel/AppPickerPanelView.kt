@@ -41,6 +41,7 @@ class AppPickerPanelView @JvmOverloads constructor(
     private val btnEdit: TextView
     private val tvHeader: TextView
     private val adapter = PickerAdapter()
+    private val notificationAdapter = PickerAdapter()
     
     private val repository = AppRepository(context)
     private val panelPrefs = PanelPreferences(context)
@@ -54,6 +55,48 @@ class AppPickerPanelView @JvmOverloads constructor(
         super.onAttachedToWindow()
         if (!_scope.coroutineContext[Job]!!.isActive) {
             _scope = CoroutineScope(Dispatchers.Main + Job())
+        }
+        
+        // Setup notification listener
+        NotificationTrackingService.onNotificationsChanged = {
+            _scope.launch { updateNotifications() }
+        }
+        updateNotifications()
+    }
+
+    private fun updateNotifications() {
+        if (!panelPrefs.showNotificationApps) {
+            findViewById<View>(R.id.layoutPickerNotifications).visibility = View.GONE
+            return
+        }
+
+        val pkgs = NotificationTrackingService.getActiveNotificationPackages()
+        android.util.Log.d("AppPickerPanelView", "Active notification pkgs: ${pkgs.size}")
+        
+        if (pkgs.isEmpty()) {
+            findViewById<View>(R.id.layoutPickerNotifications).visibility = View.GONE
+        } else {
+            val panelApps = panelPrefs.getPanelApps().toSet()
+            val filteredPkgs = pkgs.filter { !panelApps.contains(it) }
+            
+            val appInfos = filteredPkgs.mapNotNull { pkg ->
+                try {
+                    val pm = context.packageManager
+                    val ai = pm.getApplicationInfo(pkg, 0)
+                    AppInfo(pkg, ai.loadLabel(pm).toString())
+                } catch (e: Exception) { null }
+            }
+            
+            android.util.Log.d("AppPickerPanelView", "Filtered appInfos: ${appInfos.size}")
+            
+            if (appInfos.isEmpty()) {
+                findViewById<View>(R.id.layoutPickerNotifications).visibility = View.GONE
+            } else {
+                findViewById<View>(R.id.layoutPickerNotifications).visibility = View.VISIBLE
+                notificationAdapter.setForceFreeform(true)
+                notificationAdapter.setIsNotificationType(true)
+                notificationAdapter.submitList(appInfos)
+            }
         }
     }
 
@@ -103,6 +146,21 @@ class AppPickerPanelView @JvmOverloads constructor(
         rvPickerGrid.recycledViewPool.setMaxRecycledViews(0, 50)
         
         rvPickerGrid.adapter = adapter
+
+        val rvNotifications = view.findViewById<RecyclerView>(R.id.rvPickerNotifications)
+        rvNotifications.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        rvNotifications.adapter = notificationAdapter.apply { setIsNotificationType(true) }
+
+        val btnToggleNotifs = view.findViewById<View>(R.id.btnToggleNotifications)
+        val ivChevron = view.findViewById<ImageView>(R.id.ivNotificationsChevron)
+        btnToggleNotifs.setOnClickListener {
+            val isHidden = rvNotifications.visibility == View.GONE
+            rvNotifications.visibility = if (isHidden) View.VISIBLE else View.GONE
+            ivChevron.rotation = if (isHidden) 90f else 0f
+            
+            // Persist state if needed, but for now just toggle
+            findViewById<View>(R.id.divNotifications).visibility = rvNotifications.visibility
+        }
 
         // Hide keyboard when scrolling the app list
         rvPickerGrid.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
@@ -382,9 +440,19 @@ class AppPickerPanelView @JvmOverloads constructor(
 
         private var accentColor: Int = Color.parseColor("#4DFFFFFF")
         private var accentColorStateList: android.content.res.ColorStateList = android.content.res.ColorStateList.valueOf(accentColor)
+        private var forceFreeform: Boolean = false
+        private var isNotificationType: Boolean = false
 
         init {
             updateAccentColor()
+        }
+
+        fun setForceFreeform(force: Boolean) {
+            forceFreeform = force
+        }
+
+        fun setIsNotificationType(value: Boolean) {
+            isNotificationType = value
         }
 
         fun updateAccentColor() {
@@ -405,8 +473,13 @@ class AppPickerPanelView @JvmOverloads constructor(
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PickerViewHolder {
-            val layoutId = if (panelPrefs.uiTheme == PanelPreferences.THEME_RICH) 
-                R.layout.item_picker_app_rich else R.layout.item_picker_app_modern
+            val layoutId = if (isNotificationType) {
+                R.layout.item_picker_notification
+            } else if (panelPrefs.uiTheme == PanelPreferences.THEME_RICH) {
+                R.layout.item_picker_app_rich
+            } else {
+                R.layout.item_picker_app_modern
+            }
             
             val view = LayoutInflater.from(parent.context).inflate(layoutId, parent, false)
             return PickerViewHolder(view)
@@ -414,12 +487,16 @@ class AppPickerPanelView @JvmOverloads constructor(
 
         override fun onBindViewHolder(holder: PickerViewHolder, position: Int) {
             val app = getItem(position)
+            if (isNotificationType) {
+                android.util.Log.d("AppPickerPanelView", "Binding notification app: ${app.appName} (${app.packageName})")
+            }
             
             val scale = context.getAutoScalingFactor() * panelPrefs.scaleFactor
             val isRich = panelPrefs.uiTheme == PanelPreferences.THEME_RICH
             
-            val baseIconSize = if (isRich) 48 else 44
-            val baseTextSize = if (isRich) 11f else 10f
+            // Notification icons should be a bit more compact but still respect user scale
+            val baseIconSize = if (isNotificationType) 44 else (if (isRich) 48 else 44)
+            val baseTextSize = if (isNotificationType) 10f else (if (isRich) 11f else 10f)
             val basePkgTextSize = if (isRich) 10f else 9f
 
             holder.ivIcon.layoutParams.let { lp ->
@@ -434,11 +511,11 @@ class AppPickerPanelView @JvmOverloads constructor(
             holder.tvPackage?.text = app.packageName
 
             // --- OPTIMIZED ICON LOADING WITH GLIDE ---
-            Glide.with(context)
+            Glide.with(holder.itemView.context)
                 .load(AppIconRequest(app.packageName, panelPrefs.selectedIconPack))
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(android.R.drawable.sym_def_app_icon)
-                .override((120 * scale).toInt(), (120 * scale).toInt()) // Downsample for better performance
+                .override((120 * scale).toInt(), (120 * scale).toInt())
                 .into(holder.ivIcon)
 
             IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
@@ -505,7 +582,10 @@ class AppPickerPanelView @JvmOverloads constructor(
             val intent = context.packageManager.getLaunchIntentForPackage(app.packageName)
             if (intent != null) {
                 intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                if (panelPrefs.freeformEnabled && context.isFreeformEnabled()) {
+                
+                val shouldFreeform = forceFreeform || (panelPrefs.freeformEnabled && context.isFreeformEnabled())
+                
+                if (shouldFreeform && context.isFreeformEnabled()) {
                     launchFreeform(intent)
                 } else {
                     context.startActivity(intent)

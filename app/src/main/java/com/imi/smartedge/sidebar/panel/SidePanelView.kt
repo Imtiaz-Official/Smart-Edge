@@ -324,6 +324,7 @@ class SidePanelView @JvmOverloads constructor(
         // Subtract estimated height of other UI elements (paddings, tools, close button)
         // Top Padding (12) + Bottom Padding (4) + Tools Margin (4) + Close Btn (48) = 68dp
         var nonAppHeightDp = 68f
+        
         if (panelPrefs.showTools) {
             nonAppHeightDp += 50f // Divider + Screenshot + Labels
             if (panelPrefs.showPowerMenu) nonAppHeightDp += 42f
@@ -344,7 +345,7 @@ class SidePanelView @JvmOverloads constructor(
         // We can use a custom view or just calculate items.
         val itemsCount = adapter.itemCount
         val isRich = panelPrefs.uiTheme == PanelPreferences.THEME_RICH
-        val baseItemHeightDp = if (isRich) 68 else 62 // Rich theme items are slightly taller
+        val baseItemHeightDp = if (isRich) 68 else 62 
         val itemHeightPx = context.dpToPx((baseItemHeightDp * scale).toInt())
         
         val rows = Math.ceil(itemsCount.toDouble() / currentCols).toInt()

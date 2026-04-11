@@ -85,6 +85,7 @@ class InteractionSettingsActivity : AppCompatActivity() {
         binding.featureHaptic.isChecked = panelPrefs.hapticEnabled
         binding.featureShowLandscape.isChecked = panelPrefs.showInLandscape
         binding.featureFreeform.isChecked = panelPrefs.freeformEnabled
+        binding.featureNotificationApps.isChecked = panelPrefs.showNotificationApps
         binding.featureShowLogs.isChecked = panelPrefs.showLogs
 
         // Window size picker — visible only when freeform is on
@@ -199,6 +200,11 @@ class InteractionSettingsActivity : AppCompatActivity() {
                     openFreeformDeveloperSettings()
                 }.show()
             }
+        }
+
+        binding.featureNotificationApps.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.showNotificationApps = isChecked
+            applyOnly()
         }
 
         binding.layoutFreeformSize.setOnClickListener {

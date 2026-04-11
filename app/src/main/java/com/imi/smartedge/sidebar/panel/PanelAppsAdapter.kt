@@ -25,12 +25,17 @@ class PanelAppsAdapter(
     private val panelPrefs = PanelPreferences(context)
     private var showAddButton: Boolean = false
     private var currentColumns: Int = 1
+    private var forceFreeform: Boolean = false
 
     fun setShowAddButton(show: Boolean) {
         if (showAddButton != show) {
             showAddButton = show
             notifyDataSetChanged()
         }
+    }
+
+    fun setForceFreeform(force: Boolean) {
+        forceFreeform = force
     }
 
     fun setColumns(cols: Int) {
@@ -146,7 +151,10 @@ class PanelAppsAdapter(
                         android.content.Intent.FLAG_ACTIVITY_NEW_TASK or
                         android.content.Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
                     )
-                    if (panelPrefs.freeformEnabled && context.isFreeformEnabled()) {
+                    
+                    val shouldFreeform = forceFreeform || (panelPrefs.freeformEnabled && context.isFreeformEnabled())
+                    
+                    if (shouldFreeform && context.isFreeformEnabled()) {
                         launchFreeform(launchIntent)
                     } else {
                         context.startActivity(launchIntent)

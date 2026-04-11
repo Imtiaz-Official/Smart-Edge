@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/pickerPanelCard"
     android:layout_width="240dp"
     android:layout_height="wrap_content"
@@ -97,6 +98,61 @@
             android:textColor="#4A9EFF"
             android:textSize="11sp"
             android:textAllCaps="true" />
+    </LinearLayout>
+
+    <!-- Notifications Section (Horizontal) -->
+    <LinearLayout
+        android:id="@+id/layoutPickerNotifications"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone">
+        
+        <LinearLayout
+            android:id="@+id/btnToggleNotifications"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@android:color/transparent"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+            
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Active Notifications"
+                android:textColor="#80FFFFFF"
+                android:textSize="11sp"
+                android:textAllCaps="true"
+                android:letterSpacing="0.05" />
+
+            <ImageView
+                android:id="@+id/ivNotificationsChevron"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_chevron_right"
+                android:rotation="90"
+                app:tint="#80FFFFFF" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvPickerNotifications"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:clipToPadding="false"
+            android:overScrollMode="never" />
+            
+        <View
+            android:id="@+id/divNotifications"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#1AFFFFFF"
+            android:layout_marginTop="12dp" />
     </LinearLayout>
 
     <!-- Grid with fixed max height -->
