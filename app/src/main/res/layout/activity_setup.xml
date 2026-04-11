@@ -272,7 +272,7 @@
                 style="@style/App_Card_Setup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="40dp"
+                android:layout_marginBottom="12dp"
                 android:clickable="true"
                 android:focusable="true">
 
@@ -325,6 +325,71 @@
 
                     <ImageView
                         android:id="@+id/actionAutoStart"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="?attr/colorOnSurfaceVariant" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardNotifications"
+                style="@style/App_Card_Setup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    style="@style/App_CardContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        app:cardCornerRadius="24dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="?attr/colorSurfaceContainer">
+                        <ImageView
+                            android:id="@+id/iconNotifications"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_setup_notifications"
+                            android:layout_gravity="center"
+                            app:tint="?attr/colorOnSurface" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="20dp">
+
+                        <TextView
+                            android:id="@+id/titleNotifications"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Notification access"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/descNotifications"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Required for Productivity Hub"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/actionNotifications"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_chevron_right"

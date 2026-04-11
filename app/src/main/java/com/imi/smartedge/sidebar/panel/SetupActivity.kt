@@ -38,12 +38,15 @@ class SetupActivity : AppCompatActivity() {
             hasInteractedWithAutoStart = true
             requestAutoStartPermission() 
         }
+        binding.cardNotifications.setOnClickListener { requestNotificationAccess() }
         
         binding.btnGrantAll.setOnClickListener {
             if (!hasOverlayPermission()) {
                 requestOverlayPermission()
             } else if (!isAccessibilityServiceEnabled()) {
                 requestAccessibilityPermission()
+            } else if (!isNotificationAccessEnabled()) {
+                requestNotificationAccess()
             } else if (!isIgnoringBatteryOptimizations()) {
                 requestIgnoreBatteryOptimization()
             } else if (!hasInteractedWithAutoStart) {
@@ -69,10 +72,12 @@ class SetupActivity : AppCompatActivity() {
         val hasAccessibility = isAccessibilityServiceEnabled()
         val hasBattery = isIgnoringBatteryOptimizations()
         val hasAutoStart = hasAutoStartPermission()
+        val hasNotifications = isNotificationAccessEnabled()
 
         updateCardState(binding.cardOverlay, binding.actionOverlay, hasOverlay)
         updateCardState(binding.cardAccessibility, binding.actionAccessibility, hasAccessibility)
         updateCardState(binding.cardBattery, binding.actionBattery, hasBattery)
+        updateCardState(binding.cardNotifications, binding.actionNotifications, hasNotifications)
         
         // Auto-start is hard to detect on most OEMs, but we can detect on MIUI
         updateCardState(binding.cardAutoStart, binding.actionAutoStart, hasAutoStart)
@@ -89,7 +94,7 @@ class SetupActivity : AppCompatActivity() {
             binding.btnContinue.alpha = 0.3f // \"Blurred\" / Faded effect
         }
         
-        val allGranted = requiredGranted && hasBattery && hasAutoStart
+        val allGranted = requiredGranted && hasBattery && hasAutoStart && hasNotifications
         binding.btnGrantAll.isEnabled = !allGranted
         
         if (allGranted) {
@@ -98,6 +103,32 @@ class SetupActivity : AppCompatActivity() {
         } else {
             binding.btnGrantAll.text = "Grant all"
             binding.btnGrantAll.alpha = 1.0f
+        }
+    }
+
+    private fun isNotificationAccessEnabled(): Boolean {
+        val pkgName = packageName
+        val flat = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
+        if (!flat.isNullOrEmpty()) {
+            val names = flat.split(":").toTypedArray()
+            for (name in names) {
+                val cn = android.content.ComponentName.unflattenFromString(name)
+                if (cn != null) {
+                    if (android.text.TextUtils.equals(pkgName, cn.packageName)) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+
+    private fun requestNotificationAccess() {
+        try {
+            val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
+            startActivity(intent)
+        } catch (e: Exception) {
+            startActivity(Intent(Settings.ACTION_SETTINGS))
         }
     }
 
