@@ -138,6 +138,150 @@ class SidePanelView @JvmOverloads constructor(
             onScreenshot?.invoke()
         }
 
+        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        val actionRunnables = mutableMapOf<Int, Runnable>()
+        
+        var indicatorText: android.widget.TextView? = null
+        var indicatorFadeRunnable: Runnable? = null
+
+        val showIndicator = { text: String ->
+            val root = parent as? android.widget.FrameLayout
+            if (root != null) {
+                if (indicatorText == null) {
+                    val density = context.resources.displayMetrics.density
+
+                    indicatorText = android.widget.TextView(context).apply {
+                        setTextColor(android.graphics.Color.WHITE)
+                        textSize = 14f
+                        setPadding((16 * density).toInt(), (10 * density).toInt(), (16 * density).toInt(), (10 * density).toInt())
+                        gravity = android.view.Gravity.CENTER
+                        
+                        // Custom Toast-like rounded background
+                        background = android.graphics.drawable.GradientDrawable().apply {
+                            setColor(android.graphics.Color.parseColor("#E6303030"))
+                            cornerRadius = 24f * density
+                        }
+
+                        layoutParams = android.widget.FrameLayout.LayoutParams(
+                            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            gravity = android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL
+                            bottomMargin = (90 * density).toInt()
+                        }
+                        elevation = 8f * density
+                    }
+                    root.addView(indicatorText)
+                }
+
+                indicatorText?.text = text
+                indicatorText?.visibility = View.VISIBLE
+                indicatorText?.alpha = 1f
+                indicatorText?.animate()?.cancel()
+                
+                indicatorFadeRunnable?.let { handler.removeCallbacks(it) }
+                indicatorFadeRunnable = Runnable {
+                    indicatorText?.animate()
+                        ?.alpha(0f)
+                        ?.setDuration(300)
+                        ?.withEndAction { indicatorText?.visibility = View.GONE }
+                        ?.start()
+                }
+                handler.postDelayed(indicatorFadeRunnable!!, 1500)
+            }
+        }
+
+        val performVolumeChange = { direction: Int, view: View ->
+            if (panelPrefs.hapticEnabled) view.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
+            SpringAnimator.scalePulse(view)
+            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
+            audioManager.adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC, direction, 0)
+            
+            val current = audioManager.getStreamVolume(android.media.AudioManager.STREAM_MUSIC)
+            val max = audioManager.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC)
+            val percent = if (max > 0) (current * 100) / max else 0
+            showIndicator("Volume: $percent%")
+        }
+
+        // Click listeners for single taps
+        binding.btnVolumeUp.setOnClickListener { performVolumeChange(android.media.AudioManager.ADJUST_RAISE, it) }
+        binding.btnVolumeDown.setOnClickListener { performVolumeChange(android.media.AudioManager.ADJUST_LOWER, it) }
+
+        // Long click for continuous repeat
+        val setupVolumeRepeat = { btn: View, direction: Int ->
+            btn.setOnLongClickListener { v ->
+                val runnable = object : Runnable {
+                    override fun run() {
+                        performVolumeChange(direction, v)
+                        handler.postDelayed(this, 100)
+                    }
+                }
+                actionRunnables[v.id] = runnable
+                handler.post(runnable)
+                true
+            }
+        }
+        setupVolumeRepeat(binding.btnVolumeUp, android.media.AudioManager.ADJUST_RAISE)
+        setupVolumeRepeat(binding.btnVolumeDown, android.media.AudioManager.ADJUST_LOWER)
+
+        val performBrightnessChange = { direction: Int, view: View ->
+            if (panelPrefs.hapticEnabled) view.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
+            SpringAnimator.scalePulse(view)
+            try {
+                val cResolver = context.contentResolver
+                var brightness = android.provider.Settings.System.getInt(cResolver, android.provider.Settings.System.SCREEN_BRIGHTNESS, 125)
+                brightness = (brightness + direction).coerceIn(0, 255)
+                android.provider.Settings.System.putInt(cResolver, android.provider.Settings.System.SCREEN_BRIGHTNESS, brightness)
+                
+                val percent = (brightness * 100) / 255
+                showIndicator("Brightness: $percent%")
+            } catch (e: Exception) {
+                actionRunnables[view.id]?.let { handler.removeCallbacks(it) }
+                android.widget.Toast.makeText(context, "Requires 'Write System Settings' permission", android.widget.Toast.LENGTH_SHORT).show()
+                try {
+                    val intent = Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
+                        data = android.net.Uri.parse("package:${context.packageName}")
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    context.startActivity(intent)
+                } catch (ex: Exception) {}
+            }
+        }
+
+        binding.btnBrightnessUp.setOnClickListener { performBrightnessChange(15, it) }
+        binding.btnBrightnessDown.setOnClickListener { performBrightnessChange(-15, it) }
+
+        val setupBrightnessRepeat = { btn: View, direction: Int ->
+            btn.setOnLongClickListener { v ->
+                val runnable = object : Runnable {
+                    override fun run() {
+                        performBrightnessChange(direction, v)
+                        handler.postDelayed(this, 100)
+                    }
+                }
+                actionRunnables[v.id] = runnable
+                handler.post(runnable)
+                true
+            }
+        }
+        setupBrightnessRepeat(binding.btnBrightnessUp, 15)
+        setupBrightnessRepeat(binding.btnBrightnessDown, -15)
+
+        // Cancel repeat on release
+        @android.annotation.SuppressLint("ClickableViewAccessibility")
+        val stopRepeatListener = View.OnTouchListener { v, event ->
+            if (event.action == android.view.MotionEvent.ACTION_UP || event.action == android.view.MotionEvent.ACTION_CANCEL) {
+                actionRunnables[v.id]?.let { handler.removeCallbacks(it) }
+                actionRunnables.remove(v.id)
+            }
+            false // Let click and long click propagate
+        }
+        
+        binding.btnVolumeUp.setOnTouchListener(stopRepeatListener)
+        binding.btnVolumeDown.setOnTouchListener(stopRepeatListener)
+        binding.btnBrightnessUp.setOnTouchListener(stopRepeatListener)
+        binding.btnBrightnessDown.setOnTouchListener(stopRepeatListener)
+
         binding.btnReboot.setOnClickListener {
             if (panelPrefs.hapticEnabled) {
                 it.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
@@ -184,6 +328,8 @@ class SidePanelView @JvmOverloads constructor(
             nonAppHeightDp += 50f // Divider + Screenshot + Labels
             if (panelPrefs.showPowerMenu) nonAppHeightDp += 42f
             if (panelPrefs.showSysInfo) nonAppHeightDp += 24f
+            if (panelPrefs.showVolumeKeys) nonAppHeightDp += 84f // Two buttons + labels
+            if (panelPrefs.showBrightnessKeys) nonAppHeightDp += 84f
         }
         
         // Maximum allowed height for RV to keep panel within screen (with 24dp safety margin)
@@ -330,6 +476,8 @@ class SidePanelView @JvmOverloads constructor(
         binding.layoutSysInfo.visibility = if (panelPrefs.showSysInfo) View.VISIBLE else View.GONE
         binding.toolsContainer.visibility = if (panelPrefs.showTools) View.VISIBLE else View.GONE
         binding.layoutPowerTools.visibility = if (panelPrefs.showPowerMenu) View.VISIBLE else View.GONE
+        binding.layoutVolumeTools.visibility = if (panelPrefs.showVolumeKeys) View.VISIBLE else View.GONE
+        binding.layoutBrightnessTools.visibility = if (panelPrefs.showBrightnessKeys) View.VISIBLE else View.GONE
         
         if (panelPrefs.showSysInfo) {
             updateSystemInfo()

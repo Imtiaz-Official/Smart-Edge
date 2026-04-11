@@ -61,6 +61,8 @@ class ToolsSettingsActivity : AppCompatActivity() {
 
         binding.featureSysInfo.isChecked = panelPrefs.showSysInfo
         binding.featurePowerMenu.isChecked = panelPrefs.showPowerMenu
+        binding.featureVolumeKeys.isChecked = panelPrefs.showVolumeKeys
+        binding.featureBrightnessKeys.isChecked = panelPrefs.showBrightnessKeys
     }
 
     private fun setupListeners() {
@@ -79,6 +81,16 @@ class ToolsSettingsActivity : AppCompatActivity() {
 
         binding.featurePowerMenu.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showPowerMenu = isChecked
+            applyOnly()
+        }
+
+        binding.featureVolumeKeys.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.showVolumeKeys = isChecked
+            applyOnly()
+        }
+
+        binding.featureBrightnessKeys.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.showBrightnessKeys = isChecked
             applyOnly()
         }
     }

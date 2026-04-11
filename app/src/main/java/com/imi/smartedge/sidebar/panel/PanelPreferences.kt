@@ -51,6 +51,8 @@ class PanelPreferences(context: Context) {
         private const val KEY_PICKER_GAP = "picker_gap"
         private const val KEY_SHOW_SYS_INFO = "show_sys_info"
         private const val KEY_SHOW_POWER_MENU = "show_power_menu"
+        private const val KEY_SHOW_VOLUME_KEYS = "show_volume_keys"
+        private const val KEY_SHOW_BRIGHTNESS_KEYS = "show_brightness_keys"
         private const val KEY_HOME_BUTTON_STYLE = "home_button_style"
         private const val KEY_FREEFORM_ENABLED = "freeform_enabled"
         private const val KEY_FREEFORM_WINDOW_MODE = "freeform_window_mode"
@@ -212,6 +214,14 @@ class PanelPreferences(context: Context) {
     var showPowerMenu: Boolean
         get() = prefs.getBoolean(KEY_SHOW_POWER_MENU, false)
         set(value) = prefs.edit { putBoolean(KEY_SHOW_POWER_MENU, value) }
+
+    var showVolumeKeys: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_VOLUME_KEYS, false)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_VOLUME_KEYS, value) }
+
+    var showBrightnessKeys: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_BRIGHTNESS_KEYS, false)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_BRIGHTNESS_KEYS, value) }
 
     var homeButtonStyle: String
         get() = prefs.getString(KEY_HOME_BUTTON_STYLE, DEFAULT_HOME_BUTTON_STYLE) ?: DEFAULT_HOME_BUTTON_STYLE
