@@ -121,13 +121,24 @@ class AppPickerActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: PickerViewHolder, position: Int) {
             val app = getItem(position)
             
+            val scale = panelPrefs.scaleFactor
+            val baseIconSize = 44
+            val baseTextSize = 14f
+
+            holder.ivIcon.layoutParams.let { lp ->
+                lp.width = (resources.displayMetrics.density * baseIconSize * scale).toInt()
+                lp.height = (resources.displayMetrics.density * baseIconSize * scale).toInt()
+                holder.ivIcon.layoutParams = lp
+            }
+            holder.tvName.textSize = baseTextSize * scale
+            
             // --- OPTIMIZED ICON LOADING WITH GLIDE ---
             // Pass icon pack explicitly so Glide treats it as a new resource when pack changes
             Glide.with(this@AppPickerActivity)
                 .load(AppIconRequest(app.packageName, panelPrefs.selectedIconPack))
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(android.R.drawable.sym_def_app_icon)
-                .override(120, 120)
+                .override((120 * scale).toInt(), (120 * scale).toInt())
                 .into(holder.ivIcon)
 
             holder.tvName.text = app.appName

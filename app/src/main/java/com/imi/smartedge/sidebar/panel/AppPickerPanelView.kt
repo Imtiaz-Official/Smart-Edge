@@ -414,6 +414,22 @@ class AppPickerPanelView @JvmOverloads constructor(
 
         override fun onBindViewHolder(holder: PickerViewHolder, position: Int) {
             val app = getItem(position)
+            
+            val scale = context.getAutoScalingFactor() * panelPrefs.scaleFactor
+            val isRich = panelPrefs.uiTheme == PanelPreferences.THEME_RICH
+            
+            val baseIconSize = if (isRich) 48 else 44
+            val baseTextSize = if (isRich) 11f else 10f
+            val basePkgTextSize = if (isRich) 10f else 9f
+
+            holder.ivIcon.layoutParams.let { lp ->
+                lp.width = (context.dpToPx(baseIconSize) * scale).toInt()
+                lp.height = (context.dpToPx(baseIconSize) * scale).toInt()
+                holder.ivIcon.layoutParams = lp
+            }
+            holder.tvName.textSize = baseTextSize * scale
+            holder.tvPackage?.textSize = basePkgTextSize * scale
+
             holder.tvName.text = app.appName
             holder.tvPackage?.text = app.packageName
 
@@ -422,7 +438,7 @@ class AppPickerPanelView @JvmOverloads constructor(
                 .load(AppIconRequest(app.packageName, panelPrefs.selectedIconPack))
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(android.R.drawable.sym_def_app_icon)
-                .override(120, 120) // Downsample for better performance
+                .override((120 * scale).toInt(), (120 * scale).toInt()) // Downsample for better performance
                 .into(holder.ivIcon)
 
             IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)

@@ -161,7 +161,15 @@ class SidePanelView @JvmOverloads constructor(
 
         val scale = getFinalScaleFactor()
         val lp = binding.panelCard.layoutParams
-        lp.width = context.dpToPx(((if (currentCols == 2) width2ColDp else width1ColDp) * scale).toInt())
+        
+        // Scale only the icon area, keeping the padding/chrome fixed
+        val newWidthDp = if (currentCols == 2) {
+            52f + (88f * scale)
+        } else {
+            32f + (40f * scale)
+        }
+        
+        lp.width = context.dpToPx(newWidthDp.toInt())
         binding.panelCard.layoutParams = lp
 
         // Calculate maximum allowed height for the RecyclerView to ensure the panel fits on screen

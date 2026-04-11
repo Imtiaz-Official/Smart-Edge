@@ -66,6 +66,9 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         binding.sbMaxHeight.value = panelPrefs.panelMaxHeight.toFloat()
         binding.tvMaxHeightValue.text = "${panelPrefs.panelMaxHeight}dp"
 
+        binding.sbIconScale.value = panelPrefs.scaleFactor
+        binding.tvIconScaleValue.text = String.format("%.1fx", panelPrefs.scaleFactor)
+
         binding.sbPickerMaxHeight.value = panelPrefs.pickerMaxHeight.toFloat()
         binding.tvPickerMaxHeightValue.text = "${panelPrefs.pickerMaxHeight}dp"
 
@@ -201,6 +204,27 @@ class AppearanceSettingsActivity : AppCompatActivity() {
             panelPrefs.panelMaxHeight = default
             binding.sbMaxHeight.value = default.toFloat()
             binding.tvMaxHeightValue.text = "${default}dp"
+            applyOnly()
+        }
+
+        binding.sbIconScale.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                panelPrefs.scaleFactor = value
+                binding.tvIconScaleValue.text = String.format("%.1fx", value)
+            }
+        }
+        binding.sbIconScale.addOnSliderTouchListener(object : com.google.android.material.slider.Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: com.google.android.material.slider.Slider) {}
+            override fun onStopTrackingTouch(slider: com.google.android.material.slider.Slider) {
+                applyOnly()
+            }
+        })
+
+        binding.btnResetIconScale.setOnClickListener {
+            val default = 1.0f
+            panelPrefs.scaleFactor = default
+            binding.sbIconScale.value = default
+            binding.tvIconScaleValue.text = String.format("%.1fx", default)
             applyOnly()
         }
 

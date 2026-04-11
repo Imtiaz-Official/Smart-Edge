@@ -143,6 +143,16 @@
                             app:cornerRadius="12dp" />
                     </LinearLayout>
 
+                    <LinearLayout android:id="@+id/feature_icon_scale" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="16dp">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="4dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Icon Scale" android:textColor="?attr/colorOnSurface" android:textStyle="bold" />
+                            <ImageView android:id="@+id/btnResetIconScale" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_restore" android:layout_marginEnd="8dp" android:background="?attr/selectableItemBackground" android:padding="2dp" app:tint="?attr/colorPrimary" />
+                            <TextView android:id="@+id/tvIconScaleValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1.0x" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
+                        </LinearLayout>
+                        <com.imi.smartedge.sidebar.panel.DefaultMarkerSlider style="@style/Widget.App.Slider"
+                            android:id="@+id/sbIconScale" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.8" android:valueTo="2.0" android:stepSize="0.1" android:value="1.0" app:tickVisible="false" />
+                    </LinearLayout>
+
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_custom_accent" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Use Custom Accent Color" android:textColor="?attr/colorOnSurface" android:layout_marginBottom="12dp" />
