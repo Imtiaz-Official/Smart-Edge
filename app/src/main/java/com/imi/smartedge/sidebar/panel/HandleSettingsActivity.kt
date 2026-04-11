@@ -78,16 +78,12 @@ class HandleSettingsActivity : AppCompatActivity() {
                 android.graphics.Color.WHITE
             }
             
-            val picker = yuku.ambilwarna.AmbilWarnaDialog(this, currentColor, object : yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener {
-                override fun onCancel(dialog: yuku.ambilwarna.AmbilWarnaDialog?) {}
-                override fun onOk(dialog: yuku.ambilwarna.AmbilWarnaDialog?, color: Int) {
-                    val hex = String.format("#%08X", color)
-                    panelPrefs.pillColor = hex
-                    updatePillColorUI()
-                    applyOnly()
-                }
-            })
-            picker.show()
+            openColorPicker(currentColor) { color ->
+                val hex = String.format("#%08X", color)
+                panelPrefs.pillColor = hex
+                updatePillColorUI()
+                applyOnly()
+            }
         }
 
         binding.btnResetPillColor.setOnClickListener {

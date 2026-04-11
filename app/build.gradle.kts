@@ -79,7 +79,7 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.dynamicanimation)
     implementation(libs.glide)
-    implementation("com.github.yukuku:ambilwarna:2.0.1")
+    implementation("com.github.skydoves:colorpickerview:2.3.0")
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:4.3")
 
     testImplementation(libs.junit)

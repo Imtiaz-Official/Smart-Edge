@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.imi.smartedge.sidebar.panel.databinding.ActivitySettingsAppearanceBinding
-import yuku.ambilwarna.AmbilWarnaDialog
 
 class AppearanceSettingsActivity : AppCompatActivity() {
 
@@ -347,16 +346,6 @@ class AppearanceSettingsActivity : AppCompatActivity() {
                 applyOnly()
             }
         }
-    }
-
-    private fun openColorPicker(initialColor: Int, onPick: (Int) -> Unit) {
-        val picker = AmbilWarnaDialog(this, initialColor, object : AmbilWarnaDialog.OnAmbilWarnaListener {
-            override fun onCancel(dialog: AmbilWarnaDialog?) {}
-            override fun onOk(dialog: AmbilWarnaDialog?, color: Int) {
-                onPick(color)
-            }
-        })
-        picker.show()
     }
 
     private fun applyOnly() {

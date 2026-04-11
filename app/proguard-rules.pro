@@ -1,10 +1,13 @@
 # Add project specific ProGuard rules here.
 # Keep app classes
--keep class com.originpanel.sidepanel.** { *; }
--keepclassmembers class com.originpanel.sidepanel.** { *; }
+-keep class com.imi.smartedge.sidebar.panel.** { *; }
+-keepclassmembers class com.imi.smartedge.sidebar.panel.** { *; }
 
 # Keep ViewBinding
--keep class com.originpanel.sidepanel.databinding.** { *; }
+-keep class com.imi.smartedge.sidebar.panel.databinding.** { *; }
+
+# Skydoves ColorPickerView
+-keep class com.skydoves.colorpickerview.** { *; }
 
 # Glide
 -keep public class * implements com.bumptech.glide.module.GlideModule

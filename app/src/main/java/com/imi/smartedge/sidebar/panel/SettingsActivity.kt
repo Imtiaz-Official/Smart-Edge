@@ -11,7 +11,6 @@ import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowInsetsControllerCompat
 import com.imi.smartedge.sidebar.panel.databinding.ActivitySettingsM3Binding
-import yuku.ambilwarna.AmbilWarnaDialog
 
 /**
  * Settings screen for panel configuration.
@@ -529,16 +528,6 @@ class SettingsActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadCurrentSettings() 
-    }
-
-    private fun openColorPicker(initialColor: Int, onPick: (Int) -> Unit) {
-        val picker = AmbilWarnaDialog(this, initialColor, object : AmbilWarnaDialog.OnAmbilWarnaListener {
-            override fun onCancel(dialog: AmbilWarnaDialog?) {}
-            override fun onOk(dialog: AmbilWarnaDialog?, color: Int) {
-                onPick(color)
-            }
-        })
-        picker.show()
     }
 
     private fun applyOnly() {

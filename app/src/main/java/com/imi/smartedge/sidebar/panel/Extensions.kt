@@ -127,7 +127,7 @@ fun View.highlightView() {
             startDelay = 200 // Hold peak color for a moment
             interpolator = android.view.animation.DecelerateInterpolator()
             addUpdateListener { animator ->
-                flashDrawable.alpha = animator.animatedValue as Int
+                flashDrawable.alpha = (animator.animatedValue as? Int) ?: 0
             }
             addListener(object : android.animation.AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: android.animation.Animator) {
@@ -150,7 +150,7 @@ fun View.highlightView() {
             startDelay = 200
             interpolator = android.view.animation.DecelerateInterpolator()
             addUpdateListener { animator ->
-                flashDrawable.alpha = animator.animatedValue as Int
+                flashDrawable.alpha = (animator.animatedValue as? Int) ?: 0
             }
             addListener(object : android.animation.AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: android.animation.Animator) {
@@ -392,4 +392,148 @@ fun Context.isLandscapeApp(packageName: String): Boolean {
  */
 fun Context.dpToPx(dp: Int): Int {
     return (dp * resources.displayMetrics.density).toInt()
+}
+
+/**
+ * Opens a modern color picker with manual Hex input support and visual sliders.
+ * Integrated into a seamless Material 3 Dialog using skydoves ColorPickerView.
+ */
+fun Context.openColorPicker(initialColor: Int, onPick: (Int) -> Unit) {
+    val inflater = android.view.LayoutInflater.from(this)
+    val rootLayout = android.widget.LinearLayout(this).apply {
+        orientation = android.widget.LinearLayout.VERTICAL
+        layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+    }
+
+    // 1. Hex Input and Preview
+    val hexInputLayout = com.google.android.material.textfield.TextInputLayout(this, null, com.google.android.material.R.attr.textInputOutlinedStyle).apply {
+        hint = "Hex Color (#AARRGGBB)"
+        endIconMode = com.google.android.material.textfield.TextInputLayout.END_ICON_CLEAR_TEXT
+        setBoxCornerRadii(dpToPx(12).toFloat(), dpToPx(12).toFloat(), dpToPx(12).toFloat(), dpToPx(12).toFloat())
+        layoutParams = android.widget.LinearLayout.LayoutParams(
+            android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+            android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            val p = dpToPx(20)
+            setMargins(p, dpToPx(8), p, 0)
+        }
+    }
+
+    val hexEditText = com.google.android.material.textfield.TextInputEditText(hexInputLayout.context).apply {
+        setText(String.format("#%08X", initialColor))
+        filters = arrayOf(android.text.InputFilter.LengthFilter(9))
+    }
+    hexInputLayout.addView(hexEditText)
+
+    val previewCard = com.google.android.material.card.MaterialCardView(this).apply {
+        layoutParams = android.widget.LinearLayout.LayoutParams(
+            android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+            dpToPx(60)
+        ).apply {
+            val p = dpToPx(20)
+            setMargins(p, dpToPx(12), p, dpToPx(16))
+        }
+        radius = dpToPx(16).toFloat()
+        setCardBackgroundColor(initialColor)
+        strokeWidth = dpToPx(1)
+        strokeColor = Color.parseColor("#33FFFFFF")
+    }
+
+    // 2. Skydoves ColorPickerView
+    val colorPickerView = com.skydoves.colorpickerview.ColorPickerView.Builder(this)
+        .setInitialColor(initialColor)
+        .build()
+        .apply {
+            layoutParams = android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                dpToPx(200) // Beautiful large circle
+            ).apply {
+                val p = dpToPx(20)
+                setMargins(p, 0, p, 0)
+            }
+        }
+
+    val alphaSlideBar = com.skydoves.colorpickerview.sliders.AlphaSlideBar(this).apply {
+        layoutParams = android.widget.LinearLayout.LayoutParams(
+            android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+            dpToPx(24)
+        ).apply {
+            val p = dpToPx(20)
+            setMargins(p, dpToPx(16), p, dpToPx(8))
+        }
+    }
+
+    val brightnessSlideBar = com.skydoves.colorpickerview.sliders.BrightnessSlideBar(this).apply {
+        layoutParams = android.widget.LinearLayout.LayoutParams(
+            android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+            dpToPx(24)
+        ).apply {
+            val p = dpToPx(20)
+            setMargins(p, 0, p, dpToPx(8))
+        }
+    }
+
+    // Attach sliders to picker
+    colorPickerView.attachAlphaSlider(alphaSlideBar)
+    colorPickerView.attachBrightnessSlider(brightnessSlideBar)
+
+    // Assemble UI
+    rootLayout.addView(hexInputLayout)
+    rootLayout.addView(previewCard)
+    rootLayout.addView(colorPickerView)
+    rootLayout.addView(alphaSlideBar)
+    rootLayout.addView(brightnessSlideBar)
+
+    var isUpdatingFromPicker = false
+    var isUpdatingFromHex = false
+    var currentColor = initialColor
+
+    // Setup Listeners
+    colorPickerView.setColorListener(object : com.skydoves.colorpickerview.listeners.ColorEnvelopeListener {
+        override fun onColorSelected(envelope: com.skydoves.colorpickerview.ColorEnvelope, fromUser: Boolean) {
+            currentColor = envelope.color
+            previewCard.setCardBackgroundColor(currentColor)
+            
+            if (fromUser && !isUpdatingFromHex) {
+                isUpdatingFromPicker = true
+                val hexStr = "#" + envelope.hexCode
+                if (hexEditText.text.toString().uppercase() != hexStr) {
+                    hexEditText.setText(hexStr)
+                }
+                isUpdatingFromPicker = false
+            }
+        }
+    })
+
+    hexEditText.addTextChangedListener(object : android.text.TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        override fun afterTextChanged(s: android.text.Editable?) {
+            if (isUpdatingFromPicker) return
+            try {
+                val colorStr = s.toString()
+                val c = Color.parseColor(if (colorStr.startsWith("#")) colorStr else "#$colorStr")
+                currentColor = c
+                previewCard.setCardBackgroundColor(c)
+                
+                isUpdatingFromHex = true
+                colorPickerView.setInitialColor(c) // This updates the cursor position in skydoves
+                isUpdatingFromHex = false
+            } catch (e: Exception) {
+                // Ignore invalid hex while typing
+            }
+        }
+    })
+
+    com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+        .setTitle("Choose Color")
+        .setView(rootLayout)
+        .setPositiveButton("Select") { _, _ ->
+            onPick(currentColor)
+        }
+        .setNegativeButton("Cancel", null)
+        .show()
 }
