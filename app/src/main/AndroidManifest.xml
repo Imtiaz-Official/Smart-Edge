@@ -27,6 +27,7 @@
         <intent>
             <action android:name="com.gau.go.launcherex.theme" />
         </intent>
+        <provider android:authorities="moe.shizuku.server.shizuku" />
     </queries>
 
     <application
@@ -152,6 +153,14 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:multiprocess="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
     </application>
 

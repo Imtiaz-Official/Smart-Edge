@@ -81,6 +81,8 @@ dependencies {
     implementation(libs.glide)
     implementation("com.github.skydoves:colorpickerview:2.3.0")
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:4.3")
+    implementation("dev.rikka.shizuku:api:12.1.0")
+    implementation("dev.rikka.shizuku:provider:12.1.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

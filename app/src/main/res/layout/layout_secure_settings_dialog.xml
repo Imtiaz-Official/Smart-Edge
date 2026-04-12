@@ -71,6 +71,36 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Via Shizuku"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGrantShizuku"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Grant via Shizuku" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRevokeShizuku"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Revoke Permission" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="16dp"
+            android:background="?attr/colorOutlineVariant" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Via Root"
             android:textColor="?attr/colorOnSurface"
             android:textSize="14sp"
@@ -83,6 +113,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Grant Automatically" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRevokeRoot"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Revoke Permission" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnClose"
