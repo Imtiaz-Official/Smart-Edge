@@ -271,9 +271,23 @@ class FloatingPanelService : Service() {
         val isPillVisible = panelPrefs.showPill
         
         edgeHandleView = EdgeHandleView(this).apply {
-            onTrigger = { 
+            onTrigger = {
                 refreshApps {
-                    openPanel() 
+                    openPanel()
+                }
+            }
+            onSideChanged = { newSide ->
+                // Pill was dragged to the opposite edge — sync the whole service
+                val sideIsRight = newSide == PanelPreferences.SIDE_RIGHT
+                sidePanelView?.updateSideLayout()
+                // Re-anchor the handle gravity in case the WM needs it
+                val handleParams = edgeHandleView?.layoutParams as? WindowManager.LayoutParams
+                if (handleParams != null) {
+                    handleParams.gravity = if (sideIsRight) Gravity.END or Gravity.CENTER_VERTICAL
+                                           else Gravity.START or Gravity.CENTER_VERTICAL
+                    if (edgeHandleView?.isAttachedToWindow == true) {
+                        try { windowManager.updateViewLayout(edgeHandleView, handleParams) } catch (e: Exception) {}
+                    }
                 }
             }
             isRightSide = isRight

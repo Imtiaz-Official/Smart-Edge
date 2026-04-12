@@ -31,6 +31,11 @@
             android:orientation="vertical"
             android:padding="@dimen/app_screen_padding">
 
+            <!-- SECTION 1: Edge Handle -->
+            <TextView
+                style="@style/App_SectionTitle"
+                android:text="Edge Handle" />
+
             <com.google.android.material.card.MaterialCardView
                 style="@style/App_Card_Section"
                 android:layout_width="match_parent"
@@ -62,7 +67,6 @@
                         android:id="@+id/layoutTapGestures"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
                         android:orientation="vertical"
                         android:clickable="true"
                         android:focusable="true"
@@ -88,29 +92,73 @@
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_haptic" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Haptic Feedback" android:textColor="?attr/colorOnSurface" />                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_show_landscape" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Show Panel in Landscape" android:textColor="?attr/colorOnSurface" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_haptic" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Haptic Feedback" android:textColor="?attr/colorOnSurface" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- SECTION 2: Panel Experience -->
+            <TextView
+                style="@style/App_SectionTitle"
+                android:text="Panel Experience" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/App_Card_Section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    style="@style/App_CardContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_show_landscape" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Show Panel in Landscape" android:textColor="?attr/colorOnSurface" />
                     
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_freeform" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Freeform Window Mode" android:textColor="?attr/colorOnSurface" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Launch apps in floating windows (Requires system support)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="12dp" />
 
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_notification_apps" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Notification Apps Section" android:textColor="?attr/colorOnSurface" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Show apps with active notifications in the side panel" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_notification_apps" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Notification Apps Section" android:textColor="?attr/colorOnSurface" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Show apps with active notifications in the panel" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
 
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_drag_split" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Drag to Split-Screen" android:textColor="?attr/colorOnSurface" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Drag icons to top/bottom edge to launch in split mode" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="12dp" />
 
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_remember_scroll" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Remember Scroll Position" android:textColor="?attr/colorOnSurface" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_remember_scroll" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Remember Scroll Position" android:textColor="?attr/colorOnSurface" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Restore last scroll position when opening sidebar" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
 
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_auto_show_keyboard" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Auto-Show Keyboard" android:textColor="?attr/colorOnSurface" />
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="12dp" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_auto_show_keyboard" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Auto-Show Keyboard" android:textColor="?attr/colorOnSurface" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Automatically open keyboard when searching apps" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- SECTION 3: Multitasking & Windowing -->
+            <TextView
+                style="@style/App_SectionTitle"
+                android:text="Multitasking &amp; Windowing" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/App_Card_Section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    style="@style/App_CardContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_drag_split" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Drag to Split-Screen" android:textColor="?attr/colorOnSurface" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Drag icons to top/bottom edge to launch in split mode" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_freeform" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Freeform Window Mode" android:textColor="?attr/colorOnSurface" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Launch apps in floating windows (Requires system support)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
 
                     <!-- Window size mode picker — only visible when freeform is ON -->
                     <LinearLayout
                         android:id="@+id/layout_freeform_size"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="8dp"
                         android:orientation="vertical"
                         android:clickable="true"
                         android:focusable="true"
@@ -229,7 +277,70 @@
                             app:tickVisible="false"
                             android:layout_marginBottom="4dp" />
                     </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
+            <!-- SECTION 4: System & Behavior -->
+            <TextView
+                style="@style/App_SectionTitle"
+                android:text="System &amp; Behavior" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/App_Card_Section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    style="@style/App_CardContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_auto_start" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Auto-start on Boot" android:textColor="?attr/colorOnSurface" />
+                    
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="12dp" />
+                    
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_show_logs" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Show Activity Logs on Home" android:textColor="?attr/colorOnSurface" />
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="12dp" />
+
+                    <LinearLayout
+                        android:id="@+id/feature_anim_feel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Animation Feel"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/tvAnimFeelValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Balanced (Default)"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="8dp" />
+
+                    <LinearLayout android:id="@+id/feature_picker_gap" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="8dp">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="4dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Picker Gap (Spacing)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
+                            <ImageView android:id="@+id/btnResetPickerGap" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_restore" android:layout_marginEnd="8dp" android:background="?attr/selectableItemBackground" android:padding="2dp" app:tint="?attr/colorPrimary" />
+                            <TextView android:id="@+id/tvPickerGapValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="20dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
+                        </LinearLayout>
+                        <com.imi.smartedge.sidebar.panel.DefaultMarkerSlider style="@style/Widget.App.Slider"
+                            android:id="@+id/sbPickerGap" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="100.0" android:value="20.0" app:tickVisible="false" />
+                    </LinearLayout>
+                    
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="12dp" />
 
                     <!-- PERSISTENT SYSTEM AUTOMATION ITEM -->
@@ -242,7 +353,7 @@
                         android:background="?attr/selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
-                        android:paddingVertical="4dp">
+                        android:paddingVertical="8dp">
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -272,64 +383,6 @@
                             android:textColor="?attr/colorError"
                             android:textSize="12sp"
                             android:textStyle="bold" />
-                    </LinearLayout>
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <TextView
-                style="@style/App_SectionTitle"
-                android:text="System &amp; Behavior" />
-
-            <com.google.android.material.card.MaterialCardView
-                style="@style/App_Card_Section"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    style="@style/App_CardContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_auto_start" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Auto-start on Boot" android:textColor="?attr/colorOnSurface" />
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_show_logs" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Show Activity Logs on Home" android:textColor="?attr/colorOnSurface" />
-
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
-
-                    <LinearLayout
-                        android:id="@+id/feature_anim_feel"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:background="?attr/selectableItemBackground"
-                        android:paddingVertical="12dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Animation Feel"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="16sp" />
-
-                        <TextView
-                            android:id="@+id/tvAnimFeelValue"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Balanced (Default)"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textSize="14sp" />
-                    </LinearLayout>
-
-                    <LinearLayout android:id="@+id/feature_picker_gap" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="8dp">
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="4dp">
-                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Picker Gap (Spacing)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp" />
-                            <ImageView android:id="@+id/btnResetPickerGap" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_restore" android:layout_marginEnd="8dp" android:background="?attr/selectableItemBackground" android:padding="2dp" app:tint="?attr/colorPrimary" />
-                            <TextView android:id="@+id/tvPickerGapValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="20dp" android:textColor="?attr/colorPrimary" android:textSize="12sp" android:textStyle="bold" />
-                        </LinearLayout>
-                        <com.imi.smartedge.sidebar.panel.DefaultMarkerSlider style="@style/Widget.App.Slider"
-                            android:id="@+id/sbPickerGap" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="100.0" android:value="20.0" app:tickVisible="false" />
                     </LinearLayout>
 
                 </LinearLayout>
