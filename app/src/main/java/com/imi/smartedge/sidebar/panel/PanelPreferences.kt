@@ -64,6 +64,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_SHOW_NOTIFICATION_APPS = "show_notification_apps"
         private const val KEY_DRAG_TO_SPLIT = "drag_to_split"
         private const val KEY_REMEMBER_SCROLL = "remember_scroll"
+        private const val KEY_AUTO_SHOW_KEYBOARD = "auto_show_keyboard"
         private const val KEY_SIDEBAR_SCROLL = "last_sidebar_scroll"
         private const val KEY_PICKER_SCROLL = "last_picker_scroll"
 
@@ -180,10 +181,15 @@ class PanelPreferences(context: Context) {
             putBoolean(KEY_SHOW_NOTIFICATION_APPS, true)
             putBoolean(KEY_DRAG_TO_SPLIT, true)
             putBoolean(KEY_REMEMBER_SCROLL, true)
+            putBoolean(KEY_AUTO_SHOW_KEYBOARD, false)
             putInt(KEY_SIDEBAR_SCROLL, 0)
             putInt(KEY_PICKER_SCROLL, 0)
         }
     }
+
+    var autoShowKeyboard: Boolean
+        get() = prefs.getBoolean(KEY_AUTO_SHOW_KEYBOARD, false)
+        set(value) = prefs.edit { putBoolean(KEY_AUTO_SHOW_KEYBOARD, value) }
 
     var rememberScroll: Boolean
         get() = prefs.getBoolean(KEY_REMEMBER_SCROLL, true)

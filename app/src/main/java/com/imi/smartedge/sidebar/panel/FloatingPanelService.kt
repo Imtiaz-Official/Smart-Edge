@@ -640,6 +640,7 @@ class FloatingPanelService : Service() {
             picker.layoutParams = lp
             picker.alpha = 0f
             picker.visibility = View.VISIBLE
+            picker.handleKeyboard()
             picker.post {
                 val pickerWidth = picker.width.toFloat()
                 val startX = if (isRight) -pickerWidth else pickerWidth

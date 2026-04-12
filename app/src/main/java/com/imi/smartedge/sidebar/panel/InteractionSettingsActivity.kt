@@ -88,6 +88,7 @@ class InteractionSettingsActivity : AppCompatActivity() {
         binding.featureNotificationApps.isChecked = panelPrefs.showNotificationApps
         binding.featureDragSplit.isChecked = panelPrefs.dragToSplit
         binding.featureRememberScroll.isChecked = panelPrefs.rememberScroll
+        binding.featureAutoShowKeyboard.isChecked = panelPrefs.autoShowKeyboard
         binding.featureShowLogs.isChecked = panelPrefs.showLogs
 
         // Window size picker — visible only when freeform is on
@@ -216,6 +217,11 @@ class InteractionSettingsActivity : AppCompatActivity() {
 
         binding.featureRememberScroll.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.rememberScroll = isChecked
+            applyOnly()
+        }
+
+        binding.featureAutoShowKeyboard.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.autoShowKeyboard = isChecked
             applyOnly()
         }
 

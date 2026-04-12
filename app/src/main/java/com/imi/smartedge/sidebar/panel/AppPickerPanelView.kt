@@ -414,6 +414,19 @@ class AppPickerPanelView @JvmOverloads constructor(
         }
     }
 
+    fun handleKeyboard() {
+        if (!panelPrefs.autoShowKeyboard) {
+            etSearch.clearFocus()
+            pickerPanelCard.requestFocus()
+            val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            imm.hideSoftInputFromWindow(etSearch.windowToken, 0)
+        } else {
+            etSearch.requestFocus()
+            val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            imm.showSoftInput(etSearch, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+        }
+    }
+
     fun invalidateAppList() {
         allApps = listOf()
     }
