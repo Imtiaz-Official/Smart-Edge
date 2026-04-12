@@ -32,6 +32,13 @@ object SpringAnimator {
     fun animateOpen(view: View, panelWidth: Float, stiffness: Float = 400f, isPicker: Boolean = false, onEnd: (() -> Unit)? = null) {
         cancelExisting(view)
         
+        if (stiffness <= 0f) {
+            view.translationX = 0f
+            view.alpha = 1f
+            onEnd?.invoke()
+            return
+        }
+        
         val startX = if (panelWidth == 0f) (if (isPicker) -500f else 500f) else panelWidth
         
         view.translationX = startX
@@ -49,8 +56,8 @@ object SpringAnimator {
                 .start()
 
             val spring = SpringAnimation(view, DynamicAnimation.TRANSLATION_X, 0f).apply {
-                spring.stiffness = stiffness
-                spring.dampingRatio = SPRING_DAMPING
+                this.spring.stiffness = stiffness
+                this.spring.dampingRatio = SPRING_DAMPING
                 addEndListener { _, _, _, _ ->
                     activeSprings.remove(view)
                     view.setLayerType(View.LAYER_TYPE_NONE, null)
@@ -64,6 +71,19 @@ object SpringAnimator {
 
     fun animateClose(view: View, panelWidth: Float, stiffness: Float = 350f, isPicker: Boolean = false, onEnd: (() -> Unit)? = null) {
         cancelExisting(view)
+        
+        val targetX = if (isPicker)
+            (if (panelWidth > 0) -panelWidth else (if (panelWidth < 0) panelWidth else -500f))
+        else (if (panelWidth > 0) panelWidth else 500f)
+
+        if (stiffness <= 0f) {
+            view.translationX = targetX
+            view.alpha = 0f
+            view.translationX = 0f
+            onEnd?.invoke()
+            return
+        }
+
         view.setLayerType(View.LAYER_TYPE_HARDWARE, null)
 
         // Scale alpha duration inversely with stiffness
@@ -75,13 +95,9 @@ object SpringAnimator {
             .setInterpolator(fadeInterpolator)
             .start()
 
-        val targetX = if (isPicker)
-            (if (panelWidth > 0) -panelWidth else (if (panelWidth < 0) panelWidth else -500f))
-        else (if (panelWidth > 0) panelWidth else 500f)
-
         val spring = SpringAnimation(view, DynamicAnimation.TRANSLATION_X, targetX).apply {
-            spring.stiffness = stiffness
-            spring.dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
+            this.spring.stiffness = stiffness
+            this.spring.dampingRatio = SpringForce.DAMPING_RATIO_NO_BOUNCY
             addEndListener { _, _, _, _ ->
                 activeSprings.remove(view)
                 view.setLayerType(View.LAYER_TYPE_NONE, null)

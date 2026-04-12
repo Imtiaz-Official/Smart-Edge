@@ -110,6 +110,7 @@ class InteractionSettingsActivity : AppCompatActivity() {
             400 -> "Balanced (Default)"
             700 -> "Snappy"
             1000 -> "Instant"
+            0 -> "Disabled"
             else -> "Balanced (Default)"
         }
 
@@ -290,8 +291,8 @@ class InteractionSettingsActivity : AppCompatActivity() {
         }
 
         binding.featureAnimFeel.setOnClickListener {
-            val options = arrayOf("Calm (Slow)", "Balanced (Default)", "Snappy", "Instant")
-            val values = intArrayOf(200, 400, 700, 1000)
+            val options = arrayOf("Calm (Slow)", "Balanced (Default)", "Snappy", "Instant", "Disabled")
+            val values = intArrayOf(200, 400, 700, 1000, 0)
             
             var selectedIndex = values.indexOf(panelPrefs.animSpeed)
             if (selectedIndex == -1) selectedIndex = 1 // Default to Balanced

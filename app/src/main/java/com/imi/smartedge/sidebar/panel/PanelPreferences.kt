@@ -178,7 +178,7 @@ class PanelPreferences(context: Context) {
             putFloat(KEY_SCALE_FACTOR, 1.0f)
             putInt(KEY_PANEL_MAX_HEIGHT, 350)
             putInt(KEY_PICKER_MAX_HEIGHT, 450)
-            putBoolean(KEY_SHOW_NOTIFICATION_APPS, true)
+            putBoolean(KEY_SHOW_NOTIFICATION_APPS, false)
             putBoolean(KEY_DRAG_TO_SPLIT, true)
             putBoolean(KEY_REMEMBER_SCROLL, true)
             putBoolean(KEY_AUTO_SHOW_KEYBOARD, false)
@@ -208,7 +208,7 @@ class PanelPreferences(context: Context) {
         set(value) = prefs.edit { putBoolean(KEY_DRAG_TO_SPLIT, value) }
 
     var showNotificationApps: Boolean
-        get() = prefs.getBoolean(KEY_SHOW_NOTIFICATION_APPS, true)
+        get() = prefs.getBoolean(KEY_SHOW_NOTIFICATION_APPS, false)
         set(value) = prefs.edit { putBoolean(KEY_SHOW_NOTIFICATION_APPS, value) }
 
     var panelMaxHeight: Int
