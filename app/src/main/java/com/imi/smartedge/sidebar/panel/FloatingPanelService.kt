@@ -609,7 +609,7 @@ class FloatingPanelService : Service() {
             windowManager.addView(rootLayout, rootParams)
         }
         updateBlur(true)
-        sidePanelView?.updateSideLayout() // Force layout update based on side
+        sidePanelView?.updateStyles() // Evaluate Game Mode columns & update layout
         sidePanelView?.let { panel ->
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
             val lp = panel.layoutParams as android.widget.FrameLayout.LayoutParams
