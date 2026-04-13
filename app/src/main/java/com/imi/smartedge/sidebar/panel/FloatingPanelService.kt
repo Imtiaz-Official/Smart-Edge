@@ -146,6 +146,12 @@ class FloatingPanelService : Service() {
                 refreshApps()
             }
         }
+
+        NotificationTrackingService.onNotificationsChanged = {
+            if (isPanelOpen) {
+                refreshApps()
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -212,6 +218,7 @@ class FloatingPanelService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         isRunning = false
+        NotificationTrackingService.onNotificationsChanged = null
         serviceScope.cancel()
         try {
             unregisterReceiver(systemDialogsReceiver)

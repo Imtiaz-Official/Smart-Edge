@@ -95,8 +95,23 @@ class AppRepository(context: Context) {
      * Returns only the apps currently pinned to the panel.
      */
     suspend fun getPanelApps(): List<AppInfo> = withContext(Dispatchers.IO) {
-        val panelPackages = panelPrefs.getPanelApps().distinct()
-        if (panelPackages.isEmpty()) return@withContext emptyList()
+        val pinnedPackages = panelPrefs.getPanelApps().toMutableList()
+        val allPackages = mutableListOf<String>()
+
+        // Prepend notification apps if the feature is enabled
+        if (panelPrefs.showNotificationApps) {
+            val notifyApps = NotificationTrackingService.getActiveNotificationPackages()
+            allPackages.addAll(notifyApps)
+        }
+        
+        // Add pinned packages, avoiding duplicates
+        for (pkg in pinnedPackages) {
+            if (!allPackages.contains(pkg)) {
+                allPackages.add(pkg)
+            }
+        }
+        
+        if (allPackages.isEmpty()) return@withContext emptyList()
 
         val intent = android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
             addCategory(android.content.Intent.CATEGORY_LAUNCHER)
@@ -104,7 +119,7 @@ class AppRepository(context: Context) {
         val allLaunchable = packageManager.queryIntentActivities(intent, 0)
             .associateBy { it.activityInfo.packageName }
 
-        panelPackages.mapNotNull { pkg ->
+        allPackages.mapNotNull { pkg ->
             if (pkg == "smartedge.shortcut.one_hand") {
                 return@mapNotNull AppInfo(pkg, "One-Handed Mode", true)
             }
@@ -114,7 +129,7 @@ class AppRepository(context: Context) {
                 AppInfo(
                     packageName = pkg,
                     appName = resolveInfo.loadLabel(packageManager).toString(),
-                    isInPanel = true
+                    isInPanel = pinnedPackages.contains(pkg) // only mark as inPanel if it's explicitly pinned
                 )
             } else {
                 try {
@@ -122,7 +137,7 @@ class AppRepository(context: Context) {
                     AppInfo(
                         packageName = pkg,
                         appName = packageManager.getApplicationLabel(appInfo).toString(),
-                        isInPanel = true
+                        isInPanel = pinnedPackages.contains(pkg)
                     )
                 } catch (e: Exception) {
                     null
