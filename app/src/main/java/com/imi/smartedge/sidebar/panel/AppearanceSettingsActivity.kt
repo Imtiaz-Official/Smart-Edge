@@ -77,7 +77,9 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         binding.tvBlurAmountValue.text = "${panelPrefs.blurAmount}"
         
         binding.featureHideBg.isChecked = panelPrefs.hideBackground
-        binding.featureColumns.isChecked = panelPrefs.panelColumns == 2
+        
+        binding.tvColumnsValue.text = "${panelPrefs.panelColumns} Column${if (panelPrefs.panelColumns > 1) "s" else ""}"
+        
         binding.featureCustomAccent.isChecked = panelPrefs.useCustomAccent
         
         binding.tvCurrentIconPack.text = panelPrefs.iconPackLabel
@@ -241,9 +243,24 @@ class AppearanceSettingsActivity : AppCompatActivity() {
             applyOnly()
         }
 
-        binding.featureColumns.setOnCheckedChangeListener { _, isChecked ->
-            panelPrefs.panelColumns = if (isChecked) 2 else 1
-            applyOnly()
+        binding.featureColumns.setOnClickListener {
+            val options = arrayOf("1 Column", "2 Columns", "3 Columns")
+            val currentSelectedIndex = panelPrefs.panelColumns - 1
+            var newlySelectedIndex = currentSelectedIndex
+
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Panel Columns")
+                .setSingleChoiceItems(options, currentSelectedIndex) { _, which ->
+                    newlySelectedIndex = which
+                }
+                .setPositiveButton("Apply") { _, _ ->
+                    val columns = newlySelectedIndex + 1
+                    panelPrefs.panelColumns = columns
+                    binding.tvColumnsValue.text = options[newlySelectedIndex]
+                    applyOnly()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
 
         binding.featureCustomAccent.setOnCheckedChangeListener { _, isChecked ->
