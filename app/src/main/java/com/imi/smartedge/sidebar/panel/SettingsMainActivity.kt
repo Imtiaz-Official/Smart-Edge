@@ -95,6 +95,8 @@ class SettingsMainActivity : AppCompatActivity() {
     }
 
     private fun discoverSettingsInView(view: View, activityClass: Class<*>, layoutId: Int) {
+        if (view.visibility == View.GONE) return
+        
         val viewId = view.id
         if (viewId != View.NO_ID) {
             val idName = resources.getResourceEntryName(viewId)
@@ -233,7 +235,7 @@ class SettingsMainActivity : AppCompatActivity() {
         binding.btnReset.setOnClickListener {
             com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                 .setTitle("Reset All Settings?")
-                .setMessage("This will restore all configurations to their original defaults. Your added apps will NOT be removed.")
+                .setMessage("This will restore all configurations and your side panel apps to their original defaults.")
                 .setPositiveButton("Reset") { _, _ ->
                     panelPrefs.resetToDefaults()
                     applyGlobalRefresh()

@@ -339,6 +339,7 @@ class PanelPreferences(context: Context) {
             putBoolean(KEY_DRAG_TO_SPLIT, true)
             putBoolean(KEY_REMEMBER_SCROLL, true)
             putBoolean(KEY_AUTO_SHOW_KEYBOARD, false)
+            putString(KEY_PANEL_APPS, "")
             putInt(KEY_SIDEBAR_SCROLL, 0)
             putInt(KEY_PICKER_SCROLL, 0)
         }

@@ -174,23 +174,29 @@ class FloatingPanelService : Service() {
                 handler.postDelayed({ triggerScreenshot() }, 200)
             }
             ACTION_REFRESH -> {
-                val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
-                if (isLandscape && !panelPrefs.showInLandscape) {
-                    edgeHandleView?.visibility = View.GONE
-                } else {
-                    addEdgeHandle() // Re-add instead of just update to ensure it forces UI rebuilds
-                    edgeHandleView?.visibility = if (isPanelOpen) View.GONE else View.VISIBLE
+                serviceScope.launch {
+                    if (panelPrefs.getPanelApps().isEmpty()) {
+                        val topApps = AppRepository(this@FloatingPanelService).getTop5Apps()
+                        panelPrefs.setPanelApps(topApps)
+                    }
+                    val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+                    if (isLandscape && !panelPrefs.showInLandscape) {
+                        edgeHandleView?.visibility = View.GONE
+                    } else {
+                        addEdgeHandle() // Re-add instead of just update to ensure it forces UI rebuilds
+                        edgeHandleView?.visibility = if (isPanelOpen) View.GONE else View.VISIBLE
+                    }
+                    
+                    sidePanelView?.updateStyles()
+                    sidePanelView?.refreshIcons()
+                    pickerPanelView?.applyTheme()
+                    pickerPanelView?.clearIcons()
+                    updateBlur(isPanelOpen)
+                    if (isPickerOpen) {
+                        pickerPanelView?.loadApps() 
+                    }
+                    refreshApps()
                 }
-                
-                sidePanelView?.updateStyles()
-                sidePanelView?.refreshIcons()
-                pickerPanelView?.applyTheme()
-                pickerPanelView?.clearIcons()
-                updateBlur(isPanelOpen)
-                if (isPickerOpen) {
-                    pickerPanelView?.loadApps() 
-                }
-                refreshApps()
             }
             ACTION_CLOSE_PANEL -> closePanel(immediate = false)
             ACTION_SHOW_TEMP -> {
