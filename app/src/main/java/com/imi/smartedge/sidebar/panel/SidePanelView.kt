@@ -38,9 +38,6 @@ class SidePanelView @JvmOverloads constructor(
 
     private val springRotation: SpringAnimation = SpringAnimation(binding.btnClose, SpringAnimation.ROTATION)
 
-    private val width1ColDp = 72f
-    private val width2ColDp = 140f
-
     private fun getFinalScaleFactor(): Float {
         return context.getAutoScalingFactor() * panelPrefs.scaleFactor
     }
@@ -350,7 +347,6 @@ class SidePanelView @JvmOverloads constructor(
         val maxRvHeightPx = context.dpToPx((targetRvHeightDp * scale).toInt())
         
         // Use wrap_content for few apps, but cap at maxRvHeightPx
-        // We can use a custom view or just calculate items.
         val itemsCount = adapter.itemCount
         val isRich = panelPrefs.uiTheme == PanelPreferences.THEME_RICH
         val baseItemHeightDp = if (isRich) 68 else 62 
@@ -461,6 +457,8 @@ class SidePanelView @JvmOverloads constructor(
             binding.panelCard.background = null
         } else {
             val theme = panelPrefs.uiTheme
+            
+            // Revert to original dark-centric colors for floating panel
             val bgColor = when (theme) {
                 PanelPreferences.THEME_ORIGIN -> Color.parseColor("#1F1F1F")
                 PanelPreferences.THEME_HYPEROS -> Color.parseColor("#E6252525")
@@ -476,11 +474,9 @@ class SidePanelView @JvmOverloads constructor(
                 if (theme == PanelPreferences.THEME_HYPEROS) {
                     setStroke(context.dpToPx(1), Color.parseColor("#4DFFFFFF"))
                 } else if (theme == PanelPreferences.THEME_RICH) {
-                    // Glowing Rich UI: Colored border + inner glow look
                     val accent = try { Color.parseColor(panelPrefs.accentColor) } catch (e: Exception) { Color.parseColor("#4A9EFF") }
                     setStroke(context.dpToPx(2), accent)
                 } else if (theme == PanelPreferences.THEME_REALME) {
-                    // Realme UI: Subtle Gradient + Light Border
                     val color1 = Color.parseColor("#333333")
                     val color2 = Color.parseColor("#1A1A1A")
                     colors = intArrayOf(color1, color2)
@@ -489,6 +485,20 @@ class SidePanelView @JvmOverloads constructor(
                 }
             }
             binding.panelCard.background = shape
+            
+            // Force white/light icons and text for dark floating panel
+            val iconColorList = ColorStateList.valueOf(Color.WHITE)
+            binding.btnClose.imageTintList = iconColorList
+            binding.btnScreenshot.imageTintList = iconColorList
+            binding.btnVolumeUp.imageTintList = iconColorList
+            binding.btnVolumeDown.imageTintList = iconColorList
+            binding.btnBrightnessUp.imageTintList = iconColorList
+            binding.btnBrightnessDown.imageTintList = iconColorList
+            binding.btnReboot.imageTintList = iconColorList
+            
+            binding.tvRamUsage.setTextColor(Color.WHITE)
+            binding.tvBatTemp.setTextColor(Color.WHITE)
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 binding.panelCard.clipToOutline = true
             }

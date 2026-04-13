@@ -25,7 +25,7 @@
             android:id="@+id/tvPackName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -33,7 +33,7 @@
             android:id="@+id/tvPackPackage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#80FFFFFF"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="12sp" />
 
     </LinearLayout>

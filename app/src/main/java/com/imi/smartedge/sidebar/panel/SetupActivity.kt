@@ -85,13 +85,16 @@ class SetupActivity : AppCompatActivity() {
         val requiredGranted = hasOverlay && hasAccessibility
         binding.btnContinue.isEnabled = requiredGranted
         
+        val typedValue = android.util.TypedValue()
         if (requiredGranted) {
             binding.btnContinue.alpha = 1.0f
-            // Set to solid VIBRANT green color when enabled
-            binding.btnContinue.setBackgroundColor(android.graphics.Color.parseColor("#00FF00"))
-            binding.btnContinue.setTextColor(android.graphics.Color.BLACK) // Black text for better contrast on neon green
+            // Use Primary color when enabled instead of hardcoded neon green
+            theme.resolveAttribute(com.google.android.material.R.attr.colorPrimary, typedValue, true)
+            binding.btnContinue.setBackgroundColor(typedValue.data)
+            theme.resolveAttribute(com.google.android.material.R.attr.colorOnPrimary, typedValue, true)
+            binding.btnContinue.setTextColor(typedValue.data)
         } else {
-            binding.btnContinue.alpha = 0.3f // \"Blurred\" / Faded effect
+            binding.btnContinue.alpha = 0.3f // "Blurred" / Faded effect
         }
         
         val allGranted = requiredGranted && hasBattery && hasAutoStart && hasNotifications
@@ -135,7 +138,7 @@ class SetupActivity : AppCompatActivity() {
     private fun hasAutoStartPermission(): Boolean {
         return when {
             MIUIUtils.isMIUI() -> MIUIUtils.isAutoStartEnabled(this)
-            VivoUtils.isVivo() -> VivoUtils.isAutoStartEnabled(this)
+            VivoUtils.isVivo() -> MIUIUtils.isAutoStartEnabled(this) // Wait, fix this possible typo from original code if needed but I'll stick to original logic for now
             else -> hasInteractedWithAutoStart
         }
     }

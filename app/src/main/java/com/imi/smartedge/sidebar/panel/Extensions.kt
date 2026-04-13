@@ -395,6 +395,19 @@ fun Context.dpToPx(dp: Int): Int {
 }
 
 /**
+ * Applies the selected theme mode (System, Light, Dark) to the application.
+ */
+fun applyAppTheme(context: Context) {
+    val prefs = PanelPreferences(context)
+    val mode = when (prefs.themeMode) {
+        PanelPreferences.MODE_LIGHT -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+        PanelPreferences.MODE_DARK -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+        else -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+    }
+    androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(mode)
+}
+
+/**
  * Opens a modern color picker with manual Hex input support and visual sliders.
  * Integrated into a seamless Material 3 Dialog using skydoves ColorPickerView.
  */

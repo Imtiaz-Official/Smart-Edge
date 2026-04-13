@@ -290,6 +290,14 @@ class AppPickerPanelView @JvmOverloads constructor(
         pickerPanelCard.background = drawable
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) pickerPanelCard.clipToOutline = true
 
+        val textColor = Color.WHITE
+        val subTextColor = Color.parseColor("#B3FFFFFF")
+
+        tvHeader.setTextColor(textColor)
+        btnEdit.setTextColor(if (isEditMode) Color.parseColor("#4A9EFF") else subTextColor)
+        etSearch.setTextColor(textColor)
+        etSearch.setHintTextColor(subTextColor)
+
         val searchBg = findViewById<View>(R.id.etPickerSearch).parent as? View
         searchBg?.let {
             val sd = android.graphics.drawable.GradientDrawable().apply {
@@ -307,6 +315,9 @@ class AppPickerPanelView @JvmOverloads constructor(
             }
             it.background = sd
         }
+        
+        adapter.setIsLightMode(false)
+        notificationAdapter.setIsLightMode(false)
     }
 
     fun setEditMode(enabled: Boolean) {
@@ -469,9 +480,16 @@ class AppPickerPanelView @JvmOverloads constructor(
         private var accentColorStateList: android.content.res.ColorStateList = android.content.res.ColorStateList.valueOf(accentColor)
         private var forceFreeform: Boolean = false
         private var isNotificationType: Boolean = false
+        private var isLightMode: Boolean = false
 
         init {
             updateAccentColor()
+        }
+
+        fun setIsLightMode(isLight: Boolean) {
+            isLightMode = isLight
+            updateAccentColor()
+            notifyDataSetChanged()
         }
 
         fun setForceFreeform(force: Boolean) {
@@ -487,10 +505,10 @@ class AppPickerPanelView @JvmOverloads constructor(
                 if (panelPrefs.useCustomAccent) {
                     Color.parseColor(panelPrefs.accentColor)
                 } else {
-                    Color.parseColor("#4DFFFFFF")
+                    if (isLightMode) Color.parseColor("#4F46E5") else Color.parseColor("#4DFFFFFF")
                 }
             } catch (e: Exception) {
-                Color.parseColor("#4DFFFFFF")
+                if (isLightMode) Color.parseColor("#4F46E5") else Color.parseColor("#4DFFFFFF")
             }
             accentColorStateList = android.content.res.ColorStateList.valueOf(accentColor)
         }
@@ -536,6 +554,11 @@ class AppPickerPanelView @JvmOverloads constructor(
 
             holder.tvName.text = app.appName
             holder.tvPackage?.text = app.packageName
+            
+            val textColor = if (isLightMode) Color.parseColor("#1E293B") else Color.WHITE
+            val subTextColor = if (isLightMode) Color.parseColor("#64748B") else Color.parseColor("#B3FFFFFF")
+            holder.tvName.setTextColor(textColor)
+            holder.tvPackage?.setTextColor(subTextColor)
 
             // --- OPTIMIZED ICON LOADING WITH GLIDE ---
             Glide.with(holder.itemView.context)

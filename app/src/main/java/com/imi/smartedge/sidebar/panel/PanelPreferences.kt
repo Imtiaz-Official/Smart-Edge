@@ -36,6 +36,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_ICON_SHAPE = "icon_shape"
         private const val KEY_GESTURES_ENABLED = "gestures_enabled"
         private const val KEY_SHOW_IN_LANDSCAPE = "show_in_landscape"
+        private const val KEY_THEME_MODE = "theme_mode"
 
         private const val KEY_PILL_WIDTH = "pill_width"
         private const val KEY_PILL_COLOR = "pill_color"
@@ -87,6 +88,11 @@ class PanelPreferences(context: Context) {
         const val STYLE_POWER = "power"
         const val STYLE_CLASSIC = "classic"
 
+        // Theme modes
+        const val MODE_SYSTEM = 0
+        const val MODE_LIGHT = 1
+        const val MODE_DARK = 2
+
         // Freeform window size modes
         const val FREEFORM_MODE_STANDARD  = "standard"  // 80% screen, centered
         const val FREEFORM_MODE_PORTRAIT  = "portrait"  // Narrow tall window
@@ -124,6 +130,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_ANIM_SPEED = 400
         const val DEFAULT_PICKER_GAP = 20
         const val DEFAULT_HOME_BUTTON_STYLE = STYLE_POWER
+        const val DEFAULT_THEME_MODE = MODE_SYSTEM
     }
 
     /** Resets only UI colors (Accent and Background). */
@@ -171,6 +178,7 @@ class PanelPreferences(context: Context) {
             putBoolean(KEY_SHOW_SYS_INFO, false)
             putBoolean(KEY_SHOW_POWER_MENU, false)
             putString(KEY_HOME_BUTTON_STYLE, DEFAULT_HOME_BUTTON_STYLE)
+            putInt(KEY_THEME_MODE, DEFAULT_THEME_MODE)
             putBoolean(KEY_FREEFORM_ENABLED, false)
             putString(KEY_FREEFORM_WINDOW_MODE, FREEFORM_MODE_STANDARD)
             putInt(KEY_FREEFORM_CUSTOM_W, 80)
@@ -186,6 +194,10 @@ class PanelPreferences(context: Context) {
             putInt(KEY_PICKER_SCROLL, 0)
         }
     }
+
+    var themeMode: Int
+        get() = prefs.getInt(KEY_THEME_MODE, DEFAULT_THEME_MODE)
+        set(value) = prefs.edit { putInt(KEY_THEME_MODE, value) }
 
     var autoShowKeyboard: Boolean
         get() = prefs.getBoolean(KEY_AUTO_SHOW_KEYBOARD, false)

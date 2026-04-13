@@ -9,6 +9,9 @@ class SidePanelApp : Application() {
     override fun onCreate() {
         super.onCreate()
         
+        // Apply the saved theme mode
+        applyAppTheme(this)
+
         // Initialize HiddenApiBypass to allow calling ActivityOptions.setLaunchWindowingMode
         // and other hidden APIs needed for freeform window launching.
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {

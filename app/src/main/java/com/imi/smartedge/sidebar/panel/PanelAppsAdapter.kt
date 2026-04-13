@@ -114,6 +114,9 @@ class PanelAppsAdapter(
             }
             holder.tvName.textSize = baseTextSize * scale
             
+            // Keep app labels white for the dark floating panel
+            holder.tvName.setTextColor(android.graphics.Color.parseColor("#D9FFFFFF"))
+
             // Adjust padding for 2-column mode to look more centered
             if (currentColumns == 2) {
                 holder.itemView.setPadding(context.dpToPx(8), holder.itemView.paddingTop, context.dpToPx(8), holder.itemView.paddingBottom)
@@ -198,6 +201,19 @@ class PanelAppsAdapter(
                 lp.width = (context.dpToPx(baseIconSize) * scale).toInt()
                 lp.height = (context.dpToPx(baseIconSize) * scale).toInt()
                 holder.ivAdd.layoutParams = lp
+            }
+
+            // Revert back to original dark-centric tints for the add button
+            val bgTint = android.graphics.Color.parseColor("#4DFFFFFF")
+            val iconTint = android.graphics.Color.WHITE
+            
+            holder.ivAdd.backgroundTintList = android.content.res.ColorStateList.valueOf(bgTint)
+            holder.ivAdd.imageTintList = android.content.res.ColorStateList.valueOf(iconTint)
+
+            val tvEdit = holder.itemView.findViewById<TextView>(R.id.tvEdit)
+            if (tvEdit != null) {
+                tvEdit.setTextColor(android.graphics.Color.WHITE)
+                tvEdit.textSize = 11f * scale
             }
 
             holder.itemView.animate().cancel()
