@@ -17,7 +17,11 @@ class BootReceiver : BroadcastReceiver() {
             action != "android.intent.action.QUICKBOOT_POWERON") return
 
         val prefs = PanelPreferences(context)
-        if (!prefs.autoStart || !prefs.serviceEnabled) return
+        if (!prefs.autoStart) return
+        
+        // Force service to be enabled on reboot if autoStart is true, 
+        // even if it was stopped via notification in previous session.
+        prefs.serviceEnabled = true
         
         if (!isAccessibilityServiceEnabled(context)) return
 

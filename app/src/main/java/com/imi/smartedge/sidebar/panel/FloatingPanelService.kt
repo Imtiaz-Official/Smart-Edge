@@ -36,6 +36,8 @@ class FloatingPanelService : Service() {
     private var dragOverlay: android.widget.FrameLayout? = null
     private var dragOverlayParams: WindowManager.LayoutParams? = null
 
+    private var keyboardOverlay: android.widget.FrameLayout? = null
+
     private var isPanelOpen = false
     private var isPickerOpen = false
     private lateinit var panelPrefs: PanelPreferences
@@ -115,6 +117,7 @@ class FloatingPanelService : Service() {
 
         initSidePanel()
         initPickerPanel()
+        initKeyboardOverlay()
         
         if (panelPrefs.serviceEnabled) {
             addEdgeHandle()
@@ -147,7 +150,10 @@ class FloatingPanelService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            ACTION_STOP -> stopSelf()
+            ACTION_STOP -> {
+                panelPrefs.serviceEnabled = false
+                stopSelf()
+            }
             ACTION_OPEN -> {
                 refreshApps {
                     openPanel()
@@ -214,6 +220,7 @@ class FloatingPanelService : Service() {
         removeView(edgeHandleView)
         removeView(sidePanelView)
         removeView(pickerPanelView)
+        removeView(keyboardOverlay)
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -325,6 +332,90 @@ class FloatingPanelService : Service() {
         }
 
         windowManager.addView(edgeHandleView, params)
+    }
+
+    private fun initKeyboardOverlay() {
+        keyboardOverlay = android.widget.FrameLayout(this).apply {
+            setBackgroundColor(android.graphics.Color.TRANSPARENT)
+            
+            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(this) { v, insets ->
+                val imeVisible = insets.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime())
+                val imeHeight = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime()).bottom
+                
+                if (imeVisible && imeHeight > 0) {
+                    val screenHeight = resources.displayMetrics.heightPixels
+                    val keyboardTop = screenHeight - imeHeight
+                    
+                    edgeHandleView?.let { handle ->
+                        val handleHeight = if (panelPrefs.showPill) dpToPx(panelPrefs.handleHeight) 
+                                           else (screenHeight * 0.60f).toInt()
+                        
+                        val handleParams = handle.layoutParams as? WindowManager.LayoutParams
+                        if (handleParams != null) {
+                            val handleCenterAbsY = (screenHeight / 2) + handleParams.y
+                            val handleBottomAbsY = handleCenterAbsY + (handleHeight / 2)
+                            
+                            if (handleBottomAbsY > keyboardTop) {
+                                val overlap = handleBottomAbsY - keyboardTop
+                                val margin = dpToPx(32) // A bit more padding
+                                val newY = handleParams.y - overlap - margin
+                                
+                                val animator = android.animation.ValueAnimator.ofInt(handleParams.y, newY.toInt())
+                                animator.duration = 200
+                                animator.addUpdateListener { animation ->
+                                    handleParams.y = animation.animatedValue as Int
+                                    if (handle.isAttachedToWindow) {
+                                        try { windowManager.updateViewLayout(handle, handleParams) } catch (e: Exception) {}
+                                    }
+                                }
+                                animator.start()
+                            }
+                        }
+                    }
+                } else {
+                    edgeHandleView?.let { handle ->
+                        val handleParams = handle.layoutParams as? WindowManager.LayoutParams
+                        if (handleParams != null) {
+                            val handleHeight = if (panelPrefs.showPill) dpToPx(panelPrefs.handleHeight) 
+                                               else (resources.displayMetrics.heightPixels * 0.60f).toInt()
+                            val safeMargin = dpToPx(10)
+                            val maxOffset = (resources.displayMetrics.heightPixels / 2) - (handleHeight / 2) - safeMargin
+                            val targetY = dpToPx(panelPrefs.handleVerticalOffset).coerceIn(-maxOffset, maxOffset)
+                            
+                            if (handleParams.y != targetY) {
+                                val animator = android.animation.ValueAnimator.ofInt(handleParams.y, targetY)
+                                animator.duration = 200
+                                animator.addUpdateListener { animation ->
+                                    handleParams.y = animation.animatedValue as Int
+                                    if (handle.isAttachedToWindow) {
+                                        try { windowManager.updateViewLayout(handle, handleParams) } catch (e: Exception) {}
+                                    }
+                                }
+                                animator.start()
+                            }
+                        }
+                    }
+                }
+                
+                insets
+            }
+        }
+
+        val overlayParams = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            PixelFormat.TRANSPARENT
+        )
+
+        try {
+            windowManager.addView(keyboardOverlay, overlayParams)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to add keyboard overlay", e)
+        }
     }
 
     private fun initSidePanel() {

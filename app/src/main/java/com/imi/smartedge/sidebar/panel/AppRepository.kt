@@ -70,7 +70,7 @@ class AppRepository(context: Context) {
 
         val panelPackages = panelPrefs.getPanelApps().toSet()
 
-        packageManager.queryIntentActivities(intent, 0)
+        val list = packageManager.queryIntentActivities(intent, 0)
             .distinctBy { it.activityInfo.packageName }
             .map { resolveInfo ->
                 val pkg = resolveInfo.activityInfo.packageName
@@ -80,7 +80,15 @@ class AppRepository(context: Context) {
                     isInPanel = panelPackages.contains(pkg)
                 )
             }
-            .sortedBy { it.appName.lowercase() }
+            .toMutableList()
+
+        // Add Pseudo Shortcuts
+        val pseudoShortcuts = listOf(
+            AppInfo("smartedge.shortcut.one_hand", "One-Handed Mode", panelPackages.contains("smartedge.shortcut.one_hand"))
+        )
+        list.addAll(pseudoShortcuts)
+        
+        list.sortedBy { it.appName.lowercase() }
     }
 
     /**
@@ -97,6 +105,10 @@ class AppRepository(context: Context) {
             .associateBy { it.activityInfo.packageName }
 
         panelPackages.mapNotNull { pkg ->
+            if (pkg == "smartedge.shortcut.one_hand") {
+                return@mapNotNull AppInfo(pkg, "One-Handed Mode", true)
+            }
+            
             val resolveInfo = allLaunchable[pkg]
             if (resolveInfo != null) {
                 AppInfo(

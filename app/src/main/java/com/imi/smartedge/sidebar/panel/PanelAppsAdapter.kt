@@ -24,12 +24,34 @@ class PanelAppsAdapter(
 
     private val panelPrefs = PanelPreferences(context)
     private var showAddButton: Boolean = false
+    var isEditMode: Boolean = false // Expose to SidePanelView for ItemTouchHelper
     private var currentColumns: Int = 1
     private var forceFreeform: Boolean = false
+    
+    private var mutableApps = mutableListOf<AppInfo>()
+
+    override fun submitList(list: List<AppInfo>?) {
+        super.submitList(list)
+        mutableApps = list?.toMutableList() ?: mutableListOf()
+    }
+
+    override fun submitList(list: List<AppInfo>?, commitCallback: Runnable?) {
+        super.submitList(list, commitCallback)
+        mutableApps = list?.toMutableList() ?: mutableListOf()
+    }
+
+    fun moveItem(from: Int, to: Int) {
+        if (from < 0 || to < 0 || from >= mutableApps.size || to >= mutableApps.size) return
+        java.util.Collections.swap(mutableApps, from, to)
+        notifyItemMoved(from, to)
+    }
+
+    fun getApps(): List<AppInfo> = mutableApps
 
     fun setShowAddButton(show: Boolean) {
         if (showAddButton != show) {
             showAddButton = show
+            isEditMode = show
             notifyDataSetChanged()
         }
     }
@@ -124,17 +146,39 @@ class PanelAppsAdapter(
                 holder.itemView.setPadding(context.dpToPx(2), holder.itemView.paddingTop, context.dpToPx(2), holder.itemView.paddingBottom)
             }
 
-            val app = getItem(position)
+            // Fetch from mutableApps so it stays synchronous with rapid dragging
+            val app = if (position < mutableApps.size) mutableApps[position] else getItem(position)
             
-            Glide.with(context)
-                .load(AppIconRequest(app.packageName, panelPrefs.selectedIconPack))
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .placeholder(android.R.drawable.sym_def_app_icon)
-                .override((120 * scale).toInt(), (120 * scale).toInt())
-                .into(holder.ivIcon)
+            if (app.packageName.startsWith("smartedge.shortcut.")) {
+                Glide.with(context).clear(holder.ivIcon)
+                val iconRes = when (app.packageName) {
+                    "smartedge.shortcut.one_hand" -> android.R.drawable.ic_menu_crop
+                    else -> android.R.drawable.sym_def_app_icon
+                }
+                holder.ivIcon.setImageResource(iconRes)
+                holder.ivIcon.imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE)
+                holder.ivIcon.background = android.graphics.drawable.GradientDrawable().apply {
+                    setColor(android.graphics.Color.parseColor("#33FFFFFF"))
+                    cornerRadius = context.dpToPx(12).toFloat()
+                }
+                holder.ivIcon.setPadding(context.dpToPx(8), context.dpToPx(8), context.dpToPx(8), context.dpToPx(8))
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    holder.ivIcon.clipToOutline = true
+                }
+            } else {
+                holder.ivIcon.imageTintList = null
+                holder.ivIcon.background = null
+                holder.ivIcon.setPadding(0, 0, 0, 0)
+                Glide.with(context)
+                    .load(AppIconRequest(app.packageName, panelPrefs.selectedIconPack))
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .placeholder(android.R.drawable.sym_def_app_icon)
+                    .override((120 * scale).toInt(), (120 * scale).toInt())
+                    .into(holder.ivIcon)
+                IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
+            }
                 
             holder.tvName.text = app.appName
-            IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
 
             if (app.packageName == highlightPackage) {
                 SpringAnimator.scalePulse(holder.itemView)
@@ -147,6 +191,15 @@ class PanelAppsAdapter(
                 }
                 SpringAnimator.scalePulse(holder.itemView)
                 onAppLaunched()
+
+                if (app.packageName.startsWith("smartedge.shortcut.")) {
+                    val shortcutIntent = Intent(context, PanelAccessibilityService::class.java).apply {
+                        action = PanelAccessibilityService.ACTION_TRIGGER_SHORTCUT
+                        putExtra("shortcut", app.packageName)
+                    }
+                    context.startService(shortcutIntent)
+                    return@setOnClickListener
+                }
 
                 val launchIntent = context.packageManager.getLaunchIntentForPackage(app.packageName)
                 if (launchIntent != null) {
@@ -166,6 +219,10 @@ class PanelAppsAdapter(
             }
 
             holder.itemView.setOnLongClickListener {
+                if (isEditMode) {
+                    return@setOnLongClickListener false // Let ItemTouchHelper handle it
+                }
+
                 if (!panelPrefs.dragToSplit) {
                     val currentPos = holder.bindingAdapterPosition
                     if (currentPos != RecyclerView.NO_POSITION) {

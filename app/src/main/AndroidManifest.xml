@@ -109,6 +109,11 @@
             android:theme="@style/Theme.SidePanel.M3" />
 
         <activity
+            android:name=".MiscellaneousSettingsActivity"
+            android:label="Miscellaneous"
+            android:theme="@style/Theme.SidePanel.M3" />
+
+        <activity
             android:name=".IconPackActivity"
             android:label="Select Icon Pack"
             android:theme="@style/Theme.SidePanel" />

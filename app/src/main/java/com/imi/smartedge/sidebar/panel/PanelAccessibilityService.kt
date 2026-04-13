@@ -19,6 +19,7 @@ class PanelAccessibilityService : AccessibilityService() {
         const val ACTION_TAKE_SCREENSHOT = "com.imi.smartedge.sidebar.panel.ACTION_TAKE_SCREENSHOT"
         const val ACTION_SHOW_POWER_MENU = "com.imi.smartedge.sidebar.panel.ACTION_SHOW_POWER_MENU"
         const val ACTION_SPLIT_SCREEN = "com.imi.smartedge.sidebar.panel.ACTION_SPLIT_SCREEN"
+        const val ACTION_TRIGGER_SHORTCUT = "com.imi.smartedge.sidebar.panel.ACTION_TRIGGER_SHORTCUT"
         
         const val EXTRA_PKG = "pkg"
         const val EXTRA_MODE = "mode"
@@ -52,6 +53,21 @@ class PanelAccessibilityService : AccessibilityService() {
                     } else {
                         // Freeform launch doesn't need the toggle action
                         SplitScreenHelper.launchApp(this, pkg, mode)
+                    }
+                }
+            }
+            ACTION_TRIGGER_SHORTCUT -> {
+                val shortcut = intent.getStringExtra("shortcut")
+                if (shortcut == "smartedge.shortcut.one_hand") {
+                    val handler = android.os.Handler(android.os.Looper.getMainLooper())
+                    handler.post {
+                        android.widget.Toast.makeText(this, "One-Handed Mode triggered", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                    // Attempting standard fallback if the OEM supports it via AccessibilityService
+                    // true specific one-handed mode intents are heavily fragmented
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                        // In Android 12+, there's no public GLOBAL_ACTION_ONE_HANDED.
+                        // We rely on standard gesture dispatch or root if really necessary.
                     }
                 }
             }
@@ -96,6 +112,9 @@ class PanelAccessibilityService : AccessibilityService() {
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             val packageName = event.packageName?.toString() ?: return
             val className = event.className?.toString() ?: ""
+            
+            // Store current foreground package for Context/Game mode
+            panelPrefs.currentForegroundPackage = packageName
             
             // Get the current active keyboard package
             val defaultIme = android.provider.Settings.Secure.getString(

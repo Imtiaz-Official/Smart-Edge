@@ -36,6 +36,7 @@ class SettingsMainActivity : AppCompatActivity() {
         const val EXTRA_SCROLL_TO = "extra_scroll_to"
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsMainBinding.inflate(layoutInflater)
@@ -240,6 +241,10 @@ class SettingsMainActivity : AppCompatActivity() {
                 }
                 .setNegativeButton("Cancel", null)
                 .show()
+        }
+
+        binding.btnMisc.setOnClickListener {
+            startActivity(Intent(this, MiscellaneousSettingsActivity::class.java))
         }
     }
 

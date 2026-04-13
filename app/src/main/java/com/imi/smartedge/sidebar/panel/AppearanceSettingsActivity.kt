@@ -140,6 +140,22 @@ class AppearanceSettingsActivity : AppCompatActivity() {
             applyOnly()
         }
 
+        binding.btnResetOpacity.setOnClickListener {
+            val default = 100
+            panelPrefs.panelOpacity = default
+            binding.sbOpacity.value = default.toFloat()
+            binding.tvOpacityValue.text = "${default}%"
+            applyOnly()
+        }
+
+        binding.btnResetRadius.setOnClickListener {
+            val default = 20
+            panelPrefs.panelCornerRadius = default
+            binding.sbPanelRadius.value = default.toFloat()
+            binding.tvRadiusValue.text = "${default}dp"
+            applyOnly()
+        }
+
         binding.featureThemeMode.setOnClickListener {
             val options = arrayOf("Follow System", "Light", "Dark")
             val values = arrayOf(

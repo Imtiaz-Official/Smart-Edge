@@ -125,6 +125,40 @@ class SidePanelView @JvmOverloads constructor(
             }
         })
 
+        val itemTouchHelper = androidx.recyclerview.widget.ItemTouchHelper(object : androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback(
+            androidx.recyclerview.widget.ItemTouchHelper.UP or androidx.recyclerview.widget.ItemTouchHelper.DOWN or 
+            androidx.recyclerview.widget.ItemTouchHelper.LEFT or androidx.recyclerview.widget.ItemTouchHelper.RIGHT,
+            0
+        ) {
+            override fun isLongPressDragEnabled(): Boolean {
+                return adapter.isEditMode
+            }
+
+            override fun onMove(
+                recyclerView: androidx.recyclerview.widget.RecyclerView,
+                viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder,
+                target: androidx.recyclerview.widget.RecyclerView.ViewHolder
+            ): Boolean {
+                if (target is PanelAppsAdapter.AddViewHolder || viewHolder is PanelAppsAdapter.AddViewHolder) return false
+                val from = viewHolder.bindingAdapterPosition
+                val to = target.bindingAdapterPosition
+                if (from == androidx.recyclerview.widget.RecyclerView.NO_POSITION || to == androidx.recyclerview.widget.RecyclerView.NO_POSITION) return false
+                
+                adapter.moveItem(from, to)
+                return true
+            }
+
+            override fun onSwiped(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, direction: Int) {}
+
+            override fun clearView(recyclerView: androidx.recyclerview.widget.RecyclerView, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder) {
+                super.clearView(recyclerView, viewHolder)
+                val packages = adapter.getApps().map { it.packageName }
+                panelPrefs.setPanelApps(packages)
+                onAppsChanged?.invoke()
+            }
+        })
+        itemTouchHelper.attachToRecyclerView(binding.rvPanelApps)
+
         updateSideLayout()
 
         binding.btnClose.setOnClickListener {
@@ -330,10 +364,13 @@ class SidePanelView @JvmOverloads constructor(
         // Top Padding (12) + Bottom Padding (4) + Tools Margin (4) + Close Btn (48) = 68dp
         var nonAppHeightDp = 68f
         
+        val isGameMode = panelPrefs.getGameApps().contains(panelPrefs.currentForegroundPackage)
+        val showSysInfoEffective = panelPrefs.showSysInfo || isGameMode
+        
         if (panelPrefs.showTools) {
             nonAppHeightDp += 50f // Divider + Screenshot + Labels
             if (panelPrefs.showPowerMenu) nonAppHeightDp += 42f
-            if (panelPrefs.showSysInfo) nonAppHeightDp += 24f
+            if (showSysInfoEffective) nonAppHeightDp += 24f
             if (panelPrefs.showVolumeKeys) nonAppHeightDp += 84f // Two buttons + labels
             if (panelPrefs.showBrightnessKeys) nonAppHeightDp += 84f
         }
@@ -342,26 +379,19 @@ class SidePanelView @JvmOverloads constructor(
         val maxAllowedRvHeightDp = (screenHeightDp - nonAppHeightDp - 24).coerceAtLeast(100f)
         val targetRvHeightDp = panelPrefs.panelMaxHeight.toFloat().coerceAtMost(maxAllowedRvHeightDp)
 
-        // Apply dynamic height directly to the RecyclerView
+        // Apply dynamic height using ConstraintLayout's max-height constraint instead of brittle manual item height guessing
         val rvLp = binding.rvPanelApps.layoutParams
         val maxRvHeightPx = context.dpToPx((targetRvHeightDp * scale).toInt())
         
-        // Use wrap_content for few apps, but cap at maxRvHeightPx
-        val itemsCount = adapter.itemCount
-        val isRich = panelPrefs.uiTheme == PanelPreferences.THEME_RICH
-        val baseItemHeightDp = if (isRich) 68 else 62 
-        val itemHeightPx = context.dpToPx((baseItemHeightDp * scale).toInt())
+        val constraintSet = androidx.constraintlayout.widget.ConstraintSet()
+        constraintSet.clone(binding.panelCard)
+        constraintSet.constrainMaxHeight(binding.rvPanelApps.id, maxRvHeightPx)
+        // Ensure height works correctly with constraints
+        rvLp.height = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.WRAP_CONTENT
+        (rvLp as? androidx.constraintlayout.widget.ConstraintLayout.LayoutParams)?.matchConstraintMaxHeight = maxRvHeightPx
+        (rvLp as? androidx.constraintlayout.widget.ConstraintLayout.LayoutParams)?.constrainedHeight = true
         
-        val rows = Math.ceil(itemsCount.toDouble() / currentCols).toInt()
-        val estimatedContentHeightPx = rows * itemHeightPx
-        
-        if (estimatedContentHeightPx > 0 && estimatedContentHeightPx < maxRvHeightPx) {
-            rvLp.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        } else if (itemsCount == 0) {
-            rvLp.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        } else {
-            rvLp.height = maxRvHeightPx
-        }
+        constraintSet.applyTo(binding.panelCard)
         binding.rvPanelApps.layoutParams = rvLp
 
         val containerLp = binding.panelContainer.layoutParams as? android.widget.RelativeLayout.LayoutParams    
@@ -438,8 +468,10 @@ class SidePanelView @JvmOverloads constructor(
 
     fun updateStyles() {
         if (!isPickerOpenInternal) {
-            currentCols = panelPrefs.panelColumns
+            val isGameMode = panelPrefs.getGameApps().contains(panelPrefs.currentForegroundPackage)
+            currentCols = if (isGameMode) 2 else panelPrefs.panelColumns
             (binding.rvPanelApps.layoutManager as? GridLayoutManager)?.spanCount = currentCols
+            adapter.setColumns(currentCols)
         }
         applyTheme()
         updateSideLayout()
@@ -504,13 +536,16 @@ class SidePanelView @JvmOverloads constructor(
             }
         }
         
-        binding.layoutSysInfo.visibility = if (panelPrefs.showSysInfo) View.VISIBLE else View.GONE
+        val isGameMode = panelPrefs.getGameApps().contains(panelPrefs.currentForegroundPackage)
+        val showSysInfoEffective = panelPrefs.showSysInfo || isGameMode
+        
+        binding.layoutSysInfo.visibility = if (showSysInfoEffective) View.VISIBLE else View.GONE
         binding.toolsContainer.visibility = if (panelPrefs.showTools) View.VISIBLE else View.GONE
         binding.layoutPowerTools.visibility = if (panelPrefs.showPowerMenu) View.VISIBLE else View.GONE
         binding.layoutVolumeTools.visibility = if (panelPrefs.showVolumeKeys) View.VISIBLE else View.GONE
         binding.layoutBrightnessTools.visibility = if (panelPrefs.showBrightnessKeys) View.VISIBLE else View.GONE
         
-        if (panelPrefs.showSysInfo) {
+        if (showSysInfoEffective) {
             updateSystemInfo()
             updateHandler.removeCallbacks(updateRunnable)
             updateHandler.post(updateRunnable)

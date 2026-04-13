@@ -68,6 +68,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_AUTO_SHOW_KEYBOARD = "auto_show_keyboard"
         private const val KEY_SIDEBAR_SCROLL = "last_sidebar_scroll"
         private const val KEY_PICKER_SCROLL = "last_picker_scroll"
+        private const val KEY_GAME_APPS = "game_apps"
 
         private const val DELIMITER = ","
 
@@ -139,6 +140,154 @@ class PanelPreferences(context: Context) {
             putString(KEY_ACCENT_COLOR, DEFAULT_ACCENT_COLOR)
             putString(KEY_PANEL_BG_COLOR, DEFAULT_PANEL_BG)
             putBoolean(KEY_USE_CUSTOM_ACCENT, DEFAULT_USE_CUSTOM_ACCENT)
+        }
+    }
+
+    /** Exports all settings (except runtime/session keys) to a JSON string. */
+    fun exportToJson(): String {
+        val obj = org.json.JSONObject()
+        obj.put("_version", 1)
+        obj.put("_app", "SmartEdge")
+
+        // Strings
+        val strings = mapOf(
+            KEY_PANEL_APPS to getPanelApps().joinToString(DELIMITER),
+            KEY_GAME_APPS to getGameApps().joinToString(DELIMITER),
+            KEY_PANEL_SIDE to panelSide,
+            KEY_ACCENT_COLOR to accentColor,
+            KEY_PANEL_BG_COLOR to panelBackgroundColor,
+            KEY_UI_THEME to uiTheme,
+            KEY_ICON_SHAPE to iconShape,
+            KEY_PILL_COLOR to pillColor,
+            KEY_ICON_PACK to selectedIconPack,
+            KEY_ICON_PACK_LABEL to iconPackLabel,
+            KEY_HOME_BUTTON_STYLE to homeButtonStyle,
+            KEY_FREEFORM_WINDOW_MODE to freeformWindowMode
+        )
+        strings.forEach { (k, v) -> obj.put(k, v) }
+
+        // Ints
+        val ints = mapOf(
+            KEY_PANEL_OPACITY to panelOpacity,
+            KEY_HANDLE_HEIGHT to handleHeight,
+            KEY_HANDLE_WIDTH to handleWidth,
+            KEY_HANDLE_OFFSET to handleVerticalOffset,
+            KEY_PANEL_COLUMNS to panelColumns,
+            KEY_PANEL_RADIUS to panelCornerRadius,
+            KEY_PILL_WIDTH to pillWidth,
+            KEY_BLUR_AMOUNT to blurAmount,
+            KEY_ANIM_SPEED to animSpeed,
+            KEY_PICKER_GAP to pickerGap,
+            KEY_PANEL_MAX_HEIGHT to panelMaxHeight,
+            KEY_PICKER_MAX_HEIGHT to pickerMaxHeight,
+            KEY_FREEFORM_CUSTOM_W to freeformCustomWidth,
+            KEY_FREEFORM_CUSTOM_H to freeformCustomHeight,
+            KEY_THEME_MODE to themeMode
+        )
+        ints.forEach { (k, v) -> obj.put(k, v) }
+
+        // Floats
+        obj.put(KEY_SCALE_FACTOR, scaleFactor.toDouble())
+
+        // Booleans
+        val bools = mapOf(
+            KEY_AUTO_START to autoStart,
+            KEY_SHOW_PILL to showPill,
+            KEY_HAPTIC_ENABLED to hapticEnabled,
+            KEY_USE_CUSTOM_ACCENT to useCustomAccent,
+            KEY_HIDE_BG to hideBackground,
+            KEY_SHOW_TOOLS to showTools,
+            KEY_GESTURES_ENABLED to gesturesEnabled,
+            KEY_SHOW_IN_LANDSCAPE to showInLandscape,
+            KEY_TAP_TO_OPEN to tapToOpen,
+            KEY_DOUBLE_TAP_TO_OPEN to doubleTapToOpen,
+            KEY_TRIPLE_TAP_TO_OPEN to tripleTapToOpen,
+            KEY_BLUR_ENABLED to blurEnabled,
+            KEY_SHOW_LOGS to showLogs,
+            KEY_SHOW_SYS_INFO to showSysInfo,
+            KEY_SHOW_POWER_MENU to showPowerMenu,
+            KEY_SHOW_VOLUME_KEYS to showVolumeKeys,
+            KEY_SHOW_BRIGHTNESS_KEYS to showBrightnessKeys,
+            KEY_FREEFORM_ENABLED to freeformEnabled,
+            KEY_SHOW_NOTIFICATION_APPS to showNotificationApps,
+            KEY_DRAG_TO_SPLIT to dragToSplit,
+            KEY_REMEMBER_SCROLL to rememberScroll,
+            KEY_AUTO_SHOW_KEYBOARD to autoShowKeyboard
+        )
+        bools.forEach { (k, v) -> obj.put(k, v) }
+
+        return obj.toString(2)
+    }
+
+    /**
+     * Imports settings from a JSON string. Returns true on success, false on parse error.
+     * Unknown keys are silently ignored for forward-compatibility.
+     */
+    fun importFromJson(json: String): Boolean {
+        return try {
+            val obj = org.json.JSONObject(json)
+            prefs.edit {
+                // Strings
+                if (obj.has(KEY_PANEL_APPS)) putString(KEY_PANEL_APPS, obj.getString(KEY_PANEL_APPS))
+                if (obj.has(KEY_GAME_APPS)) putString(KEY_GAME_APPS, obj.getString(KEY_GAME_APPS))
+                if (obj.has(KEY_PANEL_SIDE)) putString(KEY_PANEL_SIDE, obj.getString(KEY_PANEL_SIDE))
+                if (obj.has(KEY_ACCENT_COLOR)) putString(KEY_ACCENT_COLOR, obj.getString(KEY_ACCENT_COLOR))
+                if (obj.has(KEY_PANEL_BG_COLOR)) putString(KEY_PANEL_BG_COLOR, obj.getString(KEY_PANEL_BG_COLOR))
+                if (obj.has(KEY_UI_THEME)) putString(KEY_UI_THEME, obj.getString(KEY_UI_THEME))
+                if (obj.has(KEY_ICON_SHAPE)) putString(KEY_ICON_SHAPE, obj.getString(KEY_ICON_SHAPE))
+                if (obj.has(KEY_PILL_COLOR)) putString(KEY_PILL_COLOR, obj.getString(KEY_PILL_COLOR))
+                if (obj.has(KEY_ICON_PACK)) putString(KEY_ICON_PACK, obj.getString(KEY_ICON_PACK))
+                if (obj.has(KEY_ICON_PACK_LABEL)) putString(KEY_ICON_PACK_LABEL, obj.getString(KEY_ICON_PACK_LABEL))
+                if (obj.has(KEY_HOME_BUTTON_STYLE)) putString(KEY_HOME_BUTTON_STYLE, obj.getString(KEY_HOME_BUTTON_STYLE))
+                if (obj.has(KEY_FREEFORM_WINDOW_MODE)) putString(KEY_FREEFORM_WINDOW_MODE, obj.getString(KEY_FREEFORM_WINDOW_MODE))
+
+                // Ints
+                if (obj.has(KEY_PANEL_OPACITY)) putInt(KEY_PANEL_OPACITY, obj.getInt(KEY_PANEL_OPACITY))
+                if (obj.has(KEY_HANDLE_HEIGHT)) putInt(KEY_HANDLE_HEIGHT, obj.getInt(KEY_HANDLE_HEIGHT))
+                if (obj.has(KEY_HANDLE_WIDTH)) putInt(KEY_HANDLE_WIDTH, obj.getInt(KEY_HANDLE_WIDTH))
+                if (obj.has(KEY_HANDLE_OFFSET)) putInt(KEY_HANDLE_OFFSET, obj.getInt(KEY_HANDLE_OFFSET))
+                if (obj.has(KEY_PANEL_COLUMNS)) putInt(KEY_PANEL_COLUMNS, obj.getInt(KEY_PANEL_COLUMNS))
+                if (obj.has(KEY_PANEL_RADIUS)) putInt(KEY_PANEL_RADIUS, obj.getInt(KEY_PANEL_RADIUS))
+                if (obj.has(KEY_PILL_WIDTH)) putInt(KEY_PILL_WIDTH, obj.getInt(KEY_PILL_WIDTH))
+                if (obj.has(KEY_BLUR_AMOUNT)) putInt(KEY_BLUR_AMOUNT, obj.getInt(KEY_BLUR_AMOUNT))
+                if (obj.has(KEY_ANIM_SPEED)) putInt(KEY_ANIM_SPEED, obj.getInt(KEY_ANIM_SPEED))
+                if (obj.has(KEY_PICKER_GAP)) putInt(KEY_PICKER_GAP, obj.getInt(KEY_PICKER_GAP))
+                if (obj.has(KEY_PANEL_MAX_HEIGHT)) putInt(KEY_PANEL_MAX_HEIGHT, obj.getInt(KEY_PANEL_MAX_HEIGHT))
+                if (obj.has(KEY_PICKER_MAX_HEIGHT)) putInt(KEY_PICKER_MAX_HEIGHT, obj.getInt(KEY_PICKER_MAX_HEIGHT))
+                if (obj.has(KEY_FREEFORM_CUSTOM_W)) putInt(KEY_FREEFORM_CUSTOM_W, obj.getInt(KEY_FREEFORM_CUSTOM_W))
+                if (obj.has(KEY_FREEFORM_CUSTOM_H)) putInt(KEY_FREEFORM_CUSTOM_H, obj.getInt(KEY_FREEFORM_CUSTOM_H))
+                if (obj.has(KEY_THEME_MODE)) putInt(KEY_THEME_MODE, obj.getInt(KEY_THEME_MODE))
+
+                // Float
+                if (obj.has(KEY_SCALE_FACTOR)) putFloat(KEY_SCALE_FACTOR, obj.getDouble(KEY_SCALE_FACTOR).toFloat())
+
+                // Booleans
+                if (obj.has(KEY_AUTO_START)) putBoolean(KEY_AUTO_START, obj.getBoolean(KEY_AUTO_START))
+                if (obj.has(KEY_SHOW_PILL)) putBoolean(KEY_SHOW_PILL, obj.getBoolean(KEY_SHOW_PILL))
+                if (obj.has(KEY_HAPTIC_ENABLED)) putBoolean(KEY_HAPTIC_ENABLED, obj.getBoolean(KEY_HAPTIC_ENABLED))
+                if (obj.has(KEY_USE_CUSTOM_ACCENT)) putBoolean(KEY_USE_CUSTOM_ACCENT, obj.getBoolean(KEY_USE_CUSTOM_ACCENT))
+                if (obj.has(KEY_HIDE_BG)) putBoolean(KEY_HIDE_BG, obj.getBoolean(KEY_HIDE_BG))
+                if (obj.has(KEY_SHOW_TOOLS)) putBoolean(KEY_SHOW_TOOLS, obj.getBoolean(KEY_SHOW_TOOLS))
+                if (obj.has(KEY_GESTURES_ENABLED)) putBoolean(KEY_GESTURES_ENABLED, obj.getBoolean(KEY_GESTURES_ENABLED))
+                if (obj.has(KEY_SHOW_IN_LANDSCAPE)) putBoolean(KEY_SHOW_IN_LANDSCAPE, obj.getBoolean(KEY_SHOW_IN_LANDSCAPE))
+                if (obj.has(KEY_TAP_TO_OPEN)) putBoolean(KEY_TAP_TO_OPEN, obj.getBoolean(KEY_TAP_TO_OPEN))
+                if (obj.has(KEY_DOUBLE_TAP_TO_OPEN)) putBoolean(KEY_DOUBLE_TAP_TO_OPEN, obj.getBoolean(KEY_DOUBLE_TAP_TO_OPEN))
+                if (obj.has(KEY_TRIPLE_TAP_TO_OPEN)) putBoolean(KEY_TRIPLE_TAP_TO_OPEN, obj.getBoolean(KEY_TRIPLE_TAP_TO_OPEN))
+                if (obj.has(KEY_BLUR_ENABLED)) putBoolean(KEY_BLUR_ENABLED, obj.getBoolean(KEY_BLUR_ENABLED))
+                if (obj.has(KEY_SHOW_LOGS)) putBoolean(KEY_SHOW_LOGS, obj.getBoolean(KEY_SHOW_LOGS))
+                if (obj.has(KEY_SHOW_SYS_INFO)) putBoolean(KEY_SHOW_SYS_INFO, obj.getBoolean(KEY_SHOW_SYS_INFO))
+                if (obj.has(KEY_SHOW_POWER_MENU)) putBoolean(KEY_SHOW_POWER_MENU, obj.getBoolean(KEY_SHOW_POWER_MENU))
+                if (obj.has(KEY_SHOW_VOLUME_KEYS)) putBoolean(KEY_SHOW_VOLUME_KEYS, obj.getBoolean(KEY_SHOW_VOLUME_KEYS))
+                if (obj.has(KEY_SHOW_BRIGHTNESS_KEYS)) putBoolean(KEY_SHOW_BRIGHTNESS_KEYS, obj.getBoolean(KEY_SHOW_BRIGHTNESS_KEYS))
+                if (obj.has(KEY_FREEFORM_ENABLED)) putBoolean(KEY_FREEFORM_ENABLED, obj.getBoolean(KEY_FREEFORM_ENABLED))
+                if (obj.has(KEY_SHOW_NOTIFICATION_APPS)) putBoolean(KEY_SHOW_NOTIFICATION_APPS, obj.getBoolean(KEY_SHOW_NOTIFICATION_APPS))
+                if (obj.has(KEY_DRAG_TO_SPLIT)) putBoolean(KEY_DRAG_TO_SPLIT, obj.getBoolean(KEY_DRAG_TO_SPLIT))
+                if (obj.has(KEY_REMEMBER_SCROLL)) putBoolean(KEY_REMEMBER_SCROLL, obj.getBoolean(KEY_REMEMBER_SCROLL))
+                if (obj.has(KEY_AUTO_SHOW_KEYBOARD)) putBoolean(KEY_AUTO_SHOW_KEYBOARD, obj.getBoolean(KEY_AUTO_SHOW_KEYBOARD))
+            }
+            true
+        } catch (e: Exception) {
+            false
         }
     }
 
@@ -431,4 +580,21 @@ class PanelPreferences(context: Context) {
     var autoStart: Boolean
         get() = prefs.getBoolean(KEY_AUTO_START, DEFAULT_AUTO_START)
         set(value) = prefs.edit { putBoolean(KEY_AUTO_START, value) }
+
+    var currentForegroundPackage: String
+        get() = prefs.getString("current_foreground", "") ?: ""
+        set(value) = prefs.edit { putString("current_foreground", value) }
+
+    fun getGameApps(): List<String> {
+        val raw = prefs.getString(KEY_GAME_APPS, "") ?: ""
+        return if (raw.isBlank()) emptyList()
+        else raw.split(DELIMITER)
+            .filter { it.isNotBlank() }
+            .distinct()
+    }
+
+    fun setGameApps(packages: List<String>) {
+        val uniquePackages = packages.filter { it.isNotBlank() }.distinct()
+        prefs.edit { putString(KEY_GAME_APPS, uniquePackages.joinToString(DELIMITER)) }
+    }
 }

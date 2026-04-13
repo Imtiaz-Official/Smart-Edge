@@ -55,6 +55,9 @@ class ToggleActivity : AppCompatActivity() {
             return
         }
 
+        // Ensure service is enabled in preferences if toggled manually
+        PanelPreferences(this).serviceEnabled = true
+
         // 3. Trigger the Panel
         val intent = Intent(this, FloatingPanelService::class.java).apply {
             action = FloatingPanelService.ACTION_OPEN

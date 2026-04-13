@@ -96,7 +96,7 @@
                 android:layout_height="wrap_content"
                 android:text="PWR"
                 android:textColor="#80FFFFFF"
-                android:textSize="7sp"
+                android:textSize="9sp"
                 android:layout_marginTop="2dp"
                 android:layout_marginBottom="8dp" />
         </LinearLayout>
@@ -127,7 +127,7 @@
                 android:layout_height="wrap_content"
                 android:text="VOL +"
                 android:textColor="#80FFFFFF"
-                android:textSize="7sp"
+                android:textSize="9sp"
                 android:layout_marginTop="2dp"
                 android:layout_marginBottom="4dp" />
 
@@ -148,7 +148,7 @@
                 android:layout_height="wrap_content"
                 android:text="VOL -"
                 android:textColor="#80FFFFFF"
-                android:textSize="7sp"
+                android:textSize="9sp"
                 android:layout_marginTop="2dp"
                 android:layout_marginBottom="8dp" />
         </LinearLayout>
@@ -178,7 +178,7 @@
                 android:layout_height="wrap_content"
                 android:text="BRI +"
                 android:textColor="#80FFFFFF"
-                android:textSize="7sp"
+                android:textSize="9sp"
                 android:layout_marginTop="2dp"
                 android:layout_marginBottom="4dp" />
 
@@ -198,7 +198,7 @@
                 android:layout_height="wrap_content"
                 android:text="BRI -"
                 android:textColor="#80FFFFFF"
-                android:textSize="7sp"
+                android:textSize="9sp"
                 android:layout_marginTop="2dp"
                 android:layout_marginBottom="8dp" />
         </LinearLayout>
@@ -220,7 +220,7 @@
             android:layout_height="wrap_content"
             android:text="SC"
             android:textColor="#80FFFFFF"
-            android:textSize="7sp"
+            android:textSize="9sp"
             android:layout_marginTop="2dp"
             android:layout_marginBottom="4dp" />
 
@@ -239,14 +239,14 @@
                 android:layout_height="wrap_content"
                 android:text="RAM: --"
                 android:textColor="#B3FFFFFF"
-                android:textSize="6sp" />
+                android:textSize="10sp" />
             <TextView
                 android:id="@+id/tvBatTemp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="BAT: --"
                 android:textColor="#B3FFFFFF"
-                android:textSize="6sp" />
+                android:textSize="10sp" />
         </LinearLayout>
 
     </LinearLayout>
@@ -277,4 +277,6 @@
         </LinearLayout>
 
 </RelativeLayout>
+
+
 
