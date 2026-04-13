@@ -213,7 +213,37 @@ class InteractionSettingsActivity : AppCompatActivity() {
             }
         }
 
-        binding.featureNotificationApps.setOnCheckedChangeListener { _, isChecked ->
+        binding.featureNotificationApps.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) {
+                val enabledListeners = android.provider.Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
+                if (enabledListeners?.contains(packageName) != true) {
+                    buttonView.isChecked = false
+                    com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                        .setTitle("Permission Required")
+                        .setMessage("Smart Edge needs Notification Access to see which apps have active notifications so they can be shown in the panel.")
+                        .setPositiveButton("Grant") { _, _ ->
+                            try {
+                                val intent = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                                    android.content.Intent(android.provider.Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS).apply {
+                                        putExtra(
+                                            android.provider.Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME,
+                                            android.content.ComponentName(this@InteractionSettingsActivity, NotificationTrackingService::class.java).flattenToString()
+                                        )
+                                    }
+                                } else {
+                                    android.content.Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
+                                }
+                                startActivity(intent)
+                            } catch (e: Exception) {
+                                // Fallback just in case OEM broke the detail intent
+                                startActivity(android.content.Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
+                            }
+                        }
+                        .setNegativeButton("Cancel", null)
+                        .show()
+                    return@setOnCheckedChangeListener
+                }
+            }
             panelPrefs.showNotificationApps = isChecked
             applyOnly()
         }
