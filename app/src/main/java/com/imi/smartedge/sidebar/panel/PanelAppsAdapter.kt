@@ -224,14 +224,7 @@ class PanelAppsAdapter(
                 }
 
                 if (!panelPrefs.dragToSplit) {
-                    val currentPos = holder.bindingAdapterPosition
-                    if (currentPos != RecyclerView.NO_POSITION) {
-                        if (panelPrefs.hapticEnabled) {
-                            holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
-                        }
-                        SpringAnimator.scalePulse(holder.itemView)
-                        onRemove(getItem(currentPos))
-                    }
+                    // Do nothing if drag-to-split is disabled and we're not in edit mode
                     return@setOnLongClickListener true
                 }
 

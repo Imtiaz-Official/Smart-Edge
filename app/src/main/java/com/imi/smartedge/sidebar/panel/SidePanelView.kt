@@ -364,7 +364,7 @@ class SidePanelView @JvmOverloads constructor(
         // Top Padding (12) + Bottom Padding (4) + Tools Margin (4) + Close Btn (48) = 68dp
         var nonAppHeightDp = 68f
         
-        val isGameMode = panelPrefs.getGameApps().contains(panelPrefs.currentForegroundPackage)
+        val isGameMode = false // panelPrefs.getGameApps().contains(panelPrefs.currentForegroundPackage)
         val showSysInfoEffective = panelPrefs.showSysInfo || isGameMode
         
         if (panelPrefs.showTools) {
@@ -468,7 +468,7 @@ class SidePanelView @JvmOverloads constructor(
 
     fun updateStyles() {
         if (!isPickerOpenInternal) {
-            val isGameMode = panelPrefs.getGameApps().contains(panelPrefs.currentForegroundPackage)
+            val isGameMode = false // panelPrefs.getGameApps().contains(panelPrefs.currentForegroundPackage)
             currentCols = if (isGameMode) 2 else panelPrefs.panelColumns
             (binding.rvPanelApps.layoutManager as? GridLayoutManager)?.spanCount = currentCols
             adapter.setColumns(currentCols)
@@ -536,7 +536,7 @@ class SidePanelView @JvmOverloads constructor(
             }
         }
         
-        val isGameMode = panelPrefs.getGameApps().contains(panelPrefs.currentForegroundPackage)
+        val isGameMode = false // panelPrefs.getGameApps().contains(panelPrefs.currentForegroundPackage)
         val showSysInfoEffective = panelPrefs.showSysInfo || isGameMode
         
         binding.layoutSysInfo.visibility = if (showSysInfoEffective) View.VISIBLE else View.GONE
