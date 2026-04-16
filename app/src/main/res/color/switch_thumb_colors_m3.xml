@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- ON state: On Primary (White) -->
+    <item android:color="@color/md_theme_onPrimary" android:state_checked="true" android:state_enabled="true" />
+    
+    <!-- OFF state: Pure White for premium look -->
+    <item android:color="#FFFFFF" android:state_checked="false" android:state_enabled="true" />
+    
+    <!-- Disabled -->
+    <item android:alpha="0.38" android:color="?attr/colorOnSurface" />
+</selector>

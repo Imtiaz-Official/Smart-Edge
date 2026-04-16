@@ -1,0 +1,12 @@
+- feat(tile): Completely rewrote Quick Settings Tile for reliable, seamless, and near-instant toggling.
+- feat(tile): Fixed cross-process desync on OEM devices (Vivo, MIUI, ColorOS) that caused the tile to auto-revert to OFF.
+- feat(settings): Added Backup & Restore — export/import all settings as JSON to/from the Downloads folder.
+- feat(ui): Implemented app-wide Light / Dark / System theme mode support.
+- feat(shizuku): Integrated Shizuku for rootless system automation and added a revoke permission option.
+- feat(handle): Added the ability to drag-to-reposition the edge handle directly on screen.
+- feat(interaction): Added a toggle to disable auto-showing the keyboard when opening the dashboard.
+- feat(appearance): Replaced the double-column toggle with a multi-column selector dropdown.
+- fix: Resolved issue where apps vanished on long-press when Drag-to-Split was disabled.
+- fix: Active notification apps now reliably appear in the dashboard panel.
+- fix: Settings reset now fully clears panel apps and hides disabled features from search.
+- fix: Corrected reversed back arrow in the Support screen and disabled panel bounce for a smoother feel.

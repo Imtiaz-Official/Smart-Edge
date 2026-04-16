@@ -86,6 +86,11 @@ class AppearanceSettingsActivity : AppCompatActivity() {
 
         binding.btnPickAccent.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor(panelPrefs.accentColor))
         binding.btnPickBg.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor(panelPrefs.panelBackgroundColor))
+
+        binding.tvHomeButtonStyleValue.text = when (panelPrefs.homeButtonStyle) {
+            PanelPreferences.STYLE_POWER -> "Modern Power Icon"
+            else -> "Classic Logo"
+        }
     }
 
     private fun setupListeners() {
@@ -303,6 +308,23 @@ class AppearanceSettingsActivity : AppCompatActivity() {
                 loadCurrentSettings()
                 applyOnly()
             }
+        }
+
+        binding.featureHomeButton.setOnClickListener {
+            val options = arrayOf("Modern Power Icon", "Classic Logo")
+            val values = arrayOf(PanelPreferences.STYLE_POWER, PanelPreferences.STYLE_CLASSIC)
+            val selectedIndex = values.indexOf(panelPrefs.homeButtonStyle).let { if (it == -1) 0 else it }
+
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Service Button Style")
+                .setSingleChoiceItems(options, selectedIndex) { dialog, which ->
+                    panelPrefs.homeButtonStyle = values[which]
+                    binding.tvHomeButtonStyleValue.text = options[which]
+                    applyOnly()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
     }
 

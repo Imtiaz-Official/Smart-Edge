@@ -6,7 +6,30 @@
 
 ---
 
-### v1.3.1 (Latest)
+### v1.3.2 (Latest)
+- **feat(tile)**: Completely rewrote Quick Settings Tile — now matches the Start button behavior exactly with a reliable, seamless toggle.
+- **feat(tile)**: Optimistic UI update — tile switches state instantly on tap, with no visible delay.
+- **feat(tile)**: Haptic feedback on Quick Tile click for tactile confirmation.
+- **feat(tile)**: Fixed cross-process SharedPreferences desync on OEM devices (Vivo, MIUI, ColorOS) causing tile to auto-revert to OFF.
+- **feat(tile)**: Seamless shade behavior — toggling the tile no longer forces your current app to close.
+- **feat(tile)**: Centralized Start/Stop logic shared between App button and Quick Tile via `PanelPreferences.toggleService()`.
+- **feat(ui)**: App status now updates live when toggled from the Quick Tile while the app is open.
+- **feat(appearance)**: Replaced double-column toggle with a multi-column selector dropdown (1–3 columns).
+- **feat(settings)**: Added Backup & Restore — export/import all settings as JSON to/from Downloads folder.
+- **feat(ui)**: App-wide Light / Dark / System theme mode support.
+- **feat(shizuku)**: Integrated Shizuku for rootless system automation; added Revoke permission option.
+- **feat(handle)**: Drag-to-reposition the edge handle directly on screen.
+- **feat(interaction)**: Toggle to disable auto-showing keyboard when opening the app picker dashboard.
+- **feat(notifications)**: Permission check and direct OEM intent fallback for Notification Access.
+- **fix**: Apps no longer vanish on long-press when Drag-to-Split is disabled.
+- **fix**: Active notification apps now reliably appear in the panel.
+- **fix**: Settings reset fully clears panel apps and hides disabled features from search.
+- **fix**: Reversed back arrow in the Support screen corrected.
+- **fix**: Disabled panel bounce animation for a smoother feel.
+
+---
+
+### v1.3.1
 - **feat(shortcuts)**: Added **Quick Action Shortcut** (Toggle Sidebar) accessible via app icon long-press and launcher widgets.
 - **feat(gestures)**: Added **Advanced Tap Gestures** support (Double Tap and Triple Tap) with a smart gesture detection engine and redesigned settings UI.
 - **feat(productivity)**: Added **Notification Hub** to the dashboard. View active notifications and launch apps in **Freeform Windows** instantly.

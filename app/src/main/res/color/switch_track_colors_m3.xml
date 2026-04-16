@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- ON state: Primary (Indigo) -->
+    <item android:color="@color/md_theme_primary" android:state_checked="true" android:state_enabled="true" />
+    
+    <!-- OFF state: Soft Blue-Gray (Slate 200) for a premium "soothing" feel -->
+    <item android:color="#E2E8F0" android:state_checked="false" android:state_enabled="true" />
+    
+    <!-- Disabled -->
+    <item android:alpha="0.12" android:color="?attr/colorOnSurface" />
+</selector>

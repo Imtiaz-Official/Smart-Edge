@@ -57,6 +57,7 @@
         <item name="toolbarStyle">@style/SidePanel.ToolbarStyle</item>
         <item name="materialCardViewStyle">@style/SidePanel.CardViewStyle</item>
         <item name="materialButtonStyle">@style/SidePanel.ButtonStyle</item>
+        <item name="materialSwitchStyle">@style/SidePanel.MaterialSwitchStyle</item>
         <item name="android:forceDarkAllowed">false</item>
     </style>
 
@@ -84,5 +85,11 @@
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="fontFamily">sans-serif-medium</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="SidePanel.MaterialSwitchStyle" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="thumbTint">@color/switch_thumb_colors_m3</item>
+        <item name="trackTint">@color/switch_track_colors_m3</item>
+        <item name="trackDecorationTint">@color/switch_track_colors_m3</item>
     </style>
 </resources>
