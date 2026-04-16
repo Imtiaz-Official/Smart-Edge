@@ -2,6 +2,7 @@ package com.imi.smartedge.sidebar.panel
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -68,7 +69,7 @@ class AppRepository(context: Context) {
             addCategory(android.content.Intent.CATEGORY_LAUNCHER)
         }
 
-        val panelPackages = panelPrefs.getPanelApps().toSet()
+        val panelIdentifiers = panelPrefs.getPanelApps().toSet()
 
         val list = packageManager.queryIntentActivities(intent, 0)
             .distinctBy { it.activityInfo.packageName }
@@ -77,71 +78,132 @@ class AppRepository(context: Context) {
                 AppInfo(
                     packageName = pkg,
                     appName = resolveInfo.loadLabel(packageManager).toString(),
-                    isInPanel = panelPackages.contains(pkg)
+                    isInPanel = panelIdentifiers.contains(pkg),
+                    type = AppInfo.Type.APP
                 )
             }
             .toMutableList()
 
         // Add Pseudo Shortcuts
-        val pseudoShortcuts = listOf(
-            AppInfo("smartedge.shortcut.one_hand", "One-Handed Mode", panelPackages.contains("smartedge.shortcut.one_hand"))
-        )
-        list.addAll(pseudoShortcuts)
+        val oneHandPkg = "smartedge.shortcut.one_hand"
+        list.add(AppInfo(oneHandPkg, "One-Handed Mode", panelIdentifiers.contains(oneHandPkg), AppInfo.Type.SHORTCUT))
         
         list.sortedBy { it.appName.lowercase() }
     }
 
     /**
-     * Returns only the apps currently pinned to the panel.
+     * Returns ALL exported activities for each installed app.
+     */
+    suspend fun getAllActivities(): List<AppInfo> = withContext(Dispatchers.IO) {
+        val panelIdentifiers = panelPrefs.getPanelApps().toSet()
+        val allActivities = mutableListOf<AppInfo>()
+
+        try {
+            val packages = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getInstalledPackages(PackageManager.PackageInfoFlags.of(PackageManager.GET_ACTIVITIES.toLong()))
+            } else {
+                packageManager.getInstalledPackages(PackageManager.GET_ACTIVITIES)
+            }
+
+            android.util.Log.d("AppRepository", "Found ${packages.size} packages")
+
+            for (pkg in packages) {
+                val activities = pkg.activities ?: continue
+                for (act in activities) {
+                    try {
+                        if (!act.exported) continue
+                        
+                        // Construct a URI for this specific activity
+                        val intent = android.content.Intent().apply {
+                            setClassName(pkg.packageName, act.name)
+                        }
+                        val uri = intent.toUri(android.content.Intent.URI_INTENT_SCHEME)
+                        
+                        allActivities.add(AppInfo(
+                            packageName = pkg.packageName,
+                            appName = act.loadLabel(packageManager).toString().takeIf { it.isNotBlank() } ?: act.name.substringAfterLast("."),
+                            isInPanel = panelIdentifiers.contains(uri),
+                            type = AppInfo.Type.ACTIVITY,
+                            intentUri = uri,
+                            activityName = act.name
+                        ))
+                    } catch (e: Exception) {
+                        // Skip individual activity failures
+                        continue
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("AppRepository", "Error loading activities", e)
+        }
+
+        android.util.Log.d("AppRepository", "Returning ${allActivities.size} activities")
+        return@withContext allActivities.sortedBy { it.appName.lowercase() }
+    }
+
+    /**
+     * Returns only the items currently pinned to the panel.
      */
     suspend fun getPanelApps(): List<AppInfo> = withContext(Dispatchers.IO) {
-        val pinnedPackages = panelPrefs.getPanelApps().toMutableList()
-        val allPackages = mutableListOf<String>()
+        val pinnedIdentifiers = panelPrefs.getPanelApps()
+        val allIdentifiers = mutableListOf<String>()
 
         // Prepend notification apps if the feature is enabled
         if (panelPrefs.showNotificationApps) {
             val notifyApps = NotificationTrackingService.getActiveNotificationPackages()
-            allPackages.addAll(notifyApps)
+            allIdentifiers.addAll(notifyApps)
         }
         
-        // Add pinned packages, avoiding duplicates
-        for (pkg in pinnedPackages) {
-            if (!allPackages.contains(pkg)) {
-                allPackages.add(pkg)
+        // Add pinned identifiers, avoiding duplicates
+        for (id in pinnedIdentifiers) {
+            if (!allIdentifiers.contains(id)) {
+                allIdentifiers.add(id)
             }
         }
         
-        if (allPackages.isEmpty()) return@withContext emptyList()
+        if (allIdentifiers.isEmpty()) return@withContext emptyList()
 
-        val intent = android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
-            addCategory(android.content.Intent.CATEGORY_LAUNCHER)
-        }
-        val allLaunchable = packageManager.queryIntentActivities(intent, 0)
-            .associateBy { it.activityInfo.packageName }
-
-        allPackages.mapNotNull { pkg ->
-            if (pkg == "smartedge.shortcut.one_hand") {
-                return@mapNotNull AppInfo(pkg, "One-Handed Mode", true)
+        allIdentifiers.mapNotNull { id ->
+            if (id == "smartedge.shortcut.one_hand") {
+                return@mapNotNull AppInfo(id, "One-Handed Mode", true, AppInfo.Type.SHORTCUT)
             }
-            
-            val resolveInfo = allLaunchable[pkg]
-            if (resolveInfo != null) {
-                AppInfo(
-                    packageName = pkg,
-                    appName = resolveInfo.loadLabel(packageManager).toString(),
-                    isInPanel = pinnedPackages.contains(pkg) // only mark as inPanel if it's explicitly pinned
-                )
-            } else {
+
+            // If it's a URI, it's an Activity or Shortcut
+            if (id.startsWith("intent:")) {
                 try {
-                    val appInfo = packageManager.getApplicationInfo(pkg, 0)
-                    AppInfo(
+                    val intent = android.content.Intent.parseUri(id, android.content.Intent.URI_INTENT_SCHEME)
+                    val pkg = intent.getPackage() ?: intent.component?.packageName ?: ""
+                    
+                    val resolveInfo = packageManager.resolveActivity(intent, 0)
+                    val name = resolveInfo?.loadLabel(packageManager)?.toString() 
+                               ?: intent.component?.shortClassName?.substringAfterLast(".")
+                               ?: "Unknown Activity"
+
+                    return@mapNotNull AppInfo(
                         packageName = pkg,
-                        appName = packageManager.getApplicationLabel(appInfo).toString(),
-                        isInPanel = pinnedPackages.contains(pkg)
+                        appName = name,
+                        isInPanel = pinnedIdentifiers.contains(id),
+                        type = AppInfo.Type.ACTIVITY,
+                        intentUri = id,
+                        activityName = intent.component?.className
                     )
                 } catch (e: Exception) {
-                    null
+                    return@mapNotNull null
                 }
+            }
+
+            // Otherwise, it's a standard APP (Package Name)
+            try {
+                val appInfo = packageManager.getApplicationInfo(id, 0)
+                AppInfo(
+                    packageName = id,
+                    appName = packageManager.getApplicationLabel(appInfo).toString(),
+                    isInPanel = pinnedIdentifiers.contains(id),
+                    type = AppInfo.Type.APP
+                )
+            } catch (e: Exception) {
+                // Not a valid package, but maybe it's still in the launcher cache?
+                null
             }
         }
     }

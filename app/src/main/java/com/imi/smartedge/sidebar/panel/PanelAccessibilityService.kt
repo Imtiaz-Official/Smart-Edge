@@ -20,6 +20,7 @@ class PanelAccessibilityService : AccessibilityService() {
         const val ACTION_SHOW_POWER_MENU = "com.imi.smartedge.sidebar.panel.ACTION_SHOW_POWER_MENU"
         const val ACTION_SPLIT_SCREEN = "com.imi.smartedge.sidebar.panel.ACTION_SPLIT_SCREEN"
         const val ACTION_TRIGGER_SHORTCUT = "com.imi.smartedge.sidebar.panel.ACTION_TRIGGER_SHORTCUT"
+        const val ACTION_ONE_HANDED = "com.imi.smartedge.sidebar.panel.ACTION_ONE_HANDED"
         
         const val EXTRA_PKG = "pkg"
         const val EXTRA_MODE = "mode"
@@ -54,6 +55,12 @@ class PanelAccessibilityService : AccessibilityService() {
                         // Freeform launch doesn't need the toggle action
                         SplitScreenHelper.launchApp(this, pkg, mode)
                     }
+                }
+            }
+            ACTION_ONE_HANDED -> {
+                val handler = android.os.Handler(android.os.Looper.getMainLooper())
+                handler.post {
+                    android.widget.Toast.makeText(this, "One-Handed Mode triggered", android.widget.Toast.LENGTH_SHORT).show()
                 }
             }
             ACTION_TRIGGER_SHORTCUT -> {

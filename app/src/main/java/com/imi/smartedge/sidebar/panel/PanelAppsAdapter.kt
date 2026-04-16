@@ -190,18 +190,23 @@ class PanelAppsAdapter(
                     holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
                 }
                 SpringAnimator.scalePulse(holder.itemView)
-                onAppLaunched()
 
-                if (app.packageName.startsWith("smartedge.shortcut.")) {
-                    val shortcutIntent = Intent(context, PanelAccessibilityService::class.java).apply {
-                        action = PanelAccessibilityService.ACTION_TRIGGER_SHORTCUT
-                        putExtra("shortcut", app.packageName)
+                val launchIntent = when {
+                    app.type == AppInfo.Type.SHORTCUT && app.packageName == "smartedge.shortcut.one_hand" -> {
+                        Intent(context, PanelAccessibilityService::class.java).apply {
+                            action = PanelAccessibilityService.ACTION_ONE_HANDED
+                        }
                     }
-                    context.startService(shortcutIntent)
-                    return@setOnClickListener
+                    app.intentUri != null -> {
+                        try {
+                            Intent.parseUri(app.intentUri, Intent.URI_INTENT_SCHEME)
+                        } catch (e: Exception) {
+                            context.packageManager.getLaunchIntentForPackage(app.packageName)
+                        }
+                    }
+                    else -> context.packageManager.getLaunchIntentForPackage(app.packageName)
                 }
 
-                val launchIntent = context.packageManager.getLaunchIntentForPackage(app.packageName)
                 if (launchIntent != null) {
                     launchIntent.addFlags(
                         android.content.Intent.FLAG_ACTIVITY_NEW_TASK or
@@ -210,11 +215,21 @@ class PanelAppsAdapter(
                     
                     val shouldFreeform = forceFreeform || (panelPrefs.freeformEnabled && context.isFreeformEnabled())
                     
-                    if (shouldFreeform && context.isFreeformEnabled()) {
+                    if (shouldFreeform && context.isFreeformEnabled() && app.type != AppInfo.Type.SHORTCUT) {
                         launchFreeform(launchIntent)
                     } else {
-                        context.startActivity(launchIntent)
+                        try {
+                            if (app.type == AppInfo.Type.SHORTCUT && app.packageName == "smartedge.shortcut.one_hand") {
+                                context.startService(launchIntent)
+                            } else {
+                                context.startActivity(launchIntent)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
                     }
+                    // Close panel AFTER initiating launch
+                    onAppLaunched()
                 }
             }
 

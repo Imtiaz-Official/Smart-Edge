@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.service.quicksettings.TileService
 import android.util.Log
 import android.view.Gravity
 import android.view.View
@@ -100,11 +101,15 @@ class FloatingPanelService : Service() {
         const val ACTION_REFRESH = "com.imi.smartedge.sidebar.panel.REFRESH"
         const val ACTION_CLOSE_PANEL = "com.imi.smartedge.sidebar.panel.CLOSE_PANEL"
         const val ACTION_SHOW_TEMP = "com.imi.smartedge.sidebar.panel.SHOW_TEMP"
+        const val ACTION_TOGGLE = "com.imi.smartedge.sidebar.panel.TOGGLE"
     }
 
     override fun onCreate() {
         super.onCreate()
         isRunning = true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            TileService.requestListeningState(this, android.content.ComponentName(this, PanelTileService::class.java))
+        }
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         panelPrefs = PanelPreferences(this)
 
@@ -155,20 +160,36 @@ class FloatingPanelService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent == null || intent.action == null) {
+            if (panelPrefs.serviceEnabled) {
+                addEdgeHandle()
+            }
+        }
+        
         when (intent?.action) {
+            ACTION_TOGGLE -> {
+                val newState = intent.getBooleanExtra("target_state", !panelPrefs.serviceEnabled)
+                panelPrefs.setServiceEnabled(newState, commit = true)
+                
+                // Request Tile Update explicitly
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    TileService.requestListeningState(this, android.content.ComponentName(this, PanelTileService::class.java))
+                }
+                
+                if (newState) {
+                    addEdgeHandle()
+                } else {
+                    stopSelf()
+                }
+            }
             ACTION_STOP -> {
-                panelPrefs.serviceEnabled = false
                 stopSelf()
             }
             ACTION_OPEN -> {
-                refreshApps {
-                    openPanel()
-                }
+                openPanel()
             }
             ACTION_OPEN_HUB -> {
-                refreshApps {
-                    togglePicker(false)
-                }
+                togglePicker(false)
             }
             PanelAccessibilityService.ACTION_TAKE_SCREENSHOT -> {
                 handler.postDelayed({ triggerScreenshot() }, 200)
@@ -224,6 +245,9 @@ class FloatingPanelService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         isRunning = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            TileService.requestListeningState(this, android.content.ComponentName(this, PanelTileService::class.java))
+        }
         NotificationTrackingService.onNotificationsChanged = null
         serviceScope.cancel()
         try {
@@ -617,6 +641,7 @@ class FloatingPanelService : Service() {
     private fun openPanel() {
         if (isPanelOpen) return
         isPanelOpen = true
+        refreshApps() // Load apps in background while panel opens
         initRootLayout()
         if (rootLayout?.parent == null) {
             windowManager.addView(rootLayout, rootParams)
@@ -743,7 +768,6 @@ class FloatingPanelService : Service() {
             val maxPickerHeightPx = (maxAllowedHeightDp * displayMetrics.density).toInt()
 
             val lp = android.widget.FrameLayout.LayoutParams(dpToPx(240), android.widget.FrameLayout.LayoutParams.WRAP_CONTENT)
-            lp.height = android.widget.FrameLayout.LayoutParams.WRAP_CONTENT // Start with wrap
             
             lp.gravity = if (isRight) Gravity.CENTER_VERTICAL or Gravity.END
                          else Gravity.CENTER_VERTICAL or Gravity.START
@@ -755,12 +779,13 @@ class FloatingPanelService : Service() {
             picker.layoutParams = lp
             // Force the internal RecyclerView to not exceed a certain height
             picker.setMaxRecyclerViewHeight(maxPickerHeightPx - dpToPx(80)) // Subtract header space (approx 80dp)
-            picker.layoutParams = lp
+            
             picker.alpha = 0f
             picker.visibility = View.VISIBLE
             picker.handleKeyboard()
             picker.post {
                 val pickerWidth = picker.width.toFloat()
+                if (pickerWidth <= 0) return@post // Wait for layout if not ready
                 val startX = if (isRight) -pickerWidth else pickerWidth
                 val stiffness = panelPrefs.animSpeed.toFloat()
                 SpringAnimator.animateOpen(picker, startX, isPicker = true, stiffness = stiffness)
@@ -821,6 +846,16 @@ class FloatingPanelService : Service() {
             this, 0, stopIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
+
+        // Use ToggleActivity to ensure the notification shade collapses automatically
+        val openIntent = Intent(this, ToggleActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val openPending = PendingIntent.getActivity(
+            this, 1, openIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
         val openMainIntent = Intent(this, MainActivity::class.java)
         val openMainPending = PendingIntent.getActivity(
             this, 0, openMainIntent,
@@ -831,6 +866,8 @@ class FloatingPanelService : Service() {
             .setContentText(getString(R.string.panel_running))
             .setSmallIcon(android.R.drawable.ic_menu_view)
             .setContentIntent(openMainPending)
+            .addAction(android.R.drawable.ic_menu_view,
+                "Open Sidebar", openPending)
             .addAction(android.R.drawable.ic_menu_close_clear_cancel,
                 getString(R.string.stop_panel), stopPending)
             .setPriority(NotificationCompat.PRIORITY_MIN)

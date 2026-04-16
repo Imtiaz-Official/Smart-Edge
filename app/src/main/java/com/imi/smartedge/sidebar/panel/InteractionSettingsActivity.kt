@@ -3,6 +3,7 @@ package com.imi.smartedge.sidebar.panel
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.imi.smartedge.sidebar.panel.databinding.ActivitySettingsInteractionBinding
 import com.google.android.material.snackbar.Snackbar
@@ -123,6 +124,38 @@ class InteractionSettingsActivity : AppCompatActivity() {
 
         binding.sbPickerGap.value = panelPrefs.pickerGap.toFloat()
         binding.tvPickerGapValue.text = "${panelPrefs.pickerGap}dp"
+    }
+
+    private fun createSidebarShortcut() {
+        val shortcutIntent = Intent(this, ToggleActivity::class.java).apply {
+            action = ToggleActivity.ACTION_TOGGLE
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val shortcutManager = getSystemService(android.content.pm.ShortcutManager::class.java)
+            if (shortcutManager != null && shortcutManager.isRequestPinShortcutSupported) {
+                val pinShortcutInfo = android.content.pm.ShortcutInfo.Builder(this, "toggle_sidebar")
+                    .setShortLabel("Toggle Sidebar")
+                    .setIcon(android.graphics.drawable.Icon.createWithResource(applicationContext, R.mipmap.ic_launcher))
+                    .setIntent(shortcutIntent)
+                    .build()
+
+                shortcutManager.requestPinShortcut(pinShortcutInfo, null)
+            } else {
+                Toast.makeText(applicationContext, "Launcher does not support pinned shortcuts", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            // Legacy way for older Android versions
+            val addIntent = Intent().apply {
+                putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent)
+                putExtra(Intent.EXTRA_SHORTCUT_NAME, "Toggle Sidebar")
+                putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(applicationContext, R.mipmap.ic_launcher))
+                action = "com.android.launcher.action.INSTALL_SHORTCUT"
+            }
+            sendBroadcast(addIntent)
+            Toast.makeText(applicationContext, "Shortcut added to home screen", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun updateSecureSettingsUI() {

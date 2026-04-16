@@ -67,6 +67,44 @@
             android:tint="#B3FFFFFF" />
     </LinearLayout>
 
+    <!-- Selection Type Toggle (Apps / Activities) -->
+    <LinearLayout
+        android:id="@+id/layoutTypeToggle"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_close_btn"
+        android:backgroundTint="#0DFFFFFF"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="2dp">
+
+        <TextView
+            android:id="@+id/btnTypeApps"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_close_btn"
+            android:backgroundTint="#1AFFFFFF"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:text="APPS"
+            android:textColor="#FFFFFF"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/btnTypeActivities"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:text="ACTIVITIES"
+            android:textColor="#80FFFFFF"
+            android:textSize="10sp" />
+    </LinearLayout>
+
     <!-- Header Stats/Actions Row -->
     <LinearLayout
         android:layout_width="match_parent"

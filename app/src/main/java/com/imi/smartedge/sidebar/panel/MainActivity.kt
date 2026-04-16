@@ -17,7 +17,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.Snackbar
 import com.imi.smartedge.sidebar.panel.databinding.ActivityMainM3Binding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), android.content.SharedPreferences.OnSharedPreferenceChangeListener {
 
     private lateinit var binding: ActivityMainM3Binding
     private lateinit var panelPrefs: PanelPreferences
@@ -117,9 +117,26 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        val prefs = getSharedPreferences("side_panel_prefs", android.content.Context.MODE_PRIVATE)
+        prefs.registerOnSharedPreferenceChangeListener(this)
+        
         applyHomeButtonStyle()
         updatePermissionUI()
         updateServiceStatus()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val prefs = getSharedPreferences("side_panel_prefs", android.content.Context.MODE_PRIVATE)
+        prefs.unregisterOnSharedPreferenceChangeListener(this)
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: android.content.SharedPreferences?, key: String?) {
+        if (key == "service_enabled") {
+            runOnUiThread {
+                updateServiceStatus()
+            }
+        }
     }
 
     private fun applyHomeButtonStyle() {
@@ -319,58 +336,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (!isAccessibilityServiceEnabled()) {
-            binding.root.showModernToast("Please enable 'SidePanel' in Accessibility Settings", Snackbar.LENGTH_LONG)
+            binding.root.showModernToast("Please enable 'SidePanel' in Accessibility Settings", com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
             openAccessibilitySettings()
             return
         }
 
-        if (panelPrefs.serviceEnabled) {
-            stopPanel()
-        } else {
-            startPanel()
-        }
-    }
-
-    private fun startPanel() {
-        panelPrefs.serviceEnabled = true
-        // Optimistic UI: Emerald Green
-        binding.btnStartStop.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2ECC71"))
-        binding.btnStartStopClassic.text = "Stop"
-        binding.btnStartStopClassic.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2ECC71"))
-        binding.btnStartStopClassic.setTextColor(Color.WHITE)
-
-        binding.tvStatus.text = "Service is Active"
-        val typedValue = android.util.TypedValue()
-        theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
-        binding.tvStatus.setTextColor(typedValue.data)
-        binding.statusDot.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2ECC71"))
-
-        val intent = Intent(this, FloatingPanelService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
-        }
-    }
-
-    private fun stopPanel() {
-        panelPrefs.serviceEnabled = false
-        // Optimistic UI: Modern Slate
-        binding.btnStartStop.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#475569"))
-        binding.btnStartStopClassic.text = "Start"
-        binding.btnStartStopClassic.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#475569"))
-        binding.btnStartStopClassic.setTextColor(Color.WHITE)
-
-        binding.tvStatus.text = "Service is Stopped"
-        val typedValue = android.util.TypedValue()
-        theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
-        binding.tvStatus.setTextColor(typedValue.data)
-        binding.statusDot.imageTintList = android.content.res.ColorStateList.valueOf(typedValue.data)
-
-        val intent = Intent(this, FloatingPanelService::class.java).apply {
-            action = FloatingPanelService.ACTION_STOP
-        }
-        startService(intent)
+        // Use centralized logic
+        panelPrefs.toggleService(this)
+        
+        // UI will be updated by the OnSharedPreferenceChangeListener
     }
 
     private fun triggerPanelToggle() {

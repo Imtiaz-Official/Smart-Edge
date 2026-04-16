@@ -74,6 +74,10 @@ class ToggleActivity : AppCompatActivity() {
         }
 
         // 4. Close immediately
+        finishWithNoAnim()
+    }
+
+    private fun finishWithNoAnim() {
         finish()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, 0, 0)

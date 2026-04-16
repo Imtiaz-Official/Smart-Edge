@@ -1,6 +1,7 @@
 package com.imi.smartedge.sidebar.panel
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import androidx.core.content.edit
 
@@ -543,7 +544,37 @@ class PanelPreferences(context: Context) {
 
     var serviceEnabled: Boolean
         get() = prefs.getBoolean("service_enabled", true)
-        set(value) = prefs.edit { putBoolean("service_enabled", value) }
+        set(value) = setServiceEnabled(value, false)
+
+    fun setServiceEnabled(enabled: Boolean, commit: Boolean = false) {
+        prefs.edit(commit = commit) {
+            putBoolean("service_enabled", enabled)
+        }
+    }
+
+    /**
+     * Shared logic for starting/stopping the sidebar service.
+     * Ensures UI consistency across App and Quick Tile by delegating the state
+     * change to the main process service.
+     */
+    fun toggleService(context: Context, forcedState: Boolean? = null) {
+        val intent = Intent(context, FloatingPanelService::class.java).apply {
+            action = FloatingPanelService.Companion.ACTION_TOGGLE
+            if (forcedState != null) {
+                putExtra("target_state", forcedState)
+            }
+        }
+        
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     fun getPanelApps(): List<String> {
         val raw = prefs.getString(KEY_PANEL_APPS, "") ?: ""
@@ -553,26 +584,26 @@ class PanelPreferences(context: Context) {
             .distinct()
     }
 
-    fun setPanelApps(packages: List<String>) {
-        val uniquePackages = packages.filter { it.isNotBlank() }.distinct()
-        prefs.edit { putString(KEY_PANEL_APPS, uniquePackages.joinToString(DELIMITER)) }
+    fun setPanelApps(identifiers: List<String>) {
+        val unique = identifiers.filter { it.isNotBlank() }.distinct()
+        prefs.edit { putString(KEY_PANEL_APPS, unique.joinToString(DELIMITER)) }
     }
 
-    fun addApp(packageName: String) {
+    fun addApp(identifier: String) {
         val current = getPanelApps().toMutableList()
-        if (!current.contains(packageName)) {
-            current.add(packageName)
+        if (!current.contains(identifier)) {
+            current.add(identifier)
             setPanelApps(current)
         }
     }
 
-    fun removeApp(packageName: String) {
+    fun removeApp(identifier: String) {
         val current = getPanelApps().toMutableList()
-        current.remove(packageName)
+        current.remove(identifier)
         setPanelApps(current)
     }
 
-    fun isInPanel(packageName: String): Boolean = getPanelApps().contains(packageName)
+    fun isInPanel(identifier: String): Boolean = getPanelApps().contains(identifier)
 
     var panelSide: String
         get() = prefs.getString(KEY_PANEL_SIDE, DEFAULT_SIDE) ?: DEFAULT_SIDE

@@ -151,6 +151,17 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name=".PanelTileService"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/shortcut_toggle_short"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
         <receiver
             android:name=".BootReceiver"
             android:exported="true">

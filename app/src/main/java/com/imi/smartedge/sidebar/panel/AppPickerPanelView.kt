@@ -49,6 +49,10 @@ class AppPickerPanelView @JvmOverloads constructor(
     var isEditMode = false
         private set
     
+    private var currentType = AppInfo.Type.APP
+    private lateinit var btnTypeApps: TextView
+    private lateinit var btnTypeActivities: TextView
+    
     private var _scope = CoroutineScope(Dispatchers.Main + Job())
 
     override fun onAttachedToWindow() {
@@ -114,6 +118,25 @@ class AppPickerPanelView @JvmOverloads constructor(
         pickerPanelCard = view.findViewById(R.id.pickerPanelCard)
         rvPickerGrid = view.findViewById(R.id.rvPickerGrid)
         etSearch = view.findViewById(R.id.etPickerSearch)
+
+        btnTypeApps = view.findViewById(R.id.btnTypeApps)
+        btnTypeActivities = view.findViewById(R.id.btnTypeActivities)
+        
+        // Hide type toggle for now
+        view.findViewById<View>(R.id.layoutTypeToggle).visibility = View.GONE
+
+        btnTypeApps.setOnClickListener {
+            if (currentType != AppInfo.Type.APP) {
+                currentType = AppInfo.Type.APP
+                updateTypeToggleUI()
+                loadApps(forceRefresh = true)
+            }
+        }
+
+        btnTypeActivities.setOnClickListener {
+            // Disabled for now
+        }
+
         // Attempt to force floating keyboard for overlay panels
         etSearch.privateImeOptions = "nm" // This sometimes hints keyboards to stay compact
         etSearch.imeOptions = etSearch.imeOptions or android.view.inputmethod.EditorInfo.IME_FLAG_NO_FULLSCREEN or android.view.inputmethod.EditorInfo.IME_FLAG_NO_EXTRACT_UI
@@ -229,7 +252,7 @@ class AppPickerPanelView @JvmOverloads constructor(
         if (lastMaxPx == -1) return
         
         val lp = rvPickerGrid.layoutParams
-        val itemsCount = allApps.size
+        val itemsCount = adapter.itemCount
         if (itemsCount == 0) {
             lp.height = ViewGroup.LayoutParams.WRAP_CONTENT
             rvPickerGrid.layoutParams = lp
@@ -348,12 +371,31 @@ class AppPickerPanelView @JvmOverloads constructor(
         return super.dispatchKeyEvent(event)
     }
 
+    private fun updateTypeToggleUI() {
+        val accentColor = try {
+            if (panelPrefs.useCustomAccent) Color.parseColor(panelPrefs.accentColor)
+            else Color.parseColor("#4A9EFF")
+        } catch (e: Exception) { Color.parseColor("#4A9EFF") }
+
+        if (currentType == AppInfo.Type.APP) {
+            btnTypeApps.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#1AFFFFFF"))
+            btnTypeApps.setTextColor(Color.WHITE)
+            btnTypeActivities.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.TRANSPARENT)
+            btnTypeActivities.setTextColor(Color.parseColor("#80FFFFFF"))
+        } else {
+            btnTypeActivities.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#1AFFFFFF"))
+            btnTypeActivities.setTextColor(Color.WHITE)
+            btnTypeApps.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.TRANSPARENT)
+            btnTypeApps.setTextColor(Color.parseColor("#80FFFFFF"))
+        }
+    }
+
     fun loadApps(forceRefresh: Boolean = false) {
         if (!forceRefresh && allApps.isNotEmpty()) {
-            val panelPackages = panelPrefs.getPanelApps().toSet()
+            val panelIdentifiers = panelPrefs.getPanelApps().toSet()
             var changed = false
             allApps.forEach { 
-                val inPanel = panelPackages.contains(it.packageName)
+                val inPanel = panelIdentifiers.contains(it.identifier)
                 if (it.isInPanel != inPanel) {
                     it.isInPanel = inPanel
                     changed = true
@@ -364,11 +406,29 @@ class AppPickerPanelView @JvmOverloads constructor(
             }
             return
         }
+
+        // --- SHOW LOADING STATE ---
+        val originalHeaderText = tvHeader.text
+        tvHeader.text = if (currentType == AppInfo.Type.ACTIVITY) "Scanning Activities..." else "Loading Apps..."
+        
         _scope.launch {
-            val apps = withContext(Dispatchers.IO) { repository.getAllApps() }
+            val apps = withContext(Dispatchers.IO) { 
+                if (currentType == AppInfo.Type.ACTIVITY) repository.getAllActivities()
+                else repository.getAllApps()
+            }
             allApps = apps
-            adapter.submitList(allApps.toList()) {
-                if (panelPrefs.rememberScroll) {
+            
+            // --- RESTORE HEADER STATE ---
+            tvHeader.text = if (isEditMode) "Manage Smart Edge" else (if (currentType == AppInfo.Type.ACTIVITY) "All Activities" else "All Apps")
+
+            // Apply current search query after data is loaded
+            val query = etSearch.text.toString()
+            val filtered = if (query.isEmpty()) allApps else allApps.filter { it.appName.contains(query, ignoreCase = true) }
+            
+            adapter.submitList(filtered.toList()) {
+                updatePickerHeight() // Call this FIRST to set correct bounds before scroll/anim
+                
+                if (panelPrefs.rememberScroll && query.isEmpty()) {
                     rvPickerGrid.post {
                         rvPickerGrid.scrollBy(0, panelPrefs.lastPickerScroll)
                     }
@@ -377,12 +437,14 @@ class AppPickerPanelView @JvmOverloads constructor(
                         rvPickerGrid.scrollToPosition(0)
                     }
                 }
-                updatePickerHeight()
 
                 // --- STAGGERED ENTRY ANIMATION ---
                 rvPickerGrid.post {
                     val layoutManager = rvPickerGrid.layoutManager ?: return@post
-                    for (i in 0 until layoutManager.childCount) {
+                    val childCount = layoutManager.childCount
+                    if (childCount == 0) return@post
+
+                    for (i in 0 until childCount) {
                         val v = layoutManager.getChildAt(i) ?: continue
                         v.alpha = 0f
                         v.translationY = 50f
@@ -570,9 +632,39 @@ class AppPickerPanelView @JvmOverloads constructor(
 
             IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
 
+            // Click the whole item to toggle (if in edit mode) or launch (if not)
+            holder.itemView.setOnClickListener {
+                val currentPos = holder.bindingAdapterPosition
+                if (currentPos == RecyclerView.NO_POSITION) return@setOnClickListener
+                val currentApp = getItem(currentPos)
+
+                if (isEditMode) {
+                    if (panelPrefs.hapticEnabled) {
+                        it.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
+                    }
+                    toggleAppSelection(currentApp, currentPos, holder.ivCheck)
+                } else {
+                    if (panelPrefs.hapticEnabled) {
+                        it.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
+                    }
+                    launchApp(currentApp)
+                }
+            }
+
+            // Reset listener before setting checked (avoid spurious callbacks)
+            holder.ivCheck.setOnClickListener {
+                val currentPos = holder.bindingAdapterPosition
+                if (currentPos != RecyclerView.NO_POSITION && isEditMode) {
+                    if (panelPrefs.hapticEnabled) {
+                        it.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
+                    }
+                    toggleAppSelection(getItem(currentPos), currentPos, holder.ivCheck)
+                }
+            }
+
+            val isSelected = panelPrefs.isInPanel(app.identifier)
             if (isEditMode) {
                 holder.ivCheck.visibility = View.VISIBLE
-                val isSelected = app.isInPanel
                 val iconTint = if (isSelected) accentColorStateList else android.content.res.ColorStateList.valueOf(Color.parseColor("#B3FFFFFF"))
                 if (holder.ivCheck is ImageView) {
                     holder.ivCheck.imageTintList = iconTint
@@ -580,29 +672,6 @@ class AppPickerPanelView @JvmOverloads constructor(
                 holder.ivCheck.rotation = if (isSelected) 45f else 0f
             } else {
                 holder.ivCheck.visibility = View.GONE
-            }
-
-            holder.vHighlight.visibility = View.GONE
-
-            holder.itemView.setOnClickListener {
-                if (!isEditMode) {
-                    if (panelPrefs.hapticEnabled) {
-                        holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
-                    }
-                    launchApp(app)
-                }
-            }
-
-            holder.ivCheck.setOnClickListener {
-                if (isEditMode) {
-                    val currentPos = holder.bindingAdapterPosition
-                    if (currentPos != RecyclerView.NO_POSITION) {
-                        if (panelPrefs.hapticEnabled) {
-                            it.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
-                        }
-                        toggleAppSelection(getItem(currentPos), currentPos, holder.ivCheck)
-                    }
-                }
             }
         }
 
@@ -629,13 +698,23 @@ class AppPickerPanelView @JvmOverloads constructor(
             rvPickerGrid.findViewHolderForAdapterPosition(currentList.indexOf(app))?.itemView?.let {
                 SpringAnimator.scalePulse(it)
             }
-            val intent = context.packageManager.getLaunchIntentForPackage(app.packageName)
+            
+            val intent = if (app.intentUri != null) {
+                try {
+                    android.content.Intent.parseUri(app.intentUri, android.content.Intent.URI_INTENT_SCHEME)
+                } catch (e: Exception) {
+                    context.packageManager.getLaunchIntentForPackage(app.packageName)
+                }
+            } else {
+                context.packageManager.getLaunchIntentForPackage(app.packageName)
+            }
+
             if (intent != null) {
                 intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
                 
                 val shouldFreeform = forceFreeform || (panelPrefs.freeformEnabled && context.isFreeformEnabled())
                 
-                if (shouldFreeform && context.isFreeformEnabled()) {
+                if (shouldFreeform && context.isFreeformEnabled() && app.type != AppInfo.Type.SHORTCUT) {
                     launchFreeform(intent)
                 } else {
                     context.startActivity(intent)
@@ -757,7 +836,7 @@ class AppPickerPanelView @JvmOverloads constructor(
 
     private class AppDiffCallback : androidx.recyclerview.widget.DiffUtil.ItemCallback<AppInfo>() {
         override fun areItemsTheSame(oldItem: AppInfo, newItem: AppInfo): Boolean {
-            return oldItem.packageName == newItem.packageName
+            return oldItem.identifier == newItem.identifier
         }
 
         override fun areContentsTheSame(oldItem: AppInfo, newItem: AppInfo): Boolean {
