@@ -33,19 +33,19 @@ class PanelTileService : TileService() {
         val tile = qsTile ?: return
         if (isEnabled && isAccessibilityEnabled) {
             tile.state = Tile.STATE_ACTIVE
-            tile.label = "Sidebar: ON"
+            tile.label = "Sidebar"
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 tile.subtitle = "Service Active"
             }
         } else if (isEnabled && !isAccessibilityEnabled) {
             tile.state = Tile.STATE_INACTIVE
-            tile.label = "Sidebar: Fix"
+            tile.label = "Sidebar"
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 tile.subtitle = "Accessibility Missing"
             }
         } else {
             tile.state = Tile.STATE_INACTIVE
-            tile.label = "Sidebar: OFF"
+            tile.label = "Sidebar"
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 tile.subtitle = "Service Stopped"
             }

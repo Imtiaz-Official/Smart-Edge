@@ -213,7 +213,12 @@ class FloatingPanelService : Service() {
                     pickerPanelView?.applyTheme()
                     pickerPanelView?.clearIcons()
                     updateBlur(isPanelOpen)
-                    if (isPickerOpen) {
+                    
+                    if (!isPanelOpen) {
+                        isPickerOpen = false
+                        pickerPanelView?.visibility = View.GONE
+                        sidePanelView?.animatePickerToggle(false)
+                    } else if (isPickerOpen) {
                         pickerPanelView?.loadApps() 
                     }
                     refreshApps()

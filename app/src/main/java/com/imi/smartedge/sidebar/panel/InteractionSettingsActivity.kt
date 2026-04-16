@@ -129,19 +129,20 @@ class InteractionSettingsActivity : AppCompatActivity() {
     private fun createSidebarShortcut() {
         val shortcutIntent = Intent(this, ToggleActivity::class.java).apply {
             action = ToggleActivity.ACTION_TOGGLE
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             val shortcutManager = getSystemService(android.content.pm.ShortcutManager::class.java)
             if (shortcutManager != null && shortcutManager.isRequestPinShortcutSupported) {
-                val pinShortcutInfo = android.content.pm.ShortcutInfo.Builder(this, "toggle_sidebar")
+                val pinShortcutInfo = android.content.pm.ShortcutInfo.Builder(this, "toggle_sidebar_homescreen")
                     .setShortLabel("Toggle Sidebar")
                     .setIcon(android.graphics.drawable.Icon.createWithResource(applicationContext, R.mipmap.ic_launcher))
                     .setIntent(shortcutIntent)
                     .build()
 
                 shortcutManager.requestPinShortcut(pinShortcutInfo, null)
+                Toast.makeText(applicationContext, "Shortcut request sent. Please check your home screen.", Toast.LENGTH_LONG).show()
             } else {
                 Toast.makeText(applicationContext, "Launcher does not support pinned shortcuts", Toast.LENGTH_SHORT).show()
             }
@@ -174,6 +175,10 @@ class InteractionSettingsActivity : AppCompatActivity() {
             SecureSettingsDialog.show(this) {
                 updateSecureSettingsUI()
             }
+        }
+
+        binding.btnCreateShortcut.setOnClickListener {
+            createSidebarShortcut()
         }
 
         binding.featurePanelSide.setOnCheckedChangeListener { _, checkedId ->

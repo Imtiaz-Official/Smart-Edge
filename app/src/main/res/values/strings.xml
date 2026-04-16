@@ -2,7 +2,7 @@
     <string name="app_name">Smart Edge</string>
     <string name="app_picker_title">Choose Apps</string>
     <string name="settings_title">SidePanel Settings</string>
-    <string name="shortcut_toggle_short">Toggle Sidebar</string>
+    <string name="shortcut_toggle_short">Sidebar</string>
     <string name="shortcut_toggle_long">Toggle Sidebar</string>
     <string name="shortcut_screenshot">Take Screenshot</string>
     <string name="shortcut_hub">Open Productivity Hub</string>

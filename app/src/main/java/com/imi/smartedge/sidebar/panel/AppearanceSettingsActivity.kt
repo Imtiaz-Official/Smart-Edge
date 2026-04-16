@@ -249,8 +249,8 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         }
 
         binding.featureColumns.setOnClickListener {
-            val options = arrayOf("1 Column", "2 Columns", "3 Columns")
-            val currentSelectedIndex = panelPrefs.panelColumns - 1
+            val options = arrayOf("1 Column", "2 Columns")
+            val currentSelectedIndex = (panelPrefs.panelColumns - 1).coerceIn(0, 1)
             var newlySelectedIndex = currentSelectedIndex
 
             com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
