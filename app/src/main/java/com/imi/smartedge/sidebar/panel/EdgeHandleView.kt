@@ -111,44 +111,109 @@ class EdgeHandleView @JvmOverloads constructor(
     init {
         setLayerType(LAYER_TYPE_HARDWARE, null)
         setWillNotDraw(false)
-        post { updatePill() }
+        post { 
+            updatePill()
+            setupImeListener()
+        }
+    }
+
+    private fun setupImeListener() {
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
+            val imeVisible = insets.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime())
+            val imeHeight = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime()).bottom
+            
+            val params = layoutParams as? WindowManager.LayoutParams
+            if (params != null) {
+                val screenHeight = resources.displayMetrics.heightPixels
+                if (imeVisible && imeHeight > 0) {
+                    val keyboardTop = screenHeight - imeHeight
+                    val h = height
+                    val handleCenterAbsY = (screenHeight / 2) + params.y
+                    val handleBottomAbsY = handleCenterAbsY + (h / 2)
+
+                    if (handleBottomAbsY > keyboardTop) {
+                        val overlap = handleBottomAbsY - keyboardTop
+                        val margin = (32 * density).toInt()
+                        val newY = params.y - overlap - margin
+                        
+                        val animator = android.animation.ValueAnimator.ofInt(params.y, newY.toInt())
+                        animator.duration = 200
+                        animator.addUpdateListener { animation ->
+                            params.y = animation.animatedValue as Int
+                            updateLayoutSafely(params)
+                        }
+                        animator.start()
+                    }
+                } else {
+                    val h = if (showPill) (panelPrefs.handleHeight * density).toInt()
+                            else (panelPrefs.handleHeight * 1.5f * density).toInt()
+                    val safeMargin = (10 * density).toInt()
+                    val maxOffset = (screenHeight / 2) - (h / 2) - safeMargin
+                    val targetY = (panelPrefs.handleVerticalOffset * density).toInt().coerceIn(-maxOffset, maxOffset)
+                    
+                    if (params.y != targetY) {
+                        val animator = android.animation.ValueAnimator.ofInt(params.y, targetY)
+                        animator.duration = 200
+                        animator.addUpdateListener { animation ->
+                            params.y = animation.animatedValue as Int
+                            updateLayoutSafely(params)
+                        }
+                        animator.start()
+                    }
+                }
+            }
+            insets
+        }
+    }
+
+    private fun updateLayoutSafely(params: WindowManager.LayoutParams) {
+        if (isAttachedToWindow) {
+            try {
+                val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                wm.updateViewLayout(this, params)
+            } catch (e: Exception) {}
+        }
     }
 
     fun updatePill() {
         if (showPill) {
-            val drawableRes = if (isRightSide) R.drawable.bg_pill_handle_right
-                             else R.drawable.bg_pill_handle_left
-            val insetDrawable = context.getDrawable(drawableRes)?.mutate() as? android.graphics.drawable.InsetDrawable
-
-            if (insetDrawable != null) {
-                val triggerWidthDp = panelPrefs.handleWidth
-                val pillWidthDp = panelPrefs.pillWidth
-                val insetDp = (triggerWidthDp - pillWidthDp).coerceAtLeast(0)
-                val insetPx = (insetDp * density).toInt()
-
-                val baseShape = insetDrawable.drawable?.mutate() ?: return
-                val newInset = if (isRightSide) {
-                    android.graphics.drawable.InsetDrawable(baseShape, insetPx, 0, 0, 0)
+            val cornerRadius = 12 * density
+            val shape = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                if (isRightSide) {
+                    cornerRadii = floatArrayOf(cornerRadius, cornerRadius, 0f, 0f, 0f, 0f, cornerRadius, cornerRadius)
                 } else {
-                    android.graphics.drawable.InsetDrawable(baseShape, 0, 0, insetPx, 0)
+                    cornerRadii = floatArrayOf(0f, 0f, cornerRadius, cornerRadius, cornerRadius, cornerRadius, 0f, 0f)
                 }
-                background = newInset
-            } else {
-                setBackgroundResource(drawableRes)
+                
+                try {
+                    val color = Color.parseColor(panelPrefs.pillColor)
+                    setColor(color)
+                } catch (e: Exception) {
+                    setColor(Color.WHITE)
+                }
+                
+                setStroke((1 * density).toInt(), Color.parseColor("#4DFFFFFF"))
             }
 
-            try {
-                val color = Color.parseColor(panelPrefs.pillColor)
-                backgroundTintList = ColorStateList.valueOf(color)
-            } catch (e: Exception) {
-                backgroundTintList = null
+            val triggerWidthDp = panelPrefs.handleWidth
+            val pillWidthDp = panelPrefs.pillWidth
+            val insetDp = (triggerWidthDp - pillWidthDp).coerceAtLeast(0)
+            val insetPx = (insetDp * density).toInt()
+
+            val newInset = if (isRightSide) {
+                android.graphics.drawable.InsetDrawable(shape, insetPx, 0, 0, 0)
+            } else {
+                android.graphics.drawable.InsetDrawable(shape, 0, 0, insetPx, 0)
             }
+            background = newInset
+            
             alpha = panelPrefs.panelOpacity / 100f
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 post { systemGestureExclusionRects = listOf(Rect(0, 0, width, height)) }
             }
         } else {
-            setBackgroundResource(0)
+            background = null
             alpha = 1f
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 systemGestureExclusionRects = listOf(Rect(0, 0, width, height))

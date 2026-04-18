@@ -37,8 +37,6 @@ class FloatingPanelService : Service() {
     private var dragOverlay: android.widget.FrameLayout? = null
     private var dragOverlayParams: WindowManager.LayoutParams? = null
 
-    private var keyboardOverlay: android.widget.FrameLayout? = null
-
     private var isPanelOpen = false
     private var isPickerOpen = false
     private lateinit var panelPrefs: PanelPreferences
@@ -122,7 +120,6 @@ class FloatingPanelService : Service() {
 
         initSidePanel()
         initPickerPanel()
-        initKeyboardOverlay()
         
         if (panelPrefs.serviceEnabled) {
             addEdgeHandle()
@@ -260,9 +257,7 @@ class FloatingPanelService : Service() {
             unregisterReceiver(packageReceiver)
         } catch (e: Exception) {}
         removeView(edgeHandleView)
-        removeView(sidePanelView)
-        removeView(pickerPanelView)
-        removeView(keyboardOverlay)
+        removeView(rootLayout)
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -346,7 +341,7 @@ class FloatingPanelService : Service() {
 
         val handleWidth = panelPrefs.handleWidth // Use user-defined width
         val handleHeight = if (isPillVisible) dpToPx(panelPrefs.handleHeight) 
-                           else (resources.displayMetrics.heightPixels * 0.60f).toInt()
+                           else dpToPx((panelPrefs.handleHeight * 1.5f).toInt())
 
         // Fix: Use FLAG_LAYOUT_NO_LIMITS carefully or ensure GRAVITY_CENTER doesn't overflow
         val params = WindowManager.LayoutParams(
@@ -374,90 +369,6 @@ class FloatingPanelService : Service() {
         }
 
         windowManager.addView(edgeHandleView, params)
-    }
-
-    private fun initKeyboardOverlay() {
-        keyboardOverlay = android.widget.FrameLayout(this).apply {
-            setBackgroundColor(android.graphics.Color.TRANSPARENT)
-            
-            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(this) { v, insets ->
-                val imeVisible = insets.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime())
-                val imeHeight = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime()).bottom
-                
-                if (imeVisible && imeHeight > 0) {
-                    val screenHeight = resources.displayMetrics.heightPixels
-                    val keyboardTop = screenHeight - imeHeight
-                    
-                    edgeHandleView?.let { handle ->
-                        val handleHeight = if (panelPrefs.showPill) dpToPx(panelPrefs.handleHeight) 
-                                           else (screenHeight * 0.60f).toInt()
-                        
-                        val handleParams = handle.layoutParams as? WindowManager.LayoutParams
-                        if (handleParams != null) {
-                            val handleCenterAbsY = (screenHeight / 2) + handleParams.y
-                            val handleBottomAbsY = handleCenterAbsY + (handleHeight / 2)
-                            
-                            if (handleBottomAbsY > keyboardTop) {
-                                val overlap = handleBottomAbsY - keyboardTop
-                                val margin = dpToPx(32) // A bit more padding
-                                val newY = handleParams.y - overlap - margin
-                                
-                                val animator = android.animation.ValueAnimator.ofInt(handleParams.y, newY.toInt())
-                                animator.duration = 200
-                                animator.addUpdateListener { animation ->
-                                    handleParams.y = animation.animatedValue as Int
-                                    if (handle.isAttachedToWindow) {
-                                        try { windowManager.updateViewLayout(handle, handleParams) } catch (e: Exception) {}
-                                    }
-                                }
-                                animator.start()
-                            }
-                        }
-                    }
-                } else {
-                    edgeHandleView?.let { handle ->
-                        val handleParams = handle.layoutParams as? WindowManager.LayoutParams
-                        if (handleParams != null) {
-                            val handleHeight = if (panelPrefs.showPill) dpToPx(panelPrefs.handleHeight) 
-                                               else (resources.displayMetrics.heightPixels * 0.60f).toInt()
-                            val safeMargin = dpToPx(10)
-                            val maxOffset = (resources.displayMetrics.heightPixels / 2) - (handleHeight / 2) - safeMargin
-                            val targetY = dpToPx(panelPrefs.handleVerticalOffset).coerceIn(-maxOffset, maxOffset)
-                            
-                            if (handleParams.y != targetY) {
-                                val animator = android.animation.ValueAnimator.ofInt(handleParams.y, targetY)
-                                animator.duration = 200
-                                animator.addUpdateListener { animation ->
-                                    handleParams.y = animation.animatedValue as Int
-                                    if (handle.isAttachedToWindow) {
-                                        try { windowManager.updateViewLayout(handle, handleParams) } catch (e: Exception) {}
-                                    }
-                                }
-                                animator.start()
-                            }
-                        }
-                    }
-                }
-                
-                insets
-            }
-        }
-
-        val overlayParams = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-            PixelFormat.TRANSPARENT
-        )
-
-        try {
-            windowManager.addView(keyboardOverlay, overlayParams)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to add keyboard overlay", e)
-        }
     }
 
     private fun initSidePanel() {
@@ -525,7 +436,7 @@ class FloatingPanelService : Service() {
                 return super.dispatchKeyEvent(event)
             }
         }.apply {
-            setBackgroundColor(android.graphics.Color.parseColor("#01000000"))
+            setBackgroundColor(android.graphics.Color.TRANSPARENT)
             isFocusable = true
             isFocusableInTouchMode = true
 
@@ -631,8 +542,7 @@ class FloatingPanelService : Service() {
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
                     WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS or
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
@@ -692,8 +602,9 @@ class FloatingPanelService : Service() {
     }
 
     fun closePanel(immediate: Boolean = false) {
-        if (!isPanelOpen) return
+        val wasOpen = isPanelOpen
         isPanelOpen = false
+        
         if (immediate) {
             if (isPickerOpen) {
                 isPickerOpen = false
@@ -701,7 +612,9 @@ class FloatingPanelService : Service() {
             }
             sidePanelView?.visibility = View.GONE
             updateBlur(false)
-            if (rootLayout?.parent != null) windowManager.removeView(rootLayout)
+            if (rootLayout?.parent != null) {
+                try { windowManager.removeViewImmediate(rootLayout) } catch (e: Exception) {}
+            }
             edgeHandleView?.visibility = View.VISIBLE
             sidePanelView?.animatePickerToggle(false)
             
@@ -710,6 +623,16 @@ class FloatingPanelService : Service() {
             }
             return
         }
+
+        if (!wasOpen) {
+            // Safety: if panel is already marked closed but rootLayout is somehow still attached, kill it
+            if (rootLayout?.parent != null) {
+                try { windowManager.removeView(rootLayout) } catch (e: Exception) {}
+            }
+            edgeHandleView?.visibility = View.VISIBLE
+            return
+        }
+
         if (isPickerOpen) closePicker()
         sidePanelView?.let { panel ->
             val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
@@ -718,7 +641,9 @@ class FloatingPanelService : Service() {
             SpringAnimator.animateClose(panel, if (isRight) panelWidth else -panelWidth, stiffness = stiffness) {
                 panel.visibility = View.GONE
                 updateBlur(false)
-                if (rootLayout?.parent != null) windowManager.removeView(rootLayout)
+                if (rootLayout?.parent != null) {
+                    try { windowManager.removeView(rootLayout) } catch (e: Exception) {}
+                }
                 edgeHandleView?.visibility = View.VISIBLE
                 panel.animatePickerToggle(false) 
                 
