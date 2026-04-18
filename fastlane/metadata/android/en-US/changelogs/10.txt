@@ -1,0 +1,1 @@
+Major bug fix: Fix touch interference and UI refinements
