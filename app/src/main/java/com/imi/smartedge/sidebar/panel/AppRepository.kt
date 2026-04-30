@@ -146,18 +146,16 @@ class AppRepository(context: Context) {
      */
     suspend fun getPanelApps(): List<AppInfo> = withContext(Dispatchers.IO) {
         val pinnedIdentifiers = panelPrefs.getPanelApps()
-        val allIdentifiers = mutableListOf<String>()
+        val allIdentifiers = pinnedIdentifiers.toMutableList()
 
-        // Prepend notification apps if the feature is enabled
+        // If notifications are enabled, add them if they aren't already pinned.
+        // We prepend them to keep them at the top, but only if they are NEW.
         if (panelPrefs.showNotificationApps) {
             val notifyApps = NotificationTrackingService.getActiveNotificationPackages()
-            allIdentifiers.addAll(notifyApps)
-        }
-        
-        // Add pinned identifiers, avoiding duplicates
-        for (id in pinnedIdentifiers) {
-            if (!allIdentifiers.contains(id)) {
-                allIdentifiers.add(id)
+            for (pkg in notifyApps.reversed()) { // Reversed to maintain relative notification order when prepending
+                if (!allIdentifiers.contains(pkg)) {
+                    allIdentifiers.add(0, pkg)
+                }
             }
         }
         

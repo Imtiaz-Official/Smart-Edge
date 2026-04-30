@@ -393,14 +393,14 @@ class FloatingPanelService : Service() {
             onAppLaunched = { closePanel() }
             onToggleApp = { app, isSelected ->
                 if (isSelected) {
-                    panelPrefs.addApp(app.packageName)
+                    panelPrefs.addApp(app.identifier)
                     refreshApps {
                         if (isPickerOpen) {
-                            sidePanelView?.scrollToApp(app.packageName)
+                            sidePanelView?.scrollToApp(app.identifier)
                         }
                     }
                 } else {
-                    panelPrefs.removeApp(app.packageName)
+                    panelPrefs.removeApp(app.identifier)
                     refreshApps()
                 }
             }

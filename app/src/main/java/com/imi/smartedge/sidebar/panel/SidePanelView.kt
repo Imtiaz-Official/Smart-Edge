@@ -99,7 +99,7 @@ class SidePanelView @JvmOverloads constructor(
         adapter = PanelAppsAdapter(
             context,
             onRemove = { removedApp ->
-                panelPrefs.removeApp(removedApp.packageName)
+                panelPrefs.removeApp(removedApp.identifier)
                 onAppsChanged?.invoke()
             },
             onAddClick = { isEdit -> onAddClick?.invoke(isEdit) },
@@ -139,10 +139,17 @@ class SidePanelView @JvmOverloads constructor(
                 viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder,
                 target: androidx.recyclerview.widget.RecyclerView.ViewHolder
             ): Boolean {
-                if (target is PanelAppsAdapter.AddViewHolder || viewHolder is PanelAppsAdapter.AddViewHolder) return false
+                if (viewHolder is PanelAppsAdapter.AddViewHolder) return false
                 val from = viewHolder.bindingAdapterPosition
-                val to = target.bindingAdapterPosition
+                var to = target.bindingAdapterPosition
+                
+                if (target is PanelAppsAdapter.AddViewHolder) {
+                    // Snap to the last available app position
+                    to = adapter.itemCount - 2
+                }
+                
                 if (from == androidx.recyclerview.widget.RecyclerView.NO_POSITION || to == androidx.recyclerview.widget.RecyclerView.NO_POSITION) return false
+                if (from == to) return false
                 
                 adapter.moveItem(from, to)
                 return true
@@ -152,9 +159,11 @@ class SidePanelView @JvmOverloads constructor(
 
             override fun clearView(recyclerView: androidx.recyclerview.widget.RecyclerView, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder) {
                 super.clearView(recyclerView, viewHolder)
-                val packages = adapter.getApps().map { it.packageName }
-                panelPrefs.setPanelApps(packages)
-                onAppsChanged?.invoke()
+                val apps = adapter.getApps()
+                val identifiers = apps.map { it.identifier }
+                
+                panelPrefs.setPanelApps(identifiers)
+                updateSideLayout()
             }
         })
         itemTouchHelper.attachToRecyclerView(binding.rvPanelApps)
@@ -420,12 +429,12 @@ class SidePanelView @JvmOverloads constructor(
         if (count > 0) binding.rvPanelApps.scrollToPosition(count - 1)
     }
 
-    fun scrollToApp(packageName: String) {
+    fun scrollToApp(identifier: String) {
         val apps = adapter.currentList
-        val index = apps.indexOfFirst { it.packageName == packageName }
+        val index = apps.indexOfFirst { it.identifier == identifier }
         if (index != -1) {
             binding.rvPanelApps.smoothScrollToPosition(index)
-            adapter.highlightItem(packageName)
+            adapter.highlightItem(identifier)
         }
     }
 

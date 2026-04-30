@@ -20,7 +20,7 @@ class PanelAppsAdapter(
     private val onRemove: (AppInfo) -> Unit,
     private val onAddClick: (Boolean) -> Unit,
     private val onAppLaunched: () -> Unit
-) : ListAdapter<AppInfo, RecyclerView.ViewHolder>(AppDiffCallback()) {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val panelPrefs = PanelPreferences(context)
     private var showAddButton: Boolean = false
@@ -29,20 +29,23 @@ class PanelAppsAdapter(
     private var forceFreeform: Boolean = false
     
     private var mutableApps = mutableListOf<AppInfo>()
+    val currentList: List<AppInfo> get() = mutableApps
 
-    override fun submitList(list: List<AppInfo>?) {
-        super.submitList(list)
+    fun submitList(list: List<AppInfo>?) {
         mutableApps = list?.toMutableList() ?: mutableListOf()
+        notifyDataSetChanged()
     }
 
-    override fun submitList(list: List<AppInfo>?, commitCallback: Runnable?) {
-        super.submitList(list, commitCallback)
+    fun submitList(list: List<AppInfo>?, commitCallback: Runnable?) {
         mutableApps = list?.toMutableList() ?: mutableListOf()
+        notifyDataSetChanged()
+        commitCallback?.run()
     }
 
     fun moveItem(from: Int, to: Int) {
         if (from < 0 || to < 0 || from >= mutableApps.size || to >= mutableApps.size) return
-        java.util.Collections.swap(mutableApps, from, to)
+        val item = mutableApps.removeAt(from)
+        mutableApps.add(to, item)
         notifyItemMoved(from, to)
     }
 
@@ -86,11 +89,11 @@ class PanelAppsAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (position < currentList.size) VIEW_TYPE_APP else VIEW_TYPE_ADD
+        return if (position < mutableApps.size) VIEW_TYPE_APP else VIEW_TYPE_ADD
     }
 
     override fun getItemCount(): Int {
-        return if (showAddButton) currentList.size + 1 else currentList.size
+        return if (showAddButton) mutableApps.size + 1 else mutableApps.size
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -108,11 +111,11 @@ class PanelAppsAdapter(
         }
     }
 
-    private var highlightPackage: String? = null
+    private var highlightIdentifier: String? = null
 
-    fun highlightItem(packageName: String) {
-        highlightPackage = packageName
-        val index = currentList.indexOfFirst { it.packageName == packageName }
+    fun highlightItem(identifier: String) {
+        highlightIdentifier = identifier
+        val index = currentList.indexOfFirst { it.identifier == identifier }
         if (index != -1) {
             notifyItemChanged(index)
         }
@@ -147,7 +150,7 @@ class PanelAppsAdapter(
             }
 
             // Fetch from mutableApps so it stays synchronous with rapid dragging
-            val app = if (position < mutableApps.size) mutableApps[position] else getItem(position)
+            val app = if (position < mutableApps.size) mutableApps[position] else return
             
             if (app.packageName.startsWith("smartedge.shortcut.")) {
                 Glide.with(context).clear(holder.ivIcon)
@@ -180,9 +183,9 @@ class PanelAppsAdapter(
                 
             holder.tvName.text = app.appName
 
-            if (app.packageName == highlightPackage) {
+            if (app.identifier == highlightIdentifier) {
                 SpringAnimator.scalePulse(holder.itemView)
-                highlightPackage = null
+                highlightIdentifier = null
             }
 
             holder.itemView.setOnClickListener {
@@ -378,10 +381,5 @@ class PanelAppsAdapter(
         } catch (e: Exception) {
             false
         }
-    }
-
-    private class AppDiffCallback : DiffUtil.ItemCallback<AppInfo>() {
-        override fun areItemsTheSame(oldItem: AppInfo, newItem: AppInfo) = oldItem.packageName == newItem.packageName
-        override fun areContentsTheSame(oldItem: AppInfo, newItem: AppInfo) = oldItem.appName == newItem.appName && oldItem.isInPanel == newItem.isInPanel
     }
 }

@@ -87,7 +87,7 @@ class AppPickerPanelView @JvmOverloads constructor(
                 try {
                     val pm = context.packageManager
                     val ai = pm.getApplicationInfo(pkg, 0)
-                    AppInfo(pkg, ai.loadLabel(pm).toString())
+                    AppInfo(pkg, ai.loadLabel(pm).toString(), isInPanel = false, type = AppInfo.Type.APP)
                 } catch (e: Exception) { null }
             }
             

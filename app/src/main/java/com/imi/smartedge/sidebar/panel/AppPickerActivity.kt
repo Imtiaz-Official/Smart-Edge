@@ -48,8 +48,8 @@ class AppPickerActivity : AppCompatActivity() {
         }
 
         pickerAdapter = AppPickerAdapter { app, isChecked ->
-            if (isChecked) panelPrefs.addApp(app.packageName)
-            else panelPrefs.removeApp(app.packageName)
+            if (isChecked) panelPrefs.addApp(app.identifier)
+            else panelPrefs.removeApp(app.identifier)
         }
 
         binding.rvAllApps.apply {
@@ -145,7 +145,7 @@ class AppPickerActivity : AppCompatActivity() {
 
             // Reset listener before setting checked (avoid spurious callbacks)
             holder.cbInPanel.setOnCheckedChangeListener(null)
-            holder.cbInPanel.isChecked = panelPrefs.isInPanel(app.packageName)
+            holder.cbInPanel.isChecked = panelPrefs.isInPanel(app.identifier)
             holder.cbInPanel.setOnCheckedChangeListener { _, checked ->
                 onToggle(app, checked)
             }
@@ -158,6 +158,6 @@ class AppPickerActivity : AppCompatActivity() {
 }
 
 private object Diff : DiffUtil.ItemCallback<AppInfo>() {
-    override fun areItemsTheSame(o: AppInfo, n: AppInfo) = o.packageName == n.packageName
+    override fun areItemsTheSame(o: AppInfo, n: AppInfo) = o.identifier == n.identifier
     override fun areContentsTheSame(o: AppInfo, n: AppInfo) = o.appName == n.appName
 }
