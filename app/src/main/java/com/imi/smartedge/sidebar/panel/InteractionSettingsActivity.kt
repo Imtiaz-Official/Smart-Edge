@@ -81,12 +81,7 @@ class InteractionSettingsActivity : AppCompatActivity() {
 
         binding.featureAutoStart.isChecked = panelPrefs.autoStart
         binding.featureGestures.isChecked = panelPrefs.gesturesEnabled
-        binding.tvTapGesturesValue.text = when {
-            panelPrefs.tripleTapToOpen -> "Triple Tap"
-            panelPrefs.doubleTapToOpen -> "Double Tap"
-            panelPrefs.tapToOpen -> "Single Tap"
-            else -> "Disabled"
-        }
+        binding.tvTapGesturesValue.text = "Tap: ${actionLabel(panelPrefs.tapAction)}, 2x: ${actionLabel(panelPrefs.doubleTapAction)}, 3x: ${actionLabel(panelPrefs.tripleTapAction)}"
         binding.featureHaptic.isChecked = panelPrefs.hapticEnabled
         binding.featureShowLandscape.isChecked = panelPrefs.showInLandscape
         binding.featureFreeform.isChecked = panelPrefs.freeformEnabled
@@ -197,22 +192,17 @@ class InteractionSettingsActivity : AppCompatActivity() {
         }
 
         binding.layoutTapGestures.setOnClickListener {
-            val options = arrayOf("Disabled", "Single Tap", "Double Tap", "Triple Tap")
-            var selectedIndex = 0
-            if (panelPrefs.tapToOpen) selectedIndex = 1
-            if (panelPrefs.doubleTapToOpen) selectedIndex = 2
-            if (panelPrefs.tripleTapToOpen) selectedIndex = 3
-
+            val mainOptions = arrayOf("Single Tap Action", "Double Tap Action", "Triple Tap Action")
             com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("Tap to Open")
-                .setSingleChoiceItems(options, selectedIndex) { dialog, which ->
-                    panelPrefs.tapToOpen = (which == 1)
-                    panelPrefs.doubleTapToOpen = (which == 2)
-                    panelPrefs.tripleTapToOpen = (which == 3)
-                    binding.tvTapGesturesValue.text = options[which]
-                    applyOnly()
-                    dialog.dismiss()
+                .setTitle("Tap Gestures")
+                .setItems(mainOptions) { _, which ->
+                    when (which) {
+                        0 -> showActionPicker("Single Tap", panelPrefs.tapAction) { panelPrefs.tapAction = it }
+                        1 -> showActionPicker("Double Tap", panelPrefs.doubleTapAction) { panelPrefs.doubleTapAction = it }
+                        2 -> showActionPicker("Triple Tap", panelPrefs.tripleTapAction) { panelPrefs.tripleTapAction = it }
+                    }
                 }
+                .setNegativeButton("Close", null)
                 .show()
         }
 
@@ -469,5 +459,34 @@ class InteractionSettingsActivity : AppCompatActivity() {
         PanelPreferences.FREEFORM_MODE_MAXIMIZED -> "Maximized"
         PanelPreferences.FREEFORM_MODE_CUSTOM    -> "Custom (${panelPrefs.freeformCustomWidth}% × ${panelPrefs.freeformCustomHeight}%)"
         else                                      -> "Standard (80%)"
+    }
+
+    private fun showActionPicker(title: String, current: Int, onSelect: (Int) -> Unit) {
+        val options = arrayOf("Disabled", "Open Launcher", "Take Screenshot", "Switch to Last App")
+        val values = intArrayOf(
+            PanelPreferences.ACTION_NONE,
+            PanelPreferences.ACTION_OPEN_LAUNCHER,
+            PanelPreferences.ACTION_SCREENSHOT,
+            PanelPreferences.ACTION_PREVIOUS_APP
+        )
+        val selectedIndex = values.indexOf(current).coerceAtLeast(0)
+
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle(title)
+            .setSingleChoiceItems(options, selectedIndex) { dialog, which ->
+                onSelect(values[which])
+                loadCurrentSettings() // Refresh summary
+                applyOnly()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun actionLabel(action: Int): String = when (action) {
+        PanelPreferences.ACTION_OPEN_LAUNCHER -> "Launcher"
+        PanelPreferences.ACTION_SCREENSHOT -> "Screenshot"
+        PanelPreferences.ACTION_PREVIOUS_APP -> "Last App"
+        else -> "Off"
     }
 }

@@ -1,6 +1,7 @@
 package com.imi.smartedge.sidebar.panel
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Rect
@@ -69,14 +70,20 @@ class EdgeHandleView @JvmOverloads constructor(
     private var tapCount = 0
     private val tapTimeoutMs = ViewConfiguration.getDoubleTapTimeout().toLong()
     private val tapRunnable = Runnable {
-        if (tapCount == 1 && panelPrefs.tapToOpen) {
-            triggerPanel()
-        } else if (tapCount == 2 && panelPrefs.doubleTapToOpen) {
-            triggerPanel()
-        } else if (tapCount >= 3 && panelPrefs.tripleTapToOpen) {
-            triggerPanel()
+        when (tapCount) {
+            1 -> performAction(panelPrefs.tapAction)
+            2 -> performAction(panelPrefs.doubleTapAction)
+            else -> if (tapCount >= 3) performAction(panelPrefs.tripleTapAction)
         }
         tapCount = 0
+    }
+
+    private fun performAction(actionId: Int) {
+        when (actionId) {
+            PanelPreferences.ACTION_OPEN_LAUNCHER -> triggerPanel()
+            PanelPreferences.ACTION_SCREENSHOT -> triggerScreenshot()
+            PanelPreferences.ACTION_PREVIOUS_APP -> triggerPreviousApp()
+        }
     }
 
     private fun triggerPanel() {
@@ -84,28 +91,36 @@ class EdgeHandleView @JvmOverloads constructor(
         onTrigger?.invoke()
     }
 
+    private fun triggerScreenshot() {
+        vibrateHaptic()
+        val intent = Intent(context, PanelAccessibilityService::class.java).apply {
+            action = PanelAccessibilityService.ACTION_TAKE_SCREENSHOT
+        }
+        context.startService(intent)
+    }
+
+    private fun triggerPreviousApp() {
+        vibrateHaptic()
+        val intent = Intent(context, PanelAccessibilityService::class.java).apply {
+            action = PanelAccessibilityService.ACTION_PREVIOUS_APP
+        }
+        context.startService(intent)
+    }
+
     private fun handleTap() {
         tapCount++
         handler.removeCallbacks(tapRunnable)
 
-        val maxEnabled = when {
-            panelPrefs.tripleTapToOpen -> 3
-            panelPrefs.doubleTapToOpen -> 2
-            panelPrefs.tapToOpen -> 1
-            else -> 0
+        // If user reached triple tap, trigger immediately if configured
+        if (tapCount >= 3) {
+            if (panelPrefs.tripleTapAction != PanelPreferences.ACTION_NONE) {
+                performAction(panelPrefs.tripleTapAction)
+                tapCount = 0
+                return
+            }
         }
-
-        if (maxEnabled == 0) {
-            tapCount = 0
-            return
-        }
-
-        if (tapCount >= maxEnabled) {
-            triggerPanel()
-            tapCount = 0
-        } else {
-            handler.postDelayed(tapRunnable, tapTimeoutMs)
-        }
+        
+        handler.postDelayed(tapRunnable, tapTimeoutMs)
     }
 
     init {

@@ -71,7 +71,16 @@ class PanelPreferences(context: Context) {
         private const val KEY_PICKER_SCROLL = "last_picker_scroll"
         private const val KEY_GAME_APPS = "game_apps"
 
+        private const val KEY_TAP_ACTION = "tap_action"
+        private const val KEY_DOUBLE_TAP_ACTION = "double_tap_action"
+        private const val KEY_TRIPLE_TAP_ACTION = "triple_tap_action"
+        
         private const val DELIMITER = ","
+
+        const val ACTION_NONE = 0
+        const val ACTION_OPEN_LAUNCHER = 1
+        const val ACTION_SCREENSHOT = 2
+        const val ACTION_PREVIOUS_APP = 3
 
         const val SIDE_RIGHT = "right"
         const val SIDE_LEFT = "left"
@@ -123,9 +132,9 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_GESTURES = true
         const val DEFAULT_SHOW_LANDSCAPE = true
         const val DEFAULT_PILL_WIDTH = 5
-        const val DEFAULT_TAP_TO_OPEN = false
-        const val DEFAULT_DOUBLE_TAP_TO_OPEN = false
-        const val DEFAULT_TRIPLE_TAP_TO_OPEN = false
+        const val DEFAULT_TAP_TO_OPEN = true
+        const val DEFAULT_DOUBLE_TAP_TO_OPEN = true
+        const val DEFAULT_TRIPLE_TAP_TO_OPEN = true
         const val DEFAULT_ICON_PACK = "none"
         const val DEFAULT_SHOW_LOGS = false
         const val DEFAULT_BLUR_AMOUNT = 15
@@ -453,6 +462,18 @@ class PanelPreferences(context: Context) {
     var tripleTapToOpen: Boolean
         get() = prefs.getBoolean(KEY_TRIPLE_TAP_TO_OPEN, DEFAULT_TRIPLE_TAP_TO_OPEN)
         set(value) = prefs.edit { putBoolean(KEY_TRIPLE_TAP_TO_OPEN, value) }
+
+    var tapAction: Int
+        get() = prefs.getInt(KEY_TAP_ACTION, if (tapToOpen) ACTION_OPEN_LAUNCHER else ACTION_NONE)
+        set(value) = prefs.edit { putInt(KEY_TAP_ACTION, value) }
+
+    var doubleTapAction: Int
+        get() = prefs.getInt(KEY_DOUBLE_TAP_ACTION, if (doubleTapToOpen) ACTION_SCREENSHOT else ACTION_NONE)
+        set(value) = prefs.edit { putInt(KEY_DOUBLE_TAP_ACTION, value) }
+
+    var tripleTapAction: Int
+        get() = prefs.getInt(KEY_TRIPLE_TAP_ACTION, if (tripleTapToOpen) ACTION_PREVIOUS_APP else ACTION_NONE)
+        set(value) = prefs.edit { putInt(KEY_TRIPLE_TAP_ACTION, value) }
 
     var gesturesEnabled: Boolean
         get() = prefs.getBoolean(KEY_GESTURES_ENABLED, DEFAULT_GESTURES)
