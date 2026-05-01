@@ -29,6 +29,12 @@ class EdgeHandleView @JvmOverloads constructor(
             field = value
             updatePill()
         }
+    var isImmersiveMode: Boolean = false
+        set(value) {
+            field = value
+            updatePill()
+        }
+    var isGameActive: Boolean = false
 
     private val panelPrefs = PanelPreferences(context)
     private val handler = Handler(Looper.getMainLooper())
@@ -191,7 +197,9 @@ class EdgeHandleView @JvmOverloads constructor(
     }
 
     fun updatePill() {
-        if (showPill) {
+        val hidePillDueToImmersive = isImmersiveMode && panelPrefs.autoHideInFullscreen && !panelPrefs.isWhitelistedFromAutoHide(panelPrefs.currentForegroundPackage)
+
+        if (showPill && !hidePillDueToImmersive) {
             val cornerRadius = 12 * density
             val shape = android.graphics.drawable.GradientDrawable().apply {
                 shape = android.graphics.drawable.GradientDrawable.RECTANGLE
@@ -305,6 +313,13 @@ class EdgeHandleView @JvmOverloads constructor(
                 // ── Normal panel-open gesture ─────────────────────────────────
                 if (!panelPrefs.gesturesEnabled || isTriggered) return true
                 val dx = if (isRightSide) (startX - event.rawX) else (event.rawX - startX)
+                
+                // Adjust threshold for games if deliberate gesture is enabled
+                val effectiveThreshold = if (isGameActive && panelPrefs.deliberateGestureInGames) {
+                    triggerThreshold * 2.5f // Require deeper swipe
+                } else {
+                    triggerThreshold
+                }
 
                 // Cancel long-press/drag timer if user clearly moving inward
                 if (dx > triggerThreshold) {
@@ -315,12 +330,20 @@ class EdgeHandleView @JvmOverloads constructor(
                     handler.removeCallbacks(dragModeRunnable)
                 }
 
-                if (!hasPassedThreshold && dx > triggerThreshold) {
+                if (!hasPassedThreshold && dx > effectiveThreshold) {
                     hasPassedThreshold = true
                     handler.removeCallbacks(dragModeRunnable)
-                    handler.postDelayed(holdRunnable, holdDurationMs)
+                    
+                    // In games, we can also add a mandatory hold time even after the swipe
+                    val effectiveHoldTime = if (isGameActive && panelPrefs.deliberateGestureInGames) {
+                        holdDurationMs * 2 // Wait longer
+                    } else {
+                        holdDurationMs
+                    }
+                    
+                    handler.postDelayed(holdRunnable, effectiveHoldTime)
                     if (showPill) {
-                        animate().scaleX(0.7f).scaleY(0.9f).setDuration(holdDurationMs).start()
+                        animate().scaleX(0.7f).scaleY(0.9f).setDuration(effectiveHoldTime).start()
                     }
                 }
 

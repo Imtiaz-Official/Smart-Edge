@@ -72,6 +72,9 @@ class PanelPreferences(context: Context) {
         private const val KEY_SIDEBAR_SCROLL = "last_sidebar_scroll"
         private const val KEY_PICKER_SCROLL = "last_picker_scroll"
         private const val KEY_GAME_APPS = "game_apps"
+        private const val KEY_AUTO_HIDE_FULLSCREEN = "auto_hide_fullscreen"
+        private const val KEY_FULLSCREEN_WHITELIST = "fullscreen_whitelist"
+        private const val KEY_DELIBERATE_GESTURE_GAMES = "deliberate_gesture_games"
         private const val KEY_TOOLS_FOLDER_MIGRATED = "tools_folder_migrated"
 
         private const val KEY_TAP_ACTION = "tap_action"
@@ -667,5 +670,28 @@ class PanelPreferences(context: Context) {
     fun setGameApps(packages: List<String>) {
         val uniquePackages = packages.filter { it.isNotBlank() }.distinct()
         prefs.edit { putString(KEY_GAME_APPS, uniquePackages.joinToString(DELIMITER)) }
+    }
+
+    var autoHideInFullscreen: Boolean
+        get() = prefs.getBoolean(KEY_AUTO_HIDE_FULLSCREEN, false)
+        set(value) = prefs.edit { putBoolean(KEY_AUTO_HIDE_FULLSCREEN, value) }
+
+    var deliberateGestureInGames: Boolean
+        get() = prefs.getBoolean(KEY_DELIBERATE_GESTURE_GAMES, true)
+        set(value) = prefs.edit { putBoolean(KEY_DELIBERATE_GESTURE_GAMES, value) }
+
+    fun getFullscreenWhitelist(): List<String> {
+        val raw = prefs.getString(KEY_FULLSCREEN_WHITELIST, "") ?: ""
+        return if (raw.isBlank()) emptyList()
+        else raw.split(DELIMITER).filter { it.isNotBlank() }.distinct()
+    }
+
+    fun setFullscreenWhitelist(packages: List<String>) {
+        val unique = packages.filter { it.isNotBlank() }.distinct()
+        prefs.edit { putString(KEY_FULLSCREEN_WHITELIST, unique.joinToString(DELIMITER)) }
+    }
+
+    fun isWhitelistedFromAutoHide(packageName: String): Boolean {
+        return getFullscreenWhitelist().contains(packageName)
     }
 }

@@ -323,7 +323,106 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- SECTION 4: System & Behavior -->
+            <!-- SECTION 4: Advanced Handling -->
+            <TextView
+                style="@style/App_SectionTitle"
+                android:text="Advanced Handling (Full Screen &amp; Games)" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/App_Card_Section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    style="@style/App_CardContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.materialswitch.MaterialSwitch 
+                        android:id="@+id/feature_auto_hide_fullscreen" 
+                        android:layout_width="match_parent" 
+                        android:layout_height="wrap_content" 
+                        android:text="Auto-Hide in Full Screen" 
+                        android:textColor="?attr/colorOnSurface" />
+                    <TextView 
+                        android:layout_width="wrap_content" 
+                        android:layout_height="wrap_content" 
+                        android:text="Hide the pill when watching videos or using immersive apps" 
+                        android:textColor="?attr/colorOnSurfaceVariant" 
+                        android:textSize="11sp" />
+
+                    <LinearLayout
+                        android:id="@+id/feature_fullscreen_whitelist"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
+                        android:paddingVertical="12dp"
+                        android:layout_marginTop="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Full Screen Whitelist"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/tvFullscreenWhitelistValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0 apps exempt"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="12dp" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch 
+                        android:id="@+id/feature_deliberate_gesture_games" 
+                        android:layout_width="match_parent" 
+                        android:layout_height="wrap_content" 
+                        android:text="Deliberate Action in Games" 
+                        android:textColor="?attr/colorOnSurface" />
+                    <TextView 
+                        android:layout_width="wrap_content" 
+                        android:layout_height="wrap_content" 
+                        android:text="Require a deeper swipe and longer hold to open panel in games" 
+                        android:textColor="?attr/colorOnSurfaceVariant" 
+                        android:textSize="11sp" />
+
+                    <LinearLayout
+                        android:id="@+id/feature_game_apps_v2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
+                        android:paddingVertical="12dp"
+                        android:layout_marginTop="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Manage Game Apps"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/tvGameAppsValueV2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0 apps selected"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- SECTION 5: System & Behavior -->
             <TextView
                 style="@style/App_SectionTitle"
                 android:text="System &amp; Behavior" />

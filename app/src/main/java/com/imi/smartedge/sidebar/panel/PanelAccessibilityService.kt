@@ -8,10 +8,37 @@ import android.util.Log
 class PanelAccessibilityService : AccessibilityService() {
 
     private lateinit var panelPrefs: PanelPreferences
+    private var lastImmersiveState = false
 
     override fun onCreate() {
         super.onCreate()
         panelPrefs = PanelPreferences(this)
+    }
+
+    private fun checkImmersiveMode() {
+        val root = rootInActiveWindow ?: return
+        
+        // Strategy: Check if the main window covers the whole screen area
+        // and doesn't have system bars visible. Since we can't directly check system bar visibility
+        // easily from here, we look at the window bounds vs screen bounds.
+        
+        val displayMetrics = resources.displayMetrics
+        val screenRect = android.graphics.Rect(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels)
+        
+        val windowRect = android.graphics.Rect()
+        root.getBoundsInScreen(windowRect)
+        
+        // Many immersive apps (videos/games) have bounds that match screen exactly
+        val isImmersive = windowRect.width() >= screenRect.width() && windowRect.height() >= screenRect.height()
+        
+        if (isImmersive != lastImmersiveState) {
+            lastImmersiveState = isImmersive
+            val intent = Intent(this, FloatingPanelService::class.java).apply {
+                action = FloatingPanelService.ACTION_UPDATE_IMMERSIVE
+                putExtra("is_immersive", isImmersive)
+            }
+            startService(intent)
+        }
     }
 
     companion object {
@@ -143,7 +170,19 @@ class PanelAccessibilityService : AccessibilityService() {
                     }
                     startService(closeIntent)
                 }
+
+                // Notify service to update game mode state based on new foreground package
+                val refreshIntent = Intent(this, FloatingPanelService::class.java).apply {
+                    action = FloatingPanelService.ACTION_REFRESH
+                }
+                startService(refreshIntent)
             }
+        }
+        
+        // Check for immersive mode on window content changes too, as bounds might change
+        if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED || 
+            event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+            checkImmersiveMode()
         }
     }
 

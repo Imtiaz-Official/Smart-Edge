@@ -102,6 +102,7 @@ class FloatingPanelService : Service() {
         const val ACTION_SHOW_TEMP = "com.imi.smartedge.sidebar.panel.SHOW_TEMP"
         const val ACTION_TOGGLE = "com.imi.smartedge.sidebar.panel.TOGGLE"
         const val ACTION_SCREENSHOT = "com.imi.smartedge.sidebar.panel.SCREENSHOT"
+        const val ACTION_UPDATE_IMMERSIVE = "com.imi.smartedge.sidebar.panel.UPDATE_IMMERSIVE"
     }
 
     override fun onCreate() {
@@ -213,6 +214,11 @@ class FloatingPanelService : Service() {
                         addEdgeHandle() // Re-add instead of just update to ensure it forces UI rebuilds
                         edgeHandleView?.visibility = if (isPanelOpen) View.GONE else View.VISIBLE
                     }
+
+                    // Update game mode state
+                    val currentPkg = panelPrefs.currentForegroundPackage
+                    val isGame = panelPrefs.getGameApps().contains(currentPkg)
+                    edgeHandleView?.isGameActive = isGame
                     
                     sidePanelView?.updateStyles()
                     sidePanelView?.refreshIcons()
@@ -233,6 +239,10 @@ class FloatingPanelService : Service() {
             ACTION_CLOSE_PANEL -> closePanel(immediate = false)
             ACTION_SCREENSHOT -> {
                 handler.postDelayed({ triggerScreenshot() }, 200)
+            }
+            ACTION_UPDATE_IMMERSIVE -> {
+                val isImmersive = intent.getBooleanExtra("is_immersive", false)
+                edgeHandleView?.isImmersiveMode = isImmersive
             }
             ACTION_SHOW_TEMP -> {
                 addEdgeHandle()

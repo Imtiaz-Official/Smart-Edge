@@ -91,8 +91,15 @@ class InteractionSettingsActivity : AppCompatActivity() {
         binding.featureAutoShowKeyboard.isChecked = panelPrefs.autoShowKeyboard
         binding.featureShowLogs.isChecked = panelPrefs.showLogs
 
+        binding.featureAutoHideFullscreen.isChecked = panelPrefs.autoHideInFullscreen
+        binding.featureDeliberateGestureGames.isChecked = panelPrefs.deliberateGestureInGames
+        
+        val whitelistCount = panelPrefs.getFullscreenWhitelist().size
+        binding.tvFullscreenWhitelistValue.text = if (whitelistCount == 1) "1 app exempt" else "$whitelistCount apps exempt"
+
         val gameAppsCount = panelPrefs.getGameApps().size
         binding.tvGameAppsValue.text = if (gameAppsCount == 1) "1 app selected" else "$gameAppsCount apps selected"
+        binding.tvGameAppsValueV2.text = if (gameAppsCount == 1) "1 app selected" else "$gameAppsCount apps selected"
 
         // Window size picker — visible only when freeform is on
         val freeformOn = panelPrefs.freeformEnabled
@@ -355,43 +362,6 @@ class InteractionSettingsActivity : AppCompatActivity() {
             panelPrefs.showLogs = isChecked
         }
 
-        binding.featureGameApps.setOnClickListener {
-            lifecycleScope.launch(Dispatchers.Main) {
-                // Show a loading dialog while fetching apps on the IO thread
-                val loadingDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this@InteractionSettingsActivity)
-                    .setTitle("Loading Apps...")
-                    .setMessage("Please wait while apps are being categorized.")
-                    .setCancelable(false)
-                    .show()
-
-                val allApps = withContext(Dispatchers.IO) { AppRepository(this@InteractionSettingsActivity).getAllApps() }
-                loadingDialog.dismiss()
-
-                val sortedApps = allApps.sortedBy { it.appName.lowercase() }
-                val appNames = sortedApps.map { it.appName }.toTypedArray()
-                val pkgNames = sortedApps.map { it.packageName }.toTypedArray()
-
-                val currentSelected = panelPrefs.getGameApps()
-                val checkedItems = BooleanArray(sortedApps.size) { i ->
-                    currentSelected.contains(pkgNames[i])
-                }
-
-                com.google.android.material.dialog.MaterialAlertDialogBuilder(this@InteractionSettingsActivity)
-                    .setTitle("Select Game Mode Apps")
-                    .setMultiChoiceItems(appNames, checkedItems) { _, which, isChecked ->
-                        checkedItems[which] = isChecked
-                    }
-                    .setPositiveButton("Save") { _, _ ->
-                        val newSelected = pkgNames.filterIndexed { index, _ -> checkedItems[index] }
-                        panelPrefs.setGameApps(newSelected)
-                        binding.tvGameAppsValue.text = if (newSelected.size == 1) "1 app selected" else "${newSelected.size} apps selected"
-                        applyOnly() // Restart service to apply changes
-                    }
-                    .setNegativeButton("Cancel", null)
-                    .show()
-            }
-        }
-
         binding.featureAnimFeel.setOnClickListener {
             val options = arrayOf("Calm (Slow)", "Balanced (Default)", "Snappy", "Instant", "Disabled")
             val values = intArrayOf(200, 400, 700, 1000, 0)
@@ -425,12 +395,72 @@ class InteractionSettingsActivity : AppCompatActivity() {
             }
         })
 
+        binding.featureAutoHideFullscreen.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.autoHideInFullscreen = isChecked
+            applyOnly()
+        }
+
+        binding.featureDeliberateGestureGames.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.deliberateGestureInGames = isChecked
+            applyOnly()
+        }
+
+        binding.featureFullscreenWhitelist.setOnClickListener {
+            showAppMultiPicker("Select Exempt Apps (Always Show Pill)", panelPrefs.getFullscreenWhitelist()) { newWhitelist ->
+                panelPrefs.setFullscreenWhitelist(newWhitelist)
+                binding.tvFullscreenWhitelistValue.text = if (newWhitelist.size == 1) "1 app exempt" else "${newWhitelist.size} apps exempt"
+                applyOnly()
+            }
+        }
+
+        binding.featureGameAppsV2.setOnClickListener {
+            showAppMultiPicker("Select Game Mode Apps", panelPrefs.getGameApps()) { newGames ->
+                panelPrefs.setGameApps(newGames)
+                binding.tvGameAppsValue.text = if (newGames.size == 1) "1 app selected" else "${newGames.size} apps selected"
+                binding.tvGameAppsValueV2.text = if (newGames.size == 1) "1 app selected" else "${newGames.size} apps selected"
+                applyOnly()
+            }
+        }
+
         binding.btnResetPickerGap.setOnClickListener {
             val default = 20
             panelPrefs.pickerGap = default
             binding.sbPickerGap.value = default.toFloat()
             binding.tvPickerGapValue.text = "${default}dp"
             applyOnly()
+        }
+    }
+
+    private fun showAppMultiPicker(title: String, currentSelected: List<String>, onSave: (List<String>) -> Unit) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            val loadingDialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this@InteractionSettingsActivity)
+                .setTitle("Loading Apps...")
+                .setMessage("Please wait while apps are being loaded.")
+                .setCancelable(false)
+                .show()
+
+            val allApps = withContext(Dispatchers.IO) { AppRepository(this@InteractionSettingsActivity).getAllApps() }
+            loadingDialog.dismiss()
+
+            val sortedApps = allApps.sortedBy { it.appName.lowercase() }
+            val appNames = sortedApps.map { it.appName }.toTypedArray()
+            val pkgNames = sortedApps.map { it.packageName }.toTypedArray()
+
+            val checkedItems = BooleanArray(sortedApps.size) { i ->
+                currentSelected.contains(pkgNames[i])
+            }
+
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this@InteractionSettingsActivity)
+                .setTitle(title)
+                .setMultiChoiceItems(appNames, checkedItems) { _, which, isChecked ->
+                    checkedItems[which] = isChecked
+                }
+                .setPositiveButton("Save") { _, _ ->
+                    val newSelected = pkgNames.filterIndexed { index, _ -> checkedItems[index] }
+                    onSave(newSelected)
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
     }
 
