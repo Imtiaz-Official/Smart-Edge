@@ -19,7 +19,9 @@ class PanelAppsAdapter(
     private val context: Context,
     private val onRemove: (AppInfo) -> Unit,
     private val onAddClick: (Boolean) -> Unit,
-    private val onAppLaunched: () -> Unit
+    private val onAppLaunched: () -> Unit,
+    private val onFolderClick: (String) -> Unit,
+    private val onToolClick: (String) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val panelPrefs = PanelPreferences(context)
@@ -77,6 +79,8 @@ class PanelAppsAdapter(
     companion object {
         private const val VIEW_TYPE_APP = 0
         private const val VIEW_TYPE_ADD = 1
+        private const val VIEW_TYPE_FOLDER = 2
+        private const val VIEW_TYPE_TOOL = 3
     }
 
     inner class AppViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -89,7 +93,12 @@ class PanelAppsAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (position < mutableApps.size) VIEW_TYPE_APP else VIEW_TYPE_ADD
+        if (position >= mutableApps.size) return VIEW_TYPE_ADD
+        return when (mutableApps[position].type) {
+            AppInfo.Type.FOLDER -> VIEW_TYPE_FOLDER
+            AppInfo.Type.TOOL -> VIEW_TYPE_TOOL
+            else -> VIEW_TYPE_APP
+        }
     }
 
     override fun getItemCount(): Int {
@@ -97,17 +106,20 @@ class PanelAppsAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == VIEW_TYPE_APP) {
-            val layoutId = if (panelPrefs.uiTheme == PanelPreferences.THEME_RICH)
-                R.layout.item_panel_app_rich else R.layout.item_panel_app
-            
-            val view = LayoutInflater.from(parent.context)
-                .inflate(layoutId, parent, false)
-            AppViewHolder(view)
-        } else {
-            val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_panel_add, parent, false)
-            AddViewHolder(view)
+        return when (viewType) {
+            VIEW_TYPE_APP, VIEW_TYPE_FOLDER, VIEW_TYPE_TOOL -> {
+                val layoutId = if (panelPrefs.uiTheme == PanelPreferences.THEME_RICH)
+                    R.layout.item_panel_app_rich else R.layout.item_panel_app
+                
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(layoutId, parent, false)
+                AppViewHolder(view)
+            }
+            else -> {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_panel_add, parent, false)
+                AddViewHolder(view)
+            }
         }
     }
 
@@ -152,12 +164,27 @@ class PanelAppsAdapter(
             // Fetch from mutableApps so it stays synchronous with rapid dragging
             val app = if (position < mutableApps.size) mutableApps[position] else return
             
-            if (app.packageName.startsWith("smartedge.shortcut.")) {
+            if (app.type == AppInfo.Type.FOLDER || app.type == AppInfo.Type.TOOL || app.packageName.startsWith("smartedge.shortcut.")) {
                 Glide.with(context).clear(holder.ivIcon)
-                val iconRes = when (app.packageName) {
-                    "smartedge.shortcut.one_hand" -> android.R.drawable.ic_menu_crop
+                val iconRes = when {
+                    app.type == AppInfo.Type.FOLDER -> R.drawable.ic_section_tools
+                    app.packageName == "smartedge.tool.screenshot" -> android.R.drawable.ic_menu_camera
+                    app.packageName == "smartedge.tool.tools" -> R.drawable.ic_section_tools
+                    app.packageName == "smartedge.tool.volume_up" -> R.drawable.ic_brightness_up // Using placeholders if specific ones not available
+                    app.packageName == "smartedge.tool.volume_down" -> R.drawable.ic_brightness_down
+                    app.packageName == "smartedge.tool.brightness_up" -> R.drawable.ic_brightness_up
+                    app.packageName == "smartedge.tool.brightness_down" -> R.drawable.ic_brightness_down
+                    app.packageName == "smartedge.shortcut.one_hand" -> android.R.drawable.ic_menu_crop
+                    app.packageName == "smartedge.shortcut.reboot" -> android.R.drawable.ic_lock_power_off
                     else -> android.R.drawable.sym_def_app_icon
                 }
+                
+                // Specific adjustments for placeholders to look like volume
+                if (app.packageName.contains("volume")) {
+                    holder.ivIcon.setImageResource(R.drawable.ic_plus) // Better placeholder for +
+                    if (app.packageName.endsWith("down")) holder.ivIcon.setImageResource(R.drawable.ic_minus)
+                }
+
                 holder.ivIcon.setImageResource(iconRes)
                 holder.ivIcon.imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE)
                 holder.ivIcon.background = android.graphics.drawable.GradientDrawable().apply {
@@ -194,10 +221,29 @@ class PanelAppsAdapter(
                 }
                 SpringAnimator.scalePulse(holder.itemView)
 
+                if (app.type == AppInfo.Type.FOLDER) {
+                    onFolderClick(app.identifier)
+                    return@setOnClickListener
+                }
+
+                if (app.type == AppInfo.Type.TOOL) {
+                    if (app.packageName == "smartedge.tool.tools") {
+                        onFolderClick("smartedge.folder.tools")
+                    } else {
+                        onToolClick(app.packageName)
+                    }
+                    return@setOnClickListener
+                }
+
                 val launchIntent = when {
                     app.type == AppInfo.Type.SHORTCUT && app.packageName == "smartedge.shortcut.one_hand" -> {
                         Intent(context, PanelAccessibilityService::class.java).apply {
                             action = PanelAccessibilityService.ACTION_ONE_HANDED
+                        }
+                    }
+                    app.type == AppInfo.Type.SHORTCUT && app.packageName == "smartedge.shortcut.reboot" -> {
+                        Intent(context, PanelAccessibilityService::class.java).apply {
+                            action = PanelAccessibilityService.ACTION_SHOW_POWER_MENU
                         }
                     }
                     app.intentUri != null -> {
@@ -217,12 +263,15 @@ class PanelAppsAdapter(
                     )
                     
                     val shouldFreeform = forceFreeform || (panelPrefs.freeformEnabled && context.isFreeformEnabled())
+                    val isAccessibilityShortcut = app.type == AppInfo.Type.SHORTCUT && 
+                                               (app.packageName == "smartedge.shortcut.one_hand" || 
+                                                app.packageName == "smartedge.shortcut.reboot")
                     
                     if (shouldFreeform && context.isFreeformEnabled() && app.type != AppInfo.Type.SHORTCUT) {
                         launchFreeform(launchIntent)
                     } else {
                         try {
-                            if (app.type == AppInfo.Type.SHORTCUT && app.packageName == "smartedge.shortcut.one_hand") {
+                            if (isAccessibilityShortcut) {
                                 context.startService(launchIntent)
                             } else {
                                 context.startActivity(launchIntent)

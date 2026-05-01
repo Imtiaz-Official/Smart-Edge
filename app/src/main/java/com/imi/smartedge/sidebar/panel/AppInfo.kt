@@ -10,10 +10,11 @@ data class AppInfo(
     var isInPanel: Boolean = false,
     val type: Type = Type.APP,
     val intentUri: String? = null,
-    val activityName: String? = null
+    val activityName: String? = null,
+    val subItems: List<String>? = null // identifiers for items inside a folder
 ) {
     enum class Type {
-        APP, ACTIVITY, SHORTCUT
+        APP, ACTIVITY, SHORTCUT, FOLDER, TOOL
     }
 
     /**

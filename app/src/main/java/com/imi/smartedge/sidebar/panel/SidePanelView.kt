@@ -29,12 +29,18 @@ class SidePanelView @JvmOverloads constructor(
     var onAppsChanged: (() -> Unit)? = null
     var onAddClick: ((Boolean) -> Unit)? = null
     var onScreenshot: (() -> Unit)? = null
+    var onFolderOpen: ((String) -> Unit)? = null
+    var onBackNavigation: (() -> Unit)? = null
+    var onToolClick: ((String) -> Unit)? = null
 
     private val binding: SidePanelLayoutBinding = SidePanelLayoutBinding.inflate(LayoutInflater.from(context), this, true)
     private val adapter: PanelAppsAdapter
     private val panelPrefs = PanelPreferences(context)
     private var currentCols = 1
     private var isPickerOpenInternal = false
+    
+    // Track folder navigation
+    private val navigationStack = java.util.ArrayDeque<String>()
 
     private val springRotation: SpringAnimation = SpringAnimation(binding.btnClose, SpringAnimation.ROTATION)
 
@@ -103,8 +109,24 @@ class SidePanelView @JvmOverloads constructor(
                 onAppsChanged?.invoke()
             },
             onAddClick = { isEdit -> onAddClick?.invoke(isEdit) },
-            onAppLaunched = { onClose?.invoke() }
+            onAppLaunched = { onClose?.invoke() },
+            onFolderClick = { folderId ->
+                navigationStack.push(folderId)
+                updateNavigationUI()
+                onFolderOpen?.invoke(folderId)
+            },
+            onToolClick = { toolId ->
+                onToolClick?.invoke(toolId)
+            }
         )
+
+        binding.btnBack.setOnClickListener {
+            if (panelPrefs.hapticEnabled) {
+                it.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
+            }
+            SpringAnimator.scalePulse(it)
+            navigateBack()
+        }
 
         currentCols = panelPrefs.panelColumns
         adapter.setColumns(currentCols)
@@ -376,7 +398,7 @@ class SidePanelView @JvmOverloads constructor(
         val isGameMode = false // panelPrefs.getGameApps().contains(panelPrefs.currentForegroundPackage)
         val showSysInfoEffective = panelPrefs.showSysInfo || isGameMode
         
-        if (panelPrefs.showTools) {
+        if (panelPrefs.showTools && navigationStack.isEmpty()) {
             nonAppHeightDp += 50f // Divider + Screenshot + Labels
             if (panelPrefs.showPowerMenu) nonAppHeightDp += 42f
             if (showSysInfoEffective) nonAppHeightDp += 24f
@@ -456,12 +478,33 @@ class SidePanelView @JvmOverloads constructor(
         updateSideLayout()
     }
 
+    fun navigateBack() {
+        if (navigationStack.isNotEmpty()) {
+            navigationStack.pop()
+            updateNavigationUI()
+            onBackNavigation?.invoke()
+        }
+    }
+
+    private fun updateNavigationUI() {
+        val inFolder = navigationStack.isNotEmpty()
+        binding.btnBack.visibility = if (inFolder) View.VISIBLE else View.GONE
+        binding.btnClose.visibility = if (inFolder) View.GONE else View.VISIBLE
+        applyTheme()
+        updateSideLayout()
+    }
+
+    fun resetNavigation() {
+        navigationStack.clear()
+        updateNavigationUI()
+    }
+
     fun setApps(apps: List<AppInfo>, onComplete: (() -> Unit)? = null) {
         adapter.submitList(apps) {
             updateSideLayout()
             
-            // Restore scroll position if enabled
-            if (panelPrefs.rememberScroll) {
+            // Restore scroll position if enabled (only for root level)
+            if (panelPrefs.rememberScroll && navigationStack.isEmpty()) {
                 binding.rvPanelApps.post {
                     binding.rvPanelApps.scrollBy(0, panelPrefs.lastSidebarScroll)
                 }
@@ -491,8 +534,24 @@ class SidePanelView @JvmOverloads constructor(
     }
 
     fun applyTheme() {
-        binding.toolsContainer.visibility = if (panelPrefs.showTools) View.VISIBLE else View.GONE
-        binding.layoutPowerTools.visibility = if (panelPrefs.showPowerMenu) View.VISIBLE else View.GONE
+        val inFolder = navigationStack.isNotEmpty()
+        val showTools = panelPrefs.showTools && !inFolder
+        binding.toolsContainer.visibility = if (showTools) View.VISIBLE else View.GONE
+        
+        val showPower = panelPrefs.showPowerMenu
+        binding.layoutPowerTools.visibility = if (showPower) View.VISIBLE else View.GONE
+        
+        val showVolume = panelPrefs.showVolumeKeys
+        binding.layoutVolumeTools.visibility = if (showVolume) View.VISIBLE else View.GONE
+        
+        val showBrightness = panelPrefs.showBrightnessKeys
+        binding.layoutBrightnessTools.visibility = if (showBrightness) View.VISIBLE else View.GONE
+        
+        val showScreenshot = panelPrefs.showScreenshotTool
+        binding.btnScreenshot.visibility = if (showScreenshot) View.VISIBLE else View.GONE
+        // Hide screenshot label if button is hidden
+        val screenshotLabel = binding.toolsContainer.getChildAt(binding.toolsContainer.indexOfChild(binding.btnScreenshot) + 1)
+        screenshotLabel?.visibility = if (showScreenshot) View.VISIBLE else View.GONE
 
         if (panelPrefs.hideBackground) {
             binding.panelCard.background = null
@@ -536,6 +595,7 @@ class SidePanelView @JvmOverloads constructor(
             binding.btnBrightnessUp.imageTintList = iconColorList
             binding.btnBrightnessDown.imageTintList = iconColorList
             binding.btnReboot.imageTintList = iconColorList
+            binding.btnBack.imageTintList = iconColorList
             
             binding.tvRamUsage.setTextColor(Color.WHITE)
             binding.tvBatTemp.setTextColor(Color.WHITE)
@@ -549,11 +609,11 @@ class SidePanelView @JvmOverloads constructor(
         val showSysInfoEffective = panelPrefs.showSysInfo || isGameMode
         
         binding.layoutSysInfo.visibility = if (showSysInfoEffective) View.VISIBLE else View.GONE
-        binding.toolsContainer.visibility = if (panelPrefs.showTools) View.VISIBLE else View.GONE
-        binding.layoutPowerTools.visibility = if (panelPrefs.showPowerMenu) View.VISIBLE else View.GONE
-        binding.layoutVolumeTools.visibility = if (panelPrefs.showVolumeKeys) View.VISIBLE else View.GONE
-        binding.layoutBrightnessTools.visibility = if (panelPrefs.showBrightnessKeys) View.VISIBLE else View.GONE
         
+        // Final visibility check for tools container: hide if all sub-elements are gone
+        val hasAnyVisibleTool = showPower || showVolume || showBrightness || showScreenshot || showSysInfoEffective
+        binding.toolsContainer.visibility = if (showTools && hasAnyVisibleTool) View.VISIBLE else View.GONE
+
         if (showSysInfoEffective) {
             updateSystemInfo()
             updateHandler.removeCallbacks(updateRunnable)

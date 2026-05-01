@@ -39,6 +39,7 @@ class FloatingPanelService : Service() {
 
     private var isPanelOpen = false
     private var isPickerOpen = false
+    private var currentFolderId: String? = null
     private lateinit var panelPrefs: PanelPreferences
     private var lastPickerToggleTime = 0L
     
@@ -100,6 +101,7 @@ class FloatingPanelService : Service() {
         const val ACTION_CLOSE_PANEL = "com.imi.smartedge.sidebar.panel.CLOSE_PANEL"
         const val ACTION_SHOW_TEMP = "com.imi.smartedge.sidebar.panel.SHOW_TEMP"
         const val ACTION_TOGGLE = "com.imi.smartedge.sidebar.panel.TOGGLE"
+        const val ACTION_SCREENSHOT = "com.imi.smartedge.sidebar.panel.SCREENSHOT"
     }
 
     override fun onCreate() {
@@ -110,6 +112,13 @@ class FloatingPanelService : Service() {
         }
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         panelPrefs = PanelPreferences(this)
+        
+        // One-time migration for new defaults
+        if (!panelPrefs.toolsFolderMigrated) {
+            panelPrefs.showTools = false
+            panelPrefs.showToolsPanelButton = true
+            panelPrefs.toolsFolderMigrated = true
+        }
 
         createNotificationChannel()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -222,6 +231,9 @@ class FloatingPanelService : Service() {
                 }
             }
             ACTION_CLOSE_PANEL -> closePanel(immediate = false)
+            ACTION_SCREENSHOT -> {
+                handler.postDelayed({ triggerScreenshot() }, 200)
+            }
             ACTION_SHOW_TEMP -> {
                 addEdgeHandle()
                 edgeHandleView?.alpha = 1.0f
@@ -381,6 +393,23 @@ class FloatingPanelService : Service() {
                 Handler(Looper.getMainLooper()).postDelayed({
                     triggerScreenshot()
                 }, 300)
+            }
+            onFolderOpen = { folderId ->
+                currentFolderId = folderId
+                refreshApps()
+            }
+            onBackNavigation = {
+                currentFolderId = null // Simple logic for now: only 1-level folders
+                refreshApps()
+            }
+            onToolClick = { toolId ->
+                when (toolId) {
+                    "smartedge.tool.screenshot" -> triggerScreenshot()
+                    "smartedge.tool.volume_up" -> adjustVolume(android.media.AudioManager.ADJUST_RAISE)
+                    "smartedge.tool.volume_down" -> adjustVolume(android.media.AudioManager.ADJUST_LOWER)
+                    "smartedge.tool.brightness_up" -> adjustBrightness(15)
+                    "smartedge.tool.brightness_down" -> adjustBrightness(-15)
+                }
             }
             visibility = View.GONE 
         }
@@ -750,7 +779,45 @@ class FloatingPanelService : Service() {
 
     private fun refreshApps(onComplete: (() -> Unit)? = null) {
         serviceScope.launch {
-            val apps = AppRepository(this@FloatingPanelService).getPanelApps()
+            val repository = AppRepository(this@FloatingPanelService)
+            
+            val apps = if (currentFolderId != null) {
+                when (currentFolderId) {
+                    "smartedge.folder.tools" -> {
+                        val tools = mutableListOf<AppInfo>()
+                        
+                        // Always include screenshot in the folder if the folder is active
+                        tools.add(AppInfo("smartedge.tool.screenshot", "Screenshot", type = AppInfo.Type.TOOL))
+                        
+                        // Add Volume tools
+                        tools.add(AppInfo("smartedge.tool.volume_up", "Volume +", type = AppInfo.Type.TOOL))
+                        tools.add(AppInfo("smartedge.tool.volume_down", "Volume -", type = AppInfo.Type.TOOL))
+                        
+                        // Add Brightness tools
+                        tools.add(AppInfo("smartedge.tool.brightness_up", "Brightness +", type = AppInfo.Type.TOOL))
+                        tools.add(AppInfo("smartedge.tool.brightness_down", "Brightness -", type = AppInfo.Type.TOOL))
+                        
+                        // Always include power menu in the folder if the folder is active
+                        tools.add(AppInfo("smartedge.shortcut.reboot", "Power Menu", type = AppInfo.Type.SHORTCUT))
+                        
+                        tools
+                    }
+                    else -> emptyList<AppInfo>()
+                }
+            } else {
+                val baseApps = repository.getPanelApps().toMutableList()
+                
+                // Add "Tools" folder button at the top if enabled
+                if (panelPrefs.showToolsPanelButton) {
+                    val toolsBtn = AppInfo("smartedge.tool.tools", "Tools", type = AppInfo.Type.TOOL)
+                    if (baseApps.none { it.identifier == toolsBtn.identifier }) {
+                        baseApps.add(0, toolsBtn)
+                    }
+                }
+                
+                baseApps
+            }
+            
             sidePanelView?.setApps(apps, onComplete)
         }
     }
@@ -916,6 +983,37 @@ class FloatingPanelService : Service() {
             y < screenHeight * 0.30 -> highlight(tvTopZone)
             y > screenHeight * 0.70 -> highlight(tvBottomZone)
             else -> highlight(tvFreeformZone)
+        }
+    }
+
+    fun adjustVolume(direction: Int) {
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
+        audioManager.adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC, direction, 0)
+        
+        val current = audioManager.getStreamVolume(android.media.AudioManager.STREAM_MUSIC)
+        val max = audioManager.getStreamMaxVolume(android.media.AudioManager.STREAM_MUSIC)
+        val percent = if (max > 0) (current * 100) / max else 0
+        showIndicator("Volume: $percent%")
+    }
+
+    fun adjustBrightness(direction: Int) {
+        try {
+            val cResolver = contentResolver
+            var brightness = android.provider.Settings.System.getInt(cResolver, android.provider.Settings.System.SCREEN_BRIGHTNESS, 125)
+            brightness = (brightness + direction).coerceIn(0, 255)
+            android.provider.Settings.System.putInt(cResolver, android.provider.Settings.System.SCREEN_BRIGHTNESS, brightness)
+            
+            val percent = (brightness * 100) / 255
+            showIndicator("Brightness: $percent%")
+        } catch (e: Exception) {
+            android.widget.Toast.makeText(this, "Requires 'Write System Settings' permission", android.widget.Toast.LENGTH_SHORT).show()
+            try {
+                val intent = Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
+                    data = android.net.Uri.parse("package:$packageName")
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                startActivity(intent)
+            } catch (ex: Exception) {}
         }
     }
 

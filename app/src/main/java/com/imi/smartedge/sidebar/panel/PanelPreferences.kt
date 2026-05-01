@@ -52,6 +52,8 @@ class PanelPreferences(context: Context) {
         private const val KEY_ANIM_SPEED = "animation_speed"
         private const val KEY_PICKER_GAP = "picker_gap"
         private const val KEY_SHOW_SYS_INFO = "show_sys_info"
+        private const val KEY_SHOW_SCREENSHOT_TOOL = "show_screenshot_tool"
+        private const val KEY_SHOW_TOOLS_PANEL_BUTTON = "show_tools_panel_button"
         private const val KEY_SHOW_POWER_MENU = "show_power_menu"
         private const val KEY_SHOW_VOLUME_KEYS = "show_volume_keys"
         private const val KEY_SHOW_BRIGHTNESS_KEYS = "show_brightness_keys"
@@ -70,6 +72,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_SIDEBAR_SCROLL = "last_sidebar_scroll"
         private const val KEY_PICKER_SCROLL = "last_picker_scroll"
         private const val KEY_GAME_APPS = "game_apps"
+        private const val KEY_TOOLS_FOLDER_MIGRATED = "tools_folder_migrated"
 
         private const val KEY_TAP_ACTION = "tap_action"
         private const val KEY_DOUBLE_TAP_ACTION = "double_tap_action"
@@ -127,7 +130,6 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_PANEL_BG = "#E61A1C1E"
         const val DEFAULT_PILL_COLOR = "#FFFFFF"
         const val DEFAULT_HIDE_BG = false
-        const val DEFAULT_SHOW_TOOLS = true
         val DEFAULT_ICON_SHAPE = SHAPE_SQUIRCLE
         const val DEFAULT_GESTURES = true
         const val DEFAULT_SHOW_LANDSCAPE = true
@@ -142,9 +144,10 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_PICKER_GAP = 20
         const val DEFAULT_HOME_BUTTON_STYLE = STYLE_POWER
         const val DEFAULT_THEME_MODE = MODE_SYSTEM
+        const val DEFAULT_SHOW_TOOLS = false
+        const val DEFAULT_SHOW_TOOLS_PANEL = true
     }
 
-    /** Resets only UI colors (Accent and Background). */
     fun resetUIColors() {
         prefs.edit {
             putString(KEY_ACCENT_COLOR, DEFAULT_ACCENT_COLOR)
@@ -319,6 +322,7 @@ class PanelPreferences(context: Context) {
             putString(KEY_PANEL_BG_COLOR, DEFAULT_PANEL_BG)
             putBoolean(KEY_HIDE_BG, DEFAULT_HIDE_BG)
             putBoolean(KEY_SHOW_TOOLS, DEFAULT_SHOW_TOOLS)
+            putBoolean(KEY_SHOW_TOOLS_PANEL_BUTTON, DEFAULT_SHOW_TOOLS_PANEL)
             putString(KEY_ICON_SHAPE, DEFAULT_ICON_SHAPE)
             putBoolean(KEY_GESTURES_ENABLED, DEFAULT_GESTURES)
             putBoolean(KEY_SHOW_IN_LANDSCAPE, DEFAULT_SHOW_LANDSCAPE)
@@ -335,6 +339,8 @@ class PanelPreferences(context: Context) {
             putInt(KEY_ANIM_SPEED, DEFAULT_ANIM_SPEED)
             putInt(KEY_PICKER_GAP, DEFAULT_PICKER_GAP)
             putBoolean(KEY_SHOW_SYS_INFO, false)
+            putBoolean(KEY_SHOW_SCREENSHOT_TOOL, true)
+            putBoolean(KEY_SHOW_TOOLS_PANEL_BUTTON, false)
             putBoolean(KEY_SHOW_POWER_MENU, false)
             putString(KEY_HOME_BUTTON_STYLE, DEFAULT_HOME_BUTTON_STYLE)
             putInt(KEY_THEME_MODE, DEFAULT_THEME_MODE)
@@ -418,6 +424,14 @@ class PanelPreferences(context: Context) {
     var showSysInfo: Boolean
         get() = prefs.getBoolean(KEY_SHOW_SYS_INFO, false)
         set(value) = prefs.edit { putBoolean(KEY_SHOW_SYS_INFO, value) }
+
+    var showScreenshotTool: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_SCREENSHOT_TOOL, true)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_SCREENSHOT_TOOL, value) }
+
+    var showToolsPanelButton: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_TOOLS_PANEL_BUTTON, DEFAULT_SHOW_TOOLS_PANEL)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_TOOLS_PANEL_BUTTON, value) }
 
     var showPowerMenu: Boolean
         get() = prefs.getBoolean(KEY_SHOW_POWER_MENU, false)
@@ -562,6 +576,10 @@ class PanelPreferences(context: Context) {
     var setupCompleted: Boolean
         get() = prefs.getBoolean("setup_completed_new", false)
         set(value) = prefs.edit { putBoolean("setup_completed_new", value) }
+
+    var toolsFolderMigrated: Boolean
+        get() = prefs.getBoolean(KEY_TOOLS_FOLDER_MIGRATED, false)
+        set(value) = prefs.edit { putBoolean(KEY_TOOLS_FOLDER_MIGRATED, value) }
 
     var serviceEnabled: Boolean
         get() = prefs.getBoolean("service_enabled", true)

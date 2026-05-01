@@ -42,7 +42,10 @@
                     android:layout_height="wrap_content">
 
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_tools_master" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Enable Dashboard Tools" android:textColor="?attr/colorOnSurface" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Master switch for the sidebar dashboard section" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Master switch for the sidebar dashboard section (bottom area)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_tools_panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Dedicated Tools Folder" android:textColor="?attr/colorOnSurface" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add a folder button to the app list that opens a separate tools menu" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
 
                     <View android:id="@+id/divTools" android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
@@ -52,19 +55,22 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="System Access" android:textColor="?attr/colorOnSurface" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Dashboard Items" android:textColor="?attr/colorOnSurface" android:textStyle="bold" />
                         
                         <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_sys_info" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="System Info Overlay" android:textColor="?attr/colorOnSurface" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Shows real-time RAM and Battery stats in sidebar" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
 
                         <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_power_menu" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Power Menu" android:textColor="?attr/colorOnSurface" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add Power/Reboot tools to the sidebar" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add Power/Reboot tools to the dashboard" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
 
                         <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_volume_keys" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Volume Controls" android:textColor="?attr/colorOnSurface" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add Volume Up/Down keys to the sidebar" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add Volume Up/Down keys to the dashboard" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
 
                         <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_brightness_keys" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Brightness Controls" android:textColor="?attr/colorOnSurface" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add Brightness Up/Down keys to the sidebar" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Add Brightness Up/Down keys to the dashboard" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+
+                        <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_screenshot" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Screenshot Button" android:textColor="?attr/colorOnSurface" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Show a screenshot button at the bottom of the sidebar" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
 
                         <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="20dp" />
 

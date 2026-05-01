@@ -142,68 +142,84 @@ class AppRepository(context: Context) {
     }
 
     /**
+     * Resolves a list of identifiers into AppInfo objects.
+     */
+    suspend fun getAppsForIdentifiers(identifiers: List<String>): List<AppInfo> = withContext(Dispatchers.IO) {
+        if (identifiers.isEmpty()) return@withContext emptyList()
+
+        identifiers.mapNotNull { id ->
+            when {
+                id == "smartedge.shortcut.one_hand" -> {
+                    AppInfo(id, "One-Handed Mode", true, AppInfo.Type.SHORTCUT)
+                }
+                id == "smartedge.shortcut.reboot" -> {
+                    AppInfo(id, "Power Menu", true, AppInfo.Type.SHORTCUT)
+                }
+                id.startsWith("smartedge.folder.") -> {
+                    val name = id.substringAfterLast(".").replaceFirstChar { it.uppercase() }
+                    AppInfo(id, name, true, AppInfo.Type.FOLDER)
+                }
+                id.startsWith("smartedge.tool.") -> {
+                    val name = id.substringAfterLast(".").replaceFirstChar { it.uppercase() }
+                    AppInfo(id, name, true, AppInfo.Type.TOOL)
+                }
+                id.startsWith("intent:") -> {
+                    try {
+                        val intent = android.content.Intent.parseUri(id, android.content.Intent.URI_INTENT_SCHEME)
+                        val pkg = intent.getPackage() ?: intent.component?.packageName ?: ""
+                        
+                        val resolveInfo = packageManager.resolveActivity(intent, 0)
+                        val name = resolveInfo?.loadLabel(packageManager)?.toString() 
+                                   ?: intent.component?.shortClassName?.substringAfterLast(".")
+                                   ?: "Unknown Activity"
+
+                        AppInfo(
+                            packageName = pkg,
+                            appName = name,
+                            isInPanel = true,
+                            type = AppInfo.Type.ACTIVITY,
+                            intentUri = id,
+                            activityName = intent.component?.className
+                        )
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+                else -> {
+                    // Standard APP (Package Name)
+                    try {
+                        val appInfo = packageManager.getApplicationInfo(id, 0)
+                        AppInfo(
+                            packageName = id,
+                            appName = packageManager.getApplicationLabel(appInfo).toString(),
+                            isInPanel = true,
+                            type = AppInfo.Type.APP
+                        )
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Returns only the items currently pinned to the panel.
      */
     suspend fun getPanelApps(): List<AppInfo> = withContext(Dispatchers.IO) {
         val pinnedIdentifiers = panelPrefs.getPanelApps()
         val allIdentifiers = pinnedIdentifiers.toMutableList()
 
-        // If notifications are enabled, add them if they aren't already pinned.
-        // We prepend them to keep them at the top, but only if they are NEW.
         if (panelPrefs.showNotificationApps) {
             val notifyApps = NotificationTrackingService.getActiveNotificationPackages()
-            for (pkg in notifyApps.reversed()) { // Reversed to maintain relative notification order when prepending
+            for (pkg in notifyApps.reversed()) {
                 if (!allIdentifiers.contains(pkg)) {
                     allIdentifiers.add(0, pkg)
                 }
             }
         }
         
-        if (allIdentifiers.isEmpty()) return@withContext emptyList()
-
-        allIdentifiers.mapNotNull { id ->
-            if (id == "smartedge.shortcut.one_hand") {
-                return@mapNotNull AppInfo(id, "One-Handed Mode", true, AppInfo.Type.SHORTCUT)
-            }
-
-            // If it's a URI, it's an Activity or Shortcut
-            if (id.startsWith("intent:")) {
-                try {
-                    val intent = android.content.Intent.parseUri(id, android.content.Intent.URI_INTENT_SCHEME)
-                    val pkg = intent.getPackage() ?: intent.component?.packageName ?: ""
-                    
-                    val resolveInfo = packageManager.resolveActivity(intent, 0)
-                    val name = resolveInfo?.loadLabel(packageManager)?.toString() 
-                               ?: intent.component?.shortClassName?.substringAfterLast(".")
-                               ?: "Unknown Activity"
-
-                    return@mapNotNull AppInfo(
-                        packageName = pkg,
-                        appName = name,
-                        isInPanel = pinnedIdentifiers.contains(id),
-                        type = AppInfo.Type.ACTIVITY,
-                        intentUri = id,
-                        activityName = intent.component?.className
-                    )
-                } catch (e: Exception) {
-                    return@mapNotNull null
-                }
-            }
-
-            // Otherwise, it's a standard APP (Package Name)
-            try {
-                val appInfo = packageManager.getApplicationInfo(id, 0)
-                AppInfo(
-                    packageName = id,
-                    appName = packageManager.getApplicationLabel(appInfo).toString(),
-                    isInPanel = pinnedIdentifiers.contains(id),
-                    type = AppInfo.Type.APP
-                )
-            } catch (e: Exception) {
-                // Not a valid package, but maybe it's still in the launcher cache?
-                null
-            }
-        }
+        getAppsForIdentifiers(allIdentifiers)
     }
 
     suspend fun getTop5Apps(): List<String> = withContext(Dispatchers.IO) {

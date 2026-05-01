@@ -57,12 +57,14 @@ class ToolsSettingsActivity : AppCompatActivity() {
         binding.featureToolsMaster.isChecked = panelPrefs.showTools
         binding.layoutToolsSubOptions.alpha = if (panelPrefs.showTools) 1.0f else 0.5f
         binding.layoutToolsSubOptions.isEnabled = panelPrefs.showTools
-        binding.divTools.visibility = if (panelPrefs.showTools) View.VISIBLE else View.GONE
+        // binding.divTools.visibility = if (panelPrefs.showTools) View.VISIBLE else View.GONE
 
         binding.featureSysInfo.isChecked = panelPrefs.showSysInfo
         binding.featurePowerMenu.isChecked = panelPrefs.showPowerMenu
         binding.featureVolumeKeys.isChecked = panelPrefs.showVolumeKeys
         binding.featureBrightnessKeys.isChecked = panelPrefs.showBrightnessKeys
+        binding.featureScreenshot.isChecked = panelPrefs.showScreenshotTool
+        binding.featureToolsPanel.isChecked = panelPrefs.showToolsPanelButton
     }
 
     private fun setupListeners() {
@@ -70,7 +72,7 @@ class ToolsSettingsActivity : AppCompatActivity() {
             panelPrefs.showTools = isChecked
             binding.layoutToolsSubOptions.alpha = if (isChecked) 1.0f else 0.5f
             binding.layoutToolsSubOptions.isEnabled = isChecked
-            binding.divTools.visibility = if (isChecked) View.VISIBLE else View.GONE
+            // binding.divTools.visibility = if (isChecked) View.VISIBLE else View.GONE
             applyOnly()
         }
 
@@ -91,6 +93,16 @@ class ToolsSettingsActivity : AppCompatActivity() {
 
         binding.featureBrightnessKeys.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showBrightnessKeys = isChecked
+            applyOnly()
+        }
+
+        binding.featureScreenshot.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.showScreenshotTool = isChecked
+            applyOnly()
+        }
+
+        binding.featureToolsPanel.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.showToolsPanelButton = isChecked
             applyOnly()
         }
     }

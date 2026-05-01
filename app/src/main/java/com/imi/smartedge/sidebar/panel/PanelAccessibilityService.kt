@@ -103,9 +103,6 @@ class PanelAccessibilityService : AccessibilityService() {
         val isVivo = VivoUtils.isVivo()
 
         if (isVivo) {
-            // Origin OS / Funtouch OS: GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN is unreliable.
-            // Directly launch with the split-screen windowing mode and adjacent flag.
-            // SplitScreenHelper already sets Vivo-specific intent extras.
             Log.d(TAG, "Origin OS detected — using direct split launch for $pkg mode=$mode")
             SplitScreenHelper.launchApp(this, pkg, mode)
         } else {
@@ -113,7 +110,9 @@ class PanelAccessibilityService : AccessibilityService() {
             val toggled = performGlobalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN)
             Log.d(TAG, "GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN result=$toggled")
 
-            val delay = if (toggled) 700L else 300L
+            // On many AOSP/Pixel versions, we need a significant delay for the system to dock the first app.
+            // If toggle failed (e.g. only one app open), we still try to launch adjacent.
+            val delay = if (toggled) 1000L else 500L
             handler.postDelayed({
                 SplitScreenHelper.launchApp(this, pkg, mode)
             }, delay)
