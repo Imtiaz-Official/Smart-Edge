@@ -3,7 +3,6 @@ package com.imi.smartedge.sidebar.panel
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.content.Intent
-import android.util.Log
 
 class NotificationTrackingService : NotificationListenerService() {
 
@@ -29,7 +28,6 @@ class NotificationTrackingService : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
         sbn?.packageName?.let { pkg ->
-            Log.d(TAG, "Notification posted: $pkg")
             if (notificationPackages.add(pkg)) {
                 onNotificationsChanged?.invoke()
             }
@@ -38,9 +36,6 @@ class NotificationTrackingService : NotificationListenerService() {
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         super.onNotificationRemoved(sbn)
-        sbn?.packageName?.let { pkg ->
-            Log.d(TAG, "Notification removed: $pkg")
-        }
         updateActiveNotifications()
     }
 
@@ -55,15 +50,13 @@ class NotificationTrackingService : NotificationListenerService() {
                 }
             }
             
-            Log.d(TAG, "Updating active notifications. Count: ${current.size}")
-            
             if (notificationPackages != current) {
                 notificationPackages.clear()
                 notificationPackages.addAll(current)
                 onNotificationsChanged?.invoke()
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error updating notifications", e)
+            // Ignore
         }
     }
 }

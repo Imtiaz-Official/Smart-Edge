@@ -167,15 +167,24 @@ class FloatingPanelService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent == null || intent.action == null) {
+        val action = intent?.action
+        
+        // If service is disabled, we only allow ACTION_TOGGLE or ACTION_STOP to proceed.
+        // Any other action should stop the service.
+        if (!panelPrefs.serviceEnabled && action != ACTION_TOGGLE && action != ACTION_STOP) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
+        if (intent == null || action == null) {
             if (panelPrefs.serviceEnabled) {
                 addEdgeHandle()
             }
         }
         
-        when (intent?.action) {
+        when (action) {
             ACTION_TOGGLE -> {
-                val newState = intent.getBooleanExtra("target_state", !panelPrefs.serviceEnabled)
+                val newState = intent?.getBooleanExtra("target_state", !panelPrefs.serviceEnabled) ?: !panelPrefs.serviceEnabled
                 panelPrefs.setServiceEnabled(newState, commit = true)
                 
                 // Request Tile Update explicitly
@@ -593,7 +602,7 @@ class FloatingPanelService : Service() {
     }
 
     private fun openPanel() {
-        if (isPanelOpen) return
+        if (isPanelOpen || !panelPrefs.serviceEnabled) return
         isPanelOpen = true
         refreshApps() // Load apps in background while panel opens
         initRootLayout()

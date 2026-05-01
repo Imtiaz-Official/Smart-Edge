@@ -75,7 +75,6 @@ class AppPickerPanelView @JvmOverloads constructor(
         }
 
         val pkgs = NotificationTrackingService.getActiveNotificationPackages()
-        android.util.Log.d("AppPickerPanelView", "Active notification pkgs: ${pkgs.size}")
         
         if (pkgs.isEmpty()) {
             findViewById<View>(R.id.layoutPickerNotifications).visibility = View.GONE
@@ -90,8 +89,6 @@ class AppPickerPanelView @JvmOverloads constructor(
                     AppInfo(pkg, ai.loadLabel(pm).toString(), isInPanel = false, type = AppInfo.Type.APP)
                 } catch (e: Exception) { null }
             }
-            
-            android.util.Log.d("AppPickerPanelView", "Filtered appInfos: ${appInfos.size}")
             
             if (appInfos.isEmpty()) {
                 findViewById<View>(R.id.layoutPickerNotifications).visibility = View.GONE
@@ -594,9 +591,6 @@ class AppPickerPanelView @JvmOverloads constructor(
 
         override fun onBindViewHolder(holder: PickerViewHolder, position: Int) {
             val app = getItem(position)
-            if (isNotificationType) {
-                android.util.Log.d("AppPickerPanelView", "Binding notification app: ${app.appName} (${app.packageName})")
-            }
             
             val scale = context.getAutoScalingFactor() * panelPrefs.scaleFactor
             val isRich = panelPrefs.uiTheme == PanelPreferences.THEME_RICH

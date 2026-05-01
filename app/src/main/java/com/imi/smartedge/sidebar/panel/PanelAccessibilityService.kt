@@ -16,6 +16,7 @@ class PanelAccessibilityService : AccessibilityService() {
     }
 
     private fun checkImmersiveMode() {
+        if (!panelPrefs.serviceEnabled) return
         val root = rootInActiveWindow ?: return
         
         // Strategy: Check if the main window covers the whole screen area
@@ -130,12 +131,10 @@ class PanelAccessibilityService : AccessibilityService() {
         val isVivo = VivoUtils.isVivo()
 
         if (isVivo) {
-            Log.d(TAG, "Origin OS detected — using direct split launch for $pkg mode=$mode")
             SplitScreenHelper.launchApp(this, pkg, mode)
         } else {
             // Standard AOSP path: toggle split, wait for animation, then launch second app
             val toggled = performGlobalAction(GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN)
-            Log.d(TAG, "GLOBAL_ACTION_TOGGLE_SPLIT_SCREEN result=$toggled")
 
             // On many AOSP/Pixel versions, we need a significant delay for the system to dock the first app.
             // If toggle failed (e.g. only one app open), we still try to launch adjacent.
@@ -169,13 +168,13 @@ class PanelAccessibilityService : AccessibilityService() {
                         action = FloatingPanelService.ACTION_CLOSE_PANEL
                     }
                     startService(closeIntent)
-                }
 
-                // Notify service to update game mode state based on new foreground package
-                val refreshIntent = Intent(this, FloatingPanelService::class.java).apply {
-                    action = FloatingPanelService.ACTION_REFRESH
+                    // Notify service to update game mode state based on new foreground package
+                    val refreshIntent = Intent(this, FloatingPanelService::class.java).apply {
+                        action = FloatingPanelService.ACTION_REFRESH
+                    }
+                    startService(refreshIntent)
                 }
-                startService(refreshIntent)
             }
         }
         

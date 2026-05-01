@@ -315,10 +315,9 @@ fun Context.isFreeformEnabled(): Boolean {
     val freeformSupport = android.provider.Settings.Global.getInt(contentResolver, "enable_freeform_support", 0) != 0
     val forceResizable = android.provider.Settings.Global.getInt(contentResolver, "force_resizable_activities", 0) != 0
     
-    val result = freeformPref || freeformSupport || forceResizable
-    android.util.Log.d("SmartEdgeExt", "Freeform Check: pref=$freeformPref, support=$freeformSupport, resizable=$forceResizable -> Result=$result")
+    val result = freeformPref && (freeformSupport || forceResizable)
     return result
-}
+    }
 
 /**
  * Attempts to open Developer Options and highlight the Freeform windows toggle.

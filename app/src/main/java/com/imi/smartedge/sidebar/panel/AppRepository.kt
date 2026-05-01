@@ -105,8 +105,6 @@ class AppRepository(context: Context) {
                 packageManager.getInstalledPackages(PackageManager.GET_ACTIVITIES)
             }
 
-            android.util.Log.d("AppRepository", "Found ${packages.size} packages")
-
             for (pkg in packages) {
                 val activities = pkg.activities ?: continue
                 for (act in activities) {
@@ -134,10 +132,9 @@ class AppRepository(context: Context) {
                 }
             }
         } catch (e: Exception) {
-            android.util.Log.e("AppRepository", "Error loading activities", e)
+            // Ignore
         }
 
-        android.util.Log.d("AppRepository", "Returning ${allActivities.size} activities")
         return@withContext allActivities.sortedBy { it.appName.lowercase() }
     }
 
