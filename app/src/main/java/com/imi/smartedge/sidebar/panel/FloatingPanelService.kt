@@ -577,7 +577,7 @@ class FloatingPanelService : Service() {
                 val safeMargin = (10 * density).toInt()
                 val h = if (isPillVisible) (panelPrefs.handleHeight * density).toInt()
                         else (screenH * 0.60f).toInt()
-                val maxOffset = (screenH / 2) - (h / 2) - safeMargin
+                val maxOffset = ((screenH / 2) - (h / 2) - safeMargin).coerceAtLeast(0)
                 val requestedOffset = (panelPrefs.handleVerticalOffset * density).toInt()
 
                 params.width = (panelPrefs.handleWidth * density).toInt()
@@ -644,7 +644,7 @@ class FloatingPanelService : Service() {
             // Calculate absolute max offset to keep handle on screen
             val screenH = resources.displayMetrics.heightPixels
             val safeMargin = dpToPx(10) // Keep away from extreme top/bottom edges
-            val maxOffset = (screenH / 2) - (handleHeight / 2) - safeMargin
+            val maxOffset = ((screenH / 2) - (handleHeight / 2) - safeMargin).coerceAtLeast(0)
             
             val requestedOffset = dpToPx(panelPrefs.handleVerticalOffset)
             y = requestedOffset.coerceIn(-maxOffset, maxOffset)
