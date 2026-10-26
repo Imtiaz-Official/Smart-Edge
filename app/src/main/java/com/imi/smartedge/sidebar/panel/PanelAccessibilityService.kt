@@ -187,14 +187,16 @@ class PanelAccessibilityService : AccessibilityService() {
             
             val isSystemPkg = packageName == "android" || packageName == "com.android.systemui"
             
-            if (packageName != "com.imi.smartedge.sidebar.panel" && packageName != imePackage && !isSystemPkg) {
+            if (packageName != "com.imi.smartedge.sidebar.panel" && packageName != imePackage) {
                 if (panelPrefs.serviceEnabled) {
-                    val closeIntent = Intent(this, FloatingPanelService::class.java).apply {
-                        action = FloatingPanelService.ACTION_CLOSE_PANEL
+                    if (!isSystemPkg) {
+                        val closeIntent = Intent(this, FloatingPanelService::class.java).apply {
+                            action = FloatingPanelService.ACTION_CLOSE_PANEL
+                        }
+                        startService(closeIntent)
                     }
-                    startService(closeIntent)
 
-                    // Notify service to update game mode state based on new foreground package
+                    // Notify service to update home visibility and game mode state based on new foreground package
                     val refreshIntent = Intent(this, FloatingPanelService::class.java).apply {
                         action = FloatingPanelService.ACTION_REFRESH
                     }

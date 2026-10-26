@@ -177,6 +177,11 @@
     <string name="freeform_mode_portrait">Portrait (Narrow)</string>
     <string name="freeform_mode_maximized">Maximized</string>
     <string name="freeform_mode_custom">Custom (%1$d%% × %2$d%%)</string>
+    <string name="freeform_custom_windowing_mode">Custom Windowing Mode</string>
+    <string name="freeform_custom_windowing_mode_desc">Enter a custom integer for native OEM floating windows (Nothing: 102, Xiaomi: 12, Vivo/OriginOS: 106, Realme: 100)</string>
+    <string name="freeform_use_shell">Use Native Shell Launch</string>
+    <string name="freeform_use_shell_desc">Recommended for OriginOS/HyperOS. Replicates ADB command for perfect scaling (Requires Shizuku/Root)</string>
+    <string name="dialog_custom_windowing_mode">Custom Windowing Mode</string>
     
     <string name="anim_feel_calm">Calm (Slow)</string>
     <string name="anim_feel_balanced">Balanced (Default)</string>

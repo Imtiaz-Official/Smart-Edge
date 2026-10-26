@@ -109,7 +109,7 @@ object AutomationManager {
     fun performQuickSettings() = execute("cmd statusbar expand-settings")
     fun performSplitScreen() = execute("cmd statusbar toggle-split-screen")
     
-    fun performPowerMenu() = execute("input keyevent 26 --longpress") // Long press power for menu
+    fun performPowerMenu() = execute("input keyevent --longpress 26") // Long press power for menu
 
     fun performLockScreen() {
         // Locking is tricky via shell. input keyevent 26 (power) is the best fallback
@@ -127,5 +127,36 @@ object AutomationManager {
         // Shell screenshot command varies, but 'screencap' is common.
         // However, triggering the system screenshot UI is better.
         execute("input keyevent 120") // KEYCODE_SYSRQ/Screenshot
+    }
+
+    fun launchApp(context: Context, packageName: String, windowingMode: Int): Boolean {
+        return try {
+            val intent = context.packageManager.getLaunchIntentForPackage(packageName) ?: return false
+            val component = intent.component?.flattenToShortString() ?: return false
+            
+            // Get real screen metrics to ensure accurate centering
+            val wm = context.getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager
+            val size = android.graphics.Point()
+            wm.defaultDisplay.getRealSize(size)
+            val w = size.x
+            val h = size.y
+            
+            // Use a 75% window size for better snap compatibility
+            val factor = 0.75
+            val winW = (w * factor).toInt()
+            val winH = (h * factor).toInt()
+            val left = (w - winW) / 2
+            val top = (h - winH) / 2
+            val right = left + winW
+            val bottom = top + winH
+            
+            // am start -n com.pkg/.Activity --windowingMode 106 --bounds 100,100,800,1200
+            // Added --activity-clear-task to ensure a fresh window placement
+            val cmd = "am start -n $component --windowingMode $windowingMode --bounds $left,$top,$right,$bottom"
+            execute(cmd)
+        } catch (e: Exception) {
+            Log.e(TAG, "Shell launch failed", e)
+            false
+        }
     }
 }

@@ -221,6 +221,22 @@ class AppPickerPanelView @JvmOverloads constructor(
             override fun afterTextChanged(s: Editable?) {}
         })
 
+        // Pressing Enter or Search action launches the first result
+        etSearch.setOnEditorActionListener { _, actionId, event ->
+            val isEnter = (event != null && event.keyCode == android.view.KeyEvent.KEYCODE_ENTER && event.action == android.view.KeyEvent.ACTION_DOWN)
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH ||
+                actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE ||
+                actionId == android.view.inputmethod.EditorInfo.IME_ACTION_GO ||
+                isEnter) {
+                if (adapter.launchFirstItem()) {
+                    etSearch.clearFocus()
+                    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                    imm.hideSoftInputFromWindow(etSearch.windowToken, 0)
+                    true
+                } else false
+            } else false
+        }
+
         // Hide keyboard when tapping outside the search bar
         pickerPanelCard.setOnTouchListener { _, event ->
             if (event.action == android.view.MotionEvent.ACTION_DOWN) {
@@ -287,26 +303,39 @@ class AppPickerPanelView @JvmOverloads constructor(
             shape = android.graphics.drawable.GradientDrawable.RECTANGLE
         }
         
+        val customBg = try { Color.parseColor(panelPrefs.panelBackgroundColor) } catch (e: Exception) { Color.parseColor("#E61A1C1E") }
+        val customAccent = try { Color.parseColor(panelPrefs.accentColor) } catch (e: Exception) { Color.parseColor("#4A9EFF") }
+        val hasCustomAccent = panelPrefs.useCustomAccent || theme == PanelPreferences.THEME_RICH
+
         val themeBgColor = when (theme) {
             PanelPreferences.THEME_ORIGIN -> Color.parseColor("#1F1F1F") 
-            PanelPreferences.THEME_HYPEROS -> Color.parseColor("#E6252525")
-            else -> try { Color.parseColor(panelPrefs.panelBackgroundColor) } catch (e: Exception) { Color.parseColor("#E61A1C1E") }
+            PanelPreferences.THEME_HYPEROS -> {
+                if (panelPrefs.panelBackgroundColor != PanelPreferences.DEFAULT_PANEL_BG) customBg
+                else Color.parseColor("#E6252525")
+            }
+            PanelPreferences.THEME_REALME -> {
+                if (panelPrefs.panelBackgroundColor != PanelPreferences.DEFAULT_PANEL_BG) customBg
+                else Color.parseColor("#333333")
+            }
+            else -> customBg
         }
         drawable.setColor(themeBgColor)
         
         val finalRadius = if (theme == PanelPreferences.THEME_HYPEROS) 16f else panelPrefs.panelCornerRadius.toFloat()
         drawable.cornerRadius = finalRadius * density
 
-        if (theme == PanelPreferences.THEME_HYPEROS) {
+        if (hasCustomAccent) {
+            val strokeWidth = (if (theme == PanelPreferences.THEME_RICH) 2 * density else 1.5 * density).toInt()
+            drawable.setStroke(strokeWidth, customAccent)
+        } else if (theme == PanelPreferences.THEME_HYPEROS) {
             drawable.setStroke((1.5 * density).toInt(), Color.parseColor("#4DFFFFFF"))
-        } else if (theme == PanelPreferences.THEME_RICH) {
-            val accent = try { Color.parseColor(panelPrefs.accentColor) } catch (e: Exception) { Color.parseColor("#4A9EFF") }
-            drawable.setStroke((2 * density).toInt(), accent)
         } else if (theme == PanelPreferences.THEME_REALME) {
-            val color1 = Color.parseColor("#333333")
-            val color2 = Color.parseColor("#1A1A1A")
-            drawable.colors = intArrayOf(color1, color2)
-            drawable.orientation = android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM
+            if (panelPrefs.panelBackgroundColor == PanelPreferences.DEFAULT_PANEL_BG) {
+                val color1 = Color.parseColor("#333333")
+                val color2 = Color.parseColor("#1A1A1A")
+                drawable.colors = intArrayOf(color1, color2)
+                drawable.orientation = android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM
+            }
             drawable.setStroke((1 * density).toInt(), Color.parseColor("#33FFFFFF"))
         }
         
@@ -693,6 +722,12 @@ class AppPickerPanelView @JvmOverloads constructor(
             notifyItemChanged(position, "TOGGLE_STATE")
         }
 
+        fun launchFirstItem(): Boolean {
+            val firstApp = currentList.firstOrNull() ?: return false
+            launchApp(firstApp)
+            return true
+        }
+
         private fun launchApp(app: AppInfo) {
             rvPickerGrid.findViewHolderForAdapterPosition(currentList.indexOf(app))?.itemView?.let {
                 SpringAnimator.scalePulse(it)
@@ -724,10 +759,30 @@ class AppPickerPanelView @JvmOverloads constructor(
 
         @android.annotation.SuppressLint("BlockedPrivateApi")
         private fun launchFreeform(intent: android.content.Intent) {
-            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+            val pkg = intent.`package` ?: intent.component?.packageName ?: return
+            
+            // Use Shell Launch engine if enabled and possible
+            if (panelPrefs.useShellForFreeform && AutomationManager.isAutomationPossible()) {
+                val launched = AutomationManager.launchApp(context, pkg, panelPrefs.freeformWindowingModeInt)
+                if (launched) return
+            }
+
+            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            
+            // Some OEMs (like Vivo) glitch if MULTIPLE_TASK is used with their native modes
+            if (panelPrefs.freeformWindowingModeInt == 5) {
+                intent.addFlags(android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+            }
+
             // Add intent extras that some OEMs/ROMs respect for freeform launching
-            intent.putExtra("android.intent.extra.WINDOWING_MODE", 5)
-            intent.putExtra("android.intent.extra.LAUNCH_WINDOWING_MODE", 5)
+            intent.putExtra("android.intent.extra.WINDOWING_MODE", panelPrefs.freeformWindowingModeInt)
+            intent.putExtra("android.intent.extra.LAUNCH_WINDOWING_MODE", panelPrefs.freeformWindowingModeInt)
+            
+            // Vivo/OriginOS specific extras
+            if (panelPrefs.freeformWindowingModeInt == 106) {
+                intent.putExtra("vivo_small_window", true)
+                intent.putExtra("is_vivo_freeform", true)
+            }
             
             try {
                 val options = android.app.ActivityOptions.makeBasic()
@@ -738,7 +793,7 @@ class AppPickerPanelView @JvmOverloads constructor(
 
                 val prefersLandscape = detectLandscapeOrientation(intent.`package`, intent)
 
-                val bounds: android.graphics.Rect = when (panelPrefs.freeformWindowMode) {
+                val bounds: android.graphics.Rect? = when (panelPrefs.freeformWindowMode) {
                     PanelPreferences.FREEFORM_MODE_PORTRAIT -> {
                         val left = w / 3
                         val top = h / 15
@@ -755,24 +810,30 @@ class AppPickerPanelView @JvmOverloads constructor(
                         android.graphics.Rect(left, top, left + winW, top + winH)
                     }
                     else -> {
+                        // Use a slightly smaller centered Rect for custom modes (0.7 instead of 0.8)
+                        // This helps the OEM engine snap it correctly.
+                        val factor = if (panelPrefs.freeformWindowingModeInt == 5) 0.8 else 0.7
+                        
                         if (prefersLandscape) {
                             // 16:9 wide aspect for games/landscape apps
-                            val targetW = if (w > h) (w * 0.80).toInt() else (w * 0.90).toInt()
-                            val targetH = (targetW / 1.77).toInt().coerceAtMost((h * 0.85).toInt())
+                            val targetW = if (w > h) (w * factor).toInt() else (w * (factor + 0.1)).toInt()
+                            val targetH = (targetW / 1.77).toInt().coerceAtMost((h * (factor + 0.05)).toInt())
                             val left = (w - targetW) / 2
                             val top = (h - targetH) / 2
                             android.graphics.Rect(left, top, left + targetW, top + targetH)
                         } else {
                             // 9:16 portrait aspect for normal apps (fixed for landscape host)
-                            val targetH = (h * 0.85).toInt()
-                            val targetW = (targetH * 9 / 16).toInt().coerceAtMost((w * 0.85).toInt())
+                            val targetH = (h * (factor + 0.05)).toInt()
+                            val targetW = (targetH * 9 / 16).toInt().coerceAtMost((w * factor).toInt())
                             val left = (w - targetW) / 2
                             val top = (h - targetH) / 2
                             android.graphics.Rect(left, top, left + targetW, top + targetH)
                         }
                     }
                 }
-                options.launchBounds = bounds
+                if (bounds != null) {
+                    options.launchBounds = bounds
+                }
 
                 // Use HiddenApiBypass instead of direct reflection to avoid F-Droid lint errors
                 try {
@@ -781,7 +842,7 @@ class AppPickerPanelView @JvmOverloads constructor(
                             android.app.ActivityOptions::class.java,
                             options,
                             "setLaunchWindowingMode",
-                            5
+                            panelPrefs.freeformWindowingModeInt
                         )
                     }
                 } catch (e: Exception) {

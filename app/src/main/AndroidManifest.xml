@@ -30,6 +30,10 @@
         <intent>
             <action android:name="com.gau.go.launcherex.theme" />
         </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.HOME" />
+        </intent>
         <provider android:authorities="moe.shizuku.server.shizuku" />
     </queries>
 

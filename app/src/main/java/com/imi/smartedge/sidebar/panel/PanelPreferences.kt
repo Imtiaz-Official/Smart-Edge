@@ -58,9 +58,13 @@ class PanelPreferences(context: Context) {
         private const val KEY_SHOW_POWER_MENU = "show_power_menu"
         private const val KEY_SHOW_VOLUME_KEYS = "show_volume_keys"
         private const val KEY_SHOW_BRIGHTNESS_KEYS = "show_brightness_keys"
+        private const val KEY_SHOW_BOTTOM_ARROW = "show_bottom_arrow"
+        private const val KEY_AUTO_CLOSE_TIMEOUT = "auto_close_timeout"
         private const val KEY_HOME_BUTTON_STYLE = "home_button_style"
         private const val KEY_FREEFORM_ENABLED = "freeform_enabled"
         private const val KEY_FREEFORM_WINDOW_MODE = "freeform_window_mode"
+        private const val KEY_FREEFORM_WINDOWING_MODE_INT = "freeform_windowing_mode_int"
+        private const val KEY_USE_SHELL_FOR_FREEFORM = "use_shell_for_freeform"
         private const val KEY_FREEFORM_CUSTOM_W = "freeform_custom_width"
         private const val KEY_FREEFORM_CUSTOM_H = "freeform_custom_height"
         private const val KEY_SCALE_FACTOR = "scale_factor"
@@ -119,6 +123,7 @@ class PanelPreferences(context: Context) {
 
         const val SIDE_RIGHT = "right"
         const val SIDE_LEFT = "left"
+        const val SIDE_BOTH = "both"
 
         const val THEME_ORIGIN = "origin"
         const val THEME_HYPEROS = "hyperos"
@@ -232,6 +237,9 @@ class PanelPreferences(context: Context) {
             KEY_PICKER_MAX_HEIGHT to pickerMaxHeight,
             KEY_SLIDE_SENSITIVITY to slideSensitivity,
             KEY_SWIPE_SENSITIVITY to swipeSensitivity,
+            KEY_AUTO_CLOSE_TIMEOUT to autoCloseTimeout,
+            KEY_FREEFORM_WINDOWING_MODE_INT to freeformWindowingModeInt,
+            KEY_USE_SHELL_FOR_FREEFORM to if (useShellForFreeform) 1 else 0,
             KEY_FREEFORM_CUSTOM_W to freeformCustomWidth,
             KEY_FREEFORM_CUSTOM_H to freeformCustomHeight,
             KEY_THEME_MODE to themeMode
@@ -266,6 +274,7 @@ class PanelPreferences(context: Context) {
             KEY_SLIDE_VOLUME_ENABLED to slideVolumeEnabled,
             KEY_FREEFORM_ENABLED to freeformEnabled,
             KEY_SHOW_NOTIFICATION_APPS to showNotificationApps,
+            KEY_SHOW_BOTTOM_ARROW to showBottomArrow,
             KEY_DRAG_TO_SPLIT to dragToSplit,
             KEY_REMEMBER_SCROLL to rememberScroll,
             KEY_AUTO_SHOW_KEYBOARD to autoShowKeyboard
@@ -313,6 +322,9 @@ class PanelPreferences(context: Context) {
                 if (obj.has(KEY_PICKER_MAX_HEIGHT)) putInt(KEY_PICKER_MAX_HEIGHT, obj.getInt(KEY_PICKER_MAX_HEIGHT))
                 if (obj.has(KEY_SLIDE_SENSITIVITY)) putInt(KEY_SLIDE_SENSITIVITY, obj.getInt(KEY_SLIDE_SENSITIVITY))
                 if (obj.has(KEY_SWIPE_SENSITIVITY)) putInt(KEY_SWIPE_SENSITIVITY, obj.getInt(KEY_SWIPE_SENSITIVITY))
+                if (obj.has(KEY_AUTO_CLOSE_TIMEOUT)) putInt(KEY_AUTO_CLOSE_TIMEOUT, obj.getInt(KEY_AUTO_CLOSE_TIMEOUT))
+                if (obj.has(KEY_FREEFORM_WINDOWING_MODE_INT)) putInt(KEY_FREEFORM_WINDOWING_MODE_INT, obj.getInt(KEY_FREEFORM_WINDOWING_MODE_INT))
+                if (obj.has(KEY_USE_SHELL_FOR_FREEFORM)) putInt(KEY_USE_SHELL_FOR_FREEFORM, obj.getInt(KEY_USE_SHELL_FOR_FREEFORM))
                 if (obj.has(KEY_FREEFORM_CUSTOM_W)) putInt(KEY_FREEFORM_CUSTOM_W, obj.getInt(KEY_FREEFORM_CUSTOM_W))
                 if (obj.has(KEY_FREEFORM_CUSTOM_H)) putInt(KEY_FREEFORM_CUSTOM_H, obj.getInt(KEY_FREEFORM_CUSTOM_H))
                 if (obj.has(KEY_THEME_MODE)) putInt(KEY_THEME_MODE, obj.getInt(KEY_THEME_MODE))
@@ -342,6 +354,7 @@ class PanelPreferences(context: Context) {
                 if (obj.has(KEY_SLIDE_VOLUME_ENABLED)) putBoolean(KEY_SLIDE_VOLUME_ENABLED, obj.getBoolean(KEY_SLIDE_VOLUME_ENABLED))
                 if (obj.has(KEY_FREEFORM_ENABLED)) putBoolean(KEY_FREEFORM_ENABLED, obj.getBoolean(KEY_FREEFORM_ENABLED))
                 if (obj.has(KEY_SHOW_NOTIFICATION_APPS)) putBoolean(KEY_SHOW_NOTIFICATION_APPS, obj.getBoolean(KEY_SHOW_NOTIFICATION_APPS))
+                if (obj.has(KEY_SHOW_BOTTOM_ARROW)) putBoolean(KEY_SHOW_BOTTOM_ARROW, obj.getBoolean(KEY_SHOW_BOTTOM_ARROW))
                 if (obj.has(KEY_DRAG_TO_SPLIT)) putBoolean(KEY_DRAG_TO_SPLIT, obj.getBoolean(KEY_DRAG_TO_SPLIT))
                 if (obj.has(KEY_REMEMBER_SCROLL)) putBoolean(KEY_REMEMBER_SCROLL, obj.getBoolean(KEY_REMEMBER_SCROLL))
                 if (obj.has(KEY_AUTO_SHOW_KEYBOARD)) putBoolean(KEY_AUTO_SHOW_KEYBOARD, obj.getBoolean(KEY_AUTO_SHOW_KEYBOARD))
@@ -405,6 +418,8 @@ class PanelPreferences(context: Context) {
             putInt(KEY_THEME_MODE, DEFAULT_THEME_MODE)
             putBoolean(KEY_FREEFORM_ENABLED, false)
             putString(KEY_FREEFORM_WINDOW_MODE, FREEFORM_MODE_STANDARD)
+            putInt(KEY_FREEFORM_WINDOWING_MODE_INT, 5)
+            putBoolean(KEY_USE_SHELL_FOR_FREEFORM, false)
             putInt(KEY_FREEFORM_CUSTOM_W, 80)
             putInt(KEY_FREEFORM_CUSTOM_H, 80)
             putFloat(KEY_SCALE_FACTOR, 1.0f)
@@ -471,6 +486,14 @@ class PanelPreferences(context: Context) {
     var freeformWindowMode: String
         get() = prefs.getString(KEY_FREEFORM_WINDOW_MODE, FREEFORM_MODE_STANDARD) ?: FREEFORM_MODE_STANDARD
         set(value) = prefs.edit { putString(KEY_FREEFORM_WINDOW_MODE, value) }
+
+    var freeformWindowingModeInt: Int
+        get() = prefs.getInt(KEY_FREEFORM_WINDOWING_MODE_INT, 5)
+        set(value) = prefs.edit { putInt(KEY_FREEFORM_WINDOWING_MODE_INT, value) }
+
+    var useShellForFreeform: Boolean
+        get() = prefs.getBoolean(KEY_USE_SHELL_FOR_FREEFORM, false)
+        set(value) = prefs.edit { putBoolean(KEY_USE_SHELL_FOR_FREEFORM, value) }
 
     var freeformCustomWidth: Int
         get() = prefs.getInt(KEY_FREEFORM_CUSTOM_W, 80)
@@ -671,6 +694,14 @@ class PanelPreferences(context: Context) {
     var useAutomationForGestures: Boolean
         get() = prefs.getBoolean(KEY_USE_AUTOMATION_FOR_GESTURES, false)
         set(value) = prefs.edit { putBoolean(KEY_USE_AUTOMATION_FOR_GESTURES, value) }
+
+    var showBottomArrow: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_BOTTOM_ARROW, true)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_BOTTOM_ARROW, value) }
+
+    var autoCloseTimeout: Int
+        get() = prefs.getInt(KEY_AUTO_CLOSE_TIMEOUT, 0)
+        set(value) = prefs.edit { putInt(KEY_AUTO_CLOSE_TIMEOUT, value) }
 
     var onlyOnHome: Boolean
         get() = prefs.getBoolean(KEY_ONLY_ON_HOME, false)

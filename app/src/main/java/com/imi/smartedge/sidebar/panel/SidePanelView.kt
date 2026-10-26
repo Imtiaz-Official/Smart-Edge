@@ -182,7 +182,7 @@ class SidePanelView @JvmOverloads constructor(
             override fun clearView(recyclerView: androidx.recyclerview.widget.RecyclerView, viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder) {
                 super.clearView(recyclerView, viewHolder)
                 val apps = adapter.getApps()
-                val identifiers = apps.map { it.identifier }
+                val identifiers = apps.map { it.identifier }.filter { it != "smartedge.tool.tools" }
                 
                 panelPrefs.setPanelApps(identifiers)
                 updateSideLayout()
@@ -505,7 +505,7 @@ class SidePanelView @JvmOverloads constructor(
     private fun updateNavigationUI() {
         val inFolder = navigationStack.isNotEmpty()
         binding.btnBack.visibility = if (inFolder) View.VISIBLE else View.GONE
-        binding.btnClose.visibility = if (inFolder) View.GONE else View.VISIBLE
+        binding.btnClose.visibility = if (inFolder || !panelPrefs.showBottomArrow) View.GONE else View.VISIBLE
         applyTheme()
         updateSideLayout()
     }
@@ -573,12 +573,22 @@ class SidePanelView @JvmOverloads constructor(
             binding.panelCard.background = null
         } else {
             val theme = panelPrefs.uiTheme
+            val customBg = try { Color.parseColor(panelPrefs.panelBackgroundColor) } catch (e: Exception) { Color.parseColor("#E61A1C1E") }
+            val customAccent = try { Color.parseColor(panelPrefs.accentColor) } catch (e: Exception) { Color.parseColor("#4A9EFF") }
+            val hasCustomAccent = panelPrefs.useCustomAccent || theme == PanelPreferences.THEME_RICH
             
-            // Revert to original dark-centric colors for floating panel
+            // Revert to original dark-centric colors for floating panel unless customized
             val bgColor = when (theme) {
                 PanelPreferences.THEME_ORIGIN -> Color.parseColor("#1F1F1F")
-                PanelPreferences.THEME_HYPEROS -> Color.parseColor("#E6252525")
-                else -> try { Color.parseColor(panelPrefs.panelBackgroundColor) } catch (e: Exception) { Color.parseColor("#E61A1C1E") }
+                PanelPreferences.THEME_HYPEROS -> {
+                    if (panelPrefs.panelBackgroundColor != PanelPreferences.DEFAULT_PANEL_BG) customBg
+                    else Color.parseColor("#E6252525")
+                }
+                PanelPreferences.THEME_REALME -> {
+                    if (panelPrefs.panelBackgroundColor != PanelPreferences.DEFAULT_PANEL_BG) customBg
+                    else Color.parseColor("#333333")
+                }
+                else -> customBg
             }
             
             val radius = context.dpToPx(if (theme == PanelPreferences.THEME_HYPEROS) 16 else panelPrefs.panelCornerRadius).toFloat()
@@ -587,31 +597,34 @@ class SidePanelView @JvmOverloads constructor(
                 setColor(bgColor)
                 cornerRadius = radius
                 
-                if (theme == PanelPreferences.THEME_HYPEROS) {
+                if (hasCustomAccent) {
+                    val strokeWidth = context.dpToPx(if (theme == PanelPreferences.THEME_RICH) 2 else 1)
+                    setStroke(strokeWidth, customAccent)
+                } else if (theme == PanelPreferences.THEME_HYPEROS) {
                     setStroke(context.dpToPx(1), Color.parseColor("#4DFFFFFF"))
-                } else if (theme == PanelPreferences.THEME_RICH) {
-                    val accent = try { Color.parseColor(panelPrefs.accentColor) } catch (e: Exception) { Color.parseColor("#4A9EFF") }
-                    setStroke(context.dpToPx(2), accent)
                 } else if (theme == PanelPreferences.THEME_REALME) {
-                    val color1 = Color.parseColor("#333333")
-                    val color2 = Color.parseColor("#1A1A1A")
-                    colors = intArrayOf(color1, color2)
-                    orientation = GradientDrawable.Orientation.TOP_BOTTOM
+                    if (panelPrefs.panelBackgroundColor == PanelPreferences.DEFAULT_PANEL_BG) {
+                        val color1 = Color.parseColor("#333333")
+                        val color2 = Color.parseColor("#1A1A1A")
+                        colors = intArrayOf(color1, color2)
+                        orientation = GradientDrawable.Orientation.TOP_BOTTOM
+                    }
                     setStroke(context.dpToPx(1), Color.parseColor("#33FFFFFF"))
                 }
             }
             binding.panelCard.background = shape
             
-            // Force white/light icons and text for dark floating panel
+            // Accent color for interactive control buttons if custom accent is enabled
+            val controlTint = if (hasCustomAccent) ColorStateList.valueOf(customAccent) else ColorStateList.valueOf(Color.WHITE)
             val iconColorList = ColorStateList.valueOf(Color.WHITE)
-            binding.btnClose.imageTintList = iconColorList
+            binding.btnClose.imageTintList = controlTint
             binding.btnScreenshot.imageTintList = iconColorList
             binding.btnVolumeUp.imageTintList = iconColorList
             binding.btnVolumeDown.imageTintList = iconColorList
             binding.btnBrightnessUp.imageTintList = iconColorList
             binding.btnBrightnessDown.imageTintList = iconColorList
-            binding.btnReboot.imageTintList = iconColorList
-            binding.btnBack.imageTintList = iconColorList
+            binding.btnReboot.imageTintList = controlTint
+            binding.btnBack.imageTintList = controlTint
             
             binding.tvRamUsage.setTextColor(Color.WHITE)
             binding.tvBatTemp.setTextColor(Color.WHITE)

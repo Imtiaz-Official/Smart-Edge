@@ -6,7 +6,29 @@
 
 ---
 
-### v1.3.6 (Latest)
+### v1.3.7 (Latest)
+- **feat(interaction)**: Added Dual Edge Trigger Handles (#83) — configure Left, Right, or Both screen edges with independent side-docking and slide animations.
+- **feat(sidebar)**: Added Auto-Close Sidebar Timer (#66) with configurable timeouts (3s, 5s, 10s, 15s) and active touch-reset.
+- **feat(sidebar)**: Added setting to hide the bottom chevron/arrow close button (#70).
+- **feat(sidebar)**: Added direct app unpin/remove confirmation dialog (#37) in edit mode and on long-press (when Drag-to-Split is disabled).
+- **feat(diagnostics)**: Added built-in Crash & Diagnostic Logger (#74) in Miscellaneous settings with one-click copy and clear.
+- **feat(ui)**: Added Android 13+ Material You themed monochrome launcher icon support (#27).
+- **perf(memory)**: Added aggressive system memory trimming (`onTrimMemory`) to release Glide resources and icon caches under memory pressure.
+- **fix(ui)**: Resolved custom accent and background colors not applying on HyperOS, Realme UI, and OriginOS devices (#84).
+- **fix(ui)**: Resolved glassmorphic blur appearing only upon closing — blur now renders immediately upon panel open (#82).
+- **fix(picker)**: Fixed search tap collapsing panel on keyboard/IME appearance (#78).
+- **fix(picker)**: Fixed App Picker requiring two outside clicks to dismiss — now dismisses both keyboard and panel in a single tap (#79).
+- **feat(picker)**: Pressing Enter/Search on keyboard now automatically launches the top matched app (#75).
+- **fix(tools)**: Fixed Tools folder button persisting in sidebar when disabled in settings (#86, #69).
+- **fix(gestures)**: Fixed single-tap on pill handle causing size shrink/unresponsiveness (#65).
+- **fix(sidebar)**: Fixed 'Show only on home screen' not working on third-party launchers (#63).
+- **fix(shortcuts)**: Fixed Power Menu shortcut triggering lock screen or crash on modern Android (#62).
+- **fix(gestures)**: Fixed crash on landscape rotation by clamping edge handle offset bounds (thanks @spectra00, #72).
+- **feat(localization)**: Added complete Ukrainian localization (thanks @SABERBIRD, #80) and in-app language picker in Miscellaneous settings.
+
+---
+
+### v1.3.6
 - **feat(interaction)**: Reorganized Interaction settings dashboard into logical, consolidated groups (Main Trigger, Specialized Interaction, Panel Experience, Multitasking, Shortcuts, Advanced, System).
 - **feat(interaction)**: Restored missing Panel Experience features (Landscape, Notification Apps, Scroll Memory, Keyboard) and System & Behavior features (Auto-start, Debug Logs, Animation Feel, Picker Gap).
 - **feat(shortcuts)**: Restored Desktop Shortcuts feature to pin a Toggle Sidebar shortcut.

@@ -61,10 +61,19 @@ class InteractionSettingsActivity : AppCompatActivity() {
         updateSecureSettingsUI()
         
         // 1. MAIN TRIGGER & GESTURES
-        if (panelPrefs.panelSide == PanelPreferences.SIDE_LEFT) {
-            binding.togglePanelSide.check(R.id.btnSideLeft)
-        } else {
-            binding.togglePanelSide.check(R.id.btnSideRight)
+        when (panelPrefs.panelSide) {
+            PanelPreferences.SIDE_LEFT -> {
+                binding.togglePanelSide.check(R.id.btnSideLeft)
+                binding.togglePanelSide.uncheck(R.id.btnSideRight)
+            }
+            PanelPreferences.SIDE_BOTH -> {
+                binding.togglePanelSide.check(R.id.btnSideLeft)
+                binding.togglePanelSide.check(R.id.btnSideRight)
+            }
+            else -> {
+                binding.togglePanelSide.check(R.id.btnSideRight)
+                binding.togglePanelSide.uncheck(R.id.btnSideLeft)
+            }
         }
 
         binding.featureGestures.isChecked = panelPrefs.gesturesEnabled
@@ -98,6 +107,11 @@ class InteractionSettingsActivity : AppCompatActivity() {
         binding.featureDragSplit.isChecked = panelPrefs.dragToSplit
         binding.featureFreeform.isChecked = panelPrefs.freeformEnabled
         binding.layoutFreeformSize.visibility = if (panelPrefs.freeformEnabled) View.VISIBLE else View.GONE
+        binding.layoutCustomWindowingMode.visibility = if (panelPrefs.freeformEnabled) View.VISIBLE else View.GONE
+        binding.layoutFreeformUseShell.visibility = if (panelPrefs.freeformEnabled) View.VISIBLE else View.GONE
+        
+        binding.featureFreeformUseShell.isChecked = panelPrefs.useShellForFreeform
+        
         val sizeModeStr = when(panelPrefs.freeformWindowMode) {
             PanelPreferences.FREEFORM_MODE_STANDARD -> "Standard (80%)"
             PanelPreferences.FREEFORM_MODE_PORTRAIT -> "Portrait (Narrow)"
@@ -106,6 +120,7 @@ class InteractionSettingsActivity : AppCompatActivity() {
             else -> "Standard (80%)"
         }
         binding.tvFreeformSizeValue.text = sizeModeStr
+        binding.tvCustomWindowingModeValue.text = "${panelPrefs.freeformWindowingModeInt} ${if (panelPrefs.freeformWindowingModeInt == 5) "(Standard)" else ""}"
 
         // 5. SHORTCUTS & AUTOMATION
         binding.featureAutomationGestures.isChecked = panelPrefs.useAutomationForGestures
@@ -147,10 +162,21 @@ class InteractionSettingsActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        binding.togglePanelSide.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                panelPrefs.panelSide = if (checkedId == R.id.btnSideLeft)
-                    PanelPreferences.SIDE_LEFT else PanelPreferences.SIDE_RIGHT
+        binding.togglePanelSide.addOnButtonCheckedListener { group, _, _ ->
+            val checkedIds = group.checkedButtonIds
+            val hasLeft = checkedIds.contains(R.id.btnSideLeft)
+            val hasRight = checkedIds.contains(R.id.btnSideRight)
+            if (!hasLeft && !hasRight) {
+                group.check(if (panelPrefs.panelSide == PanelPreferences.SIDE_LEFT) R.id.btnSideLeft else R.id.btnSideRight)
+                return@addOnButtonCheckedListener
+            }
+            val newSide = when {
+                hasLeft && hasRight -> PanelPreferences.SIDE_BOTH
+                hasLeft -> PanelPreferences.SIDE_LEFT
+                else -> PanelPreferences.SIDE_RIGHT
+            }
+            if (panelPrefs.panelSide != newSide) {
+                panelPrefs.panelSide = newSide
                 applyOnly()
             }
         }
@@ -358,6 +384,23 @@ class InteractionSettingsActivity : AppCompatActivity() {
         freeformSwitch?.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.freeformEnabled = isChecked
             freeformSizeLayout?.visibility = if (isChecked) View.VISIBLE else View.GONE
+            binding.layoutCustomWindowingMode.visibility = if (isChecked) View.VISIBLE else View.GONE
+            binding.layoutFreeformUseShell.visibility = if (isChecked) View.VISIBLE else View.GONE
+            applyOnly()
+        }
+
+        binding.layoutFreeformUseShell.setOnClickListener {
+            if (!AutomationManager.isAutomationPossible()) {
+                com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                    .setTitle("Permission Required")
+                    .setMessage("Native Shell Launch requires Shizuku or Root to function. Please enable one of them in the Automation settings below.")
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+                return@setOnClickListener
+            }
+            val newState = !binding.featureFreeformUseShell.isChecked
+            binding.featureFreeformUseShell.isChecked = newState
+            panelPrefs.useShellForFreeform = newState
             applyOnly()
         }
 
@@ -372,6 +415,47 @@ class InteractionSettingsActivity : AppCompatActivity() {
                     panelPrefs.freeformWindowMode = values[which]
                     tvFreeformSizeValue?.text = options[which]
                     dialog.dismiss()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
+
+        binding.layoutCustomWindowingMode.setOnClickListener {
+            val input = com.google.android.material.textfield.TextInputEditText(this).apply {
+                inputType = android.text.InputType.TYPE_CLASS_NUMBER
+                setText(panelPrefs.freeformWindowingModeInt.toString())
+                setSelection(text?.length ?: 0)
+            }
+            val inputLayout = com.google.android.material.textfield.TextInputLayout(this).apply {
+                boxBackgroundMode = com.google.android.material.textfield.TextInputLayout.BOX_BACKGROUND_OUTLINE
+                setBoxCornerRadii(12f, 12f, 12f, 12f)
+                hint = "Enter Windowing Mode ID"
+                addView(input)
+            }
+            
+            val hintText = android.widget.TextView(this).apply {
+                text = "Common OEM Windowing IDs:\n• Nothing OS: 102\n• Xiaomi / HyperOS: 12\n• iQOO / OriginOS / Vivo: 100\n• Realme / Oppo / OnePlus: 100\n• AOSP Default: 5"
+                textSize = 12f
+                alpha = 0.7f
+                setPadding(0, (12 * resources.displayMetrics.density).toInt(), 0, 0)
+            }
+
+            val container = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.VERTICAL
+                val pad = (24 * resources.displayMetrics.density).toInt()
+                setPadding(pad, pad/2, pad, pad/2)
+                addView(inputLayout)
+                addView(hintText)
+            }
+
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_custom_windowing_mode)
+                .setView(container)
+                .setPositiveButton(R.string.btn_save) { _, _ ->
+                    val newVal = input.text.toString().toIntOrNull() ?: 5
+                    panelPrefs.freeformWindowingModeInt = newVal
+                    binding.tvCustomWindowingModeValue.text = "$newVal ${if (newVal == 5) "(Standard)" else ""}"
+                    applyOnly()
                 }
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()

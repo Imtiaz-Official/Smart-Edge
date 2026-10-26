@@ -62,22 +62,27 @@ class MiscellaneousSettingsActivity : AppCompatActivity() {
         binding.btnImportSettings.setOnClickListener {
             importFilePicker.launch("application/json")
         }
+
+        binding.btnCrashLogs.setOnClickListener {
+            showCrashLogDialog()
+        }
     }
 
     private fun updateLanguageLabel() {
         binding.tvLanguageValue.text = when (panelPrefs.appLanguage) {
             "es" -> "Español"
+            "uk" -> "Українська"
             else -> "English"
         }
     }
 
     private fun showLanguagePicker() {
-        val languages = arrayOf("English", "Español")
-        val codes = arrayOf("en", "es")
+        val languages = arrayOf("English", "Español", "Українська")
+        val codes = arrayOf("en", "es", "uk")
         val currentIndex = codes.indexOf(panelPrefs.appLanguage).let { if (it == -1) 0 else it }
 
         com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("Choose App Language")
+            .setTitle(getString(R.string.misc_app_language))
             .setSingleChoiceItems(languages, currentIndex) { dialog, which ->
                 val selected = codes[which]
                 if (selected != panelPrefs.appLanguage) {
@@ -91,7 +96,45 @@ class MiscellaneousSettingsActivity : AppCompatActivity() {
                 }
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showCrashLogDialog() {
+        val log = CrashLogger.getCrashLog(this)
+        if (log.isNullOrBlank()) {
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Diagnostic Logs")
+                .setMessage("No crash reports found. The application has been running smoothly without uncaught errors.")
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+            return
+        }
+
+        val scroll = android.widget.ScrollView(this)
+        val tv = android.widget.TextView(this).apply {
+            text = log
+            textSize = 11f
+            typeface = android.graphics.Typeface.MONOSPACE
+            val pad = (16 * resources.displayMetrics.density).toInt()
+            setPadding(pad, pad, pad, pad)
+            setTextIsSelectable(true)
+        }
+        scroll.addView(tv)
+
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("Crash & Diagnostic Logs")
+            .setView(scroll)
+            .setPositiveButton("Copy") { _, _ ->
+                val cm = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                cm.setPrimaryClip(android.content.ClipData.newPlainText("Crash Log", log))
+                binding.root.showModernToast("Crash log copied to clipboard")
+            }
+            .setNeutralButton("Clear") { _, _ ->
+                CrashLogger.clearCrashLog(this)
+                binding.root.showModernToast("Logs cleared")
+            }
+            .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 

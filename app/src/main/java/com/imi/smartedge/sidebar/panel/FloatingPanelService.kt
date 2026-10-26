@@ -28,9 +28,11 @@ class FloatingPanelService : Service() {
 
     private lateinit var windowManager: WindowManager
     private var edgeHandleView: EdgeHandleView? = null
+    private var secondaryEdgeHandleView: EdgeHandleView? = null
     private var notchHandleView: NotchHandleView? = null
     private var sidePanelView: SidePanelView? = null
     private var pickerPanelView: AppPickerPanelView? = null
+    private var isPanelOpenedFromRight: Boolean = true
     
     private var rootLayout: android.widget.FrameLayout? = null
     private var rootParams: WindowManager.LayoutParams? = null
@@ -168,7 +170,7 @@ class FloatingPanelService : Service() {
 
         if (panelPrefs.serviceEnabled) {
             addEdgeHandle()
-            // // addNotchHandle() // Commented out per user request
+            addNotchHandle()
         }
 
         val filter = android.content.IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
@@ -230,7 +232,7 @@ class FloatingPanelService : Service() {
                 
                 if (newState) {
                     addEdgeHandle()
-                    // addNotchHandle()
+                    addNotchHandle()
                 } else {
                     stopSelf()
                 }
@@ -260,16 +262,20 @@ class FloatingPanelService : Service() {
 
                     if (!shouldShowHandle) {
                         edgeHandleView?.visibility = View.GONE
+                        secondaryEdgeHandleView?.visibility = View.GONE
                         // Also remove it from WM to be sure it doesn't block touches
                         removeView(edgeHandleView)
                         edgeHandleView = null
+                        removeView(secondaryEdgeHandleView)
+                        secondaryEdgeHandleView = null
                         
                         // Also hide notch handle if onlyOnHome is active and not on home
                         notchHandleView?.visibility = View.GONE
                     } else {
                         addEdgeHandle(forceRecreate = false)
-                        // addNotchHandle()
+                        addNotchHandle()
                         edgeHandleView?.visibility = if (isPanelOpen) View.GONE else View.VISIBLE
+                        secondaryEdgeHandleView?.visibility = if (isPanelOpen) View.GONE else View.VISIBLE
                         notchHandleView?.visibility = if (isPanelOpen) View.GONE else View.VISIBLE
                     }
 
@@ -277,6 +283,7 @@ class FloatingPanelService : Service() {
                     val currentPkg = panelPrefs.currentForegroundPackage
                     val isGame = panelPrefs.getGameApps().contains(currentPkg)
                     edgeHandleView?.isGameActive = isGame
+                    secondaryEdgeHandleView?.isGameActive = isGame
                     
                     sidePanelView?.updateStyles()
                     sidePanelView?.refreshIcons()
@@ -321,11 +328,13 @@ class FloatingPanelService : Service() {
             ACTION_UPDATE_IMMERSIVE -> {
                 isImmersiveMode = intent?.getBooleanExtra("is_immersive", false) ?: false
                 edgeHandleView?.isImmersiveMode = isImmersiveMode
+                secondaryEdgeHandleView?.isImmersiveMode = isImmersiveMode
             }
             ACTION_SHOW_TEMP -> {
                 addEdgeHandle(forceRecreate = false)
-                // addNotchHandle()
+                addNotchHandle()
                 edgeHandleView?.showTemporarily()
+                secondaryEdgeHandleView?.showTemporarily()
             }
             ACTION_TOGGLE_FLASHLIGHT -> toggleFlashlight()
             ACTION_LAUNCH_CAMERA -> launchCamera()
@@ -447,17 +456,24 @@ class FloatingPanelService : Service() {
             unregisterReceiver(packageReceiver)
         } catch (e: Exception) {}
         removeView(edgeHandleView)
+        removeView(secondaryEdgeHandleView)
         removeView(notchHandleView)
         removeView(rootLayout)
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+    private var lastOrientation: Int = android.content.res.Configuration.ORIENTATION_UNDEFINED
+
     override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
         super.onConfigurationChanged(newConfig)
         
-        // Always close panel on orientation change to prevent layout corruption
-        if (isPanelOpen) {
+        val orientationChanged = lastOrientation != android.content.res.Configuration.ORIENTATION_UNDEFINED && 
+                                 newConfig.orientation != lastOrientation
+        lastOrientation = newConfig.orientation
+
+        // Only close panel on actual orientation change (not on keyboard / IME appearance)
+        if (orientationChanged && isPanelOpen) {
             closePanel(immediate = true)
         }
 
@@ -465,11 +481,23 @@ class FloatingPanelService : Service() {
             val isLandscape = newConfig.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
             if (isLandscape && !panelPrefs.showInLandscape) {
                 edgeHandleView?.visibility = View.GONE
+                secondaryEdgeHandleView?.visibility = View.GONE
             } else {
                 // Re-add the handle to guarantee WindowManager bounds are perfectly mapped to the new orientation
                 addEdgeHandle()
                 edgeHandleView?.visibility = View.VISIBLE
+                secondaryEdgeHandleView?.visibility = View.VISIBLE
             }
+        }
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level >= TRIM_MEMORY_BACKGROUND || level >= TRIM_MEMORY_RUNNING_CRITICAL) {
+            AppRepository.clearSystemIconCache()
+            try {
+                com.bumptech.glide.Glide.get(this).clearMemory()
+            } catch (e: Exception) {}
         }
     }
 
@@ -544,77 +572,44 @@ class FloatingPanelService : Service() {
         }
     }
 
-    private fun addEdgeHandle(forceRecreate: Boolean = false) {
-        val anyTriggerEnabled = panelPrefs.gesturesEnabled || 
-                                panelPrefs.tapToOpen || 
-                                panelPrefs.doubleTapToOpen || 
-                                panelPrefs.tripleTapToOpen
-
-        // --- MANDATORY ENGINE CHECK ---
-        // If neither Accessibility is ON nor Native Automation is POSSIBLE, we must NOT show the handle.
-        val hasActiveEngine = isAccessibilityServiceEnabled() || (panelPrefs.useAutomationForGestures && AutomationManager.isAutomationPossible())
-
-        if (!anyTriggerEnabled || (panelPrefs.onlyOnHome && !isCurrentPackageLauncher()) || !hasActiveEngine) {
-            removeView(edgeHandleView)
-            edgeHandleView = null
-            return
-        }
-
-        val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
+    private fun createOrUpdateHandle(existing: EdgeHandleView?, isRight: Boolean): EdgeHandleView {
         val isPillVisible = panelPrefs.showPill
+        val density = resources.displayMetrics.density
+        val screenH = resources.displayMetrics.heightPixels
+        val safeMargin = (10 * density).toInt()
+        val h = if (isPillVisible) (panelPrefs.handleHeight * density).toInt()
+                else (screenH * 0.60f).toInt()
+        val maxOffset = ((screenH / 2) - (h / 2) - safeMargin).coerceAtLeast(0)
+        val requestedOffset = (panelPrefs.handleVerticalOffset * density).toInt()
+        val handleWidth = (panelPrefs.handleWidth * density).toInt()
+        val newGravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL
+                         else Gravity.START or Gravity.CENTER_VERTICAL
 
-        if (edgeHandleView != null && !forceRecreate) {
-            val params = edgeHandleView?.layoutParams as? WindowManager.LayoutParams
+        if (existing != null && existing.isAttachedToWindow) {
+            val params = existing.layoutParams as? WindowManager.LayoutParams
             if (params != null) {
-                // 1. Update gravity if side changed
-                val newGravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL
-                                 else Gravity.START or Gravity.CENTER_VERTICAL
                 params.gravity = newGravity
-
-                // 2. Update size and position
-                val density = resources.displayMetrics.density
-                val screenH = resources.displayMetrics.heightPixels
-                val safeMargin = (10 * density).toInt()
-                val h = if (isPillVisible) (panelPrefs.handleHeight * density).toInt()
-                        else (screenH * 0.60f).toInt()
-                val maxOffset = (screenH / 2) - (h / 2) - safeMargin
-                val requestedOffset = (panelPrefs.handleVerticalOffset * density).toInt()
-
-                params.width = (panelPrefs.handleWidth * density).toInt()
+                params.width = handleWidth
                 params.height = h
                 params.y = requestedOffset.coerceIn(-maxOffset, maxOffset)
-                
                 try {
-                    windowManager.updateViewLayout(edgeHandleView, params)
+                    windowManager.updateViewLayout(existing, params)
                 } catch (e: Exception) {}
             }
-            
-            edgeHandleView?.updateState(
-                isRight, 
-                isPillVisible, 
-                this.isImmersiveMode, 
-                panelPrefs.panelOpacity
-            )
-            return
+            existing.updateState(isRight, isPillVisible, this.isImmersiveMode, panelPrefs.panelOpacity)
+            return existing
         }
 
-        removeView(edgeHandleView)
-        edgeHandleView = null
-
-        edgeHandleView = EdgeHandleView(this).apply {
+        removeView(existing)
+        val newView = EdgeHandleView(this).apply {
             onTrigger = {
                 refreshApps {
-                    openPanel()
+                    openPanel(fromRight = isRight)
                 }
             }
-            onAdjustBrightness = { delta ->
-                adjustBrightness(delta)
-            }
-            onAdjustVolume = { delta ->
-                adjustVolume(delta)
-            }
-            onSideChanged = { newSide ->
-                // Pill was dragged to the opposite edge — sync the whole service UI
+            onAdjustBrightness = { delta -> adjustBrightness(delta) }
+            onAdjustVolume = { delta -> adjustVolume(delta) }
+            onSideChanged = {
                 sidePanelView?.updateSideLayout()
             }
             isRightSide = isRight
@@ -623,14 +618,9 @@ class FloatingPanelService : Service() {
             alpha = panelPrefs.panelOpacity / 100f
         }
 
-        val handleWidth = panelPrefs.handleWidth // Use user-defined width
-        val handleHeight = if (isPillVisible) dpToPx(panelPrefs.handleHeight) 
-                           else dpToPx((panelPrefs.handleHeight * 1.5f).toInt())
-
-        // Fix: Use FLAG_LAYOUT_NO_LIMITS carefully or ensure GRAVITY_CENTER doesn't overflow
         val params = WindowManager.LayoutParams(
-            dpToPx(handleWidth),
-            handleHeight,
+            handleWidth,
+            h,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
@@ -638,21 +628,59 @@ class FloatingPanelService : Service() {
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             PixelFormat.TRANSLUCENT
         ).apply {
-            gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL
-                      else Gravity.START or Gravity.CENTER_VERTICAL
-            
-            // Calculate absolute max offset to keep handle on screen
-            val screenH = resources.displayMetrics.heightPixels
-            val safeMargin = dpToPx(10) // Keep away from extreme top/bottom edges
-            val maxOffset = (screenH / 2) - (handleHeight / 2) - safeMargin
-            
-            val requestedOffset = dpToPx(panelPrefs.handleVerticalOffset)
+            gravity = newGravity
             y = requestedOffset.coerceIn(-maxOffset, maxOffset)
-            
-            // Log.d(TAG, "Handle Params: width=$width, height=$height, y=$y (requested=$requestedOffset, max=$maxOffset)")
         }
 
-        windowManager.addView(edgeHandleView, params)
+        try {
+            windowManager.addView(newView, params)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to add edge handle", e)
+        }
+        return newView
+    }
+
+    private fun addEdgeHandle(forceRecreate: Boolean = false) {
+        val anyTriggerEnabled = panelPrefs.gesturesEnabled || 
+                                panelPrefs.tapToOpen || 
+                                panelPrefs.doubleTapToOpen || 
+                                panelPrefs.tripleTapToOpen
+
+        // --- MANDATORY ENGINE CHECK ---
+        val hasActiveEngine = isAccessibilityServiceEnabled() || (panelPrefs.useAutomationForGestures && AutomationManager.isAutomationPossible())
+
+        if (!anyTriggerEnabled || (panelPrefs.onlyOnHome && !isCurrentPackageLauncher()) || !hasActiveEngine) {
+            removeView(edgeHandleView)
+            edgeHandleView = null
+            removeView(secondaryEdgeHandleView)
+            secondaryEdgeHandleView = null
+            return
+        }
+
+        val side = panelPrefs.panelSide
+        val needRight = side == PanelPreferences.SIDE_RIGHT || side == PanelPreferences.SIDE_BOTH
+        val needLeft = side == PanelPreferences.SIDE_LEFT || side == PanelPreferences.SIDE_BOTH
+
+        if (forceRecreate) {
+            removeView(edgeHandleView)
+            edgeHandleView = null
+            removeView(secondaryEdgeHandleView)
+            secondaryEdgeHandleView = null
+        }
+
+        if (needRight) {
+            edgeHandleView = createOrUpdateHandle(edgeHandleView, isRight = true)
+        } else {
+            removeView(edgeHandleView)
+            edgeHandleView = null
+        }
+
+        if (needLeft) {
+            secondaryEdgeHandleView = createOrUpdateHandle(secondaryEdgeHandleView, isRight = false)
+        } else {
+            removeView(secondaryEdgeHandleView)
+            secondaryEdgeHandleView = null
+        }
     }
 
     private fun initSidePanel() {
@@ -741,29 +769,25 @@ class FloatingPanelService : Service() {
             isFocusable = true
             isFocusableInTouchMode = true
 
-            // This captures the actual click
+            // This captures the actual click outside the panel/picker
             setOnClickListener {
                 val view = findFocus()
-                var closedKeyboard = false
-                if (view is android.widget.EditText && view.hasFocus()) {
+                if (view is android.widget.EditText) {
                     view.clearFocus()
-                    this.requestFocus() // take focus away from EditText
                     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
                     imm.hideSoftInputFromWindow(view.windowToken, 0)
-                    closedKeyboard = true
                 }
 
-                if (!closedKeyboard) {
-                    if (isPickerOpen) {
-                        closePicker()
-                    } else {
-                        closePanel()
-                    }
+                if (isPickerOpen) {
+                    closePicker()
+                } else {
+                    closePanel()
                 }
             }
 
             // This ensures we can detect if the touch was inside or outside our children
             setOnTouchListener { _, event ->
+                resetAutoCloseTimer()
                 if (event.action == android.view.MotionEvent.ACTION_DOWN) {
                     val x = event.x.toInt()
                     val y = event.y.toInt()
@@ -855,57 +879,94 @@ class FloatingPanelService : Service() {
         rootLayout?.addView(pickerPanelView)
     }
 
-    private fun openPanel() {
+    private fun openPanel(fromRight: Boolean = panelPrefs.panelSide != PanelPreferences.SIDE_LEFT) {
         if (isPanelOpen || !panelPrefs.serviceEnabled) return
         isPanelOpen = true
+        isPanelOpenedFromRight = fromRight
+        resetAutoCloseTimer()
         refreshApps() // Load apps in background while panel opens
         initRootLayout()
+        rootParams?.let { params ->
+            applyBlurToParams(params, true)
+        }
         if (rootLayout?.parent == null) {
             windowManager.addView(rootLayout, rootParams)
+        } else {
+            rootParams?.let { params ->
+                try { windowManager.updateViewLayout(rootLayout, params) } catch (e: Exception) {}
+            }
         }
-        updateBlur(true)
         sidePanelView?.updateStyles() // Evaluate Game Mode columns & update layout
         sidePanelView?.let { panel ->
-            val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
             val lp = panel.layoutParams as android.widget.FrameLayout.LayoutParams
             lp.width = android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
             lp.height = android.widget.FrameLayout.LayoutParams.MATCH_PARENT
-            lp.gravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL
+            lp.gravity = if (fromRight) Gravity.END or Gravity.CENTER_VERTICAL
                          else Gravity.START or Gravity.CENTER_VERTICAL
             panel.layoutParams = lp
             panel.alpha = 0f
-            panel.translationX = if (isRight) 1000f else -1000f
+            panel.translationX = if (fromRight) 1000f else -1000f
             panel.visibility = View.VISIBLE
             panel.post {
                 val panelWidth = panel.width.toFloat()
                 val stiffness = panelPrefs.animSpeed.toFloat()
-                SpringAnimator.animateOpen(panel, if (isRight) panelWidth else -panelWidth, stiffness = stiffness)
+                SpringAnimator.animateOpen(panel, if (fromRight) panelWidth else -panelWidth, stiffness = stiffness)
             }
         }
         edgeHandleView?.visibility = View.GONE
+        secondaryEdgeHandleView?.visibility = View.GONE
+    }
+
+    private fun applyBlurToParams(params: WindowManager.LayoutParams, enabled: Boolean) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+        val shouldBlur = enabled && panelPrefs.blurEnabled
+        val blurRadius = panelPrefs.blurAmount
+        if (shouldBlur) {
+            params.flags = params.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
+            params.blurBehindRadius = blurRadius
+        } else {
+            params.flags = params.flags and WindowManager.LayoutParams.FLAG_BLUR_BEHIND.inv()
+            params.blurBehindRadius = 0
+        }
+    }
+
+    private val autoCloseHandler = Handler(Looper.getMainLooper())
+    private val autoCloseRunnable = Runnable {
+        if (isPanelOpen) {
+            closePanel()
+        }
+    }
+
+    private fun resetAutoCloseTimer() {
+        autoCloseHandler.removeCallbacks(autoCloseRunnable)
+        val timeout = panelPrefs.autoCloseTimeout
+        if (timeout > 0 && isPanelOpen) {
+            autoCloseHandler.postDelayed(autoCloseRunnable, timeout * 1000L)
+        }
+    }
+
+    private fun cancelAutoCloseTimer() {
+        autoCloseHandler.removeCallbacks(autoCloseRunnable)
     }
 
     private fun updateBlur(enabled: Boolean) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
-        val shouldBlur = enabled && panelPrefs.blurEnabled
-        val blurRadius = panelPrefs.blurAmount
         rootParams?.let { params ->
-            if (shouldBlur) {
-                params.flags = params.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
-                params.blurBehindRadius = blurRadius
-            } else {
-                params.flags = params.flags and WindowManager.LayoutParams.FLAG_BLUR_BEHIND.inv()
-                params.blurBehindRadius = 0
-            }
+            applyBlurToParams(params, enabled)
             if (rootLayout?.parent != null) {
-                windowManager.updateViewLayout(rootLayout, params)
+                try {
+                    windowManager.updateViewLayout(rootLayout, params)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to update blur layout", e)
+                }
             }
         }
     }
 
     fun closePanel(immediate: Boolean = false) {
+        cancelAutoCloseTimer()
         // Safety: Don't close if user is still interacting with the trigger handle
-        if (edgeHandleView?.isPressed == true) return
+        if (edgeHandleView?.isTouchDown == true || secondaryEdgeHandleView?.isTouchDown == true) return
 
         val wasOpen = isPanelOpen
         isPanelOpen = false
@@ -921,6 +982,7 @@ class FloatingPanelService : Service() {
                 try { windowManager.removeViewImmediate(rootLayout) } catch (e: Exception) {}
             }
             edgeHandleView?.visibility = View.VISIBLE
+            secondaryEdgeHandleView?.visibility = View.VISIBLE
             sidePanelView?.animatePickerToggle(false)
             
             if (!panelPrefs.serviceEnabled) {
@@ -935,12 +997,13 @@ class FloatingPanelService : Service() {
                 try { windowManager.removeView(rootLayout) } catch (e: Exception) {}
             }
             edgeHandleView?.visibility = View.VISIBLE
+            secondaryEdgeHandleView?.visibility = View.VISIBLE
             return
         }
 
         if (isPickerOpen) closePicker()
         sidePanelView?.let { panel ->
-            val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
+            val isRight = isPanelOpenedFromRight
             val panelWidth = panel.width.toFloat()
             val stiffness = panelPrefs.animSpeed.toFloat()
             SpringAnimator.animateClose(panel, if (isRight) panelWidth else -panelWidth, stiffness = stiffness) {
@@ -950,6 +1013,7 @@ class FloatingPanelService : Service() {
                     try { windowManager.removeView(rootLayout) } catch (e: Exception) {}
                 }
                 edgeHandleView?.visibility = View.VISIBLE
+                secondaryEdgeHandleView?.visibility = View.VISIBLE
                 panel.animatePickerToggle(false) 
                 
                 // If service is NOT enabled in prefs, stop it now (Test mode over)
@@ -988,7 +1052,7 @@ class FloatingPanelService : Service() {
             picker.resetSearch()
             picker.loadApps()
             picker.setOnClickListener { }
-            val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
+            val isRight = isPanelOpenedFromRight
             val density = resources.displayMetrics.density
             val sidePanelWidthDp = 72
             val sidePanelMarginDp = 12
@@ -1043,7 +1107,7 @@ class FloatingPanelService : Service() {
         pickerPanelView?.let { picker ->
             picker.setEditMode(false)
             picker.invalidateAppList()
-            val isRight = panelPrefs.panelSide == PanelPreferences.SIDE_RIGHT
+            val isRight = isPanelOpenedFromRight
             val pickerWidth = picker.width.toFloat()
             val stiffness = panelPrefs.animSpeed.toFloat()
             val useSlide = panelPrefs.pickerAnimType == PanelPreferences.ANIM_TYPE_SLIDE
@@ -1085,11 +1149,16 @@ class FloatingPanelService : Service() {
             } else {
                 val baseApps = repository.getPanelApps().toMutableList()
                 
-                // Add "Tools" folder button at the top if enabled
-                if (panelPrefs.showToolsPanelButton) {
+                // Add "Tools" folder button at the top only if both master tools and dedicated tools folder are enabled
+                if (panelPrefs.showTools && panelPrefs.showToolsPanelButton) {
                     val toolsBtn = AppInfo("smartedge.tool.tools", "Tools", type = AppInfo.Type.TOOL)
                     if (baseApps.none { it.identifier == toolsBtn.identifier }) {
                         baseApps.add(0, toolsBtn)
+                    }
+                } else {
+                    baseApps.removeAll { it.identifier == "smartedge.tool.tools" }
+                    if (panelPrefs.isInPanel("smartedge.tool.tools")) {
+                        panelPrefs.removeApp("smartedge.tool.tools")
                     }
                 }
                 

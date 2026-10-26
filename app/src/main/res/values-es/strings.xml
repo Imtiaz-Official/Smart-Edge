@@ -178,6 +178,9 @@
     <string name="freeform_mode_portrait">Retrato (Estrecho)</string>
     <string name="freeform_mode_maximized">Maximizado</string>
     <string name="freeform_mode_custom">Personalizado (%1$d%% × %2$d%%)</string>
+    <string name="freeform_custom_windowing_mode">Modo de Ventana Personalizado</string>
+    <string name="freeform_custom_windowing_mode_desc">Establecer un entero para ventanas OEM (ej: 102 para Nothing OS)</string>
+    <string name="dialog_custom_windowing_mode">Modo de Ventana Personalizado</string>
     
     <string name="anim_feel_calm">Tranquilo (Lento)</string>
     <string name="anim_feel_balanced">Equilibrado (Predet.)</string>

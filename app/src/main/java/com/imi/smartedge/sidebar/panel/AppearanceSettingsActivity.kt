@@ -81,8 +81,11 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         binding.tvBlurAmountValue.text = "${panelPrefs.blurAmount}"
         
         binding.featureHideBg.isChecked = panelPrefs.hideBackground
+        binding.featureShowBottomArrow.isChecked = panelPrefs.showBottomArrow
         
         binding.tvColumnsValue.text = "${panelPrefs.panelColumns} Column${if (panelPrefs.panelColumns > 1) "s" else ""}"
+        val autoCloseSeconds = panelPrefs.autoCloseTimeout
+        binding.tvAutoCloseValue.text = if (autoCloseSeconds <= 0) "Never" else "${autoCloseSeconds} Seconds"
         
         binding.featureCustomAccent.isChecked = panelPrefs.useCustomAccent
         
@@ -250,6 +253,28 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         binding.featureHideBg.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.hideBackground = isChecked
             applyOnly()
+        }
+
+        binding.featureShowBottomArrow.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.showBottomArrow = isChecked
+            applyOnly()
+        }
+
+        binding.featureAutoClose.setOnClickListener {
+            val options = arrayOf("Never", "3 Seconds", "5 Seconds", "10 Seconds")
+            val values = arrayOf(0, 3, 5, 10)
+            val currentIdx = values.indexOf(panelPrefs.autoCloseTimeout).coerceAtLeast(0)
+
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Auto-Close Sidebar")
+                .setSingleChoiceItems(options, currentIdx) { dialog, which ->
+                    panelPrefs.autoCloseTimeout = values[which]
+                    binding.tvAutoCloseValue.text = options[which]
+                    applyOnly()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
 
         binding.featureColumns.setOnClickListener {

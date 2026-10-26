@@ -1,0 +1,18 @@
+- Added Dual Edge Trigger Handles: swipe from Left, Right, or Both screen edges with side-aware docking.
+- Added Auto-Close Sidebar Timer with configurable delay (3s, 5s, 10s, 15s) and touch-reset.
+- Added setting to hide the bottom chevron/arrow close button.
+- Added direct unpin/remove confirmation dialog when tapping apps in edit mode or long-pressing.
+- Added built-in Crash & Diagnostic Logger in Miscellaneous settings with copy and clear tools.
+- Added Android 13+ Material You monochrome themed launcher app icon.
+- Added system memory optimizations to clear image and icon caches under memory pressure.
+- Fixed custom background and accent colors on HyperOS, Realme UI, and OriginOS devices.
+- Fixed background blur appearing only upon closing — now renders immediately on open.
+- Fixed search bar collapsing the panel when the keyboard appears.
+- Fixed App Picker requiring two outside taps to dismiss — now dismisses in a single tap.
+- Pressing Enter or Search on the keyboard now launches the top matched app directly.
+- Fixed Tools folder button persisting in the sidebar when disabled in settings.
+- Fixed edge handle pill shrinking or becoming unresponsive on single tap.
+- Fixed 'Show only on home screen' not detecting home launchers properly.
+- Fixed Power Menu shortcut locking screen or crashing on modern Android versions.
+- Fixed crash on landscape rotation by clamping edge handle positioning bounds.
+- Added complete Ukrainian localization and in-app language picker.

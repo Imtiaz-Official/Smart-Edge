@@ -136,7 +136,11 @@ class EdgeHandleView @JvmOverloads constructor(
         )
     }
 
+    var isTouchDown = false
+        private set
+
     private fun enterDragMode() {
+        if (!isTouchDown) return
         isDragMode = true
         vibrateHaptic(40)
 
@@ -213,7 +217,7 @@ class EdgeHandleView @JvmOverloads constructor(
                     val h = if (showPill) (panelPrefs.handleHeight * density).toInt()
                             else (panelPrefs.handleHeight * 1.5f * density).toInt()
                     val safeMargin = (10 * density).toInt()
-                    val maxOffset = (screenHeight / 2) - (h / 2) - safeMargin
+                    val maxOffset = ((screenHeight / 2) - (h / 2) - safeMargin).coerceAtLeast(0)
                     val targetY = (panelPrefs.handleVerticalOffset * density).toInt().coerceIn(-maxOffset, maxOffset)
                     
                     if (params.y != targetY) {
@@ -318,6 +322,7 @@ class EdgeHandleView @JvmOverloads constructor(
 
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
+                isTouchDown = true
                 startX = event.rawX
                 startY = event.rawY
                 lastMoveRawX = event.rawX
@@ -364,7 +369,7 @@ class EdgeHandleView @JvmOverloads constructor(
                         
                         // Relative movement: NewPos = StartPos + (CurrentFinger - StartFinger)
                         val dy = event.rawY - dragStartRawY
-                        val maxOffset = (screenH / 2f) - (height / 2f) - safeMargin
+                        val maxOffset = ((screenH / 2f) - (height / 2f) - safeMargin).coerceAtLeast(0f)
                         
                         val newY = (dragStartWindowY + dy).toInt()
                             .coerceIn(-maxOffset.toInt(), maxOffset.toInt())
@@ -493,6 +498,7 @@ class EdgeHandleView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                isTouchDown = false
                 handler.removeCallbacks(holdRunnable)
                 handler.removeCallbacks(longPressRunnable)
 
@@ -503,7 +509,7 @@ class EdgeHandleView @JvmOverloads constructor(
                     return true
                 }
 
-                if (showPill && !isTriggered && panelPrefs.gesturesEnabled) {
+                if (showPill) {
                     animate().scaleX(1f).scaleY(1f).setDuration(150).start()
                 }
 
@@ -598,7 +604,7 @@ class EdgeHandleView @JvmOverloads constructor(
             val h = if (showPill) (prefs.handleHeight * density).toInt()
                     else (prefs.handleHeight * 1.5f * density).toInt()
 
-            val maxOffset = (screenH / 2) - (h / 2) - safeMargin
+            val maxOffset = ((screenH / 2) - (h / 2) - safeMargin).coerceAtLeast(0)
             val requestedOffset = (prefs.handleVerticalOffset * density).toInt()
 
             params.y = requestedOffset.coerceIn(-maxOffset, maxOffset)

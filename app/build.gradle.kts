@@ -14,11 +14,11 @@ android {
         applicationId = "com.imi.smartedge.sidebar.panel"
         minSdk = 26
         targetSdk = 34
-        versionCode = 14
-        versionName = "1.3.6"
+        versionCode = 15
+        versionName = "1.3.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        resConfigs("en", "es")
+        resConfigs("en", "es", "uk")
     }
 
     val keystorePropertiesFile = rootProject.file("keystore.properties")

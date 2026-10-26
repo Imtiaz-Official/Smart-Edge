@@ -13,6 +13,9 @@ class SidePanelApp : Application() {
     override fun onCreate() {
         super.onCreate()
         
+        // Initialize local crash logging for easy user diagnostics and reporting
+        CrashLogger.install(this)
+
         // Apply the saved theme mode
         applyAppTheme(this)
 

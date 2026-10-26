@@ -225,6 +225,23 @@ class PanelAppsAdapter(
                 }
                 SpringAnimator.scalePulse(holder.itemView)
 
+                if (isEditMode && app.type != AppInfo.Type.TOOL) {
+                    com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
+                        .setTitle(app.appName)
+                        .setMessage("Remove from sidebar?")
+                        .setPositiveButton("Remove") { _, _ ->
+                            panelPrefs.removeApp(app.identifier)
+                            val pos = holder.bindingAdapterPosition
+                            if (pos != RecyclerView.NO_POSITION && pos < mutableApps.size) {
+                                mutableApps.removeAt(pos)
+                                notifyItemRemoved(pos)
+                            }
+                        }
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show()
+                    return@setOnClickListener
+                }
+
                 if (app.type == AppInfo.Type.FOLDER) {
                     onFolderClick(app.identifier)
                     return@setOnClickListener
@@ -295,7 +312,21 @@ class PanelAppsAdapter(
                 }
 
                 if (!panelPrefs.dragToSplit) {
-                    // Do nothing if drag-to-split is disabled and we're not in edit mode
+                    if (app.type != AppInfo.Type.TOOL) {
+                        com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
+                            .setTitle(app.appName)
+                            .setMessage("Remove from sidebar?")
+                            .setPositiveButton("Remove") { _, _ ->
+                                panelPrefs.removeApp(app.identifier)
+                                val pos = holder.bindingAdapterPosition
+                                if (pos != RecyclerView.NO_POSITION && pos < mutableApps.size) {
+                                    mutableApps.removeAt(pos)
+                                    notifyItemRemoved(pos)
+                                }
+                            }
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .show()
+                    }
                     return@setOnLongClickListener true
                 }
 
@@ -354,10 +385,34 @@ class PanelAppsAdapter(
 
     @android.annotation.SuppressLint("BlockedPrivateApi")
     private fun launchFreeform(intent: Intent) {
-        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        val pkg = intent.`package` ?: return
+        
+        // Use Shell Launch engine if enabled and possible
+        if (panelPrefs.useShellForFreeform && AutomationManager.isAutomationPossible()) {
+            val launched = AutomationManager.launchApp(context, pkg, panelPrefs.freeformWindowingModeInt)
+            if (launched) {
+                Log.d("PanelAppsAdapter", "Shell launch success: $pkg")
+                return
+            }
+            Log.w("PanelAppsAdapter", "Shell launch failed, falling back to standard launch")
+        }
+
+        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+        
+        // Some OEMs (like Vivo) glitch if MULTIPLE_TASK is used with their native modes
+        if (panelPrefs.freeformWindowingModeInt == 5) {
+            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+        }
+        
         // Add intent extras that some OEMs/ROMs respect for freeform launching
-        intent.putExtra("android.intent.extra.WINDOWING_MODE", 5)
-        intent.putExtra("android.intent.extra.LAUNCH_WINDOWING_MODE", 5)
+        intent.putExtra("android.intent.extra.WINDOWING_MODE", panelPrefs.freeformWindowingModeInt)
+        intent.putExtra("android.intent.extra.LAUNCH_WINDOWING_MODE", panelPrefs.freeformWindowingModeInt)
+        
+        // Vivo/OriginOS specific extras
+        if (panelPrefs.freeformWindowingModeInt == 106) {
+            intent.putExtra("vivo_small_window", true)
+            intent.putExtra("is_vivo_freeform", true)
+        }
         
         try {
             val options = android.app.ActivityOptions.makeBasic()
@@ -366,7 +421,7 @@ class PanelAppsAdapter(
             val h = displayMetrics.heightPixels
             val prefersLandscape = detectLandscapeOrientation(intent.`package`, intent)
 
-            val bounds: Rect = when (panelPrefs.freeformWindowMode) {
+            val bounds: Rect? = when (panelPrefs.freeformWindowMode) {
                 PanelPreferences.FREEFORM_MODE_PORTRAIT -> {
                     val left = w / 3
                     val top = h / 15
@@ -381,24 +436,30 @@ class PanelAppsAdapter(
                     Rect(left, top, left + winW, top + winH)
                 }
                 else -> {
+                    // Use a slightly smaller centered Rect for custom modes (0.7 instead of 0.8)
+                    // This helps the OEM engine snap it correctly.
+                    val factor = if (panelPrefs.freeformWindowingModeInt == 5) 0.8 else 0.7
+                    
                     if (prefersLandscape) {
                         // 16:9 wide aspect for games/landscape apps
-                        val targetW = if (w > h) (w * 0.80).toInt() else (w * 0.90).toInt()
-                        val targetH = (targetW / 1.77).toInt().coerceAtMost((h * 0.85).toInt())
+                        val targetW = if (w > h) (w * factor).toInt() else (w * (factor + 0.1)).toInt()
+                        val targetH = (targetW / 1.77).toInt().coerceAtMost((h * (factor + 0.05)).toInt())
                         val left = (w - targetW) / 2
                         val top = (h - targetH) / 2
                         Rect(left, top, left + targetW, top + targetH)
                     } else {
                         // 9:16 portrait aspect for normal apps (fixed for landscape host)
-                        val targetH = (h * 0.85).toInt()
-                        val targetW = (targetH * 9 / 16).toInt().coerceAtMost((w * 0.85).toInt())
+                        val targetH = (h * (factor + 0.05)).toInt()
+                        val targetW = (targetH * 9 / 16).toInt().coerceAtMost((w * factor).toInt())
                         val left = (w - targetW) / 2
                         val top = (h - targetH) / 2
                         Rect(left, top, left + targetW, top + targetH)
                     }
                 }
             }
-            options.launchBounds = bounds
+            if (bounds != null) {
+                options.launchBounds = bounds
+            }
             Log.d("PanelAppsAdapter", "Launching Freeform: pkg=${intent.`package`}, bounds=$bounds")
 
             // Use HiddenApiBypass instead of direct reflection to avoid F-Droid lint errors
@@ -408,9 +469,9 @@ class PanelAppsAdapter(
                         android.app.ActivityOptions::class.java,
                         options,
                         "setLaunchWindowingMode",
-                        5
+                        panelPrefs.freeformWindowingModeInt
                     )
-                    Log.d("PanelAppsAdapter", "HiddenApiBypass: setLaunchWindowingMode(5) success")
+                    Log.d("PanelAppsAdapter", "HiddenApiBypass: setLaunchWindowingMode(${panelPrefs.freeformWindowingModeInt}) success")
                 }
             } catch (e: Exception) {
                 Log.e("PanelAppsAdapter", "HiddenApiBypass fail: ${e.message}")
