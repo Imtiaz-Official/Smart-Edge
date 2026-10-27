@@ -309,13 +309,13 @@ class InteractionSettingsActivity : AppCompatActivity() {
         }
 
         binding.featureAnimFeel.setOnClickListener {
-            val options = arrayOf("Calm (Slow)", "Balanced (Default)", "Snappy", "Instant", "Disabled")
+            val options = arrayOf(getString(R.string.anim_calm), getString(R.string.anim_balanced), getString(R.string.anim_feel_snappy), getString(R.string.anim_instant), getString(R.string.anim_disabled))
             val values = intArrayOf(200, 400, 700, 1000, 0)
             var selectedIndex = values.indexOf(panelPrefs.animSpeed)
             if (selectedIndex == -1) selectedIndex = 1
 
             com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("Animation Feel")
+                .setTitle(R.string.feature_anim_feel_label)
                 .setSingleChoiceItems(options, selectedIndex) { dialog, which ->
                     panelPrefs.animSpeed = values[which]
                     binding.tvAnimFeelValue.text = options[which]
@@ -392,8 +392,8 @@ class InteractionSettingsActivity : AppCompatActivity() {
         binding.layoutFreeformUseShell.setOnClickListener {
             if (!AutomationManager.isAutomationPossible()) {
                 com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                    .setTitle("Permission Required")
-                    .setMessage("Native Shell Launch requires Shizuku or Root to function. Please enable one of them in the Automation settings below.")
+                    .setTitle(R.string.dialog_permission_required)
+                    .setMessage(R.string.dialog_native_shell_desc)
                     .setPositiveButton(android.R.string.ok, null)
                     .show()
                 return@setOnClickListener
@@ -405,12 +405,12 @@ class InteractionSettingsActivity : AppCompatActivity() {
         }
 
         freeformSizeLayout?.setOnClickListener {
-            val options = arrayOf("Standard (80%)", "Portrait (Narrow)", "Maximized")
+            val options = arrayOf(getString(R.string.freeform_size_standard), getString(R.string.freeform_size_portrait), getString(R.string.freeform_size_maximized))
             val values = arrayOf(PanelPreferences.FREEFORM_MODE_STANDARD, PanelPreferences.FREEFORM_MODE_PORTRAIT, PanelPreferences.FREEFORM_MODE_MAXIMIZED)
             val currentIdx = values.indexOf(panelPrefs.freeformWindowMode).coerceAtLeast(0)
 
             com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("Freeform Window Size")
+                .setTitle(R.string.dialog_freeform_window_size)
                 .setSingleChoiceItems(options, currentIdx) { dialog, which ->
                     panelPrefs.freeformWindowMode = values[which]
                     tvFreeformSizeValue?.text = options[which]

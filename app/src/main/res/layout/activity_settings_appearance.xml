@@ -115,7 +115,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="Show App Drawer Arrow"
+                        android:text="@string/appearance_show_bottom_arrow"
                         android:textColor="?attr/colorOnSurface" />
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="12dp" />
@@ -141,7 +141,7 @@
                             android:id="@+id/tvColumnsValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="1 Column"
+                            android:text="@string/columns_1"
                             android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="14sp" />
                     </LinearLayout>
@@ -161,7 +161,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Auto-Close Sidebar"
+                            android:text="@string/appearance_auto_close"
                             android:textColor="?attr/colorOnSurface"
                             android:textSize="16sp" />
 
@@ -169,7 +169,7 @@
                             android:id="@+id/tvAutoCloseValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Never"
+                            android:text="@string/auto_close_never"
                             android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="14sp" />
                     </LinearLayout>

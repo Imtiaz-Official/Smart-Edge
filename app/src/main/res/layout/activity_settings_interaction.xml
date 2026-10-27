@@ -34,7 +34,7 @@
             <!-- 1. MAIN TRIGGER & GESTURES -->
             <TextView
                 style="@style/App_SectionTitle"
-                android:text="Main Trigger &amp; Gestures" />
+                android:text="@string/interaction_section_trigger" />
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/App_Card_Section"
@@ -46,7 +46,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Screen Edge Side" android:textColor="?attr/colorOnSurface" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/panel_side_label" android:textColor="?attr/colorOnSurface" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="8dp"/>
 
                     <com.google.android.material.button.MaterialButtonToggleGroup
                         android:id="@+id/togglePanelSide"
@@ -62,7 +62,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Left" />
+                            android:text="@string/panel_side_left" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnSideRight"
@@ -70,7 +70,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Right" />
+                            android:text="@string/panel_side_right" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_gestures" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/edge_gestures" android:textColor="?attr/colorOnSurface" />
@@ -130,7 +130,7 @@
             <!-- 2. SPECIALIZED INTERACTION -->
             <TextView
                 style="@style/App_SectionTitle"
-                android:text="Specialized Interaction" />
+                android:text="@string/interaction_section_specialized" />
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/App_Card_Section"
@@ -236,7 +236,7 @@
             <!-- 4. MULTITASKING & WINDOWING -->
             <TextView
                 style="@style/App_SectionTitle"
-                android:text="Multitasking &amp; Windowing" />
+                android:text="@string/interaction_section_multitasking" />
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/App_Card_Section"
@@ -248,13 +248,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_drag_split" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Drag to Split-Screen" android:textColor="?attr/colorOnSurface" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Drag icons to top/bottom edge to launch in split mode" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_drag_split" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/interaction_drag_split" android:textColor="?attr/colorOnSurface" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/interaction_drag_split_desc" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
-                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_freeform" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Freeform Window Mode" android:textColor="?attr/colorOnSurface" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Launch apps in floating windows (Requires system support)" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_freeform" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/interaction_freeform" android:textColor="?attr/colorOnSurface" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/interaction_freeform_desc" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
 
                     <!-- Window size mode picker — only visible when freeform is ON -->
                     <LinearLayout
@@ -272,7 +272,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Window Size"
+                            android:text="@string/interaction_window_size"
                             android:textColor="?attr/colorOnSurface"
                             android:textSize="16sp" />
 
@@ -281,7 +281,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Standard (80%)"
+                            android:text="@string/freeform_size_standard"
                             android:textColor="?attr/colorPrimary"
                             android:textSize="13sp"
                             android:textStyle="bold" />
@@ -365,7 +365,7 @@
             <!-- 5. SHORTCUTS & AUTOMATION -->
             <TextView
                 style="@style/App_SectionTitle"
-                android:text="Shortcuts &amp; Automation" />
+                android:text="@string/interaction_section_shortcuts" />
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/App_Card_Section"

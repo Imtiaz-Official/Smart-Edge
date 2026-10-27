@@ -36,6 +36,9 @@ class SettingsMainActivity : AppCompatActivity() {
         const val EXTRA_SCROLL_TO = "extra_scroll_to"
     }
 
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(LocaleHelper.onAttach(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

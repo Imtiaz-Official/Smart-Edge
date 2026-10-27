@@ -80,6 +80,10 @@ class MainActivity : AppCompatActivity(), android.content.SharedPreferences.OnSh
     }
 
     private fun setupListeners() {
+        binding.btnPermissionsStatus.setOnClickListener {
+            startActivity(Intent(this, PermissionsActivity::class.java))
+        }
+
         binding.btnGrantPermission.setOnClickListener { requestOverlayPermission() }
         binding.btnIgnoreBattery.setOnClickListener { requestIgnoreBatteryOptimization() }
         binding.btnFixFreeform.setOnClickListener {
@@ -163,7 +167,7 @@ class MainActivity : AppCompatActivity(), android.content.SharedPreferences.OnSh
             binding.btnStartStop.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2ECC71"))
             binding.btnStartStop.setIconTintResource(android.R.color.white)
             
-            binding.btnStartStopClassic.text = "Stop"
+            binding.btnStartStopClassic.text = getString(R.string.action_stop)
             binding.btnStartStopClassic.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2ECC71"))
             binding.btnStartStopClassic.setTextColor(Color.WHITE)
 
@@ -182,11 +186,11 @@ class MainActivity : AppCompatActivity(), android.content.SharedPreferences.OnSh
             binding.btnStartStop.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#F1C40F"))
             binding.btnStartStop.setIconTintResource(android.R.color.white)
             
-            binding.btnStartStopClassic.text = "Fix"
+            binding.btnStartStopClassic.text = getString(R.string.action_fix)
             binding.btnStartStopClassic.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#F1C40F"))
             binding.btnStartStopClassic.setTextColor(Color.WHITE)
 
-            binding.tvStatus.text = "Accessibility Required"
+            binding.tvStatus.text = getString(R.string.status_accessibility_required)
             binding.tvStatus.setTextColor(Color.parseColor("#F1C40F"))
             binding.statusDot.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#F1C40F"))
         } else {
@@ -194,11 +198,11 @@ class MainActivity : AppCompatActivity(), android.content.SharedPreferences.OnSh
             binding.btnStartStop.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#475569"))
             binding.btnStartStop.setIconTintResource(com.google.android.material.R.color.material_dynamic_neutral90)
             
-            binding.btnStartStopClassic.text = "Start"
+            binding.btnStartStopClassic.text = getString(R.string.action_start)
             binding.btnStartStopClassic.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#475569"))
             binding.btnStartStopClassic.setTextColor(Color.WHITE)
 
-            binding.tvStatus.text = "Service is Stopped"
+            binding.tvStatus.text = getString(R.string.main_service_stopped)
             theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
             binding.tvStatus.setTextColor(typedValue.data)
             binding.statusDot.imageTintList = android.content.res.ColorStateList.valueOf(typedValue.data)
@@ -240,9 +244,9 @@ class MainActivity : AppCompatActivity(), android.content.SharedPreferences.OnSh
         }
 
         com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("System Activity Logs")
+            .setTitle(R.string.main_logs_title)
             .setView(scroll)
-            .setPositiveButton("Close", null)
+            .setPositiveButton(R.string.dialog_close, null)
             .show()
     }
 
@@ -308,7 +312,16 @@ class MainActivity : AppCompatActivity(), android.content.SharedPreferences.OnSh
     private fun updatePermissionUI() {
         val granted = hasOverlayPermission()
         val standardBatteryIgnored = isIgnoringBatteryOptimizations()
+        val hasAccessibility = isAccessibilityServiceEnabled()
+        val automationActive = panelPrefs.useAutomationForGestures && AutomationManager.isAutomationPossible()
         
+        val allPermissionsGood = granted && (hasAccessibility || automationActive) && standardBatteryIgnored
+        binding.badgePermissionAlert.visibility = if (allPermissionsGood) View.GONE else View.VISIBLE
+
+        val typedValue = android.util.TypedValue()
+        theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true)
+        binding.ivShieldIcon.imageTintList = android.content.res.ColorStateList.valueOf(typedValue.data)
+
         // Show/Hide Activity Logs button based on user preference
         binding.btnShowLogs.visibility = if (panelPrefs.showLogs) View.VISIBLE else View.GONE
 

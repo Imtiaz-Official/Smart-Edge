@@ -375,8 +375,8 @@ class AppPickerPanelView @JvmOverloads constructor(
     fun setEditMode(enabled: Boolean) {
         if (isEditMode == enabled) return
         isEditMode = enabled
-        tvHeader.text = if (isEditMode) "Manage Smart Edge" else "All Apps"
-        btnEdit.text = if (isEditMode) "DONE" else "EDIT"
+        tvHeader.text = if (isEditMode) context.getString(R.string.picker_manage_panel) else context.getString(R.string.picker_all_apps)
+        btnEdit.text = if (isEditMode) context.getString(R.string.picker_btn_done) else context.getString(R.string.picker_btn_edit)
         
         val accentColor = try {
             if (panelPrefs.useCustomAccent) Color.parseColor(panelPrefs.accentColor)
@@ -448,7 +448,7 @@ class AppPickerPanelView @JvmOverloads constructor(
             allApps = apps
             
             // --- RESTORE HEADER STATE ---
-            tvHeader.text = if (isEditMode) "Manage Smart Edge" else (if (currentType == AppInfo.Type.ACTIVITY) "All Activities" else "All Apps")
+            tvHeader.text = if (isEditMode) context.getString(R.string.picker_manage_panel) else (if (currentType == AppInfo.Type.ACTIVITY) context.getString(R.string.picker_all_activities) else context.getString(R.string.picker_all_apps))
 
             // Apply current search query after data is loaded
             val query = etSearch.text.toString()

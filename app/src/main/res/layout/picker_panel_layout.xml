@@ -43,7 +43,7 @@
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:gravity="center_vertical"
-                android:hint="Search Smart Edge..."
+                android:hint="@string/hint_search_smart_edge"
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:maxLines="1"
@@ -88,7 +88,7 @@
             android:backgroundTint="#1AFFFFFF"
             android:fontFamily="sans-serif-medium"
             android:gravity="center"
-            android:text="APPS"
+            android:text="@string/picker_tab_apps"
             android:textColor="#FFFFFF"
             android:textSize="10sp" />
 
@@ -100,7 +100,7 @@
             android:background="@android:color/transparent"
             android:fontFamily="sans-serif-medium"
             android:gravity="center"
-            android:text="ACTIVITIES"
+            android:text="@string/picker_tab_activities"
             android:textColor="#80FFFFFF"
             android:textSize="10sp" />
     </LinearLayout>
@@ -119,7 +119,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:fontFamily="sans-serif-medium"
-            android:text="All Apps"
+            android:text="@string/picker_all_apps"
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:alpha="0.8" />
@@ -134,7 +134,7 @@
             android:fontFamily="sans-serif-medium"
             android:paddingHorizontal="12dp"
             android:paddingVertical="4dp"
-            android:text="EDIT"
+            android:text="@string/picker_btn_edit"
             android:textColor="#4A9EFF"
             android:textSize="11sp"
             android:textAllCaps="true" />
@@ -165,7 +165,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Active Notifications"
+                android:text="@string/picker_active_notifications"
                 android:textColor="#80FFFFFF"
                 android:textSize="11sp"
                 android:textAllCaps="true"

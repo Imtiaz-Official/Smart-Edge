@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:gravity="center"
-        android:text="Edit"
+        android:text="@string/picker_btn_edit"
         android:textColor="#FFFFFF"
         android:textSize="11sp" />
 

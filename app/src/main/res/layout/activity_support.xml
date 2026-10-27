@@ -16,7 +16,7 @@
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back"
             app:navigationIconTint="?attr/colorOnSurface"
-            app:title="Support SidePanel"
+            app:title="@string/support_title"
             app:titleCentered="true" />
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -53,7 +53,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Support Development"
+                android:text="@string/btn_support_dev"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="22sp"
                 android:textStyle="bold"
@@ -62,7 +62,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="SidePanel is 100% free &amp; open-source. Your support helps keep the project alive!"
+                android:text="@string/support_desc"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="14sp"
                 android:layout_marginTop="8dp"
@@ -346,7 +346,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tap any item to copy it."
+                android:text="@string/support_tap_to_copy"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="12sp"
                 android:layout_marginBottom="24dp" />

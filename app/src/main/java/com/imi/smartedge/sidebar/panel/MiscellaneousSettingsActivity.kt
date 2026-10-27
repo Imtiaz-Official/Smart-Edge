@@ -69,7 +69,7 @@ class MiscellaneousSettingsActivity : AppCompatActivity() {
     }
 
     private fun updateLanguageLabel() {
-        binding.tvLanguageValue.text = when (panelPrefs.appLanguage) {
+        binding.tvLanguageValue.text = when (LocaleHelper.getPersistedLanguage(this)) {
             "es" -> "Español"
             "uk" -> "Українська"
             else -> "English"
@@ -79,22 +79,25 @@ class MiscellaneousSettingsActivity : AppCompatActivity() {
     private fun showLanguagePicker() {
         val languages = arrayOf("English", "Español", "Українська")
         val codes = arrayOf("en", "es", "uk")
-        val currentIndex = codes.indexOf(panelPrefs.appLanguage).let { if (it == -1) 0 else it }
+        val currentLang = LocaleHelper.getPersistedLanguage(this)
+        val currentIndex = codes.indexOf(currentLang).let { if (it == -1) 0 else it }
 
         com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.misc_app_language))
             .setSingleChoiceItems(languages, currentIndex) { dialog, which ->
                 val selected = codes[which]
-                if (selected != panelPrefs.appLanguage) {
+                dialog.dismiss()
+                if (selected != currentLang) {
                     panelPrefs.appLanguage = selected
                     LocaleHelper.setLocale(this, selected)
                     
-                    // Restart app
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    // Restart app to apply everywhere
+                    val intent = Intent(this, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
                     startActivity(intent)
+                    finish()
                 }
-                dialog.dismiss()
             }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
@@ -104,8 +107,8 @@ class MiscellaneousSettingsActivity : AppCompatActivity() {
         val log = CrashLogger.getCrashLog(this)
         if (log.isNullOrBlank()) {
             com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("Diagnostic Logs")
-                .setMessage("No crash reports found. The application has been running smoothly without uncaught errors.")
+                .setTitle(R.string.misc_section_diagnostics)
+                .setMessage(R.string.misc_no_crash_logs)
                 .setPositiveButton(android.R.string.ok, null)
                 .show()
             return
@@ -123,9 +126,9 @@ class MiscellaneousSettingsActivity : AppCompatActivity() {
         scroll.addView(tv)
 
         com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setTitle("Crash & Diagnostic Logs")
+            .setTitle(R.string.misc_crash_logs_title)
             .setView(scroll)
-            .setPositiveButton("Copy") { _, _ ->
+            .setPositiveButton(R.string.btn_copy) { _, _ ->
                 val cm = getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                 cm.setPrimaryClip(android.content.ClipData.newPlainText("Crash Log", log))
                 binding.root.showModernToast("Crash log copied to clipboard")

@@ -11,6 +11,10 @@ import android.content.pm.PackageManager
 
 class ToolsSettingsActivity : AppCompatActivity() {
 
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(LocaleHelper.onAttach(newBase))
+    }
+
     private lateinit var binding: ActivitySettingsToolsBinding
     private lateinit var panelPrefs: PanelPreferences
     // private val SHIZUKU_CODE = 1001

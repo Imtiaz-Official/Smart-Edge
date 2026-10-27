@@ -19,7 +19,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:title="Smart Edge Settings"
+                app:title="@string/settings_title"
                 app:titleCentered="true" />
 
             <ImageView
@@ -95,7 +95,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="12dp"
-                                android:text="Search Settings..."
+                                android:text="@string/search_settings_hint"
                                 android:includeFontPadding="false"
                                 android:textColor="?attr/colorOnSurfaceVariant"
                                 android:textSize="15sp" />
@@ -106,7 +106,7 @@
                                 android:layout_height="match_parent"
                                 android:layout_weight="1"
                                 android:background="@android:color/transparent"
-                                android:hint="Search settings..."
+                                android:hint="@string/search_settings_hint"
                                 android:imeOptions="actionSearch"
                                 android:inputType="text"
                                 android:maxLines="1"
@@ -364,7 +364,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginBottom="16dp" />
+
 
             <!-- Category: Miscellaneous -->
             <com.google.android.material.card.MaterialCardView
@@ -429,7 +429,7 @@
                 style="@style/Widget.Material3.Button"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
-                android:text="Support Development"
+                android:text="@string/btn_support_dev"
                 app:cornerRadius="20dp"
                 app:icon="@drawable/ic_donation"
                 app:iconTint="?attr/colorOnTertiaryContainer"
@@ -444,7 +444,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="8dp"
-                android:text="Reset to Defaults"
+                android:text="@string/settings_reset_defaults"
                 android:textColor="?attr/colorError" />
 
         </LinearLayout>

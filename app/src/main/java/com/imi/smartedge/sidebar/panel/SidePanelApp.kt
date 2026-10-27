@@ -13,6 +13,10 @@ class SidePanelApp : Application() {
     override fun onCreate() {
         super.onCreate()
         
+        // Ensure application language is applied globally
+        val lang = LocaleHelper.getPersistedLanguage(this)
+        LocaleHelper.setLocale(this, lang)
+
         // Initialize local crash logging for easy user diagnostics and reporting
         CrashLogger.install(this)
 

@@ -11,9 +11,19 @@ import com.imi.smartedge.sidebar.panel.databinding.ActivitySetupBinding
 
 class SetupActivity : AppCompatActivity() {
 
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(LocaleHelper.onAttach(newBase))
+    }
+
     private lateinit var binding: ActivitySetupBinding
     private lateinit var panelPrefs: PanelPreferences
     private var hasInteractedWithAutoStart = false
+
+    companion object {
+        const val EXTRA_MANAGE_MODE = "extra_manage_mode"
+    }
+
+    private var isManageMode = false
 
     private val overlayPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -29,7 +39,21 @@ class SetupActivity : AppCompatActivity() {
 
         supportActionBar?.hide()
 
-
+        isManageMode = intent.getBooleanExtra(EXTRA_MANAGE_MODE, false)
+        if (isManageMode) {
+            binding.btnBack.visibility = android.view.View.VISIBLE
+            binding.btnBack.setOnClickListener { finish() }
+            binding.tvWelcomeTitle.text = getString(R.string.setup_manage_title)
+            binding.tvWelcomeSubtitle.text = getString(R.string.setup_manage_subtitle)
+            binding.btnContinue.text = getString(R.string.setup_done)
+            binding.btnContinue.setOnClickListener { finish() }
+        } else {
+            binding.btnContinue.setOnClickListener {
+                panelPrefs.setupCompleted = true
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            }
+        }
 
         binding.cardOverlay.setOnClickListener { requestOverlayPermission() }
         binding.cardAccessibility.setOnClickListener { requestAccessibilityPermission() }
@@ -69,12 +93,6 @@ class SetupActivity : AppCompatActivity() {
                 requestAutoStartPermission()
             }
         }
-
-        binding.btnContinue.setOnClickListener {
-            panelPrefs.setupCompleted = true
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
-        }
     }
 
     override fun onResume() {
@@ -101,17 +119,17 @@ class SetupActivity : AppCompatActivity() {
             AutomationManager.isShizukuAvailable() -> " (Shizuku)"
             else -> ""
         }
-        binding.titleAutomation.text = "Native Gesture$status"
+        binding.titleAutomation.text = "${getString(R.string.setup_automation_title)}$status"
         updateCardState(binding.cardAutomation, binding.actionAutomation, hasAutomation)
         
         // Auto-start is hard to detect on most OEMs, but we can detect on MIUI
         updateCardState(binding.cardAutoStart, binding.actionAutoStart, hasAutoStart)
 
         val requiredGranted = hasOverlay && (hasAccessibility || hasAutomation)
-        binding.btnContinue.isEnabled = requiredGranted
+        binding.btnContinue.isEnabled = if (isManageMode) true else requiredGranted
         
         val typedValue = android.util.TypedValue()
-        if (requiredGranted) {
+        if (isManageMode || requiredGranted) {
             binding.btnContinue.alpha = 1.0f
             // Use Primary color when enabled instead of hardcoded neon green
             theme.resolveAttribute(com.google.android.material.R.attr.colorPrimary, typedValue, true)
@@ -126,10 +144,10 @@ class SetupActivity : AppCompatActivity() {
         binding.btnGrantAll.isEnabled = !allGranted
         
         if (allGranted) {
-            binding.btnGrantAll.text = "All granted"
+            binding.btnGrantAll.text = getString(R.string.setup_all_granted)
             binding.btnGrantAll.alpha = 0.5f
         } else {
-            binding.btnGrantAll.text = "Grant all"
+            binding.btnGrantAll.text = getString(R.string.setup_grant_all)
             binding.btnGrantAll.alpha = 1.0f
         }
     }
@@ -163,7 +181,7 @@ class SetupActivity : AppCompatActivity() {
     private fun hasAutoStartPermission(): Boolean {
         return when {
             MIUIUtils.isMIUI() -> MIUIUtils.isAutoStartEnabled(this)
-            VivoUtils.isVivo() -> MIUIUtils.isAutoStartEnabled(this) // Wait, fix this possible typo from original code if needed but I'll stick to original logic for now
+            VivoUtils.isVivo() -> VivoUtils.isAutoStartEnabled(this)
             else -> hasInteractedWithAutoStart
         }
     }
@@ -265,6 +283,28 @@ class SetupActivity : AppCompatActivity() {
                 found = true
             }
         }
+
+        val appName = getString(R.string.app_name)
+        val uri = Uri.parse("package:$packageName")
+        intent.data = uri
+        intent.putExtra("package_name", packageName)
+        intent.putExtra("packageName", packageName)
+        intent.putExtra("package", packageName)
+        intent.putExtra("pkg", packageName)
+        intent.putExtra("app_package", packageName)
+        intent.putExtra("android.provider.extra.APP_PACKAGE", packageName)
+        intent.putExtra("app_label", appName)
+        intent.putExtra("app_name", appName)
+        intent.putExtra("title", appName)
+        intent.putExtra(":settings:fragment_args_key", packageName)
+        val argsBundle = Bundle().apply {
+            putString(":settings:fragment_args_key", packageName)
+        }
+        intent.putExtra(":settings:show_fragment_args", argsBundle)
+        intent.putExtra("EXTRA_FRAGMENT_ARG_KEY", packageName)
+        intent.putExtra("EXTRA_SHOW_FRAGMENT_ARGUMENTS", argsBundle)
+        intent.putExtra("highlight_key", packageName)
+        intent.putExtra("highlight_item", packageName)
 
         if (found) {
             try {

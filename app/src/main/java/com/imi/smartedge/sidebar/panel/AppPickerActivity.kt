@@ -29,6 +29,10 @@ import kotlinx.coroutines.withContext
  */
 class AppPickerActivity : AppCompatActivity() {
 
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(LocaleHelper.onAttach(newBase))
+    }
+
     private lateinit var binding: ActivityAppPickerM3Binding
     private lateinit var panelPrefs: PanelPreferences
     private lateinit var pickerAdapter: AppPickerAdapter
