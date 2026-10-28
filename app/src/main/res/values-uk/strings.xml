@@ -377,4 +377,6 @@
     <string name="perm_notifications_desc">Дозволяє перегляд сповіщень у реальному часі на бічній панелі.</string>
     <string name="perm_automation_title">Нативний рушій жестів</string>
     <string name="perm_automation_desc">Швидка інтеграція з Root / Shizuku для миттєвих жестів без навантаження.</string>
+    <string name="dialog_remove_app_msg">Видалити з бічної панелі?</string>
+    <string name="btn_remove">Видалити</string>
 </resources>

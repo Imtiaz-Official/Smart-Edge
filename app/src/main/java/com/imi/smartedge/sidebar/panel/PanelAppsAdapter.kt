@@ -7,13 +7,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class PanelAppsAdapter(
     private val context: Context,
@@ -226,19 +229,7 @@ class PanelAppsAdapter(
                 SpringAnimator.scalePulse(holder.itemView)
 
                 if (isEditMode && app.type != AppInfo.Type.TOOL) {
-                    com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
-                        .setTitle(app.appName)
-                        .setMessage("Remove from sidebar?")
-                        .setPositiveButton("Remove") { _, _ ->
-                            panelPrefs.removeApp(app.identifier)
-                            val pos = holder.bindingAdapterPosition
-                            if (pos != RecyclerView.NO_POSITION && pos < mutableApps.size) {
-                                mutableApps.removeAt(pos)
-                                notifyItemRemoved(pos)
-                            }
-                        }
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .show()
+                    showRemoveConfirmationDialog(app, holder.bindingAdapterPosition)
                     return@setOnClickListener
                 }
 
@@ -313,19 +304,7 @@ class PanelAppsAdapter(
 
                 if (!panelPrefs.dragToSplit) {
                     if (app.type != AppInfo.Type.TOOL) {
-                        com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
-                            .setTitle(app.appName)
-                            .setMessage("Remove from sidebar?")
-                            .setPositiveButton("Remove") { _, _ ->
-                                panelPrefs.removeApp(app.identifier)
-                                val pos = holder.bindingAdapterPosition
-                                if (pos != RecyclerView.NO_POSITION && pos < mutableApps.size) {
-                                    mutableApps.removeAt(pos)
-                                    notifyItemRemoved(pos)
-                                }
-                            }
-                            .setNegativeButton(android.R.string.cancel, null)
-                            .show()
+                        showRemoveConfirmationDialog(app, holder.bindingAdapterPosition)
                     }
                     return@setOnLongClickListener true
                 }
@@ -498,6 +477,44 @@ class PanelAppsAdapter(
             }
         } catch (e: Exception) {
             false
+        }
+    }
+
+    private fun showRemoveConfirmationDialog(app: AppInfo, position: Int) {
+        try {
+            val themedContext = ContextThemeWrapper(context, R.style.Theme_SidePanel_M3)
+            val dialog = MaterialAlertDialogBuilder(themedContext)
+                .setTitle(app.appName)
+                .setMessage(R.string.dialog_remove_app_msg)
+                .setPositiveButton(R.string.btn_remove) { _, _ ->
+                    performRemoveApp(app, position)
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .create()
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                dialog.window?.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
+            } else {
+                @Suppress("DEPRECATION")
+                dialog.window?.setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+            }
+            dialog.show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            performRemoveApp(app, position)
+        }
+    }
+
+    private fun performRemoveApp(app: AppInfo, position: Int) {
+        onRemove(app)
+        val pos = if (position != RecyclerView.NO_POSITION && position < mutableApps.size && mutableApps[position].identifier == app.identifier) {
+            position
+        } else {
+            mutableApps.indexOfFirst { it.identifier == app.identifier }
+        }
+        if (pos != RecyclerView.NO_POSITION && pos < mutableApps.size) {
+            mutableApps.removeAt(pos)
+            notifyItemRemoved(pos)
         }
     }
 }

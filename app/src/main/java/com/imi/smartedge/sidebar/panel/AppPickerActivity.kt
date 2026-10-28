@@ -46,10 +46,7 @@ class AppPickerActivity : AppCompatActivity() {
         panelPrefs = PanelPreferences(this)
 
         // Setup toolbar
-        supportActionBar?.apply {
-            title = getString(R.string.app_picker_title)
-            setDisplayHomeAsUpEnabled(true)
-        }
+        binding.toolbar.setNavigationOnClickListener { finish() }
 
         pickerAdapter = AppPickerAdapter { app, isChecked ->
             if (isChecked) panelPrefs.addApp(app.identifier)

@@ -95,6 +95,12 @@
             android:theme="@style/Theme.SidePanel.M3" />
 
         <activity
+            android:name=".AppPickerActivity"
+            android:label="@string/app_picker_title"
+            android:exported="false"
+            android:theme="@style/Theme.SidePanel.M3" />
+
+        <activity
             android:name=".AppearanceSettingsActivity"
             android:label="Appearance"
             android:theme="@style/Theme.SidePanel.M3" />

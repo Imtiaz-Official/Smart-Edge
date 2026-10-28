@@ -410,4 +410,6 @@
     <string name="perm_notifications_desc">Enables real-time notification previews in the app drawer.</string>
     <string name="perm_automation_title">Native Gesture Engine</string>
     <string name="perm_automation_desc">High-speed Root / Shizuku integration for zero-overhead gestures.</string>
+    <string name="dialog_remove_app_msg">Remove from sidebar?</string>
+    <string name="btn_remove">Remove</string>
 </resources>

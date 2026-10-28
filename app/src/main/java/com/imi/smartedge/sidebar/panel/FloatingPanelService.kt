@@ -686,7 +686,12 @@ class FloatingPanelService : Service() {
     private fun initSidePanel() {
         sidePanelView = SidePanelView(this).apply {
             onClose = { closePanel() }
-            onAppsChanged = { refreshApps() }
+            onAppsChanged = {
+                refreshApps()
+                if (isPickerOpen) {
+                    pickerPanelView?.loadApps()
+                }
+            }
             onAddClick = { isEdit -> togglePicker(isEdit) }
             onScreenshot = { 
                 closePanel()

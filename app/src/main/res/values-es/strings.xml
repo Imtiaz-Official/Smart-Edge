@@ -403,4 +403,6 @@
     <string name="perm_notifications_desc">Permite ver notificaciones en tiempo real dentro del cajón lateral.</string>
     <string name="perm_automation_title">Motor de gestos nativo</string>
     <string name="perm_automation_desc">Integración con Root o Shizuku para gestos ultrarrápidos sin consumo.</string>
+    <string name="dialog_remove_app_msg">¿Quitar de la barra lateral?</string>
+    <string name="btn_remove">Quitar</string>
 </resources>
