@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import androidx.recyclerview.widget.GridLayoutManager
@@ -563,11 +564,25 @@ class SidePanelView @JvmOverloads constructor(
         val showBrightness = panelPrefs.showBrightnessKeys
         binding.layoutBrightnessTools.visibility = if (showBrightness) View.VISIBLE else View.GONE
         
+        val showNames = panelPrefs.showAppNames
         val showScreenshot = panelPrefs.showScreenshotTool
         binding.btnScreenshot.visibility = if (showScreenshot) View.VISIBLE else View.GONE
-        // Hide screenshot label if button is hidden
+        // Hide screenshot label if button is hidden or app names are hidden
         val screenshotLabel = binding.toolsContainer.getChildAt(binding.toolsContainer.indexOfChild(binding.btnScreenshot) + 1)
-        screenshotLabel?.visibility = if (showScreenshot) View.VISIBLE else View.GONE
+        screenshotLabel?.visibility = if (showScreenshot && showNames) View.VISIBLE else View.GONE
+
+        for (i in 0 until binding.layoutPowerTools.childCount) {
+            val child = binding.layoutPowerTools.getChildAt(i)
+            if (child is TextView) child.visibility = if (showNames) View.VISIBLE else View.GONE
+        }
+        for (i in 0 until binding.layoutVolumeTools.childCount) {
+            val child = binding.layoutVolumeTools.getChildAt(i)
+            if (child is TextView) child.visibility = if (showNames) View.VISIBLE else View.GONE
+        }
+        for (i in 0 until binding.layoutBrightnessTools.childCount) {
+            val child = binding.layoutBrightnessTools.getChildAt(i)
+            if (child is TextView) child.visibility = if (showNames) View.VISIBLE else View.GONE
+        }
 
         if (panelPrefs.hideBackground) {
             binding.panelCard.background = null

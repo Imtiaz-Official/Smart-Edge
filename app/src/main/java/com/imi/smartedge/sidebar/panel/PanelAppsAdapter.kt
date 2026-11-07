@@ -215,7 +215,13 @@ class PanelAppsAdapter(
                 IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
             }
                 
-            holder.tvName.text = app.appName
+            if (panelPrefs.showAppNames) {
+                holder.tvName.visibility = View.VISIBLE
+                holder.tvName.text = app.appName
+            } else {
+                holder.tvName.visibility = View.GONE
+            }
+            holder.itemView.contentDescription = app.appName
 
             if (app.identifier == highlightIdentifier) {
                 SpringAnimator.scalePulse(holder.itemView)
@@ -343,9 +349,15 @@ class PanelAppsAdapter(
 
             val tvEdit = holder.itemView.findViewById<TextView>(R.id.tvEdit)
             if (tvEdit != null) {
-                tvEdit.setTextColor(android.graphics.Color.WHITE)
-                tvEdit.textSize = 11f * scale
+                if (panelPrefs.showAppNames) {
+                    tvEdit.visibility = View.VISIBLE
+                    tvEdit.setTextColor(android.graphics.Color.WHITE)
+                    tvEdit.textSize = 11f * scale
+                } else {
+                    tvEdit.visibility = View.GONE
+                }
             }
+            holder.itemView.contentDescription = context.getString(R.string.picker_btn_edit)
 
             holder.itemView.animate().cancel()
             holder.itemView.alpha = 1f

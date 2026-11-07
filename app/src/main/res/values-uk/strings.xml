@@ -297,6 +297,12 @@
     <string name="dialog_native_shell_desc">Запуск через нативну оболонку вимагає Shizuku або Root. Будь ласка, увімкніть один із них у налаштуваннях автоматизації нижче.</string>
     <string name="dialog_freeform_window_size">Розмір плаваючого вікна</string>
     <string name="appearance_show_bottom_arrow">Показувати стрілку панелі додатків</string>
+    <string name="appearance_show_app_names">Показувати назви додатків</string>
+    <string name="appearance_show_app_names_desc">Виберіть, чи показувати назви під іконками</string>
+    <string name="appearance_app_names_sidebar">На бічній панелі</string>
+    <string name="appearance_app_names_sidebar_desc">Показувати назви додатків під іконками на бічній панелі</string>
+    <string name="appearance_app_names_drawer">В меню додатків</string>
+    <string name="appearance_app_names_drawer_desc">Показувати назви додатків під іконками в меню додатків</string>
     <string name="appearance_auto_close">Автозакриття бічної панелі</string>
     <string name="auto_close_never">Ніколи</string>
     <string name="auto_close_3s">3 секунди</string>
@@ -346,9 +352,9 @@
     <!-- Permissions Dashboard Strings -->
     <string name="permissions_dashboard_title">Системні дозволи</string>
     <string name="permissions_status_all_good_title">Усі системи працюють</string>
-    <string name="permissions_status_all_good_desc">Smart Edge має всі необхідні дозволи для оптимальної продуктивності та стабільності.</string>
+    <string name="permissions_status_all_good_desc">Усі дозволи активні для максимальної стабільності.</string>
     <string name="permissions_status_warning_title">Потрібна дія</string>
-    <string name="permissions_status_warning_desc">Відсутні один або кілька основних дозволів. Увімкніть їх нижче для повноцінної роботи.</string>
+    <string name="permissions_status_warning_desc">Потрібно надати дозволи.</string>
     <string name="permissions_section_essential">Основні дозволи</string>
     <string name="permissions_section_stability">Фоновий режим і стабільність</string>
     <string name="permissions_section_advanced">Розширений рушій</string>
@@ -363,20 +369,22 @@
     <string name="perm_btn_grant">Надати</string>
     <string name="perm_btn_configure">Налаштувати</string>
     <string name="perm_btn_manage">Керувати</string>
-    <string name="perm_btn_fix_all">Надати відсутні дозволи</string>
-    <string name="perm_btn_all_good">Усі дозволи активні</string>
+    <string name="perm_btn_fix_all">Виправити все</string>
+    <string name="perm_btn_all_good">Усі активні</string>
     <string name="perm_overlay_title">Відображення поверх інших додатків</string>
-    <string name="perm_overlay_desc">Необхідно для відображення бічної панелі поверх додатків та ігор.</string>
+    <string name="perm_overlay_desc">Накладання поверх інших додатків</string>
     <string name="perm_accessibility_title">Служба доступності</string>
-    <string name="perm_accessibility_desc">Виявляє системні жести для плавного закриття панелі.</string>
+    <string name="perm_accessibility_desc">Виявлення жестів назад і додому</string>
     <string name="perm_battery_title">Оптимізація батареї</string>
-    <string name="perm_battery_desc">Запобігає зупинці Smart Edge системою, коли екран заблоковано.</string>
+    <string name="perm_battery_desc">Запобігання закриттю у фоні</string>
     <string name="perm_autostart_title">Автозапуск</string>
-    <string name="perm_autostart_desc">Дозволяє автоматичний запуск служби після перезавантаження телефону.</string>
+    <string name="perm_autostart_desc">Автозапуск після перезавантаження</string>
     <string name="perm_notifications_title">Доступ до сповіщень</string>
-    <string name="perm_notifications_desc">Дозволяє перегляд сповіщень у реальному часі на бічній панелі.</string>
+    <string name="perm_notifications_desc">Попередній перегляд сповіщень</string>
     <string name="perm_automation_title">Нативний рушій жестів</string>
-    <string name="perm_automation_desc">Швидка інтеграція з Root / Shizuku для миттєвих жестів без навантаження.</string>
+    <string name="perm_automation_desc">Двигун жестів Root / Shizuku</string>
     <string name="dialog_remove_app_msg">Видалити з бічної панелі?</string>
     <string name="btn_remove">Видалити</string>
+    <string name="search_no_results">Налаштувань не знайдено</string>
+    <string name="search_no_results_desc">Спробуйте пошукати жести, розмиття, батарею або інструменти.</string>
 </resources>

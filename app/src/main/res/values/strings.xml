@@ -330,6 +330,12 @@
     <string name="dialog_native_shell_desc">Native Shell Launch requires Shizuku or Root to function. Please enable one of them in the Automation settings below.</string>
     <string name="dialog_freeform_window_size">Freeform Window Size</string>
     <string name="appearance_show_bottom_arrow">Show App Drawer Arrow</string>
+    <string name="appearance_show_app_names">Show App Names</string>
+    <string name="appearance_show_app_names_desc">Choose whether to display labels under icons</string>
+    <string name="appearance_app_names_sidebar">In Sidebar</string>
+    <string name="appearance_app_names_sidebar_desc">Display app names under icons in the floating sidebar</string>
+    <string name="appearance_app_names_drawer">In App Drawer</string>
+    <string name="appearance_app_names_drawer_desc">Display app names under icons in the app drawer</string>
     <string name="appearance_auto_close">Auto-Close Sidebar</string>
     <string name="auto_close_never">Never</string>
     <string name="auto_close_3s">3 Seconds</string>
@@ -379,9 +385,9 @@
     <!-- Permissions Dashboard Strings -->
     <string name="permissions_dashboard_title">System Permissions</string>
     <string name="permissions_status_all_good_title">All Systems Operational</string>
-    <string name="permissions_status_all_good_desc">Smart Edge has all permissions required for optimal performance and background stability.</string>
+    <string name="permissions_status_all_good_desc">All permissions active for optimal stability.</string>
     <string name="permissions_status_warning_title">Action Required</string>
-    <string name="permissions_status_warning_desc">One or more core permissions are missing. Enable them below to restore full functionality.</string>
+    <string name="permissions_status_warning_desc">Core permissions need setup.</string>
     <string name="permissions_section_essential">Essential Permissions</string>
     <string name="permissions_section_stability">Background &amp; Stability</string>
     <string name="permissions_section_advanced">Advanced Engine</string>
@@ -396,20 +402,22 @@
     <string name="perm_btn_grant">Grant</string>
     <string name="perm_btn_configure">Configure</string>
     <string name="perm_btn_manage">Manage</string>
-    <string name="perm_btn_fix_all">Fix Missing Permissions</string>
-    <string name="perm_btn_all_good">All Permissions Active</string>
+    <string name="perm_btn_fix_all">Fix All</string>
+    <string name="perm_btn_all_good">All Active</string>
     <string name="perm_overlay_title">Display Over Other Apps</string>
-    <string name="perm_overlay_desc">Required to render the floating sidebar over all apps and games.</string>
+    <string name="perm_overlay_desc">Floating sidebar overlay above apps</string>
     <string name="perm_accessibility_title">Accessibility Service</string>
-    <string name="perm_accessibility_desc">Detects system back and home gestures to seamlessly dismiss the panel.</string>
+    <string name="perm_accessibility_desc">Back and home gesture detection</string>
     <string name="perm_battery_title">Battery Optimization</string>
-    <string name="perm_battery_desc">Exempts Smart Edge from background killing when screen is locked.</string>
+    <string name="perm_battery_desc">Prevents background killing</string>
     <string name="perm_autostart_title">Auto-Start Permission</string>
-    <string name="perm_autostart_desc">Enables automatic service recovery after phone restart.</string>
-    <string name="perm_notifications_title">Notification Hub Listener</string>
-    <string name="perm_notifications_desc">Enables real-time notification previews in the app drawer.</string>
+    <string name="perm_autostart_desc">Auto-recovery on device reboot</string>
+    <string name="perm_notifications_title">Notification Hub</string>
+    <string name="perm_notifications_desc">Notification previews in app drawer</string>
     <string name="perm_automation_title">Native Gesture Engine</string>
-    <string name="perm_automation_desc">High-speed Root / Shizuku integration for zero-overhead gestures.</string>
+    <string name="perm_automation_desc">Root / Shizuku gesture engine</string>
     <string name="dialog_remove_app_msg">Remove from sidebar?</string>
     <string name="btn_remove">Remove</string>
+    <string name="search_no_results">No matching settings found</string>
+    <string name="search_no_results_desc">Try searching for keywords like gestures, blur, battery, or tools.</string>
 </resources>

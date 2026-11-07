@@ -535,6 +535,7 @@ class AppPickerPanelView @JvmOverloads constructor(
 
     fun clearIcons() {
         adapter.refreshIcons()
+        notificationAdapter.refreshIcons()
     }
 
     private fun filter(query: String) {
@@ -640,8 +641,20 @@ class AppPickerPanelView @JvmOverloads constructor(
             holder.tvName.textSize = baseTextSize * scale
             holder.tvPackage?.textSize = basePkgTextSize * scale
 
-            holder.tvName.text = app.appName
-            holder.tvPackage?.text = app.packageName
+            val showNames = panelPrefs.showAppNamesDrawer
+            if (showNames) {
+                holder.tvName.visibility = View.VISIBLE
+                holder.tvName.text = app.appName
+                if (!isNotificationType) {
+                    holder.tvPackage?.visibility = if (isRich) View.VISIBLE else View.GONE
+                    holder.tvPackage?.text = app.packageName
+                } else {
+                    holder.tvPackage?.visibility = View.GONE
+                }
+            } else {
+                holder.tvName.visibility = View.GONE
+                holder.tvPackage?.visibility = View.GONE
+            }
             
             val textColor = if (isLightMode) Color.parseColor("#1E293B") else Color.WHITE
             val subTextColor = if (isLightMode) Color.parseColor("#64748B") else Color.parseColor("#B3FFFFFF")

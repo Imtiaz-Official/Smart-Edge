@@ -318,6 +318,7 @@ class FloatingPanelService : Service() {
                     } else if (isPickerOpen) {
                         pickerPanelView?.loadApps() 
                     }
+                    sidePanelView?.updateStyles()
                     refreshApps()
                 }
             }

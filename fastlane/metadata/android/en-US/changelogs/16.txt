@@ -1,0 +1,9 @@
+- Added independent "Show App Names" toggles for both Sidebar and App Drawer, allowing clean icon-only displays.
+- Completely redesigned Settings Search with 65 indexed features across all settings categories and permission diagnostics.
+- Added modern Material 3 search results with vibrant category pills, clear query button, and empty state screen.
+- Added tactile micro-pulse animation and smooth fade transitions when tapping search results.
+- Fixed deep-link scrolling alignment: target settings now scroll smoothly into view with comfortable breathing room without clipping section headers.
+- Redesigned System Permissions dashboard with compact Material 3 cards, responsive status badges, and streamlined layout.
+- Restored top title and back navigation in Settings toolbar.
+- Fixed crash when searching and removing apps in Manage Apps.
+- 100% updated localization parity across English, Spanish, and Ukrainian.

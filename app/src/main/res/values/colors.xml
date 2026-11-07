@@ -34,4 +34,18 @@
     <color name="md_theme_dark_onBackground">#F8FAFC</color>
     <color name="md_theme_dark_surface">#0F172A</color>
     <color name="md_theme_dark_onSurface">#F8FAFC</color>
+
+    <!-- Permissions Hub Tonal Colors -->
+    <color name="perm_overlay_icon">#3B82F6</color>
+    <color name="perm_overlay_bg">#1F3B82F6</color>
+    <color name="perm_accessibility_icon">#8B5CF6</color>
+    <color name="perm_accessibility_bg">#1F8B5CF6</color>
+    <color name="perm_battery_icon">#10B981</color>
+    <color name="perm_battery_bg">#1F10B981</color>
+    <color name="perm_autostart_icon">#F59E0B</color>
+    <color name="perm_autostart_bg">#1FF59E0B</color>
+    <color name="perm_notification_icon">#EC4899</color>
+    <color name="perm_notification_bg">#1FEC4899</color>
+    <color name="perm_automation_icon">#06B6D4</color>
+    <color name="perm_automation_bg">#1F06B6D4</color>
 </resources>

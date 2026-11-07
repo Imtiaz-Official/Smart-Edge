@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.imi.smartedge.sidebar.panel.databinding.ActivitySettingsMiscBinding
@@ -65,6 +66,17 @@ class MiscellaneousSettingsActivity : AppCompatActivity() {
 
         binding.btnCrashLogs.setOnClickListener {
             showCrashLogDialog()
+        }
+
+        handleDeepLink()
+    }
+
+    private fun handleDeepLink() {
+        val targetId = intent.getStringExtra(SettingsMainActivity.EXTRA_SCROLL_TO) ?: return
+        val viewId = resources.getIdentifier(targetId, "id", packageName)
+        if (viewId != 0) {
+            val targetView = findViewById<View>(viewId)
+            targetView?.let { binding.miscScrollView.scrollToTargetView(it) }
         }
     }
 

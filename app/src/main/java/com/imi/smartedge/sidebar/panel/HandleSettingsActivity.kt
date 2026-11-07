@@ -28,6 +28,16 @@ class HandleSettingsActivity : AppCompatActivity() {
         
         loadCurrentSettings()
         setupListeners()
+        handleDeepLink()
+    }
+
+    private fun handleDeepLink() {
+        val targetId = intent.getStringExtra(SettingsMainActivity.EXTRA_SCROLL_TO) ?: return
+        val viewId = resources.getIdentifier(targetId, "id", packageName)
+        if (viewId != 0) {
+            val targetView = findViewById<View>(viewId)
+            targetView?.let { binding.handleScrollView.scrollToTargetView(it) }
+        }
     }
 
     private fun loadCurrentSettings() {

@@ -3,31 +3,7 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-    <!-- Outer ring fragment -->
     <path
-        android:fillColor="#00000000"
-        android:pathData="M12,2C6.48,2 2,6.48 2,12C2,14.46 2.89,16.7 4.36,18.45"
-        android:strokeWidth="2"
-        android:strokeColor="#FFFFFF"
-        android:strokeLineCap="round" />
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M21.64,5.55C19.3,2.89 15.85,1.5 12,2"
-        android:strokeWidth="1.5"
-        android:strokeColor="#FFFFFF"
-        android:strokeLineCap="round"
-        android:strokeAlpha="0.3" />
-    
-    <!-- Lightning/Speed element -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M11.5,9L7,15H11L10.5,19L15,13H11L11.5,9Z" />
-        
-    <!-- System/Gear fragment -->
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M18,12C18,15.31 15.31,18 12,18"
-        android:strokeWidth="2"
-        android:strokeColor="#FFFFFF"
-        android:strokeLineCap="round" />
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M7,2v11h3v9l7,-12h-4l4,-8z"/>
 </vector>

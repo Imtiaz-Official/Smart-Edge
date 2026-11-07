@@ -59,6 +59,8 @@ class PanelPreferences(context: Context) {
         private const val KEY_SHOW_VOLUME_KEYS = "show_volume_keys"
         private const val KEY_SHOW_BRIGHTNESS_KEYS = "show_brightness_keys"
         private const val KEY_SHOW_BOTTOM_ARROW = "show_bottom_arrow"
+        private const val KEY_SHOW_APP_NAMES = "show_app_names"
+        private const val KEY_SHOW_APP_NAMES_DRAWER = "show_app_names_drawer"
         private const val KEY_AUTO_CLOSE_TIMEOUT = "auto_close_timeout"
         private const val KEY_HOME_BUTTON_STYLE = "home_button_style"
         private const val KEY_FREEFORM_ENABLED = "freeform_enabled"
@@ -275,6 +277,8 @@ class PanelPreferences(context: Context) {
             KEY_FREEFORM_ENABLED to freeformEnabled,
             KEY_SHOW_NOTIFICATION_APPS to showNotificationApps,
             KEY_SHOW_BOTTOM_ARROW to showBottomArrow,
+            KEY_SHOW_APP_NAMES to showAppNames,
+            KEY_SHOW_APP_NAMES_DRAWER to showAppNamesDrawer,
             KEY_DRAG_TO_SPLIT to dragToSplit,
             KEY_REMEMBER_SCROLL to rememberScroll,
             KEY_AUTO_SHOW_KEYBOARD to autoShowKeyboard
@@ -355,6 +359,8 @@ class PanelPreferences(context: Context) {
                 if (obj.has(KEY_FREEFORM_ENABLED)) putBoolean(KEY_FREEFORM_ENABLED, obj.getBoolean(KEY_FREEFORM_ENABLED))
                 if (obj.has(KEY_SHOW_NOTIFICATION_APPS)) putBoolean(KEY_SHOW_NOTIFICATION_APPS, obj.getBoolean(KEY_SHOW_NOTIFICATION_APPS))
                 if (obj.has(KEY_SHOW_BOTTOM_ARROW)) putBoolean(KEY_SHOW_BOTTOM_ARROW, obj.getBoolean(KEY_SHOW_BOTTOM_ARROW))
+                if (obj.has(KEY_SHOW_APP_NAMES)) putBoolean(KEY_SHOW_APP_NAMES, obj.getBoolean(KEY_SHOW_APP_NAMES))
+                if (obj.has(KEY_SHOW_APP_NAMES_DRAWER)) putBoolean(KEY_SHOW_APP_NAMES_DRAWER, obj.getBoolean(KEY_SHOW_APP_NAMES_DRAWER))
                 if (obj.has(KEY_DRAG_TO_SPLIT)) putBoolean(KEY_DRAG_TO_SPLIT, obj.getBoolean(KEY_DRAG_TO_SPLIT))
                 if (obj.has(KEY_REMEMBER_SCROLL)) putBoolean(KEY_REMEMBER_SCROLL, obj.getBoolean(KEY_REMEMBER_SCROLL))
                 if (obj.has(KEY_AUTO_SHOW_KEYBOARD)) putBoolean(KEY_AUTO_SHOW_KEYBOARD, obj.getBoolean(KEY_AUTO_SHOW_KEYBOARD))
@@ -426,6 +432,8 @@ class PanelPreferences(context: Context) {
             putInt(KEY_PANEL_MAX_HEIGHT, 350)
             putInt(KEY_PICKER_MAX_HEIGHT, 450)
             putBoolean(KEY_SHOW_NOTIFICATION_APPS, false)
+            putBoolean(KEY_SHOW_BOTTOM_ARROW, true)
+            putBoolean(KEY_SHOW_APP_NAMES, true)
             putBoolean(KEY_DRAG_TO_SPLIT, true)
             putBoolean(KEY_REMEMBER_SCROLL, false)
             putBoolean(KEY_AUTO_SHOW_KEYBOARD, false)
@@ -698,6 +706,14 @@ class PanelPreferences(context: Context) {
     var showBottomArrow: Boolean
         get() = prefs.getBoolean(KEY_SHOW_BOTTOM_ARROW, true)
         set(value) = prefs.edit { putBoolean(KEY_SHOW_BOTTOM_ARROW, value) }
+
+    var showAppNames: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_APP_NAMES, true)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_APP_NAMES, value) }
+
+    var showAppNamesDrawer: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_APP_NAMES_DRAWER, true)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_APP_NAMES_DRAWER, value) }
 
     var autoCloseTimeout: Int
         get() = prefs.getInt(KEY_AUTO_CLOSE_TIMEOUT, 0)

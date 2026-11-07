@@ -6,7 +6,20 @@
 
 ---
 
-### v1.3.7 (Latest)
+### v1.3.8 (Latest)
+- **feat(appearance)**: Added independent "Show App Names" toggles for both Sidebar and App Drawer, allowing clean icon-only displays on tablets and compact setups.
+- **feat(search)**: Completely overhauled Settings Search with 65 indexed features covering all settings categories, permissions, and tools.
+- **feat(ui)**: Modernized search results with Material 3 elevated cards, dynamic category pills, instant clear button, and animated empty state.
+- **feat(animation)**: Added tactile micro-scale pulse and smooth fade transitions when tapping search results.
+- **fix(search)**: Fixed search deep-link scrolling position using `scrollToTargetView` — settings now scroll smoothly with comfortable framing and no header clipping.
+- **refactor(permissions)**: Redesigned the System Permissions dashboard with compact Material 3 cards, clean status badges, and simplified diagnostics.
+- **fix(ui)**: Restored centered toolbar title and back navigation in SettingsMainActivity.
+- **fix(apps)**: Fixed crash when searching and removing apps in Manage Apps (#88).
+- **feat(localization)**: 100% synchronized localization strings across English, Spanish, and Ukrainian.
+
+---
+
+### v1.3.7
 - **feat(interaction)**: Added Dual Edge Trigger Handles (#83) — configure Left, Right, or Both screen edges with independent side-docking and slide animations.
 - **feat(sidebar)**: Added Auto-Close Sidebar Timer (#66) with configurable timeouts (3s, 5s, 10s, 15s) and active touch-reset.
 - **feat(sidebar)**: Added setting to hide the bottom chevron/arrow close button (#70).

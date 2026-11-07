@@ -44,6 +44,16 @@ class PermissionsActivity : AppCompatActivity() {
         panelPrefs = PanelPreferences(this)
 
         setupListeners()
+        handleDeepLink()
+    }
+
+    private fun handleDeepLink() {
+        val targetId = intent.getStringExtra(SettingsMainActivity.EXTRA_SCROLL_TO) ?: return
+        val viewId = resources.getIdentifier(targetId, "id", packageName)
+        if (viewId != 0) {
+            val targetView = findViewById<View>(viewId)
+            targetView?.let { binding.permissionsScrollView.scrollToTargetView(it) }
+        }
     }
 
     override fun onResume() {
@@ -105,7 +115,8 @@ class PermissionsActivity : AppCompatActivity() {
             binding.badgeOverlay,
             isGranted = hasOverlay,
             grantedText = getString(R.string.perm_status_active),
-            missingText = getString(R.string.perm_btn_grant)
+            missingText = getString(R.string.perm_btn_grant),
+            isRequired = true
         )
 
         // 2. Accessibility Badge
@@ -113,7 +124,8 @@ class PermissionsActivity : AppCompatActivity() {
             binding.badgeAccessibility,
             isGranted = hasAccessibility,
             grantedText = getString(R.string.perm_status_active),
-            missingText = getString(R.string.perm_btn_grant)
+            missingText = getString(R.string.perm_btn_grant),
+            isRequired = true
         )
 
         // 3. Battery Badge
@@ -121,7 +133,8 @@ class PermissionsActivity : AppCompatActivity() {
             binding.badgeBattery,
             isGranted = hasBattery,
             grantedText = getString(R.string.perm_status_unrestricted),
-            missingText = getString(R.string.perm_status_optimized)
+            missingText = getString(R.string.perm_status_optimized),
+            isRequired = false
         )
 
         // 4. AutoStart Badge
@@ -129,7 +142,8 @@ class PermissionsActivity : AppCompatActivity() {
             binding.badgeAutoStart,
             isGranted = hasAutoStart,
             grantedText = getString(R.string.perm_status_configured),
-            missingText = getString(R.string.perm_btn_manage)
+            missingText = getString(R.string.perm_btn_manage),
+            isRequired = false
         )
 
         // 5. Notifications Badge
@@ -137,7 +151,8 @@ class PermissionsActivity : AppCompatActivity() {
             binding.badgeNotifications,
             isGranted = hasNotifications,
             grantedText = getString(R.string.perm_status_active),
-            missingText = getString(R.string.perm_status_optional)
+            missingText = getString(R.string.perm_status_optional),
+            isRequired = false
         )
 
         // 6. Automation Badge
@@ -150,7 +165,8 @@ class PermissionsActivity : AppCompatActivity() {
             binding.badgeAutomation,
             isGranted = hasAutomation,
             grantedText = autoStatusText,
-            missingText = autoStatusText
+            missingText = autoStatusText,
+            isRequired = false
         )
 
         // Health Banner State
@@ -158,32 +174,44 @@ class PermissionsActivity : AppCompatActivity() {
         val allGood = coreGranted && hasBattery
 
         if (allGood) {
-            binding.ivHealthIcon.setImageResource(R.drawable.ic_shield_check)
-            binding.ivHealthIcon.imageTintList = ColorStateList.valueOf(Color.parseColor("#2ECC71"))
+            binding.healthIconContainer.setCardBackgroundColor(Color.parseColor("#10B981"))
+            binding.cardHealthStatus.setCardBackgroundColor(Color.parseColor("#0F10B981"))
             binding.tvHealthTitle.text = getString(R.string.permissions_status_all_good_title)
             binding.tvHealthDesc.text = getString(R.string.permissions_status_all_good_desc)
             binding.btnFixAll.isEnabled = false
             binding.btnFixAll.text = getString(R.string.perm_btn_all_good)
             binding.btnFixAll.alpha = 0.5f
+            binding.btnFixAll.visibility = View.GONE
         } else {
-            binding.ivHealthIcon.setImageResource(android.R.drawable.stat_notify_error)
-            binding.ivHealthIcon.imageTintList = ColorStateList.valueOf(Color.parseColor("#F1C40F"))
+            binding.healthIconContainer.setCardBackgroundColor(Color.parseColor("#F59E0B"))
+            binding.cardHealthStatus.setCardBackgroundColor(Color.parseColor("#0FF59E0B"))
             binding.tvHealthTitle.text = getString(R.string.permissions_status_warning_title)
             binding.tvHealthDesc.text = getString(R.string.permissions_status_warning_desc)
             binding.btnFixAll.isEnabled = true
             binding.btnFixAll.text = getString(R.string.perm_btn_fix_all)
             binding.btnFixAll.alpha = 1.0f
+            binding.btnFixAll.visibility = View.VISIBLE
         }
     }
 
-    private fun setBadgeState(badge: TextView, isGranted: Boolean, grantedText: String, missingText: String) {
-        val typedValue = TypedValue()
+    private fun setBadgeState(
+        badge: TextView,
+        isGranted: Boolean,
+        grantedText: String,
+        missingText: String,
+        isRequired: Boolean = false
+    ) {
         if (isGranted) {
             badge.text = grantedText
-            badge.setTextColor(Color.parseColor("#2ECC71"))
-            badge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#1A2ECC71"))
+            badge.setTextColor(Color.parseColor("#10B981"))
+            badge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#1F10B981"))
+        } else if (isRequired) {
+            badge.text = missingText
+            badge.setTextColor(Color.parseColor("#F59E0B"))
+            badge.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#1FF59E0B"))
         } else {
             badge.text = missingText
+            val typedValue = TypedValue()
             theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, typedValue, true)
             badge.setTextColor(typedValue.data)
             theme.resolveAttribute(com.google.android.material.R.attr.colorSurfaceContainerHigh, typedValue, true)

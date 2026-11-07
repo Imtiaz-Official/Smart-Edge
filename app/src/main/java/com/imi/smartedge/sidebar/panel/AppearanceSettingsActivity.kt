@@ -3,6 +3,7 @@ package com.imi.smartedge.sidebar.panel
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.imi.smartedge.sidebar.panel.databinding.ActivitySettingsAppearanceBinding
 
@@ -33,6 +34,16 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         setupToolbar()
         loadCurrentSettings()
         setupListeners()
+        handleDeepLink()
+    }
+
+    private fun handleDeepLink() {
+        val targetId = intent.getStringExtra(SettingsMainActivity.EXTRA_SCROLL_TO) ?: return
+        val viewId = resources.getIdentifier(targetId, "id", packageName)
+        if (viewId != 0) {
+            val targetView = findViewById<View>(viewId)
+            targetView?.let { binding.appearanceScrollView.scrollToTargetView(it) }
+        }
     }
 
     private fun setupToolbar() {
@@ -82,6 +93,8 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         
         binding.featureHideBg.isChecked = panelPrefs.hideBackground
         binding.featureShowBottomArrow.isChecked = panelPrefs.showBottomArrow
+        binding.featureShowAppNamesSidebar.isChecked = panelPrefs.showAppNames
+        binding.featureShowAppNamesDrawer.isChecked = panelPrefs.showAppNamesDrawer
         
         binding.tvColumnsValue.text = "${panelPrefs.panelColumns} Column${if (panelPrefs.panelColumns > 1) "s" else ""}"
         val autoCloseSeconds = panelPrefs.autoCloseTimeout
@@ -258,6 +271,24 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         binding.featureShowBottomArrow.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showBottomArrow = isChecked
             applyOnly()
+        }
+
+        binding.featureShowAppNamesSidebar.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.showAppNames = isChecked
+            applyOnly()
+        }
+
+        binding.featureShowAppNamesDrawer.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.showAppNamesDrawer = isChecked
+            applyOnly()
+        }
+
+        binding.layoutShowAppNamesSidebar.setOnClickListener {
+            binding.featureShowAppNamesSidebar.toggle()
+        }
+
+        binding.layoutShowAppNamesDrawer.setOnClickListener {
+            binding.featureShowAppNamesDrawer.toggle()
         }
 
         binding.featureAutoClose.setOnClickListener {

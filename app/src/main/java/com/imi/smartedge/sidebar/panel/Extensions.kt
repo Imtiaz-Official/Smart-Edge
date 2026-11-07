@@ -86,6 +86,69 @@ fun View.showModernToast(message: String, duration: Int = Snackbar.LENGTH_SHORT)
     }
 
 /**
+ * Smoothly scrolls the container so targetView (and its section header if enclosed) 
+ * is positioned comfortably below the top edge with generous breathing room,
+ * and triggers a highlight pulse.
+ */
+fun ViewGroup.scrollToTargetView(targetView: View, postDelay: Long = 300L) {
+    postDelayed({
+        val rect = android.graphics.Rect()
+        targetView.getDrawingRect(rect)
+        offsetDescendantRectToMyCoords(targetView, rect)
+
+        val currentScrollY = when (this) {
+            is android.widget.ScrollView -> this.scrollY
+            is androidx.core.widget.NestedScrollView -> this.scrollY
+            else -> 0
+        }
+
+        val absoluteY = currentScrollY + rect.top
+
+        // If targetView is inside a section or CardView, check if the section/card header
+        // is just above it so we don't clip the section title
+        var containerTopOffset = 0
+        var p: android.view.ViewParent? = targetView.parent
+        while (p != null && p != this) {
+            if (p is View) {
+                val pView = p
+                val idName = if (pView.id != View.NO_ID) {
+                    try { resources.getResourceEntryName(pView.id) } catch (e: Exception) { "" }
+                } else ""
+
+                if (pView is com.google.android.material.card.MaterialCardView || 
+                    idName.startsWith("layoutShowAppNames") || 
+                    idName.startsWith("feature_") || 
+                    idName.startsWith("layout_")) {
+                    val pRect = android.graphics.Rect()
+                    pView.getDrawingRect(pRect)
+                    offsetDescendantRectToMyCoords(pView, pRect)
+                    val pAbsoluteY = currentScrollY + pRect.top
+                    val diff = absoluteY - pAbsoluteY
+                    val maxHeaderOffset = (140 * resources.displayMetrics.density).toInt()
+                    if (diff in 1..maxHeaderOffset) {
+                        containerTopOffset = diff
+                    }
+                    if (pView is com.google.android.material.card.MaterialCardView) {
+                        break
+                    }
+                }
+            }
+            p = p.parent
+        }
+
+        // Generous, comfortable margin from the viewport top (36dp)
+        val margin = (36 * resources.displayMetrics.density).toInt()
+        val targetScrollY = (absoluteY - containerTopOffset - margin).coerceAtLeast(0)
+
+        when (this) {
+            is android.widget.ScrollView -> this.smoothScrollTo(0, targetScrollY)
+            is androidx.core.widget.NestedScrollView -> this.smoothScrollTo(0, targetScrollY)
+        }
+        targetView.highlightView()
+    }, postDelay)
+}
+
+/**
  * Highly visible modern highlight animation for search results.
  * Uses a prominent rounded foreground pill that fades out, plus a gentle bounce.
  */
