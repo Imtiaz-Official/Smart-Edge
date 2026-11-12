@@ -915,8 +915,10 @@ class FloatingPanelService : Service() {
             panel.visibility = View.VISIBLE
             panel.post {
                 val panelWidth = panel.width.toFloat()
+                val fallbackWidth = if (panelWidth > 0f) panelWidth else 600f
+                val startX = if (fromRight) fallbackWidth else -fallbackWidth
                 val stiffness = panelPrefs.animSpeed.toFloat()
-                SpringAnimator.animateOpen(panel, if (fromRight) panelWidth else -panelWidth, stiffness = stiffness)
+                SpringAnimator.animateOpen(panel, startX, stiffness = stiffness)
             }
         }
         edgeHandleView?.visibility = View.GONE
@@ -1011,8 +1013,10 @@ class FloatingPanelService : Service() {
         sidePanelView?.let { panel ->
             val isRight = isPanelOpenedFromRight
             val panelWidth = panel.width.toFloat()
+            val fallbackWidth = if (panelWidth > 0f) panelWidth else 600f
+            val targetX = if (isRight) fallbackWidth else -fallbackWidth
             val stiffness = panelPrefs.animSpeed.toFloat()
-            SpringAnimator.animateClose(panel, if (isRight) panelWidth else -panelWidth, stiffness = stiffness) {
+            SpringAnimator.animateClose(panel, targetX, stiffness = stiffness) {
                 panel.visibility = View.GONE
                 updateBlur(false)
                 if (rootLayout?.parent != null) {
@@ -1115,9 +1119,11 @@ class FloatingPanelService : Service() {
             picker.invalidateAppList()
             val isRight = isPanelOpenedFromRight
             val pickerWidth = picker.width.toFloat()
+            val fallbackWidth = if (pickerWidth > 0f) pickerWidth else 600f
+            val targetCloseX = if (isRight) -fallbackWidth else fallbackWidth
             val stiffness = panelPrefs.animSpeed.toFloat()
             val useSlide = panelPrefs.pickerAnimType == PanelPreferences.ANIM_TYPE_SLIDE
-            SpringAnimator.animateClose(picker, if (isRight) pickerWidth else -pickerWidth, isPicker = true, stiffness = stiffness, slide = useSlide) {
+            SpringAnimator.animateClose(picker, targetCloseX, isPicker = true, stiffness = stiffness, slide = useSlide) {
                 if (!isPickerOpen) {
                     picker.visibility = View.GONE
                 }

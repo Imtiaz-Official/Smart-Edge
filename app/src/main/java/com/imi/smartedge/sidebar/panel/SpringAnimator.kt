@@ -42,7 +42,7 @@ object SpringAnimator {
         }
         
         if (slide) {
-            val startX = if (panelWidth == 0f) (if (isPicker) -500f else 500f) else panelWidth
+            val startX = if (panelWidth != 0f) panelWidth else (if (isPicker) -500f else 500f)
             view.translationX = startX
             view.scaleX = 1f
             view.scaleY = 1f
@@ -100,9 +100,7 @@ object SpringAnimator {
     fun animateClose(view: View, panelWidth: Float, stiffness: Float = 350f, isPicker: Boolean = false, slide: Boolean = true, onEnd: (() -> Unit)? = null) {
         cancelExisting(view)
         
-        val targetX = if (isPicker)
-            (if (panelWidth > 0) -panelWidth else (if (panelWidth < 0) panelWidth else -500f))
-        else (if (panelWidth > 0) panelWidth else 500f)
+        val targetX = if (panelWidth != 0f) panelWidth else (if (isPicker) -500f else 500f)
 
         if (stiffness <= 0f) {
             if (slide) view.translationX = targetX
