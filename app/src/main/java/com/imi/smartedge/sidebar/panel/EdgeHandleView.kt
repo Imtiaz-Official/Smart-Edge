@@ -59,6 +59,7 @@ class EdgeHandleView @JvmOverloads constructor(
     private var accumulatedDy = 0f
     private var isSlidingSeek = false
     private var isSlidingVolume = false
+    private var isScrollingApp = false
     private var isTopHalf = false
     private var hasPassedThreshold = false
     private var isTriggered = false
@@ -77,6 +78,78 @@ class EdgeHandleView @JvmOverloads constructor(
     private var dragStartRawX = 0f
     private var lastMoveRawY = 0f
     private var lastMoveRawX = 0f
+
+    fun hasAnyTapAction(): Boolean {
+        return panelPrefs.tapAction != PanelPreferences.ACTION_NONE ||
+               panelPrefs.doubleTapAction != PanelPreferences.ACTION_NONE ||
+               panelPrefs.tripleTapAction != PanelPreferences.ACTION_NONE
+    }
+
+    fun hasAnySlideAction(): Boolean {
+        return panelPrefs.slideBrightnessEnabled || panelPrefs.slideVolumeEnabled
+    }
+
+    fun hasAnyActiveTriggers(): Boolean {
+        return panelPrefs.gesturesEnabled ||
+               hasAnySlideAction() ||
+               hasAnyTapAction() ||
+               panelPrefs.longPressAction != PanelPreferences.ACTION_NONE
+    }
+
+    private fun setTemporaryUntouchable(durationMs: Long) {
+        val params = layoutParams as? WindowManager.LayoutParams ?: return
+        if ((params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE) == 0) {
+            params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            updateLayoutSafely(params)
+            handler.postDelayed({
+                val currentParams = layoutParams as? WindowManager.LayoutParams ?: return@postDelayed
+                if (hasAnyActiveTriggers()) {
+                    currentParams.flags = currentParams.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+                    updateLayoutSafely(currentParams)
+                }
+            }, durationMs)
+        }
+    }
+
+    private var internalInsetsListenerProxy: Any? = null
+
+    private fun setupInternalInsetsListener() {
+        try {
+            val listenerClass = Class.forName("android.view.ViewTreeObserver\$OnComputeInternalInsetsListener")
+            val insetsInfoClass = Class.forName("android.view.ViewTreeObserver\$InternalInsetsInfo")
+            val setTouchableInsetsMethod = insetsInfoClass.getMethod("setTouchableInsets", Int::class.javaPrimitiveType)
+            val touchableRegionField = insetsInfoClass.getField("touchableRegion")
+            val addMethod = android.view.ViewTreeObserver::class.java.getMethod("addOnComputeInternalInsetsListener", listenerClass)
+
+            val proxy = java.lang.reflect.Proxy.newProxyInstance(
+                javaClass.classLoader,
+                arrayOf(listenerClass)
+            ) { _, method, args ->
+                if (method.name == "onComputeInternalInsets" && args != null && args.isNotEmpty()) {
+                    val inoutInfo = args[0]
+                    if (!hasAnyActiveTriggers()) {
+                        setTouchableInsetsMethod.invoke(inoutInfo, 3) // 3 = TOUCHABLE_INSETS_REGION
+                        val region = touchableRegionField.get(inoutInfo) as? android.graphics.Region
+                        region?.setEmpty()
+                    } else if (!hasAnyTapAction() && !hasAnySlideAction() && panelPrefs.longPressAction == PanelPreferences.ACTION_NONE) {
+                        setTouchableInsetsMethod.invoke(inoutInfo, 3) // 3 = TOUCHABLE_INSETS_REGION
+                        val region = touchableRegionField.get(inoutInfo) as? android.graphics.Region
+                        val edgeStripWidth = (panelPrefs.pillWidth * density).toInt().coerceAtLeast((16 * density).toInt())
+                        val loc = IntArray(2)
+                        getLocationOnScreen(loc)
+                        val left = if (isRightSide) loc[0] + width - edgeStripWidth else loc[0]
+                        val right = if (isRightSide) loc[0] + width else loc[0] + edgeStripWidth
+                        region?.set(left, loc[1], right, loc[1] + height)
+                    }
+                }
+                null
+            }
+            internalInsetsListenerProxy = proxy
+            addMethod.invoke(viewTreeObserver, proxy)
+        } catch (e: Throwable) {
+            // Silently fall back to standard touch interception
+        }
+    }
 
     /** Long-press runnable: performs action */
     private val longPressRunnable = Runnable {
@@ -160,7 +233,8 @@ class EdgeHandleView @JvmOverloads constructor(
         onTrigger?.invoke()
     }
 
-    private fun handleTap() {        tapCount++
+    private fun handleTap() {
+        tapCount++
         handler.removeCallbacks(tapRunnable)
 
         // If user reached triple tap, trigger immediately if configured
@@ -181,6 +255,7 @@ class EdgeHandleView @JvmOverloads constructor(
         post { 
             updatePill()
             setupImeListener()
+            setupInternalInsetsListener()
         }
     }
 
@@ -331,6 +406,7 @@ class EdgeHandleView @JvmOverloads constructor(
                 accumulatedDy = 0f
                 isSlidingSeek = false
                 isSlidingVolume = false
+                isScrollingApp = false
                 isTopHalf = event.y < height / 2
                 dragStartRawY = event.rawY
                 downTime = System.currentTimeMillis()
@@ -338,10 +414,13 @@ class EdgeHandleView @JvmOverloads constructor(
                 isTriggered = false
                 isDragMode = false
 
-                // Schedule long-press → perform action
-                handler.postDelayed(longPressRunnable, ViewConfiguration.getLongPressTimeout().toLong())
+                // Schedule long-press ONLY if long-press action is configured
+                if (panelPrefs.longPressAction != PanelPreferences.ACTION_NONE) {
+                    handler.postDelayed(longPressRunnable, ViewConfiguration.getLongPressTimeout().toLong())
+                }
 
-                if (showPill && panelPrefs.gesturesEnabled) {
+                // Animate scale on down ONLY if an active tap or long-press action exists!
+                if (showPill && (hasAnyTapAction() || panelPrefs.longPressAction != PanelPreferences.ACTION_NONE)) {
                     animate().scaleX(0.85f).scaleY(0.95f).setDuration(100).start()
                 }
 
@@ -398,10 +477,10 @@ class EdgeHandleView @JvmOverloads constructor(
 
                 // ── Slide Seek Gesture (Volume/Brightness) ────────────────────
                 val slideEnabled = panelPrefs.slideBrightnessEnabled || panelPrefs.slideVolumeEnabled
-                if (slideEnabled && !hasPassedThreshold && !isTriggered) {
-                    val absDx = Math.abs(event.rawX - startX)
-                    val absDyFromStart = Math.abs(currentY - startY)
+                val absDx = Math.abs(event.rawX - startX)
+                val absDyFromStart = Math.abs(currentY - startY)
 
+                if (slideEnabled && !hasPassedThreshold && !isTriggered && !isScrollingApp) {
                     if (!isSlidingSeek && absDyFromStart > triggerThreshold / 2 && absDyFromStart > absDx * 2) {
                         // Volume/Brightness takes priority OVER the open-panel gesture
                         val volumeOn = panelPrefs.slideVolumeEnabled
@@ -442,6 +521,21 @@ class EdgeHandleView @JvmOverloads constructor(
                         }
                         return true
                     }
+                } else if (!slideEnabled && !hasPassedThreshold && !isTriggered) {
+                    // Edge seek is DISABLED, but user is moving vertically (scrolling foreground app)
+                    if (!isScrollingApp && absDyFromStart > triggerThreshold / 2 && absDyFromStart > absDx * 2) {
+                        isScrollingApp = true
+                        handler.removeCallbacks(longPressRunnable)
+                        handler.removeCallbacks(holdRunnable)
+                        if (showPill) {
+                            animate().scaleX(1f).scaleY(1f).setDuration(100).start()
+                        }
+                    }
+                }
+
+                // If user is vertically scrolling through the background app, ignore sidebar open
+                if (isScrollingApp) {
+                    return true
                 }
 
                 // ── Normal panel-open gesture ─────────────────────────────────
@@ -518,15 +612,41 @@ class EdgeHandleView @JvmOverloads constructor(
                     isTriggered = true
                 }
 
-                if (!hasPassedThreshold && !isTriggered && !isSlidingSeek && event.action == MotionEvent.ACTION_UP) {
+                if (event.action == MotionEvent.ACTION_UP && !isTriggered) {
                     val duration = System.currentTimeMillis() - downTime
-                    if (duration < ViewConfiguration.getLongPressTimeout()) {
-                        handleTap()
+                    if (isScrollingApp) {
+                        // User was scrolling the background app!
+                        val gestureDuration = duration.coerceIn(50L, 300L)
+                        val endX = event.rawX
+                        val endY = event.rawY
+                        setTemporaryUntouchable(gestureDuration + 100)
+                        if (!PanelAccessibilityService.dispatchScroll(startX, startY, endX, endY, gestureDuration)) {
+                            AutomationManager.swipe(startX, startY, endX, endY, gestureDuration)
+                        }
+                    } else if (!hasPassedThreshold && !isSlidingSeek) {
+                        if (duration < ViewConfiguration.getLongPressTimeout()) {
+                            if (hasAnyTapAction()) {
+                                handleTap()
+                            } else {
+                                // No tap action in Smart Edge: dispatch tap to foreground app
+                                setTemporaryUntouchable(150L)
+                                if (!PanelAccessibilityService.dispatchTap(event.rawX, event.rawY)) {
+                                    AutomationManager.tap(event.rawX, event.rawY)
+                                }
+                            }
+                        } else if (panelPrefs.longPressAction == PanelPreferences.ACTION_NONE) {
+                            // Long press held but disabled in Smart Edge: dispatch long press to foreground app
+                            setTemporaryUntouchable(550L)
+                            if (!PanelAccessibilityService.dispatchLongPress(startX, startY)) {
+                                AutomationManager.swipe(startX, startY, startX, startY, 500L)
+                            }
+                        }
                     }
                 }
 
                 isSlidingSeek = false
                 isSlidingVolume = false
+                isScrollingApp = false
                 hasPassedThreshold = false
                 return true
             }
@@ -587,6 +707,18 @@ class EdgeHandleView @JvmOverloads constructor(
         }
     }
 
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        internalInsetsListenerProxy?.let { proxy ->
+            try {
+                val listenerClass = Class.forName("android.view.ViewTreeObserver\$OnComputeInternalInsetsListener")
+                val removeMethod = android.view.ViewTreeObserver::class.java.getMethod("removeOnComputeInternalInsetsListener", listenerClass)
+                removeMethod.invoke(viewTreeObserver, proxy)
+            } catch (e: Throwable) {}
+            internalInsetsListenerProxy = null
+        }
+    }
+
     fun updateFromPrefs() {
         val prefs = PanelPreferences(context)
         isRightSide = prefs.panelSide == PanelPreferences.SIDE_RIGHT
@@ -610,6 +742,12 @@ class EdgeHandleView @JvmOverloads constructor(
             params.y = requestedOffset.coerceIn(-maxOffset, maxOffset)
             params.width = (prefs.handleWidth * density).toInt()
             params.height = h
+
+            if (!hasAnyActiveTriggers()) {
+                params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            } else {
+                params.flags = params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+            }
 
             updateLayoutSafely(params)
         }

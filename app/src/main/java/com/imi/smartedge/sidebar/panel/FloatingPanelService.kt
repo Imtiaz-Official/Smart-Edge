@@ -573,6 +573,16 @@ class FloatingPanelService : Service() {
         }
     }
 
+    private fun hasAnyActiveTriggers(): Boolean {
+        val hasGestures = panelPrefs.gesturesEnabled
+        val hasSeek = panelPrefs.slideBrightnessEnabled || panelPrefs.slideVolumeEnabled
+        val hasTap = panelPrefs.tapAction != PanelPreferences.ACTION_NONE ||
+                     panelPrefs.doubleTapAction != PanelPreferences.ACTION_NONE ||
+                     panelPrefs.tripleTapAction != PanelPreferences.ACTION_NONE
+        val hasLongPress = panelPrefs.longPressAction != PanelPreferences.ACTION_NONE
+        return hasGestures || hasSeek || hasTap || hasLongPress
+    }
+
     private fun createOrUpdateHandle(existing: EdgeHandleView?, isRight: Boolean): EdgeHandleView {
         val isPillVisible = panelPrefs.showPill
         val density = resources.displayMetrics.density
@@ -586,6 +596,17 @@ class FloatingPanelService : Service() {
         val newGravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL
                          else Gravity.START or Gravity.CENTER_VERTICAL
 
+        val hasTriggers = hasAnyActiveTriggers()
+        val baseFlags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+        val handleFlags = if (!hasTriggers) {
+            baseFlags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        } else {
+            baseFlags
+        }
+
         if (existing != null && existing.isAttachedToWindow) {
             val params = existing.layoutParams as? WindowManager.LayoutParams
             if (params != null) {
@@ -593,6 +614,7 @@ class FloatingPanelService : Service() {
                 params.width = handleWidth
                 params.height = h
                 params.y = requestedOffset.coerceIn(-maxOffset, maxOffset)
+                params.flags = handleFlags
                 try {
                     windowManager.updateViewLayout(existing, params)
                 } catch (e: Exception) {}
@@ -623,10 +645,7 @@ class FloatingPanelService : Service() {
             handleWidth,
             h,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+            handleFlags,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = newGravity
@@ -642,15 +661,12 @@ class FloatingPanelService : Service() {
     }
 
     private fun addEdgeHandle(forceRecreate: Boolean = false) {
-        val anyTriggerEnabled = panelPrefs.gesturesEnabled || 
-                                panelPrefs.tapToOpen || 
-                                panelPrefs.doubleTapToOpen || 
-                                panelPrefs.tripleTapToOpen
+        val shouldShowHandle = panelPrefs.showPill || hasAnyActiveTriggers()
 
         // --- MANDATORY ENGINE CHECK ---
         val hasActiveEngine = isAccessibilityServiceEnabled() || (panelPrefs.useAutomationForGestures && AutomationManager.isAutomationPossible())
 
-        if (!anyTriggerEnabled || (panelPrefs.onlyOnHome && !isCurrentPackageLauncher()) || !hasActiveEngine) {
+        if (!shouldShowHandle || (panelPrefs.onlyOnHome && !isCurrentPackageLauncher()) || !hasActiveEngine) {
             removeView(edgeHandleView)
             edgeHandleView = null
             removeView(secondaryEdgeHandleView)

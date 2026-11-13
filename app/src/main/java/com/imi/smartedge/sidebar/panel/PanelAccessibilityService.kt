@@ -1,7 +1,10 @@
 package com.imi.smartedge.sidebar.panel
 
 import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.GestureDescription
 import android.content.Intent
+import android.graphics.Path
+import android.os.Build
 import android.view.accessibility.AccessibilityEvent
 import android.util.Log
 
@@ -65,13 +68,62 @@ class PanelAccessibilityService : AccessibilityService() {
         const val EXTRA_MODE = "mode"
         
         @Volatile
+        var instance: PanelAccessibilityService? = null
+            private set
+
+        @Volatile
         var isRunning = false
             private set
+
+        fun dispatchTap(x: Float, y: Float): Boolean {
+            val service = instance ?: return false
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val path = Path().apply { moveTo(x, y) }
+                val stroke = GestureDescription.StrokeDescription(path, 0, 40)
+                val gesture = GestureDescription.Builder().addStroke(stroke).build()
+                return service.dispatchGesture(gesture, null, null)
+            }
+            return false
+        }
+
+        fun dispatchLongPress(x: Float, y: Float): Boolean {
+            val service = instance ?: return false
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val path = Path().apply { moveTo(x, y) }
+                val stroke = GestureDescription.StrokeDescription(path, 0, 500L)
+                val gesture = GestureDescription.Builder().addStroke(stroke).build()
+                return service.dispatchGesture(gesture, null, null)
+            }
+            return false
+        }
+
+        fun dispatchScroll(startX: Float, startY: Float, endX: Float, endY: Float, durationMs: Long): Boolean {
+            val service = instance ?: return false
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val path = Path().apply {
+                    moveTo(startX, startY)
+                    lineTo(endX, endY)
+                }
+                val stroke = GestureDescription.StrokeDescription(path, 0, durationMs.coerceIn(50L, 400L))
+                val gesture = GestureDescription.Builder().addStroke(stroke).build()
+                return service.dispatchGesture(gesture, null, null)
+            }
+            return false
+        }
     }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        instance = this
         isRunning = true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (instance == this) {
+            instance = null
+        }
+        isRunning = false
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -215,6 +267,9 @@ class PanelAccessibilityService : AccessibilityService() {
     override fun onInterrupt() {}
 
     override fun onUnbind(intent: Intent?): Boolean {
+        if (instance == this) {
+            instance = null
+        }
         isRunning = false
         val stopIntent = Intent(this, FloatingPanelService::class.java).apply {
             action = FloatingPanelService.ACTION_STOP

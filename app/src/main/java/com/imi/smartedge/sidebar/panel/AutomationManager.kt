@@ -129,6 +129,11 @@ object AutomationManager {
         execute("input keyevent 120") // KEYCODE_SYSRQ/Screenshot
     }
 
+    fun tap(x: Float, y: Float) = execute("input tap ${x.toInt()} ${y.toInt()}")
+
+    fun swipe(startX: Float, startY: Float, endX: Float, endY: Float, durationMs: Long) =
+        execute("input swipe ${startX.toInt()} ${startY.toInt()} ${endX.toInt()} ${endY.toInt()} $durationMs")
+
     fun launchApp(context: Context, packageName: String, windowingMode: Int): Boolean {
         return try {
             val intent = context.packageManager.getLaunchIntentForPackage(packageName) ?: return false
