@@ -28,7 +28,8 @@ class PanelAppsAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val panelPrefs = PanelPreferences(context)
-    private var showAddButton: Boolean = false
+    var showAddButton: Boolean = false
+        private set
     var isEditMode: Boolean = false // Expose to SidePanelView for ItemTouchHelper
     private var currentColumns: Int = 1
     private var forceFreeform: Boolean = false
@@ -224,7 +225,7 @@ class PanelAppsAdapter(
             holder.itemView.contentDescription = app.appName
 
             if (app.identifier == highlightIdentifier) {
-                SpringAnimator.scalePulse(holder.itemView)
+                SpringAnimator.gentleHighlight(holder.itemView)
                 highlightIdentifier = null
             }
 
@@ -340,9 +341,13 @@ class PanelAppsAdapter(
                 holder.ivAdd.layoutParams = lp
             }
 
-            // Revert back to original dark-centric tints for the add button
+            // Revert back to original dark-centric tints for the add button, with custom accent support
             val bgTint = android.graphics.Color.parseColor("#4DFFFFFF")
-            val iconTint = android.graphics.Color.WHITE
+            val iconTint = if (panelPrefs.useCustomAccent) {
+                try { android.graphics.Color.parseColor(panelPrefs.accentColor) } catch (e: Exception) { android.graphics.Color.WHITE }
+            } else {
+                android.graphics.Color.WHITE
+            }
             
             holder.ivAdd.backgroundTintList = android.content.res.ColorStateList.valueOf(bgTint)
             holder.ivAdd.imageTintList = android.content.res.ColorStateList.valueOf(iconTint)

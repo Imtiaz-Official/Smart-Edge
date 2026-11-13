@@ -187,6 +187,14 @@ class SettingsMainActivity : AppCompatActivity() {
             "feature_icon_scale"
         ))
         allSettings.add(SettingItem(
+            getString(R.string.appearance_show_app_names),
+            getString(R.string.appearance_show_app_names_desc),
+            catAppearance,
+            "show hide app names labels text titles icons only tablets clean minimal master toggle",
+            AppearanceSettingsActivity::class.java,
+            "layout_show_app_names_master"
+        ))
+        allSettings.add(SettingItem(
             "${getString(R.string.appearance_show_app_names)}: ${getString(R.string.appearance_app_names_sidebar)}",
             getString(R.string.appearance_app_names_sidebar_desc),
             catAppearance,
@@ -574,9 +582,9 @@ class SettingsMainActivity : AppCompatActivity() {
         // ----------------- Category 6: General & Misc -----------------
         allSettings.add(SettingItem(
             getString(R.string.misc_app_language),
-            "English, Español, Українська",
+            "English, Español, Українська, বাংলা, हिन्दी",
             catGeneral,
-            "language idioma мова english spanish ukrainian locale translate",
+            "language idioma мова বাংলা হিন্দি bengali hindi english spanish ukrainian locale translate",
             MiscellaneousSettingsActivity::class.java,
             "feature_language"
         ))
@@ -696,9 +704,9 @@ class SettingsMainActivity : AppCompatActivity() {
         // ----------------- Category 6: General & Misc -----------------
         allSettings.add(SettingItem(
             getString(R.string.misc_app_language),
-            "English, Español, Українська",
+            "English, Español, Українська, বাংলা, हिन्दी",
             catGeneral,
-            "language idioma мова english spanish ukrainian locale translate",
+            "language idioma мова বাংলা হিন্দি bengali hindi english spanish ukrainian locale translate",
             MiscellaneousSettingsActivity::class.java,
             "feature_language"
         ))

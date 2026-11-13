@@ -1025,6 +1025,9 @@ class FloatingPanelService : Service() {
                 edgeHandleView?.visibility = View.VISIBLE
                 secondaryEdgeHandleView?.visibility = View.VISIBLE
                 panel.animatePickerToggle(false) 
+                if (!panelPrefs.rememberScroll) {
+                    panel.scrollToTop()
+                } 
                 
                 // If service is NOT enabled in prefs, stop it now (Test mode over)
                 if (!panelPrefs.serviceEnabled) {

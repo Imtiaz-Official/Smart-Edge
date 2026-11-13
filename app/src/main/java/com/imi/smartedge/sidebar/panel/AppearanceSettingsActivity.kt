@@ -39,6 +39,9 @@ class AppearanceSettingsActivity : AppCompatActivity() {
 
     private fun handleDeepLink() {
         val targetId = intent.getStringExtra(SettingsMainActivity.EXTRA_SCROLL_TO) ?: return
+        if (targetId == "layout_show_app_names_sidebar" || targetId == "layout_show_app_names_drawer") {
+            binding.layoutShowAppNamesSuboptions.visibility = View.VISIBLE
+        }
         val viewId = resources.getIdentifier(targetId, "id", packageName)
         if (viewId != 0) {
             val targetView = findViewById<View>(viewId)
@@ -93,19 +96,38 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         
         binding.featureHideBg.isChecked = panelPrefs.hideBackground
         binding.featureShowBottomArrow.isChecked = panelPrefs.showBottomArrow
-        binding.featureShowAppNamesSidebar.isChecked = panelPrefs.showAppNames
-        binding.featureShowAppNamesDrawer.isChecked = panelPrefs.showAppNamesDrawer
+        val masterNames = panelPrefs.showAppNamesMaster
+        binding.featureShowAppNamesMaster.isChecked = masterNames
+        binding.layoutShowAppNamesSuboptions.visibility = if (masterNames) View.VISIBLE else View.GONE
+        binding.featureShowAppNamesSidebar.isChecked = panelPrefs.showAppNamesSidebar
+        binding.featureShowAppNamesDrawer.isChecked = panelPrefs.showAppNamesDrawerRaw
         
         binding.tvColumnsValue.text = "${panelPrefs.panelColumns} Column${if (panelPrefs.panelColumns > 1) "s" else ""}"
         val autoCloseSeconds = panelPrefs.autoCloseTimeout
         binding.tvAutoCloseValue.text = if (autoCloseSeconds <= 0) "Never" else "${autoCloseSeconds} Seconds"
         
         binding.featureCustomAccent.isChecked = panelPrefs.useCustomAccent
+        binding.featureCustomBg.isChecked = panelPrefs.useCustomPanelBg
+
+        val accentRowAlpha = if (panelPrefs.useCustomAccent) 1.0f else 0.5f
+        binding.featureAccentColor.alpha = accentRowAlpha
+        binding.btnResetAccent.isEnabled = panelPrefs.useCustomAccent
+
+        val bgRowAlpha = if (panelPrefs.useCustomPanelBg) 1.0f else 0.5f
+        binding.featureBgColor.alpha = bgRowAlpha
+        binding.btnResetBg.isEnabled = panelPrefs.useCustomPanelBg
         
         binding.tvCurrentIconPack.text = panelPrefs.iconPackLabel
 
-        binding.btnPickAccent.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor(panelPrefs.accentColor))
-        binding.btnPickBg.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor(panelPrefs.panelBackgroundColor))
+        val effectiveBgColor = if (!panelPrefs.useCustomPanelBg && panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN) {
+            Color.parseColor("#1F1F1F")
+        } else {
+            try { Color.parseColor(panelPrefs.panelBackgroundColor) } catch (e: Exception) { Color.parseColor(PanelPreferences.DEFAULT_PANEL_BG) }
+        }
+        val accentColorInt = try { Color.parseColor(panelPrefs.accentColor) } catch (e: Exception) { Color.parseColor(PanelPreferences.DEFAULT_ACCENT_COLOR) }
+
+        binding.btnPickAccent.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColorInt)
+        binding.btnPickBg.backgroundTintList = android.content.res.ColorStateList.valueOf(effectiveBgColor)
 
         binding.tvHomeButtonStyleValue.text = when (panelPrefs.homeButtonStyle) {
             PanelPreferences.STYLE_POWER -> "Modern Power Icon"
@@ -141,6 +163,14 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         binding.sbPickerMaxHeight.addOnChangeListener { _, value, _ ->
             panelPrefs.pickerMaxHeight = value.toInt()
             binding.tvPickerMaxHeightValue.text = "${value.toInt()}dp"
+            applyOnly()
+        }
+
+        binding.btnResetBlur.setOnClickListener {
+            val default = PanelPreferences.DEFAULT_BLUR_AMOUNT
+            panelPrefs.blurAmount = default
+            binding.sbBlurAmount.value = default.toFloat()
+            binding.tvBlurAmountValue.text = "$default"
             applyOnly()
         }
 
@@ -273,13 +303,38 @@ class AppearanceSettingsActivity : AppCompatActivity() {
             applyOnly()
         }
 
+        binding.featureShowAppNamesMaster.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.showAppNamesMaster = isChecked
+            if (isChecked && !panelPrefs.showAppNamesSidebar && !panelPrefs.showAppNamesDrawerRaw) {
+                panelPrefs.showAppNamesSidebar = true
+                binding.featureShowAppNamesSidebar.isChecked = true
+            }
+            val transition = android.transition.TransitionSet().apply {
+                ordering = android.transition.TransitionSet.ORDERING_TOGETHER
+                addTransition(android.transition.ChangeBounds())
+                addTransition(android.transition.Fade())
+                duration = 320L
+                interpolator = androidx.interpolator.view.animation.FastOutSlowInInterpolator()
+            }
+            android.transition.TransitionManager.beginDelayedTransition(
+                binding.appearanceScrollView as? android.view.ViewGroup ?: binding.layoutShowAppNames,
+                transition
+            )
+            binding.layoutShowAppNamesSuboptions.visibility = if (isChecked) View.VISIBLE else View.GONE
+            applyOnly()
+        }
+
+        binding.layoutShowAppNamesMaster.setOnClickListener {
+            binding.featureShowAppNamesMaster.toggle()
+        }
+
         binding.featureShowAppNamesSidebar.setOnCheckedChangeListener { _, isChecked ->
-            panelPrefs.showAppNames = isChecked
+            panelPrefs.showAppNamesSidebar = isChecked
             applyOnly()
         }
 
         binding.featureShowAppNamesDrawer.setOnCheckedChangeListener { _, isChecked ->
-            panelPrefs.showAppNamesDrawer = isChecked
+            panelPrefs.showAppNamesDrawerRaw = isChecked
             applyOnly()
         }
 
@@ -330,14 +385,28 @@ class AppearanceSettingsActivity : AppCompatActivity() {
 
         binding.featureCustomAccent.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.useCustomAccent = isChecked
+            val alpha = if (isChecked) 1.0f else 0.5f
+            binding.featureAccentColor.animate().alpha(alpha).setDuration(200).start()
+            binding.btnResetAccent.isEnabled = isChecked
             applyOnly()
         }
 
-        binding.btnSelectIconPack.setOnClickListener {
+        binding.featureCustomBg.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.useCustomPanelBg = isChecked
+            val alpha = if (isChecked) 1.0f else 0.5f
+            binding.featureBgColor.animate().alpha(alpha).setDuration(200).start()
+            binding.btnResetBg.isEnabled = isChecked
+            loadCurrentSettings()
+            applyOnly()
+        }
+
+        val openIconPackPicker = {
             IconPackPickerDialog.show(this) {
                 binding.tvCurrentIconPack.text = panelPrefs.iconPackLabel
             }
         }
+        binding.btnSelectIconPack.setOnClickListener { openIconPackPicker() }
+        binding.featureIconPack.setOnClickListener { openIconPackPicker() }
 
         binding.btnResetUIColors.setOnClickListener {
             panelPrefs.resetUIColors()
@@ -347,29 +416,47 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         }
 
         binding.btnPickAccent.setOnClickListener {
-            if (panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN) {
-                binding.root.showModernToast(getString(R.string.toast_accent_locked_origin))
-                return@setOnClickListener
-            }
-            openColorPicker(Color.parseColor(panelPrefs.accentColor)) { newColor ->
+            val currentAccent = try { Color.parseColor(panelPrefs.accentColor) } catch (e: Exception) { Color.parseColor(PanelPreferences.DEFAULT_ACCENT_COLOR) }
+            openColorPicker(currentAccent) { newColor ->
                 val hex = String.format("#%06X", (0xFFFFFF and newColor))
                 panelPrefs.accentColor = hex
+                panelPrefs.useCustomAccent = true
                 loadCurrentSettings()
                 applyOnly()
             }
         }
 
+        binding.btnResetAccent.setOnClickListener {
+            panelPrefs.accentColor = PanelPreferences.DEFAULT_ACCENT_COLOR
+            panelPrefs.useCustomAccent = PanelPreferences.DEFAULT_USE_CUSTOM_ACCENT
+            loadCurrentSettings()
+            applyOnly()
+        }
+
+        binding.featureAccentColor.setOnClickListener {
+            binding.btnPickAccent.performClick()
+        }
+
         binding.btnPickBg.setOnClickListener {
-            if (panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN) {
-                binding.root.showModernToast(getString(R.string.toast_bg_locked_origin))
-                return@setOnClickListener
-            }
-            openColorPicker(Color.parseColor(panelPrefs.panelBackgroundColor)) { newColor ->
+            val currentBg = try { Color.parseColor(panelPrefs.panelBackgroundColor) } catch (e: Exception) { Color.parseColor(PanelPreferences.DEFAULT_PANEL_BG) }
+            openColorPicker(currentBg) { newColor ->
                 val hex = String.format("#E6%06X", (0xFFFFFF and newColor))
                 panelPrefs.panelBackgroundColor = hex
+                panelPrefs.useCustomPanelBg = true
                 loadCurrentSettings()
                 applyOnly()
             }
+        }
+
+        binding.btnResetBg.setOnClickListener {
+            panelPrefs.panelBackgroundColor = PanelPreferences.DEFAULT_PANEL_BG
+            panelPrefs.useCustomPanelBg = PanelPreferences.DEFAULT_USE_CUSTOM_PANEL_BG
+            loadCurrentSettings()
+            applyOnly()
+        }
+
+        binding.featureBgColor.setOnClickListener {
+            binding.btnPickBg.performClick()
         }
 
         binding.featureHomeButton.setOnClickListener {

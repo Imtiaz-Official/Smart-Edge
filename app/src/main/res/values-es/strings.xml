@@ -54,9 +54,11 @@
     <string name="icon_shape">Forma de Iconos</string>
     <string name="icon_pack">Pack de Iconos</string>
     <string name="icon_pack_default">Predeterminado</string>
+    <string name="icon_pack_choose">Elegir</string>
     <string name="icon_scale">Escala de Iconos</string>
     
     <string name="custom_accent_title">Usar color de acento personalizado</string>
+    <string name="custom_bg_title">Usar fondo de panel personalizado</string>
     <string name="accent_color">Color de Acento</string>
     <string name="panel_bg_color">Fondo del Panel</string>
     <string name="btn_reset_ui_colors">Restablecer Colores UI</string>

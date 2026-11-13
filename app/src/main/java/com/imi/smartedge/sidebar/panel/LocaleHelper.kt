@@ -51,7 +51,7 @@ object LocaleHelper {
 
         // Fallback to system locale if supported, else "en"
         val sysLang = Locale.getDefault().language
-        return if (sysLang in listOf("en", "es", "uk")) sysLang else "en"
+        return if (sysLang in listOf("en", "es", "uk", "bn", "hi")) sysLang else "en"
     }
 
     private fun persistLanguage(context: Context, language: String) {

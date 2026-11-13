@@ -166,18 +166,50 @@ object SpringAnimator {
     fun scalePulse(view: View) {
         view.animate().cancel()
         view.animate()
-            .scaleX(0.9f)
-            .scaleY(0.9f)
-            .setDuration(60)
+            .scaleX(0.92f)
+            .scaleY(0.92f)
+            .setDuration(90)
             .setInterpolator(fadeInterpolator)
             .withEndAction {
                 view.animate()
                     .scaleX(1f)
                     .scaleY(1f)
-                    .setDuration(150)
+                    .setDuration(180)
                     .setInterpolator(fadeInterpolator)
                     .start()
             }
             .start()
+    }
+
+    /**
+     * Relaxed, eye-soothing entrance animation for a newly added app item.
+     * Starts slightly scaled-down and fades in with a gentle spring settle.
+     */
+    fun gentleHighlight(view: View) {
+        cancelExisting(view)
+        view.scaleX = 0.85f
+        view.scaleY = 0.85f
+        view.alpha = 0.35f
+
+        view.animate()
+            .alpha(1f)
+            .setDuration(350)
+            .setInterpolator(fadeInterpolator)
+            .start()
+
+        val springX = SpringAnimation(view, DynamicAnimation.SCALE_X, 1f).apply {
+            spring.stiffness = 200f // Relaxed / calm stiffness (STIFFNESS_LOW)
+            spring.dampingRatio = SpringForce.DAMPING_RATIO_LOW_BOUNCY
+        }
+        val springY = SpringAnimation(view, DynamicAnimation.SCALE_Y, 1f).apply {
+            spring.stiffness = 200f
+            spring.dampingRatio = SpringForce.DAMPING_RATIO_LOW_BOUNCY
+            addEndListener { _, _, _, _ ->
+                activeSprings.remove(view)
+            }
+        }
+        activeSprings[view] = springY
+        springX.start()
+        springY.start()
     }
 }

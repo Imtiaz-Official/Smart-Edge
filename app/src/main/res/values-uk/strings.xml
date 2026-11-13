@@ -51,8 +51,10 @@
     <string name="icon_shape">"Форма іконок"</string>
     <string name="icon_pack">"Пакет іконок"</string>
     <string name="icon_pack_default">"Системні іконки"</string>
+    <string name="icon_pack_choose">"Вибрати"</string>
     <string name="icon_scale">"Масштаб іконок"</string>
     <string name="custom_accent_title">"Власний акцентний колір"</string>
+    <string name="custom_bg_title">"Власний фон панелі"</string>
     <string name="accent_color">"Акцентний колір"</string>
     <string name="panel_bg_color">"Тло панелі"</string>
     <string name="btn_reset_ui_colors">"Скинути кольори"</string>

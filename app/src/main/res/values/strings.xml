@@ -53,9 +53,11 @@
     <string name="icon_shape">Icon Shape</string>
     <string name="icon_pack">Icon Pack</string>
     <string name="icon_pack_default">System Default</string>
+    <string name="icon_pack_choose">Choose</string>
     <string name="icon_scale">Icon Scale</string>
     
     <string name="custom_accent_title">Use Custom Accent Color</string>
+    <string name="custom_bg_title">Use Custom Panel Background</string>
     <string name="accent_color">Accent Color</string>
     <string name="panel_bg_color">Panel Background</string>
     <string name="btn_reset_ui_colors">Reset UI Colors</string>

@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Smart Edge</string>
+    <string name="app_picker_title">অ্যাপ নির্বাচন করুন</string>
+    <string name="settings_title">SidePanel সেটিংস</string>
+    <string name="shortcut_toggle_short">সাইডবার</string>
+    <string name="shortcut_toggle_long">সাইডবার টগল করুন</string>
+    <string name="shortcut_screenshot">স্ক্রিনশট নিন</string>
+    <string name="shortcut_hub">প্রোডাক্টিভিটি হাব খুলুন</string>
+    <string name="panel_running">Smart Edge সক্রিয় রয়েছে</string>
+    <string name="panel_notification_channel">Smart Edge পরিষেবা</string>
+    <string name="panel_notification_desc">অন্যান্য অ্যাপের উপর সাইড প্যানেল চালু রাখে</string>
+    <string name="start_panel">প্যানেল শুরু করুন</string>
+    <string name="stop_panel">প্যানেল বন্ধ করুন</string>
+    <string name="add_apps">অ্যাপ পরিচালনা করুন</string>
+    <string name="settings">সেটিংস</string>
+    <string name="grant_permission">ওভারলে অনুমতি দিন</string>
+    <string name="permission_rationale">অন্যান্য অ্যাপের উপরে প্যানেল দেখানোর জন্য অনুগ্রহ করে \"অন্যান্য অ্যাপের উপর প্রদর্শন\" অনুমতি দিন।</string>
+    <string name="remove_from_panel">প্যানেল থেকে সরান</string>
+    <string name="add_to_panel">প্যানেলে যোগ করা হয়েছে</string>
+    <string name="search_apps">অ্যাপ খুঁজুন…</string>
+    <string name="panel_side_label">প্যানেলের দিক</string>
+    <string name="panel_side_right">ডান</string>
+    <string name="panel_side_left">বাম</string>
+    <string name="auto_start_label">রিবুটে স্বয়ংক্রিয় চালু</string>
+    <string name="done">সম্পন্ন</string>
+    <string name="open">খুলুন</string>
+    <string name="no_apps">এখনও কোনো অ্যাপ যোগ করা হয়নি।\nকিছু অ্যাপ যোগ করতে \"অ্যাপ পরিচালনা\"-এ ট্যাপ করুন।</string>
+    <string name="panel_tip">প্যানেল খুলতে স্ক্রিনের ডান প্রান্তে চেপে ধরে রাখুন</string>
+    <string name="accessibility_service_description">ভাসমান প্যানেলটি সহজে স্বয়ংক্রিয়ভাবে বন্ধ করতে সিস্টেম নেভিগেশন জেসচার শনাক্ত করে।</string>
+
+    <string name="section_appearance">চেহারা ও শৈলী</string>
+    <string name="section_interaction">ইন্টারঅ্যাকশন</string>
+    <string name="section_handle">হ্যান্ডেল ও পিল</string>
+    <string name="section_icons_colors">আইকন ও রঙ</string>
+    <string name="section_home_screen">হোম স্ক্রিন</string>
+    <string name="section_layout_tuning">লেআউট টিউনিং</string>
+    <string name="section_general">সাধারণ</string>
+    <string name="section_advanced_options">উন্নত বিকল্প</string>
+    
+    <string name="app_theme">অ্যাপ থিম</string>
+    <string name="theme_follow_system">সিস্টেম ডিফল্ট</string>
+    <string name="ui_style_theme">ইউআই স্টাইল থিম</string>
+    <string name="theme_origin">OriginOS (গোলগাল)</string>
+    <string name="theme_hyperos">HyperOS (কাঁচের মতো)</string>
+    <string name="theme_realme">Realme UI</string>
+    <string name="theme_rich">Rich UI (গ্লো)</string>
+    
+    <string name="blur_title">গ্লাস মরফিক ব্লার</string>
+    <string name="blur_desc">কমদামী ডিভাইসে ল্যাগ হতে পারে (কেবল অ্যান্ড্রয়েড ১২+)</string>
+    <string name="blur_intensity">ব্লার তীব্রতা</string>
+    <string name="invisible_bg">অদৃশ্য ব্যাকগ্রাউন্ড</string>
+    <string name="panel_columns">প্যানেল কলাম</string>
+    <string name="icon_shape">আইকনের আকার</string>
+    <string name="icon_pack">আইকন প্যাক</string>
+    <string name="icon_pack_default">সিস্টেম ডিফল্ট</string>
+    <string name="icon_pack_choose">পছন্দ করুন</string>
+    <string name="icon_scale">আইকন স্কেল</string>
+    
+    <string name="custom_accent_title">কাস্টম অ্যাকসেন্ট রঙ ব্যবহার করুন</string>
+    <string name="custom_bg_title">কাস্টম প্যানেল ব্যাকগ্রাউন্ড ব্যবহার করুন</string>
+    <string name="accent_color">অ্যাকসেন্ট রঙ</string>
+    <string name="panel_bg_color">প্যানেল ব্যাকগ্রাউন্ড</string>
+    <string name="btn_reset_ui_colors">ইউআই রঙ রিসেট করুন</string>
+    
+    <string name="service_button_style">সার্ভিস বোতাম স্টাইল</string>
+    <string name="button_style_power">আধুনিক পাওয়ার আইকন</string>
+    <string name="button_style_logo">ক্লাসিক লোগো</string>
+    
+    <string name="panel_opacity">প্যানেল স্বচ্ছতা</string>
+    <string name="corner_radius">কোণার ব্যাসার্ধ</string>
+    <string name="sidebar_max_height">সাইডবারের সর্বোচ্চ উচ্চতা</string>
+    <string name="picker_max_height">এডিট প্যানেলের সর্বোচ্চ উচ্চতা</string>
+    
+    <string name="visible_pill">দৃশ্যমান পিল হ্যান্ডেল</string>
+    <string name="visible_pill_desc">স্ক্রিনের প্রান্তে একটি ভিজ্যুয়াল সূচক দেখায়</string>
+    <string name="pill_color">পিলের রঙ</string>
+    <string name="pill_thickness">পিলের পুরুত্ব</string>
+    <string name="touch_area_width">টাচ এলাকার প্রস্থ</string>
+    <string name="handle_height">হ্যান্ডেলের উচ্চতা</string>
+    
+    <string name="edge_gestures">প্রান্ত সোয়াইপ জেসচার</string>
+    <string name="edge_sensitivity">প্রান্ত সোয়াইপ সংবেদনশীলতা</string>
+    <string name="req_accessibility">অ্যাক্সেসিবিলিটি পরিষেবা প্রয়োজন</string>
+    <string name="tap_gestures">ট্যাপ জেসচার</string>
+    <string name="tap_gestures_desc">হ্যান্ডেলে ট্যাপ বা হোল্ডের জন্য অ্যাকশন যোগ করুন</string>
+    <string name="haptic_feedback">হ্যাপটিক প্রতিক্রিয়া</string>
+    
+    <string name="edge_seek_title">এজ সিক (স্লাইড করে সামঞ্জস্য)</string>
+    <string name="edge_seek_desc">প্যানেল বন্ধ থাকা অবস্থায় হ্যান্ডেলের উপর স্লাইড করুন</string>
+    <string name="slide_brightness">উজ্জ্বলতা স্লাইড</string>
+    <string name="slide_volume">ভলিউম স্লাইড</string>
+    <string name="seek_sensitivity">সিক সংবেদনশীলতা</string>
+    
+    <string name="automation_title">সিস্টেম অটোমেশন (Root/Shizuku)</string>
+    <string name="automation_desc">ব্যাক, হোম এবং রিসেন্টসের জন্য সিস্টেম কল ব্যবহার করুন</string>
+    <string name="fullscreen_protection">ফুলস্ক্রিন সুরক্ষা</string>
+    <string name="fullscreen_desc">নির্বাচিত অ্যাপে জেসচার প্রতিরোধ করুন</string>
+    <string name="game_mode">গেম মোড</string>
+    <string name="game_mode_desc">নির্বাচিত অ্যাপে বিশেষ সোয়াইপ আবশ্যক করুন</string>
+
+    <string name="main_hero_subtitle">সাবলীল কন্ট্রোল সেন্টার</string>
+    <string name="main_service_title">সাইডবার পরিষেবা</string>
+    <string name="main_service_stopped">পরিষেবা বন্ধ রয়েছে</string>
+    <string name="main_service_running">পরিষেবা সক্রিয় রয়েছে</string>
+    <string name="main_test_sidebar">এখনই সাইডবার পরীক্ষা করুন</string>
+    
+    <string name="alert_battery_title">স্থায়িত্ব বৃদ্ধি করুন</string>
+    <string name="alert_battery_desc">সিস্টেম যেন ব্যাকগ্রাউন্ডে এটি বন্ধ না করে, সেজন্য ব্যাটারি অপ্টিমাইজেশন থেকে SidePanel-কে মুক্ত রাখুন।</string>
+    <string name="alert_battery_btn">ব্যাকগ্রাউন্ড ব্যবহারের অনুমতি দিন</string>
+    
+    <string name="alert_freeform_title">মাল্টিটাস্কিং মোড</string>
+    <string name="alert_freeform_desc">সেটিংসে ফ্রিফর্ম উইন্ডো মোড চালু আছে কিন্তু আপনার ডেভেলপার অপশনে বন্ধ রয়েছে।</string>
+    <string name="alert_freeform_btn">সেটিংসে ঠিক করুন</string>
+    
+    <string name="alert_permission_title">অনুমতি আবশ্যক</string>
+    <string name="alert_permission_desc">সাইডবার ব্যবহার করতে অনুগ্রহ করে \'অন্যান্য অ্যাপের উপর প্রদর্শন\' অনুমতি দিন।</string>
+    <string name="alert_permission_btn">এখনই অনুমতি দিন</string>
+    
+    <string name="main_logs_title">সিস্টেম অ্যাক্টিভিটি লগ</string>
+    <string name="main_settings_btn">উন্নত সেটিংস</string>
+    <string name="main_how_to_use">ব্যবহারবিধি</string>
+    <string name="main_tutorial_desc">ভাসমান প্যানেল দেখতে স্ক্রিনের প্রান্ত থেকে সোয়াইপ করে ধরে রাখুন। সেটিংসে চালু থাকলে পিলে ট্যাপ করেও খুলতে পারেন।</string>
+    <string name="main_sideload_note">অনুমতি ব্লক থাকলে: সেটিংস → অ্যাপস → সীমাবদ্ধ সেটিংসের অনুমতি দিন</string>
+
+    <string name="only_on_home">শুধুমাত্র হোম স্ক্রিনে দেখান</string>
+    <string name="only_on_home_desc">হোম স্ক্রিন/লঞ্চারে না থাকলে হ্যান্ডেল এবং জেসচার লুকান</string>
+    <string name="notch_gestures">নচ জেসচার</string>
+    <string name="enable_notch_gestures">নচ জেসচার চালু করুন</string>
+    <string name="notch_gestures_desc">ক্যামেরা নচ/হোল-পাঞ্চ এলাকায় ট্যাপ জেসচার যোগ করুন</string>
+    <string name="notch_tap_gestures">নচ ট্যাপ জেসচার</string>
+    
+    <string name="action_flashlight">ফ্ল্যাশলাইট</string>
+    <string name="action_camera">ক্যামেরা</string>
+    <string name="action_rotation">স্বয়ংক্রিয় ঘূর্ণন টগল</string>
+    <string name="action_fav_app">প্রিয় অ্যাপ খুলুন</string>
+
+    <string name="indicator_flashlight_on">ফ্ল্যাশলাইট চালু</string>
+    <string name="indicator_flashlight_off">ফ্ল্যাশলাইট বন্ধ</string>
+    <string name="indicator_rotation_on">স্বয়ংক্রিয় ঘূর্ণন চালু</string>
+    <string name="indicator_rotation_off">স্বয়ংক্রিয় ঘূর্ণন বন্ধ</string>
+    
+    <string name="status_service_active">পরিষেবা সক্রিয়</string>
+    <string name="status_automation_stopped">অটোমেশন বন্ধ</string>
+    <string name="apps_selected_singular">১টি অ্যাপ নির্বাচিত</string>
+    <string name="apps_selected_plural">%dটি অ্যাপ নির্বাচিত</string>
+
+    <string name="misc_section_general">সাধারণ</string>
+    <string name="misc_app_language">অ্যাপের ভাষা</string>
+    <string name="misc_section_backup">ব্যাকআপ ও পুনরুদ্ধার</string>
+    <string name="misc_export_title">সেটিংস এক্সপোর্ট করুন</string>
+    <string name="misc_export_desc">অভ্যন্তরীণ স্টোরেজে সেটআপ সংরক্ষণ করুন</string>
+    <string name="misc_import_title">সেটিংস ইমপোর্ট করুন</string>
+    <string name="misc_import_desc">পূর্ববর্তী JSON ব্যাকআপ থেকে পুনরুদ্ধার করুন</string>
+
+    <string name="dialog_reset_title">সমস্ত সেটিংস রিসেট করবেন?</string>
+    <string name="dialog_reset_msg">এটি সমস্ত কনফিগারেশন এবং আপনার সাইড প্যানেল অ্যাপগুলিকে প্রাথমিক অবস্থায় পুনরুদ্ধার করবে।</string>
+    <string name="btn_reset">রিসেট</string>
+    <string name="toast_reset_success">সেটিংস সফলভাবে রিসেট হয়েছে</string>
+    <string name="toast_browser_error">ব্রাউজার খোলা যায়নি</string>
+    
+    <string name="manage_apps_desc">সাইডবারে কোন অ্যাপগুলি থাকবে তা নির্বাচন করুন</string>
+    <string name="view_repo_title">রিপোজিটরি দেখুন</string>
+    <string name="view_repo_desc">GitHub-এ সোর্স কোড দেখুন</string>
+    <string name="reset_defaults_desc">সমস্ত সেটিংস প্রাথমিক অবস্থায় রিসেট করুন</string>
+    
+    <string name="search_settings_hint">সেটিংস খুঁজুন…</string>
+    <string name="main_menu_appearance_desc">ডার্ক মোড, রঙ এবং স্কেল সামঞ্জস্য করুন</string>
+    <string name="main_menu_interaction_desc">জেসচার, হ্যাপটিক্স, প্রান্ত নির্বাচন</string>
+    <string name="main_menu_handle_desc">আকার ও অবস্থান সমন্বয়</string>
+    <string name="section_tools">ড্যাশবোর্ড টুলস</string>
+    <string name="main_menu_tools_desc">টুলস প্যানেল কাস্টমাইজ করুন</string>
+    <string name="section_misc">বিবিধ</string>
+    <string name="main_menu_misc_desc">ব্যাকআপ, পুনরুদ্ধার এবং অন্যান্য</string>
+
+    <string name="tap_gestures_summary">ট্যাপ: %1$s, ২ বার: %2$s, ৩ বার: %3$s, ধরে রাখুন: %4$s</string>
+    <string name="apps_selected_none">০টি অ্যাপ নির্বাচিত</string>
+    
+    <string name="freeform_mode_standard">স্ট্যান্ডার্ড (৮০%)</string>
+    <string name="freeform_mode_portrait">পোর্ট্রেট (সংকীর্ণ)</string>
+    <string name="freeform_mode_maximized">সর্বোচ্চ আকার</string>
+    <string name="freeform_mode_custom">কাস্টম (%1$d%% × %2$d%%)</string>
+    <string name="freeform_custom_windowing_mode">কাস্টম উইন্ডোয়িং মোড</string>
+    <string name="freeform_custom_windowing_mode_desc">OEM ফ্লোটিং উইন্ডোর জন্য পূর্ণসংখ্যা লিখুন (Nothing: 102, Xiaomi: 12, Vivo/OriginOS: 106, Realme: 100)</string>
+    <string name="freeform_use_shell">নেটিভ শেল লঞ্চ ব্যবহার করুন</string>
+    <string name="freeform_use_shell_desc">OriginOS/HyperOS-এর জন্য প্রস্তাবিত। সঠিক স্কেলিংয়ের জন্য ADB কমান্ডের প্রতিলিপি করে (Shizuku/Root প্রয়োজন)</string>
+    <string name="dialog_custom_windowing_mode">কাস্টম উইন্ডোয়িং মোড</string>
+    
+    <string name="anim_feel_calm">শান্ত (ধীর)</string>
+    <string name="anim_feel_balanced">ভারসাম্যপূর্ণ (ডিফল্ট)</string>
+    <string name="anim_feel_snappy">চটপটে</string>
+    <string name="anim_feel_instant">তাত্ক্ষণিক</string>
+    <string name="anim_feel_disabled">নিষ্ক্রিয়</string>
+    
+    <string name="dialog_automation_title">অটোমেশন অনুপলব্ধ</string>
+    <string name="dialog_automation_msg">এই বৈশিষ্ট্যটি ব্যবহার করতে Root বা Shizuku প্রয়োজন। অনুগ্রহ করে প্রথমে \'সিস্টেম অটোমেশন\' সেটআপ করুন।</string>
+    <string name="btn_setup">সেটআপ</string>
+    <string name="loading_apps">অ্যাপ লোড হচ্ছে…</string>
+    <string name="please_wait_apps">অ্যাপ লোড হওয়া পর্যন্ত অনুগ্রহ করে অপেক্ষা করুন।</string>
+    <string name="hint_search_apps">অ্যাপ খুঁজুন…</string>
+    <string name="btn_save">সংরক্ষণ করুন</string>
+    <string name="dialog_window_size">উইন্ডোর আকার</string>
+    <string name="dialog_anim_feel">অ্যানিমেশনের অনুভূতি</string>
+    
+    <string name="picker_title_hide">সাইডবার লুকানোর জন্য অ্যাপ নির্বাচন করুন</string>
+    <string name="picker_title_game">গেম মোডের অ্যাপ নির্বাচন করুন</string>
+    <string name="picker_title_favorite">প্রিয় অ্যাপ নির্বাচন করুন</string>
+    
+    <string name="toast_fav_app_unset">প্রিয় অ্যাপ সেট করা হয়নি</string>
+    <string name="toast_app_not_found">অ্যাপ পাওয়া যায়নি</string>
+    <string name="toast_freeform_enabled">সিস্টেম ফ্রিফর্ম মোড সক্ষম করা হয়েছে</string>
+    <string name="snackbar_freeform_disabled">ডেভেলপার অপশনে সিস্টেম ফ্রিফর্ম মোড নিষ্ক্রিয় রয়েছে</string>
+    <string name="btn_fix">ঠিক করুন</string>
+    
+    <string name="toast_shortcut_sent">শর্টকাটের অনুরোধ পাঠানো হয়েছে। হোম স্ক্রিন পরীক্ষা করুন।</string>
+    <string name="toast_launcher_no_shortcut">লঞ্চার পিন করা শর্টকাট সমর্থন করে না</string>
+    <string name="toast_shortcut_added">হোম স্ক্রিনে শর্টকাট যোগ করা হয়েছে</string>
+    <string name="label_toggle_sidebar">সাইডবার টগল করুন</string>
+    
+    <string name="status_granted">অনুমোদিত</string>
+    <string name="status_not_granted">অনুমোদিত নয়</string>
+    <string name="label_native_gesture">নেটিভ জেসচার</string>
+
+    <string name="action_none">নিষ্ক্রিয়</string>
+    <string name="action_launcher">লঞ্চার</string>
+    <string name="action_screenshot">স্ক্রিনশট</string>
+    <string name="action_last_app">পূর্ববর্তী অ্যাপ</string>
+    <string name="action_back">পেছনে</string>
+    <string name="action_home">হোম</string>
+    <string name="action_recents">সাম্প্রতিক অ্যাপ</string>
+    <string name="action_notifications">বিজ্ঞপ্তি</string>
+    <string name="action_quick_settings">কুইক সেটিংস</string>
+    <string name="action_lock_screen">স্ক্রিন লক করুন</string>
+    <string name="action_power_menu">পাওয়ার মেনু</string>
+    <string name="action_move_handle">হ্যান্ডেল সরান (টেনে আনুন)</string>
+
+    <!-- Interaction Settings: Panel Experience -->
+    <string name="section_panel_experience">প্যানেল অভিজ্ঞতা</string>
+    <string name="feature_landscape_label">ল্যান্ডস্কেপে প্যানেল দেখান</string>
+    <string name="feature_landscape_desc">ডিভাইসটি ল্যান্ডস্কেপ মোডে থাকলে সাইড প্যানেল খোলার অনুমতি দিন</string>
+    <string name="feature_notification_apps_label">বিজ্ঞপ্তি অ্যাপ সেকশন</string>
+    <string name="feature_notification_apps_desc">শীর্ষে একটি নিবেদিত অংশে সাম্প্রতিক বিজ্ঞপ্তির অ্যাপ দেখান</string>
+    <string name="feature_remember_scroll_label">স্ক্রোল অবস্থান মনে রাখুন</string>
+    <string name="feature_remember_scroll_desc">সাইডবার বা পিকার পুনরায় খোলার সময় শেষ স্ক্রোল অবস্থান পুনরুদ্ধার করুন</string>
+    <string name="feature_auto_show_keyboard_label">স্বয়ংক্রিয় কিবোর্ড প্রদর্শন</string>
+    <string name="feature_auto_show_keyboard_desc">অ্যাপ পিকার খোলার সময় স্বয়ংক্রিয়ভাবে সার্চবারে ফোকাস ও কিবোর্ড দেখান</string>
+
+    <!-- Interaction Settings: System & Behavior -->
+    <string name="section_system_behavior">সিস্টেম ও আচরণ</string>
+    <string name="feature_auto_start_label">রিবুটে স্বয়ংক্রিয় চালু</string>
+    <string name="feature_auto_start_desc">ডিভাইস রিস্টার্ট হওয়ার পর স্বয়ংক্রিয়ভাবে সাইড প্যানেল পরিষেবা শুরু করুন</string>
+    <string name="feature_show_logs_label">ডিবাগ লগ সক্ষম করুন</string>
+    <string name="feature_show_logs_desc">সমস্যা সমাধানের জন্য প্যানেলের মধ্যে অভ্যন্তরীণ প্রসেস লগ দেখান</string>
+
+    <string name="feature_anim_feel_label">অ্যানিমেশনের অনুভূতি</string>
+    <string name="feature_picker_gap_label">পিকারের দূরত্ব (গ্যাপ)</string>
+    <string name="feature_picker_gap_desc">সাইডবার এবং অ্যাপ পিকার প্যানেলের মধ্যে অনুভূমিক ব্যবধান</string>
+
+    <!-- Interaction Settings: Desktop Shortcuts -->
+    <string name="section_desktop_shortcuts">ডেস্কটপ শর্টকাট</string>
+    <string name="feature_add_shortcut_label">টগল শর্টকাট যোগ করুন</string>
+    <string name="feature_add_shortcut_desc">সাইডবার দ্রুত টগল করতে হোম স্ক্রিনে একটি শর্টকাট পিন করুন</string>
+
+    <!-- System Permissions & Setup -->
+    <string name="section_permissions_setup">অনুমতি ও সিস্টেম সেটআপ</string>
+    <string name="main_menu_permissions_setup_desc">ওভারলে, অ্যাক্সেসিবিলিটি, ব্যাটারি, অটো-স্টার্ট, Root/Shizuku</string>
+    <string name="setup_manage_title">অনুমতি ও সেটআপ</string>
+    <string name="setup_manage_subtitle">যেকোনো সময় সিস্টেমের অনুমতি পর্যালোচনা বা সমাধান করুন</string>
+    <string name="setup_done">সম্পন্ন</string>
+
+    <!-- Localized additions -->
+    <string name="action_start">শুরু করুন</string>
+    <string name="action_stop">বন্ধ করুন</string>
+    <string name="action_fix">ঠিক করুন</string>
+    <string name="status_accessibility_required">অ্যাক্সেসিবিলিটি আবশ্যক</string>
+    <string name="dialog_close">বন্ধ করুন</string>
+    <string name="setup_welcome_title">Smart Edge-এ স্বাগতম</string>
+    <string name="setup_welcome_subtitle">সাবলীল ও ওপেন সোর্স কন্ট্রোল সেন্টার</string>
+    <string name="setup_section_required">আবশ্যক</string>
+    <string name="setup_overlay_title">ওভারলে অনুমতি</string>
+    <string name="setup_overlay_desc">অন্যান্য অ্যাপ্লিকেশনের উপরে প্রদর্শন</string>
+    <string name="setup_accessibility_title">অ্যাক্সেসিবিলিটি পরিষেবা</string>
+    <string name="setup_accessibility_desc">মসৃণ জেসচারের জন্য প্রয়োজন</string>
+    <string name="setup_section_advanced">উন্নত ও ব্যাকগ্রাউন্ড</string>
+    <string name="setup_automation_title">নেটিভ জেসচার</string>
+    <string name="setup_automation_desc">Root/Shizuku: উচ্চ পারফরম্যান্স</string>
+    <string name="setup_battery_title">ব্যাটারি অপ্টিমাইজেশন</string>
+    <string name="setup_battery_desc">ব্যাকগ্রাউন্ড স্থায়িত্ব বৃদ্ধি করুন</string>
+    <string name="setup_autostart_title">অটো স্টার্ট</string>
+    <string name="setup_autostart_desc">রিবুটের পরে চালুর জন্য আবশ্যক</string>
+    <string name="setup_notifications_title">বিজ্ঞপ্তি অ্যাক্সেস</string>
+    <string name="setup_notifications_desc">প্রোডাক্টিভিটি হাবের জন্য প্রয়োজন</string>
+    <string name="setup_grant_all">সব অনুমতি দিন</string>
+    <string name="setup_all_granted">সব অনুমোদিত</string>
+    <string name="setup_continue">চালিয়ে যান</string>
+    <string name="tools_enable_master">ড্যাশবোর্ড টুলস সক্ষম করুন</string>
+    <string name="tools_enable_master_desc">সাইডবার ড্যাশবোর্ড সেকশনের জন্য মাস্টার সুইচ (নিচের অংশ)</string>
+    <string name="tools_dedicated_folder">নিবেদিত টুলস ফোল্ডার</string>
+    <string name="tools_dedicated_folder_desc">অ্যাপ তালিকায় একটি ফোল্ডার বোতাম যোগ করুন যা একটি আলাদা টুলস মেনু খোলে</string>
+    <string name="tools_dashboard_items">ড্যাশবোর্ড আইটেম</string>
+    <string name="tools_sys_info">সিস্টেম তথ্য ওভারলে</string>
+    <string name="tools_sys_info_desc">সাইডবারে রিয়েল-টাইম RAM এবং ব্যাটারি পরিসংখ্যান দেখায়</string>
+    <string name="tools_power_menu">পাওয়ার মেনু</string>
+    <string name="tools_power_menu_desc">ড্যাশবোর্ডে পাওয়ার/রিবুট টুল যোগ করুন</string>
+    <string name="tools_volume_controls">ভলিউম নিয়ন্ত্রণ</string>
+    <string name="tools_volume_controls_desc">ড্যাশবোর্ডে ভলিউম আপ/ডাউন কি যোগ করুন</string>
+    <string name="tools_brightness_controls">উজ্জ্বলতা নিয়ন্ত্রণ</string>
+    <string name="tools_brightness_controls_desc">ড্যাশবোর্ডে উজ্জ্বলতা আপ/ডাউন কি যোগ করুন</string>
+    <string name="tools_screenshot_button">স্ক্রিনশট বোতাম</string>
+    <string name="tools_screenshot_button_desc">সাইডবারের নিচে একটি স্ক্রিনশট বোতাম দেখান</string>
+    <string name="tools_service_integration">সার্ভিস ইন্টিগ্রেশন</string>
+    <string name="tools_shizuku_service">Shizuku পরিষেবা</string>
+    <string name="tools_not_connected">সংযুক্ত নয়</string>
+    <string name="tools_connected">সংযুক্ত</string>
+    <string name="tools_link_shizuku">Shizuku লিঙ্ক করুন</string>
+    <string name="interaction_section_trigger">মূল ট্রিগার ও জেসচার</string>
+    <string name="interaction_section_specialized">বিশেষায়িত ইন্টারঅ্যাকশন</string>
+    <string name="interaction_section_multitasking">মাল্টিটাস্কিং ও উইন্ডোয়িং</string>
+    <string name="interaction_drag_split">স্প্লিট-স্ক্রিনে টেনে আনুন</string>
+    <string name="interaction_drag_split_desc">স্প্লিট মোডে চালু করতে আইকনগুলি উপরে/নিচে টেনে আনুন</string>
+    <string name="interaction_freeform">ফ্রিফর্ম উইন্ডো মোড</string>
+    <string name="interaction_freeform_desc">ভাসমান উইন্ডোতে অ্যাপ খুলুন (সিস্টেম সহায়তা প্রয়োজন)</string>
+    <string name="interaction_window_size">উইন্ডোর আকার</string>
+    <string name="freeform_size_standard">স্ট্যান্ডার্ড (৮০%)</string>
+    <string name="freeform_size_portrait">পোর্ট্রেট (সংকীর্ণ)</string>
+    <string name="freeform_size_maximized">সর্বোচ্চ আকার</string>
+    <string name="interaction_section_shortcuts">শর্টকাট ও অটোমেশন</string>
+    <string name="anim_calm">শান্ত (ধীর)</string>
+    <string name="anim_balanced">ভারসাম্যপূর্ণ (ডিফল্ট)</string>
+    <string name="anim_instant">তাত্ক্ষণিক</string>
+    <string name="anim_disabled">নিষ্ক্রিয়</string>
+    <string name="dialog_permission_required">অনুমতি আবশ্যক</string>
+    <string name="dialog_native_shell_desc">নেটিভ শেল লঞ্চের জন্য Shizuku বা Root প্রয়োজন। অনুগ্রহ করে নিচের অটোমেশন সেটিংসে একটি সক্ষম করুন।</string>
+    <string name="dialog_freeform_window_size">ফ্রিফর্ম উইন্ডোর আকার</string>
+    <string name="appearance_show_bottom_arrow">অ্যাপ ড্রয়ারের তীর দেখান</string>
+    <string name="appearance_show_app_names">অ্যাপের নাম দেখান</string>
+    <string name="appearance_show_app_names_desc">আইকনের নিচে নাম দেখাবেন কিনা তা নির্বাচন করুন</string>
+    <string name="appearance_app_names_sidebar">সাইডবারে</string>
+    <string name="appearance_app_names_sidebar_desc">ভাসমান সাইডবারে আইকনের নিচে অ্যাপের নাম দেখান</string>
+    <string name="appearance_app_names_drawer">অ্যাপ ড্রয়ারে</string>
+    <string name="appearance_app_names_drawer_desc">অ্যাপ ড্রয়ারে আইকনের নিচে অ্যাপের নাম দেখান</string>
+    <string name="appearance_auto_close">সাইডবার স্বয়ংক্রিয় বন্ধ</string>
+    <string name="auto_close_never">কখনই নয়</string>
+    <string name="auto_close_3s">৩ সেকেন্ড</string>
+    <string name="auto_close_5s">৫ সেকেন্ড</string>
+    <string name="auto_close_10s">১০ সেকেন্ড</string>
+    <string name="columns_1">১টি কলাম</string>
+    <string name="columns_2">২টি কলাম</string>
+    <string name="shape_circle">বৃত্তাকার</string>
+    <string name="shape_square">বর্গাকার</string>
+    <string name="shape_rounded">গোলগাল</string>
+    <string name="shape_squircle">স্কোয়ার্কেল</string>
+    <string name="toast_ui_colors_reset">ইউআই রঙ ডিফল্টে পুনরুদ্ধার করা হয়েছে</string>
+    <string name="toast_accent_locked_origin">OriginOS থিমের জন্য অ্যাকসেন্ট রঙ লক করা আছে</string>
+    <string name="toast_bg_locked_origin">OriginOS থিমের জন্য ব্যাকগ্রাউন্ড রঙ লক করা আছে</string>
+    <string name="hint_search_smart_edge">Smart Edge খুঁজুন…</string>
+    <string name="picker_tab_apps">অ্যাপস</string>
+    <string name="picker_tab_activities">অ্যাক্টিভিটি</string>
+    <string name="picker_all_apps">সমস্ত অ্যাপ</string>
+    <string name="picker_all_activities">সমস্ত অ্যাক্টিভিটি</string>
+    <string name="picker_manage_panel">Smart Edge পরিচালনা</string>
+    <string name="picker_btn_edit">সম্পাদনা</string>
+    <string name="picker_btn_done">সম্পন্ন</string>
+    <string name="picker_active_notifications">সক্রিয় বিজ্ঞপ্তি</string>
+    <string name="secure_dialog_title">নেটিভ জেসচার ইঞ্জিন</string>
+    <string name="secure_status_inactive">সিস্টেম অটোমেশন বর্তমানে নিষ্ক্রিয় রয়েছে</string>
+    <string name="secure_status_active">সিস্টেম অটোমেশন সক্রিয় রয়েছে</string>
+    <string name="secure_desc">সনাতন অ্যাক্সেসিবিলিটি পরিষেবা ছাড়াই উচ্চ পারফরম্যান্সের জেসচার সক্ষম করুন।</string>
+    <string name="secure_manual_adb">ম্যানুয়াল সেটআপ (ADB)</string>
+    <string name="secure_copy_cmd">কমান্ড কপি করুন</string>
+    <string name="secure_one_tap">এক-ট্যাপ পদ্ধতি</string>
+    <string name="secure_shizuku_desc">ADB-ভিত্তিক ওয়্যারলেস অটোমেশন</string>
+    <string name="secure_root_desc">সরাসরি সিস্টেম-স্তরের ইন্টিগ্রেশন</string>
+    <string name="btn_grant">অনুমতি দিন</string>
+    <string name="btn_revoke">প্রত্যাহার করুন</string>
+    <string name="misc_section_diagnostics">ডায়াগনস্টিকস ও লগ</string>
+    <string name="misc_crash_logs_title">ক্র্যাশ ও ডায়াগনস্টিক লগ</string>
+    <string name="misc_crash_logs_desc">ADB ছাড়াই স্থানীয় ক্র্যাশ রিপোর্ট দেখুন, কপি বা এক্সপোর্ট করুন</string>
+    <string name="misc_no_crash_logs">কোনো ক্র্যাশ রিপোর্ট পাওয়া যায়নি। অ্যাপ্লিকেশনটি কোনো সমস্যা ছাড়াই মসৃণভাবে চলছে।</string>
+    <string name="btn_copy">কপি করুন</string>
+    <string name="support_title">Smart Edge সমর্থন করুন</string>
+    <string name="support_desc">Smart Edge সম্পূর্ণ ১০০% বিনামূল্যে ও ওপেন-সোর্স। আপনার সমর্থন প্রকল্পটিকে বাঁচিয়ে রাখতে সাহায্য করে!</string>
+    <string name="support_tap_to_copy">কপি করতে যেকোনো আইটেমে ট্যাপ করুন।</string>
+    <string name="btn_support_dev">ডেভেলপমেন্ট সমর্থন করুন</string>
+    <string name="settings_reset_defaults">ডিফল্টে রিসেট করুন</string>
+    <string name="btn_apply">প্রয়োগ করুন</string>
+
+    <!-- Permissions Dashboard Strings -->
+    <string name="permissions_dashboard_title">সিস্টেম অনুমতি</string>
+    <string name="permissions_status_all_good_title">সমস্ত সিস্টেম কার্যকর</string>
+    <string name="permissions_status_all_good_desc">অনুকূল স্থিতিশীলতার জন্য সমস্ত অনুমতি সক্রিয় রয়েছে।</string>
+    <string name="permissions_status_warning_title">পদক্ষেপ আবশ্যক</string>
+    <string name="permissions_status_warning_desc">প্রধান অনুমতিগুলির সেটআপ প্রয়োজন।</string>
+    <string name="permissions_section_essential">প্রয়োজনীয় অনুমতি</string>
+    <string name="permissions_section_stability">ব্যাকগ্রাউন্ড ও স্থায়িত্ব</string>
+    <string name="permissions_section_advanced">উন্নত ইঞ্জিন</string>
+    <string name="perm_status_active">সক্রিয়</string>
+    <string name="perm_status_granted">অনুমোদিত</string>
+    <string name="perm_status_missing">অনুপস্থিত</string>
+    <string name="perm_status_unrestricted">সীমাহীন</string>
+    <string name="perm_status_optimized">অপ্টিমাইজড</string>
+    <string name="perm_status_configured">কনফিগার করা</string>
+    <string name="perm_status_optional">ঐচ্ছিক</string>
+    <string name="perm_status_disabled">নিষ্ক্রিয়</string>
+    <string name="perm_btn_grant">অনুমতি দিন</string>
+    <string name="perm_btn_configure">কনফিগার করুন</string>
+    <string name="perm_btn_manage">পরিচালনা করুন</string>
+    <string name="perm_btn_fix_all">সব ঠিক করুন</string>
+    <string name="perm_btn_all_good">সব সক্রিয়</string>
+    <string name="perm_overlay_title">অন্যান্য অ্যাপের উপর প্রদর্শন</string>
+    <string name="perm_overlay_desc">অ্যাপের উপরে ভাসমান সাইডবার ওভারলে</string>
+    <string name="perm_accessibility_title">অ্যাক্সেসিবিলিটি পরিষেবা</string>
+    <string name="perm_accessibility_desc">ব্যাক এবং হোম জেসচার শনাক্তকরণ</string>
+    <string name="perm_battery_title">ব্যাটারি অপ্টিমাইজেশন</string>
+    <string name="perm_battery_desc">ব্যাকগ্রাউন্ডে বন্ধ হওয়া রোধ করে</string>
+    <string name="perm_autostart_title">অটো-স্টার্ট অনুমতি</string>
+    <string name="perm_autostart_desc">ডিভাইস রিবুটে স্বয়ংক্রিয় পুনরুদ্ধার</string>
+    <string name="perm_notifications_title">বিজ্ঞপ্তি হাব</string>
+    <string name="perm_notifications_desc">অ্যাপ ড্রয়ারে বিজ্ঞপ্তির পূর্বরূপ</string>
+    <string name="perm_automation_title">নেটিভ জেসচার ইঞ্জিন</string>
+    <string name="perm_automation_desc">Root / Shizuku জেসচার ইঞ্জিন</string>
+    <string name="dialog_remove_app_msg">সাইডবার থেকে সরিয়ে ফেলবেন?</string>
+    <string name="btn_remove">সরান</string>
+    <string name="search_no_results">কোনো মিল পাওয়া যায়নি</string>
+    <string name="search_no_results_desc">জেসচার, ব্লার, ব্যাটারি বা টুলস-এর মতো কীওয়ার্ড দিয়ে খোঁজার চেষ্টা করুন।</string>
+</resources>

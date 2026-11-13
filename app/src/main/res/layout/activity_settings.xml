@@ -242,6 +242,18 @@
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Accent Color" android:textColor="#FFFFFF" />
+                    <ImageView
+                        android:id="@+id/btnResetAccent"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_restore"
+                        android:layout_marginEnd="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:padding="6dp"
+                        app:tint="#FFFFFF"
+                        android:contentDescription="@string/btn_reset" />
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnPickAccent"
                         android:layout_width="44dp"
@@ -264,6 +276,18 @@
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center_vertical">
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Panel Background" android:textColor="#FFFFFF" />
+                    <ImageView
+                        android:id="@+id/btnResetBg"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_restore"
+                        android:layout_marginEnd="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:padding="6dp"
+                        app:tint="#FFFFFF"
+                        android:contentDescription="@string/btn_reset" />
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnPickBg"
                         android:layout_width="44dp"

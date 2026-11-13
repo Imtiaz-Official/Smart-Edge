@@ -18,7 +18,7 @@ android {
         versionName = "1.3.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        resConfigs("en", "es", "uk")
+        resConfigs("en", "es", "uk", "bn", "hi")
     }
 
     val keystorePropertiesFile = rootProject.file("keystore.properties")

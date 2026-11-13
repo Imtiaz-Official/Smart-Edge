@@ -114,6 +114,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchTools.isChecked = panelPrefs.showTools
         binding.switchHideBg.isChecked = panelPrefs.hideBackground
         binding.switchUseCustomAccent.isChecked = panelPrefs.useCustomAccent
+        binding.switchUseCustomBg.isChecked = panelPrefs.useCustomPanelBg
 
         val pack = panelPrefs.selectedIconPack
         binding.tvCurrentIconPack.text = if (pack == "none") "System Default" else pack
@@ -122,8 +123,12 @@ class SettingsActivity : AppCompatActivity() {
             val accentColor = Color.parseColor(panelPrefs.accentColor)
             binding.btnPickAccent.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColor)
             
-            val bgColor = Color.parseColor(panelPrefs.panelBackgroundColor)
-            binding.btnPickBg.backgroundTintList = android.content.res.ColorStateList.valueOf(bgColor)
+            val effectiveBgColor = if (!panelPrefs.useCustomPanelBg && panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN) {
+                Color.parseColor("#1F1F1F")
+            } else {
+                Color.parseColor(panelPrefs.panelBackgroundColor)
+            }
+            binding.btnPickBg.backgroundTintList = android.content.res.ColorStateList.valueOf(effectiveBgColor)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -419,12 +424,6 @@ class SettingsActivity : AppCompatActivity() {
                     panelPrefs.uiTheme = values[which]
                     binding.tvUIStyleValue.text = options[which]
                     
-                    // Auto-disable custom accent for Origin theme to match standard look
-                    if (panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN) {
-                        panelPrefs.useCustomAccent = false
-                        binding.switchUseCustomAccent.isChecked = false
-                    }
-                    
                     updateSupportUI()
                     applyAndShow()
                     dialog.dismiss()
@@ -461,6 +460,12 @@ class SettingsActivity : AppCompatActivity() {
             applyOnly()
         }
 
+        binding.switchUseCustomBg.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.useCustomPanelBg = isChecked
+            loadCurrentSettings()
+            applyOnly()
+        }
+
         binding.btnSelectIconPack.setOnClickListener {
             IconPackPickerDialog.show(this) {
                 // No specific UI to update here as it's a simple list
@@ -492,38 +497,39 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         binding.btnPickAccent.setOnClickListener {
-            if (panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN) {
-                binding.root.showModernToast("Accent color is locked for OriginOS theme")
-                return@setOnClickListener
-            }
-            openColorPicker(Color.parseColor(panelPrefs.accentColor)) { newColor ->
+            val currentAccent = try { Color.parseColor(panelPrefs.accentColor) } catch (e: Exception) { Color.parseColor(PanelPreferences.DEFAULT_ACCENT_COLOR) }
+            openColorPicker(currentAccent) { newColor ->
                 val hex = String.format("#%06X", (0xFFFFFF and newColor))
                 panelPrefs.accentColor = hex
+                panelPrefs.useCustomAccent = true
                 loadCurrentSettings()
                 applyOnly()
             }
+        }
+
+        binding.btnResetAccent.setOnClickListener {
+            panelPrefs.accentColor = PanelPreferences.DEFAULT_ACCENT_COLOR
+            panelPrefs.useCustomAccent = PanelPreferences.DEFAULT_USE_CUSTOM_ACCENT
+            loadCurrentSettings()
+            applyOnly()
         }
 
         binding.btnPickBg.setOnClickListener {
-            if (panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN) {
-                binding.root.showModernToast("Background color is locked for OriginOS theme")
-                return@setOnClickListener
-            }
-            openColorPicker(Color.parseColor(panelPrefs.panelBackgroundColor)) { newColor ->
+            val currentBg = try { Color.parseColor(panelPrefs.panelBackgroundColor) } catch (e: Exception) { Color.parseColor(PanelPreferences.DEFAULT_PANEL_BG) }
+            openColorPicker(currentBg) { newColor ->
                 val hex = String.format("#E6%06X", (0xFFFFFF and newColor))
                 panelPrefs.panelBackgroundColor = hex
+                panelPrefs.useCustomPanelBg = true
                 loadCurrentSettings()
                 applyOnly()
             }
         }
 
-        binding.switchUseCustomAccent.setOnTouchListener { _, _ ->
-            if (panelPrefs.uiTheme == PanelPreferences.THEME_ORIGIN) {
-                binding.root.showModernToast("Custom accent is disabled for OriginOS theme")
-                true 
-            } else {
-                false
-            }
+        binding.btnResetBg.setOnClickListener {
+            panelPrefs.panelBackgroundColor = PanelPreferences.DEFAULT_PANEL_BG
+            panelPrefs.useCustomPanelBg = PanelPreferences.DEFAULT_USE_CUSTOM_PANEL_BG
+            loadCurrentSettings()
+            applyOnly()
         }
     }
 

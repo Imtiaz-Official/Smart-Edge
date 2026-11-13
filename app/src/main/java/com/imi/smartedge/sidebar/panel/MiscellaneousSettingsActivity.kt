@@ -84,13 +84,15 @@ class MiscellaneousSettingsActivity : AppCompatActivity() {
         binding.tvLanguageValue.text = when (LocaleHelper.getPersistedLanguage(this)) {
             "es" -> "Español"
             "uk" -> "Українська"
+            "bn" -> "বাংলা"
+            "hi" -> "हिन्दी"
             else -> "English"
         }
     }
 
     private fun showLanguagePicker() {
-        val languages = arrayOf("English", "Español", "Українська")
-        val codes = arrayOf("en", "es", "uk")
+        val languages = arrayOf("English", "Español", "Українська", "বাংলা", "हिन्दी")
+        val codes = arrayOf("en", "es", "uk", "bn", "hi")
         val currentLang = LocaleHelper.getPersistedLanguage(this)
         val currentIndex = codes.indexOf(currentLang).let { if (it == -1) 0 else it }
 

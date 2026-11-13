@@ -16,6 +16,7 @@ import android.widget.TextView
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.imi.smartedge.sidebar.panel.databinding.SidePanelLayoutBinding
 
 /**
@@ -469,11 +470,29 @@ class SidePanelView @JvmOverloads constructor(
     }
 
     fun scrollToApp(identifier: String) {
-        val apps = adapter.currentList
-        val index = apps.indexOfFirst { it.identifier == identifier }
-        if (index != -1) {
-            binding.rvPanelApps.smoothScrollToPosition(index)
-            adapter.highlightItem(identifier)
+        binding.rvPanelApps.post {
+            val apps = adapter.currentList
+            val index = apps.indexOfFirst { it.identifier == identifier }
+            if (index != -1) {
+                val targetPos = if (adapter.showAddButton) (index + 1).coerceAtMost(adapter.itemCount - 1) else index
+                val lm = binding.rvPanelApps.layoutManager as? LinearLayoutManager
+                if (lm != null) {
+                    val scroller = object : androidx.recyclerview.widget.LinearSmoothScroller(context) {
+                        override fun calculateSpeedPerPixel(displayMetrics: android.util.DisplayMetrics): Float {
+                            // 120ms per inch gives a gentle, relaxed glide down to the added app
+                            return 120f / displayMetrics.densityDpi
+                        }
+                        override fun getVerticalSnapPreference(): Int {
+                            return SNAP_TO_END
+                        }
+                    }
+                    scroller.targetPosition = targetPos
+                    lm.startSmoothScroll(scroller)
+                } else {
+                    binding.rvPanelApps.smoothScrollToPosition(targetPos)
+                }
+                adapter.highlightItem(identifier)
+            }
         }
     }
 
@@ -521,13 +540,9 @@ class SidePanelView @JvmOverloads constructor(
             updateSideLayout()
             
             // Restore scroll position if enabled (only for root level)
-            if (panelPrefs.rememberScroll && navigationStack.isEmpty()) {
+            if (panelPrefs.rememberScroll && navigationStack.isEmpty() && isAttachedToWindow) {
                 binding.rvPanelApps.post {
                     binding.rvPanelApps.scrollBy(0, panelPrefs.lastSidebarScroll)
-                }
-            } else {
-                binding.rvPanelApps.post {
-                    binding.rvPanelApps.scrollToPosition(0)
                 }
             }
             
@@ -591,19 +606,18 @@ class SidePanelView @JvmOverloads constructor(
             val customBg = try { Color.parseColor(panelPrefs.panelBackgroundColor) } catch (e: Exception) { Color.parseColor("#E61A1C1E") }
             val customAccent = try { Color.parseColor(panelPrefs.accentColor) } catch (e: Exception) { Color.parseColor("#4A9EFF") }
             val hasCustomAccent = panelPrefs.useCustomAccent || theme == PanelPreferences.THEME_RICH
+            val hasCustomBg = panelPrefs.useCustomPanelBg
             
             // Revert to original dark-centric colors for floating panel unless customized
-            val bgColor = when (theme) {
-                PanelPreferences.THEME_ORIGIN -> Color.parseColor("#1F1F1F")
-                PanelPreferences.THEME_HYPEROS -> {
-                    if (panelPrefs.panelBackgroundColor != PanelPreferences.DEFAULT_PANEL_BG) customBg
-                    else Color.parseColor("#E6252525")
+            val bgColor = if (hasCustomBg) {
+                customBg
+            } else {
+                when (theme) {
+                    PanelPreferences.THEME_ORIGIN -> Color.parseColor("#1F1F1F")
+                    PanelPreferences.THEME_HYPEROS -> Color.parseColor("#E6252525")
+                    PanelPreferences.THEME_REALME -> Color.parseColor("#333333")
+                    else -> Color.parseColor(PanelPreferences.DEFAULT_PANEL_BG)
                 }
-                PanelPreferences.THEME_REALME -> {
-                    if (panelPrefs.panelBackgroundColor != PanelPreferences.DEFAULT_PANEL_BG) customBg
-                    else Color.parseColor("#333333")
-                }
-                else -> customBg
             }
             
             val radius = context.dpToPx(if (theme == PanelPreferences.THEME_HYPEROS) 16 else panelPrefs.panelCornerRadius).toFloat()
@@ -618,7 +632,7 @@ class SidePanelView @JvmOverloads constructor(
                 } else if (theme == PanelPreferences.THEME_HYPEROS) {
                     setStroke(context.dpToPx(1), Color.parseColor("#4DFFFFFF"))
                 } else if (theme == PanelPreferences.THEME_REALME) {
-                    if (panelPrefs.panelBackgroundColor == PanelPreferences.DEFAULT_PANEL_BG) {
+                    if (!hasCustomBg) {
                         val color1 = Color.parseColor("#333333")
                         val color2 = Color.parseColor("#1A1A1A")
                         colors = intArrayOf(color1, color2)

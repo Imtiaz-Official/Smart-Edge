@@ -32,6 +32,7 @@ class PanelPreferences(context: Context) {
 
         private const val KEY_PANEL_RADIUS = "panel_radius"
         private const val KEY_PANEL_BG_COLOR = "panel_bg_color"
+        private const val KEY_USE_CUSTOM_PANEL_BG = "use_custom_panel_bg"
         private const val KEY_HIDE_BG = "hide_bg"
         private const val KEY_SHOW_TOOLS = "show_tools"
         private const val KEY_ICON_SHAPE = "icon_shape"
@@ -59,6 +60,7 @@ class PanelPreferences(context: Context) {
         private const val KEY_SHOW_VOLUME_KEYS = "show_volume_keys"
         private const val KEY_SHOW_BRIGHTNESS_KEYS = "show_brightness_keys"
         private const val KEY_SHOW_BOTTOM_ARROW = "show_bottom_arrow"
+        private const val KEY_SHOW_APP_NAMES_MASTER = "show_app_names_master"
         private const val KEY_SHOW_APP_NAMES = "show_app_names"
         private const val KEY_SHOW_APP_NAMES_DRAWER = "show_app_names_drawer"
         private const val KEY_AUTO_CLOSE_TIMEOUT = "auto_close_timeout"
@@ -167,6 +169,7 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_THEME = THEME_ORIGIN
         const val DEFAULT_PANEL_RADIUS = 20
         const val DEFAULT_PANEL_BG = "#E61A1C1E"
+        const val DEFAULT_USE_CUSTOM_PANEL_BG = false
         const val DEFAULT_PILL_COLOR = "#FFFFFF"
         const val DEFAULT_HIDE_BG = false
         val DEFAULT_ICON_SHAPE = SHAPE_SQUIRCLE
@@ -197,6 +200,7 @@ class PanelPreferences(context: Context) {
             putString(KEY_ACCENT_COLOR, DEFAULT_ACCENT_COLOR)
             putString(KEY_PANEL_BG_COLOR, DEFAULT_PANEL_BG)
             putBoolean(KEY_USE_CUSTOM_ACCENT, DEFAULT_USE_CUSTOM_ACCENT)
+            putBoolean(KEY_USE_CUSTOM_PANEL_BG, DEFAULT_USE_CUSTOM_PANEL_BG)
         }
     }
 
@@ -259,6 +263,7 @@ class PanelPreferences(context: Context) {
             KEY_SHOW_PILL to showPill,
             KEY_HAPTIC_ENABLED to hapticEnabled,
             KEY_USE_CUSTOM_ACCENT to useCustomAccent,
+            KEY_USE_CUSTOM_PANEL_BG to useCustomPanelBg,
             KEY_HIDE_BG to hideBackground,
             KEY_SHOW_TOOLS to showTools,
             KEY_GESTURES_ENABLED to gesturesEnabled,
@@ -277,8 +282,9 @@ class PanelPreferences(context: Context) {
             KEY_FREEFORM_ENABLED to freeformEnabled,
             KEY_SHOW_NOTIFICATION_APPS to showNotificationApps,
             KEY_SHOW_BOTTOM_ARROW to showBottomArrow,
-            KEY_SHOW_APP_NAMES to showAppNames,
-            KEY_SHOW_APP_NAMES_DRAWER to showAppNamesDrawer,
+            KEY_SHOW_APP_NAMES_MASTER to showAppNamesMaster,
+            KEY_SHOW_APP_NAMES to showAppNamesSidebar,
+            KEY_SHOW_APP_NAMES_DRAWER to showAppNamesDrawerRaw,
             KEY_DRAG_TO_SPLIT to dragToSplit,
             KEY_REMEMBER_SCROLL to rememberScroll,
             KEY_AUTO_SHOW_KEYBOARD to autoShowKeyboard
@@ -341,6 +347,7 @@ class PanelPreferences(context: Context) {
                 if (obj.has(KEY_SHOW_PILL)) putBoolean(KEY_SHOW_PILL, obj.getBoolean(KEY_SHOW_PILL))
                 if (obj.has(KEY_HAPTIC_ENABLED)) putBoolean(KEY_HAPTIC_ENABLED, obj.getBoolean(KEY_HAPTIC_ENABLED))
                 if (obj.has(KEY_USE_CUSTOM_ACCENT)) putBoolean(KEY_USE_CUSTOM_ACCENT, obj.getBoolean(KEY_USE_CUSTOM_ACCENT))
+                if (obj.has(KEY_USE_CUSTOM_PANEL_BG)) putBoolean(KEY_USE_CUSTOM_PANEL_BG, obj.getBoolean(KEY_USE_CUSTOM_PANEL_BG))
                 if (obj.has(KEY_HIDE_BG)) putBoolean(KEY_HIDE_BG, obj.getBoolean(KEY_HIDE_BG))
                 if (obj.has(KEY_SHOW_TOOLS)) putBoolean(KEY_SHOW_TOOLS, obj.getBoolean(KEY_SHOW_TOOLS))
                 if (obj.has(KEY_GESTURES_ENABLED)) putBoolean(KEY_GESTURES_ENABLED, obj.getBoolean(KEY_GESTURES_ENABLED))
@@ -359,6 +366,7 @@ class PanelPreferences(context: Context) {
                 if (obj.has(KEY_FREEFORM_ENABLED)) putBoolean(KEY_FREEFORM_ENABLED, obj.getBoolean(KEY_FREEFORM_ENABLED))
                 if (obj.has(KEY_SHOW_NOTIFICATION_APPS)) putBoolean(KEY_SHOW_NOTIFICATION_APPS, obj.getBoolean(KEY_SHOW_NOTIFICATION_APPS))
                 if (obj.has(KEY_SHOW_BOTTOM_ARROW)) putBoolean(KEY_SHOW_BOTTOM_ARROW, obj.getBoolean(KEY_SHOW_BOTTOM_ARROW))
+                if (obj.has(KEY_SHOW_APP_NAMES_MASTER)) putBoolean(KEY_SHOW_APP_NAMES_MASTER, obj.getBoolean(KEY_SHOW_APP_NAMES_MASTER))
                 if (obj.has(KEY_SHOW_APP_NAMES)) putBoolean(KEY_SHOW_APP_NAMES, obj.getBoolean(KEY_SHOW_APP_NAMES))
                 if (obj.has(KEY_SHOW_APP_NAMES_DRAWER)) putBoolean(KEY_SHOW_APP_NAMES_DRAWER, obj.getBoolean(KEY_SHOW_APP_NAMES_DRAWER))
                 if (obj.has(KEY_DRAG_TO_SPLIT)) putBoolean(KEY_DRAG_TO_SPLIT, obj.getBoolean(KEY_DRAG_TO_SPLIT))
@@ -387,6 +395,7 @@ class PanelPreferences(context: Context) {
             putString(KEY_UI_THEME, DEFAULT_THEME)
             putInt(KEY_PANEL_RADIUS, DEFAULT_PANEL_RADIUS)
             putString(KEY_PANEL_BG_COLOR, DEFAULT_PANEL_BG)
+            putBoolean(KEY_USE_CUSTOM_PANEL_BG, DEFAULT_USE_CUSTOM_PANEL_BG)
             putBoolean(KEY_HIDE_BG, DEFAULT_HIDE_BG)
             putBoolean(KEY_SHOW_TOOLS, DEFAULT_SHOW_TOOLS)
             putBoolean(KEY_SHOW_TOOLS_PANEL_BUTTON, DEFAULT_SHOW_TOOLS_PANEL)
@@ -433,7 +442,9 @@ class PanelPreferences(context: Context) {
             putInt(KEY_PICKER_MAX_HEIGHT, 450)
             putBoolean(KEY_SHOW_NOTIFICATION_APPS, false)
             putBoolean(KEY_SHOW_BOTTOM_ARROW, true)
+            putBoolean(KEY_SHOW_APP_NAMES_MASTER, true)
             putBoolean(KEY_SHOW_APP_NAMES, true)
+            putBoolean(KEY_SHOW_APP_NAMES_DRAWER, true)
             putBoolean(KEY_DRAG_TO_SPLIT, true)
             putBoolean(KEY_REMEMBER_SCROLL, false)
             putBoolean(KEY_AUTO_SHOW_KEYBOARD, false)
@@ -550,6 +561,14 @@ class PanelPreferences(context: Context) {
     var useCustomAccent: Boolean
         get() = prefs.getBoolean(KEY_USE_CUSTOM_ACCENT, DEFAULT_USE_CUSTOM_ACCENT)
         set(value) = prefs.edit { putBoolean(KEY_USE_CUSTOM_ACCENT, value) }
+
+    var useCustomPanelBg: Boolean
+        get() = if (prefs.contains(KEY_USE_CUSTOM_PANEL_BG)) {
+            prefs.getBoolean(KEY_USE_CUSTOM_PANEL_BG, DEFAULT_USE_CUSTOM_PANEL_BG)
+        } else {
+            panelBackgroundColor != DEFAULT_PANEL_BG
+        }
+        set(value) = prefs.edit { putBoolean(KEY_USE_CUSTOM_PANEL_BG, value) }
 
     var selectedIconPack: String
         get() = prefs.getString(KEY_ICON_PACK, DEFAULT_ICON_PACK) ?: DEFAULT_ICON_PACK
@@ -707,13 +726,25 @@ class PanelPreferences(context: Context) {
         get() = prefs.getBoolean(KEY_SHOW_BOTTOM_ARROW, true)
         set(value) = prefs.edit { putBoolean(KEY_SHOW_BOTTOM_ARROW, value) }
 
-    var showAppNames: Boolean
+    var showAppNamesMaster: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_APP_NAMES_MASTER, true)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_APP_NAMES_MASTER, value) }
+
+    var showAppNamesSidebar: Boolean
         get() = prefs.getBoolean(KEY_SHOW_APP_NAMES, true)
         set(value) = prefs.edit { putBoolean(KEY_SHOW_APP_NAMES, value) }
 
-    var showAppNamesDrawer: Boolean
+    var showAppNamesDrawerRaw: Boolean
         get() = prefs.getBoolean(KEY_SHOW_APP_NAMES_DRAWER, true)
         set(value) = prefs.edit { putBoolean(KEY_SHOW_APP_NAMES_DRAWER, value) }
+
+    var showAppNames: Boolean
+        get() = showAppNamesMaster && showAppNamesSidebar
+        set(value) { showAppNamesSidebar = value }
+
+    var showAppNamesDrawer: Boolean
+        get() = showAppNamesMaster && showAppNamesDrawerRaw
+        set(value) { showAppNamesDrawerRaw = value }
 
     var autoCloseTimeout: Int
         get() = prefs.getInt(KEY_AUTO_CLOSE_TIMEOUT, 0)

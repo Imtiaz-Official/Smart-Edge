@@ -307,17 +307,15 @@ class AppPickerPanelView @JvmOverloads constructor(
         val customAccent = try { Color.parseColor(panelPrefs.accentColor) } catch (e: Exception) { Color.parseColor("#4A9EFF") }
         val hasCustomAccent = panelPrefs.useCustomAccent || theme == PanelPreferences.THEME_RICH
 
-        val themeBgColor = when (theme) {
-            PanelPreferences.THEME_ORIGIN -> Color.parseColor("#1F1F1F") 
-            PanelPreferences.THEME_HYPEROS -> {
-                if (panelPrefs.panelBackgroundColor != PanelPreferences.DEFAULT_PANEL_BG) customBg
-                else Color.parseColor("#E6252525")
+        val themeBgColor = if (panelPrefs.useCustomPanelBg) {
+            customBg
+        } else {
+            when (theme) {
+                PanelPreferences.THEME_ORIGIN -> Color.parseColor("#1F1F1F")
+                PanelPreferences.THEME_HYPEROS -> Color.parseColor("#E6252525")
+                PanelPreferences.THEME_REALME -> Color.parseColor("#333333")
+                else -> Color.parseColor(PanelPreferences.DEFAULT_PANEL_BG)
             }
-            PanelPreferences.THEME_REALME -> {
-                if (panelPrefs.panelBackgroundColor != PanelPreferences.DEFAULT_PANEL_BG) customBg
-                else Color.parseColor("#333333")
-            }
-            else -> customBg
         }
         drawable.setColor(themeBgColor)
         
@@ -330,7 +328,7 @@ class AppPickerPanelView @JvmOverloads constructor(
         } else if (theme == PanelPreferences.THEME_HYPEROS) {
             drawable.setStroke((1.5 * density).toInt(), Color.parseColor("#4DFFFFFF"))
         } else if (theme == PanelPreferences.THEME_REALME) {
-            if (panelPrefs.panelBackgroundColor == PanelPreferences.DEFAULT_PANEL_BG) {
+            if (!panelPrefs.useCustomPanelBg) {
                 val color1 = Color.parseColor("#333333")
                 val color2 = Color.parseColor("#1A1A1A")
                 drawable.colors = intArrayOf(color1, color2)
@@ -723,7 +721,8 @@ class AppPickerPanelView @JvmOverloads constructor(
 
             plusView.animate()
                 .rotation(if (newState) 45f else 0f)
-                .setDuration(200)
+                .setDuration(320)
+                .setInterpolator(androidx.interpolator.view.animation.FastOutSlowInInterpolator())
                 .start()
 
             if (plusView is ImageView) {
