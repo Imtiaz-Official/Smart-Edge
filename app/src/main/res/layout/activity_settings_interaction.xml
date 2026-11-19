@@ -124,6 +124,46 @@
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
                     <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_haptic" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/haptic_feedback" android:textColor="?attr/colorOnSurface" />
+
+                    <LinearLayout
+                        android:id="@+id/layout_haptic_intensity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="12dp">
+                        <LinearLayout
+                            android:id="@+id/feature_haptic_intensity"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true">
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Haptic Intensity"
+                                    android:textColor="?attr/colorOnSurface" />
+                                <TextView
+                                    android:id="@+id/tvHapticIntensityValue"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Medium (Click)"
+                                    android:textColor="?attr/colorOnSurfaceVariant"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_chevron_right"
+                                app:tint="?attr/colorOnSurfaceVariant" />
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -577,11 +617,12 @@
                         android:layout_marginTop="8dp">
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:layout_marginBottom="4dp">
                             <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/feature_picker_gap_label" android:textColor="?attr/colorOnSurface" android:textSize="16sp" />
-                            <TextView android:id="@+id/tvPickerGapValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="20dp" android:textColor="?attr/colorPrimary" android:textSize="13sp" android:textStyle="bold" />
+                            <ImageView android:id="@+id/btnResetPickerGap" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_restore" android:layout_marginEnd="8dp" android:background="?attr/selectableItemBackground" android:padding="2dp" app:tint="?attr/colorPrimary" />
+                            <TextView android:id="@+id/tvPickerGapValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="12dp" android:textColor="?attr/colorPrimary" android:textSize="13sp" android:textStyle="bold" />
                         </LinearLayout>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_picker_gap_desc" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" android:layout_marginBottom="8dp" />
                         <com.google.android.material.slider.Slider style="@style/Widget.App.Slider"
-                            android:id="@+id/sbPickerGap" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="100.0" android:value="20.0" app:tickVisible="false" />
+                            android:id="@+id/sbPickerGap" android:layout_width="match_parent" android:layout_height="wrap_content" android:valueFrom="0.0" android:valueTo="36.0" android:value="12.0" app:tickVisible="false" />
                     </LinearLayout>
 
                 </LinearLayout>

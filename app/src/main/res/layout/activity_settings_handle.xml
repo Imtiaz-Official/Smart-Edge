@@ -46,6 +46,21 @@
 
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
 
+                    <LinearLayout android:id="@+id/feature_pill_style" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:background="?attr/selectableItemBackground" android:clickable="true" android:focusable="true">
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pill Style" android:textColor="?attr/colorOnSurface" />
+                            <TextView android:id="@+id/tvPillStyleValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Modern Rounded" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+                        </LinearLayout>
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_chevron_right" app:tint="?attr/colorOnSurfaceVariant" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/feature_auto_fade" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Auto Fade When Idle" android:textColor="?attr/colorOnSurface" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Fades handle to low opacity after 2.5s of inactivity" android:textColor="?attr/colorOnSurfaceVariant" android:textSize="11sp" />
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorOutlineVariant" android:layout_marginVertical="16dp" />
+
                     <LinearLayout android:id="@+id/feature_pill_color" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/pill_color" android:textColor="?attr/colorOnSurface" />
                         <ImageView android:id="@+id/btnResetPillColor" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_restore" android:layout_marginEnd="8dp" android:background="?attr/selectableItemBackground" android:padding="2dp" app:tint="?attr/colorPrimary" />

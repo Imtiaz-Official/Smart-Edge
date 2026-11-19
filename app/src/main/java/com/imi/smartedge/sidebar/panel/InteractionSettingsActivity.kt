@@ -79,6 +79,12 @@ class InteractionSettingsActivity : AppCompatActivity() {
         
         binding.tvTapGesturesValue.text = getString(R.string.tap_gestures_summary, actionLabel(panelPrefs.tapAction), actionLabel(panelPrefs.doubleTapAction), actionLabel(panelPrefs.tripleTapAction), actionLabel(panelPrefs.longPressAction))
         binding.featureHaptic.isChecked = panelPrefs.hapticEnabled
+        binding.layoutHapticIntensity.visibility = if (panelPrefs.hapticEnabled) View.VISIBLE else View.GONE
+        binding.tvHapticIntensityValue.text = when (panelPrefs.hapticIntensity) {
+            PanelPreferences.HAPTIC_LIGHT -> "Light (Tick)"
+            PanelPreferences.HAPTIC_STRONG -> "Strong (Heavy Click)"
+            else -> "Medium (Click)"
+        }
 
         // 2. SPECIALIZED INTERACTION
         binding.featureSlideBrightness.isChecked = panelPrefs.slideBrightnessEnabled
@@ -269,6 +275,25 @@ class InteractionSettingsActivity : AppCompatActivity() {
 
         binding.featureHaptic.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.hapticEnabled = isChecked
+            binding.layoutHapticIntensity.visibility = if (isChecked) View.VISIBLE else View.GONE
+            if (isChecked) ActionDispatcher.vibrateHaptic(this, panelPrefs)
+        }
+
+        binding.featureHapticIntensity.setOnClickListener {
+            val options = arrayOf("Light (Tick)", "Medium (Click)", "Strong (Heavy Click)")
+            val values = intArrayOf(PanelPreferences.HAPTIC_LIGHT, PanelPreferences.HAPTIC_MEDIUM, PanelPreferences.HAPTIC_STRONG)
+            val selectedIndex = values.indexOf(panelPrefs.hapticIntensity).coerceAtLeast(0)
+
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Haptic Intensity")
+                .setSingleChoiceItems(options, selectedIndex) { dialog, which ->
+                    panelPrefs.hapticIntensity = values[which]
+                    binding.tvHapticIntensityValue.text = options[which]
+                    ActionDispatcher.vibrateHaptic(this, panelPrefs)
+                    dialog.dismiss()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
         }
 
         // Panel Experience Listeners
@@ -333,6 +358,14 @@ class InteractionSettingsActivity : AppCompatActivity() {
                 applyOnly()
             }
         })
+
+        binding.btnResetPickerGap.setOnClickListener {
+            val default = PanelPreferences.DEFAULT_PICKER_GAP
+            panelPrefs.pickerGap = default
+            binding.sbPickerGap.value = default.toFloat()
+            binding.tvPickerGapValue.text = "${default}dp"
+            applyOnly()
+        }
 
         binding.featureSlideBrightness.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.slideBrightnessEnabled = isChecked
@@ -690,7 +723,11 @@ class InteractionSettingsActivity : AppCompatActivity() {
             getString(R.string.action_camera),
             getString(R.string.action_rotation),
             getString(R.string.action_fav_app),
-            getString(R.string.action_move_handle)
+            getString(R.string.action_move_handle),
+            "Media: Play / Pause",
+            "Media: Next Track",
+            "Media: Previous Track",
+            "Do Not Disturb (DND) Toggle"
         )
         val values = intArrayOf(
             PanelPreferences.ACTION_NONE,
@@ -708,7 +745,11 @@ class InteractionSettingsActivity : AppCompatActivity() {
             PanelPreferences.ACTION_CAMERA,
             PanelPreferences.ACTION_AUTO_ROTATION,
             PanelPreferences.ACTION_OPEN_FAVORITE_APP,
-            PanelPreferences.ACTION_MOVE_HANDLE
+            PanelPreferences.ACTION_MOVE_HANDLE,
+            PanelPreferences.ACTION_MEDIA_PLAY_PAUSE,
+            PanelPreferences.ACTION_MEDIA_NEXT,
+            PanelPreferences.ACTION_MEDIA_PREV,
+            PanelPreferences.ACTION_DND_TOGGLE
         )
         val selectedIndex = values.indexOf(current).coerceAtLeast(0)
 
@@ -751,6 +792,10 @@ class InteractionSettingsActivity : AppCompatActivity() {
         PanelPreferences.ACTION_AUTO_ROTATION -> getString(R.string.action_rotation)
         PanelPreferences.ACTION_OPEN_FAVORITE_APP -> "Fav: ${panelPrefs.favoriteAppPackage.substringAfterLast(".").take(10)}"
         PanelPreferences.ACTION_MOVE_HANDLE -> getString(R.string.action_move_handle)
+        PanelPreferences.ACTION_MEDIA_PLAY_PAUSE -> "Media: Play / Pause"
+        PanelPreferences.ACTION_MEDIA_NEXT -> "Media: Next Track"
+        PanelPreferences.ACTION_MEDIA_PREV -> "Media: Previous Track"
+        PanelPreferences.ACTION_DND_TOGGLE -> "Do Not Disturb (DND)"
         else -> getString(R.string.action_none)
     }
 }

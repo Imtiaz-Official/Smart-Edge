@@ -103,6 +103,8 @@ class AppearanceSettingsActivity : AppCompatActivity() {
         binding.featureShowAppNamesDrawer.isChecked = panelPrefs.showAppNamesDrawerRaw
         
         binding.tvColumnsValue.text = "${panelPrefs.panelColumns} Column${if (panelPrefs.panelColumns > 1) "s" else ""}"
+        binding.tvPickerColumnsValue.text = if (panelPrefs.pickerColumns == 3) "3 Columns (Default)" else "2 Columns"
+        binding.featureShowRecommended.isChecked = panelPrefs.showRecommendedApps
         val autoCloseSeconds = panelPrefs.autoCloseTimeout
         binding.tvAutoCloseValue.text = if (autoCloseSeconds <= 0) "Never" else "${autoCloseSeconds} Seconds"
         
@@ -381,6 +383,28 @@ class AppearanceSettingsActivity : AppCompatActivity() {
                 }
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
+        }
+
+        binding.featurePickerColumns.setOnClickListener {
+            val options = arrayOf("2 Columns", "3 Columns (Default)")
+            val values = arrayOf(2, 3)
+            val currentIdx = values.indexOf(panelPrefs.pickerColumns).coerceAtLeast(0)
+
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("All Apps Drawer Columns")
+                .setSingleChoiceItems(options, currentIdx) { dialog, which ->
+                    panelPrefs.pickerColumns = values[which]
+                    binding.tvPickerColumnsValue.text = options[which]
+                    applyOnly()
+                    dialog.dismiss()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
+
+        binding.featureShowRecommended.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.showRecommendedApps = isChecked
+            applyOnly()
         }
 
         binding.featureCustomAccent.setOnCheckedChangeListener { _, isChecked ->

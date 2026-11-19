@@ -155,7 +155,7 @@ class SidePanelView @JvmOverloads constructor(
             0
         ) {
             override fun isLongPressDragEnabled(): Boolean {
-                return adapter.isEditMode
+                return true
             }
 
             override fun onMove(

@@ -38,7 +38,43 @@ object ActionDispatcher {
             PanelPreferences.ACTION_QUICK_SETTINGS -> executeSystemAction(context, panelPrefs, PanelAccessibilityService.ACTION_QUICK_SETTINGS)
             PanelPreferences.ACTION_LOCK_SCREEN -> executeSystemAction(context, panelPrefs, PanelAccessibilityService.ACTION_LOCK_SCREEN)
             PanelPreferences.ACTION_POWER_MENU -> executeSystemAction(context, panelPrefs, PanelAccessibilityService.ACTION_SHOW_POWER_MENU)
+
+            // Media Controls (borrowed from QuickBall keyevent pattern)
+            PanelPreferences.ACTION_MEDIA_PLAY_PAUSE -> dispatchMediaKey(context, android.view.KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
+            PanelPreferences.ACTION_MEDIA_NEXT -> dispatchMediaKey(context, android.view.KeyEvent.KEYCODE_MEDIA_NEXT)
+            PanelPreferences.ACTION_MEDIA_PREV -> dispatchMediaKey(context, android.view.KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+
+            // DND / Silent Toggle (borrowed from QuickBall)
+            PanelPreferences.ACTION_DND_TOGGLE -> toggleDnd(context)
         }
+    }
+
+    private fun toggleDnd(context: Context) {
+        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as? android.app.NotificationManager ?: return
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            if (nm.isNotificationPolicyAccessGranted) {
+                val current = nm.currentInterruptionFilter
+                val target = if (current == android.app.NotificationManager.INTERRUPTION_FILTER_ALL) {
+                    android.app.NotificationManager.INTERRUPTION_FILTER_NONE
+                } else {
+                    android.app.NotificationManager.INTERRUPTION_FILTER_ALL
+                }
+                nm.setInterruptionFilter(target)
+            } else {
+                try {
+                    val intent = Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    context.startActivity(intent)
+                } catch (e: Exception) {}
+            }
+        }
+    }
+
+    private fun dispatchMediaKey(context: Context, keyCode: Int) {
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? android.media.AudioManager ?: return
+        audioManager.dispatchMediaKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, keyCode))
+        audioManager.dispatchMediaKeyEvent(android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, keyCode))
     }
 
     private fun triggerServiceAction(context: Context, action: String) {
@@ -72,17 +108,34 @@ object ActionDispatcher {
         context.startService(intent)
     }
 
-    private fun vibrateHaptic(context: Context, panelPrefs: PanelPreferences, duration: Long = 20) {
+    fun vibrateHaptic(context: Context, panelPrefs: PanelPreferences, customDuration: Long? = null) {
         if (!panelPrefs.hapticEnabled) return
         try {
-            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
-            if (vibrator?.hasVibrator() == true) {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE))
-                } else {
-                    @Suppress("DEPRECATION")
-                    vibrator.vibrate(duration)
+            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator ?: return
+            if (!vibrator.hasVibrator()) return
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                val effect = when (panelPrefs.hapticIntensity) {
+                    PanelPreferences.HAPTIC_LIGHT -> VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK)
+                    PanelPreferences.HAPTIC_STRONG -> VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK)
+                    else -> VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK)
                 }
+                vibrator.vibrate(effect)
+            } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                val duration = customDuration ?: when (panelPrefs.hapticIntensity) {
+                    PanelPreferences.HAPTIC_LIGHT -> 10L
+                    PanelPreferences.HAPTIC_STRONG -> 40L
+                    else -> 20L
+                }
+                vibrator.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION")
+                val duration = customDuration ?: when (panelPrefs.hapticIntensity) {
+                    PanelPreferences.HAPTIC_LIGHT -> 10L
+                    PanelPreferences.HAPTIC_STRONG -> 40L
+                    else -> 20L
+                }
+                vibrator.vibrate(duration)
             }
         } catch (e: Exception) {
             // Ignore

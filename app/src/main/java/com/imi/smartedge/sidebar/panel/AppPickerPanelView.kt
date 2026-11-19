@@ -30,6 +30,12 @@ class AppPickerPanelView @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : LinearLayout(context, attrs) {
 
+    companion object {
+        const val VIEW_TYPE_APP = 0
+        const val VIEW_TYPE_HEADER = 1
+        const val VIEW_TYPE_DIVIDER = 2
+    }
+
     var onClose: (() -> Unit)? = null
     var onAppLaunched: (() -> Unit)? = null
     var onToggleApp: ((AppInfo, Boolean) -> Unit)? = null
@@ -37,11 +43,14 @@ class AppPickerPanelView @JvmOverloads constructor(
     private val pickerPanelCard: View
     private val rvPickerGrid: RecyclerView
     private val etSearch: EditText
+    private val btnSearchClear: ImageView
     private val btnSettings: ImageButton
     private val btnEdit: TextView
     private val tvHeader: TextView
     private val adapter = PickerAdapter()
-    private val notificationAdapter = PickerAdapter()
+    private val notificationAdapter = NotificationAdapter()
+    
+    private var recommendedApps = listOf<AppInfo>()
     
     private val repository = AppRepository(context)
     private val panelPrefs = PanelPreferences(context)
@@ -115,6 +124,10 @@ class AppPickerPanelView @JvmOverloads constructor(
         pickerPanelCard = view.findViewById(R.id.pickerPanelCard)
         rvPickerGrid = view.findViewById(R.id.rvPickerGrid)
         etSearch = view.findViewById(R.id.etPickerSearch)
+        btnSearchClear = view.findViewById(R.id.btnSearchClear)
+        btnSearchClear.setOnClickListener {
+            etSearch.setText("")
+        }
 
         btnTypeApps = view.findViewById(R.id.btnTypeApps)
         btnTypeActivities = view.findViewById(R.id.btnTypeActivities)
@@ -155,7 +168,17 @@ class AppPickerPanelView @JvmOverloads constructor(
         if (panelPrefs.uiTheme == PanelPreferences.THEME_RICH) {
             rvPickerGrid.layoutManager = LinearLayoutManager(context)
         } else {
-            rvPickerGrid.layoutManager = GridLayoutManager(context, 2)
+            val cols = panelPrefs.pickerColumns
+            val lm = GridLayoutManager(context, cols)
+            lm.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int {
+                    return when (adapter.getItemViewType(position)) {
+                        VIEW_TYPE_HEADER, VIEW_TYPE_DIVIDER -> cols
+                        else -> 1
+                    }
+                }
+            }
+            rvPickerGrid.layoutManager = lm
         }
         
         // --- PERFORMANCE OPTIMIZATIONS ---
@@ -176,7 +199,7 @@ class AppPickerPanelView @JvmOverloads constructor(
 
         val rvNotifications = view.findViewById<RecyclerView>(R.id.rvPickerNotifications)
         rvNotifications.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        rvNotifications.adapter = notificationAdapter.apply { setIsNotificationType(true) }
+        rvNotifications.adapter = notificationAdapter
 
         val btnToggleNotifs = view.findViewById<View>(R.id.btnToggleNotifications)
         val ivChevron = view.findViewById<ImageView>(R.id.ivNotificationsChevron)
@@ -216,6 +239,7 @@ class AppPickerPanelView @JvmOverloads constructor(
         etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                btnSearchClear.visibility = if (s.isNullOrEmpty()) View.GONE else View.VISIBLE
                 filter(s.toString())
             }
             override fun afterTextChanged(s: Editable?) {}
@@ -265,8 +289,7 @@ class AppPickerPanelView @JvmOverloads constructor(
         
         val lp = rvPickerGrid.layoutParams
         
-        // Use the total number of apps to determine the "normal" height,
-        // so the panel doesn't shrink while searching.
+        // Use the total number of items to determine the "normal" height
         val itemsCount = if (etSearch.text.isEmpty()) adapter.itemCount else allApps.size
         
         if (itemsCount == 0) {
@@ -278,12 +301,10 @@ class AppPickerPanelView @JvmOverloads constructor(
         val density = context.resources.displayMetrics.density
         val theme = panelPrefs.uiTheme
         val isRich = theme == PanelPreferences.THEME_RICH
+        val cols = if (isRich) 1 else panelPrefs.pickerColumns
         
-        // Accurate estimation for Picker height
-        // Modern: 100dp approx, Rich: 72dp approx
-        val itemHeightDp = if (isRich) 72 else 100
+        val itemHeightDp = if (isRich) 72 else 88
         val itemHeightPx = (itemHeightDp * density).toInt()
-        val cols = if (isRich) 1 else 2
         val rows = Math.ceil(itemsCount.toDouble() / cols).toInt()
         val estimatedContentHeightPx = rows * itemHeightPx
 
@@ -296,6 +317,7 @@ class AppPickerPanelView @JvmOverloads constructor(
     }
 
     fun applyTheme() {
+        updateColumns()
         val theme = panelPrefs.uiTheme
         val density = context.resources.displayMetrics.density
         
@@ -348,23 +370,22 @@ class AppPickerPanelView @JvmOverloads constructor(
         etSearch.setTextColor(textColor)
         etSearch.setHintTextColor(subTextColor)
 
-        val searchBg = findViewById<View>(R.id.etPickerSearch).parent as? View
-        searchBg?.let {
-            val sd = android.graphics.drawable.GradientDrawable().apply {
+        val searchBg = findViewById<View>(R.id.layoutSearchCapsule)
+        val pillBgProducer = {
+            android.graphics.drawable.GradientDrawable().apply {
                 shape = android.graphics.drawable.GradientDrawable.RECTANGLE
-                cornerRadius = 22 * density
-                
-                // Slightly lighter than panel background to make it "pop" or darker to recessed
+                cornerRadius = 21 * density
                 val baseColor = themeBgColor
-                val alpha = (Color.alpha(baseColor) * 0.5f).toInt()
-                val r = (Color.red(baseColor) * 0.8f).toInt()
-                val g = (Color.green(baseColor) * 0.8f).toInt()
-                val b = (Color.blue(baseColor) * 0.8f).toInt()
+                val alpha = (Color.alpha(baseColor) * 0.65f).toInt().coerceIn(30, 200)
+                val r = (Color.red(baseColor) * 0.85f).toInt()
+                val g = (Color.green(baseColor) * 0.85f).toInt()
+                val b = (Color.blue(baseColor) * 0.85f).toInt()
                 setColor(Color.argb(alpha, r, g, b))
-                setStroke((1 * density).toInt(), Color.parseColor("#1AFFFFFF"))
+                setStroke((1 * density).toInt(), Color.parseColor("#26FFFFFF"))
             }
-            it.background = sd
         }
+        searchBg?.background = pillBgProducer()
+        btnSettings.background = pillBgProducer()
         
         adapter.setIsLightMode(false)
         notificationAdapter.setIsLightMode(false)
@@ -417,28 +438,64 @@ class AppPickerPanelView @JvmOverloads constructor(
         }
     }
 
-    fun loadApps(forceRefresh: Boolean = false) {
-        if (!forceRefresh && allApps.isNotEmpty()) {
-            val panelIdentifiers = panelPrefs.getPanelApps().toSet()
-            var changed = false
-            allApps.forEach { 
-                val inPanel = panelIdentifiers.contains(it.identifier)
-                if (it.isInPanel != inPanel) {
-                    it.isInPanel = inPanel
-                    changed = true
-                }
+    private fun buildDisplayList(query: String = etSearch.text.toString()): List<PickerItem> {
+        val list = mutableListOf<PickerItem>()
+        if (query.isEmpty()) {
+            if (panelPrefs.showRecommendedApps && recommendedApps.isNotEmpty()) {
+                list.add(PickerItem.Header(
+                    title = context.getString(R.string.picker_recommended_apps),
+                    actionText = "Hide",
+                    onAction = {
+                        panelPrefs.showRecommendedApps = false
+                        submitCurrentList()
+                    }
+                ))
+                recommendedApps.forEach { list.add(PickerItem.App(it, isRecommended = true)) }
+                list.add(PickerItem.Divider("rec_div"))
             }
-            if (changed) {
-                adapter.notifyItemRangeChanged(0, adapter.itemCount, "PANEL_STATE_CHANGE")
-            }
-            return
+            allApps.forEach { list.add(PickerItem.App(it, isRecommended = false)) }
+        } else {
+            val filtered = allApps.filter { it.appName.contains(query, ignoreCase = true) }
+            filtered.forEach { list.add(PickerItem.App(it, isRecommended = false)) }
         }
+        return list
+    }
 
-        // --- SHOW LOADING STATE ---
-        val originalHeaderText = tvHeader.text
-        tvHeader.text = if (currentType == AppInfo.Type.ACTIVITY) "Scanning Activities..." else "Loading Apps..."
-        
+    private fun submitCurrentList(onComplete: (() -> Unit)? = null) {
+        val displayList = buildDisplayList()
+        adapter.submitList(displayList) {
+            updatePickerHeight()
+            onComplete?.invoke()
+        }
+    }
+
+    fun loadApps(forceRefresh: Boolean = false) {
+        updateColumns()
         _scope.launch {
+            val recommended = withContext(Dispatchers.IO) {
+                repository.getRecommendedApps(6)
+            }
+            recommendedApps = recommended
+
+            if (!forceRefresh && allApps.isNotEmpty()) {
+                val panelIdentifiers = panelPrefs.getPanelApps().toSet()
+                allApps.forEach { 
+                    it.isInPanel = panelIdentifiers.contains(it.identifier)
+                }
+                recommendedApps.forEach {
+                    it.isInPanel = panelIdentifiers.contains(it.identifier)
+                }
+                withContext(Dispatchers.Main) {
+                    submitCurrentList()
+                }
+                return@launch
+            }
+
+            // --- SHOW LOADING STATE ---
+            withContext(Dispatchers.Main) {
+                tvHeader.text = if (currentType == AppInfo.Type.ACTIVITY) "Scanning Activities..." else "Loading Apps..."
+            }
+            
             val apps = withContext(Dispatchers.IO) { 
                 if (currentType == AppInfo.Type.ACTIVITY) repository.getAllActivities()
                 else repository.getAllApps()
@@ -446,54 +503,70 @@ class AppPickerPanelView @JvmOverloads constructor(
             allApps = apps
             
             // --- RESTORE HEADER STATE ---
-            tvHeader.text = if (isEditMode) context.getString(R.string.picker_manage_panel) else (if (currentType == AppInfo.Type.ACTIVITY) context.getString(R.string.picker_all_activities) else context.getString(R.string.picker_all_apps))
+            withContext(Dispatchers.Main) {
+                tvHeader.text = if (isEditMode) context.getString(R.string.picker_manage_panel) else (if (currentType == AppInfo.Type.ACTIVITY) context.getString(R.string.picker_all_activities) else context.getString(R.string.picker_all_apps))
 
-            // Apply current search query after data is loaded
-            val query = etSearch.text.toString()
-            val filtered = if (query.isEmpty()) allApps else allApps.filter { it.appName.contains(query, ignoreCase = true) }
-            
-            adapter.submitList(filtered.toList()) {
-                updatePickerHeight() // Call this FIRST to set correct bounds before scroll/anim
-                
-                if (panelPrefs.rememberScroll && query.isEmpty()) {
-                    rvPickerGrid.post {
-                        rvPickerGrid.scrollBy(0, panelPrefs.lastPickerScroll)
+                submitCurrentList {
+                    val query = etSearch.text.toString()
+                    if (panelPrefs.rememberScroll && query.isEmpty()) {
+                        rvPickerGrid.post {
+                            rvPickerGrid.scrollBy(0, panelPrefs.lastPickerScroll)
+                        }
+                    } else {
+                        rvPickerGrid.post {
+                            rvPickerGrid.scrollToPosition(0)
+                        }
                     }
-                } else {
+
+                    // --- STAGGERED ENTRY ANIMATION ---
                     rvPickerGrid.post {
-                        rvPickerGrid.scrollToPosition(0)
-                    }
-                }
+                        val layoutManager = rvPickerGrid.layoutManager ?: return@post
+                        val childCount = layoutManager.childCount
+                        if (childCount == 0) return@post
 
-                // --- STAGGERED ENTRY ANIMATION ---
-                rvPickerGrid.post {
-                    val layoutManager = rvPickerGrid.layoutManager ?: return@post
-                    val childCount = layoutManager.childCount
-                    if (childCount == 0) return@post
-
-                    for (i in 0 until childCount) {
-                        val v = layoutManager.getChildAt(i) ?: continue
-                        v.alpha = 0f
-                        v.translationY = 50f
-                        v.animate()
-                            .alpha(1f)
-                            .translationY(0f)
-                            .setDuration(400)
-                            .setStartDelay(i * 30L)
-                            .setInterpolator(android.view.animation.DecelerateInterpolator())
-                            .start()
+                        for (i in 0 until childCount) {
+                            val v = layoutManager.getChildAt(i) ?: continue
+                            v.alpha = 0f
+                            v.translationY = 50f
+                            v.animate()
+                                .alpha(1f)
+                                .translationY(0f)
+                                .setDuration(400)
+                                .setStartDelay(i * 30L)
+                                .setInterpolator(android.view.animation.DecelerateInterpolator())
+                                .start()
+                        }
                     }
                 }
             }
         }
     }
 
+    fun updateColumns() {
+        if (panelPrefs.uiTheme != PanelPreferences.THEME_RICH) {
+            val cols = panelPrefs.pickerColumns
+            val lm = rvPickerGrid.layoutManager as? GridLayoutManager
+            if (lm == null || lm.spanCount != cols) {
+                val newLm = GridLayoutManager(context, cols)
+                newLm.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                    override fun getSpanSize(position: Int): Int {
+                        return when (adapter.getItemViewType(position)) {
+                            VIEW_TYPE_HEADER, VIEW_TYPE_DIVIDER -> cols
+                            else -> 1
+                        }
+                    }
+                }
+                rvPickerGrid.layoutManager = newLm
+            }
+            adapter.notifyDataSetChanged()
+        }
+    }
+
     fun resetSearch() {
+        btnSearchClear.visibility = View.GONE
         if (etSearch.text.isNotEmpty()) {
             etSearch.setText("")
-            adapter.submitList(allApps.toList()) {
-                updatePickerHeight()
-                
+            submitCurrentList {
                 // --- STAGGERED ENTRY ANIMATION ---
                 rvPickerGrid.post {
                     val layoutManager = rvPickerGrid.layoutManager ?: return@post
@@ -529,6 +602,7 @@ class AppPickerPanelView @JvmOverloads constructor(
 
     fun invalidateAppList() {
         allApps = listOf()
+        recommendedApps = listOf()
     }
 
     fun clearIcons() {
@@ -537,10 +611,7 @@ class AppPickerPanelView @JvmOverloads constructor(
     }
 
     private fun filter(query: String) {
-        val filtered = allApps.filter { it.appName.contains(query, ignoreCase = true) }
-        adapter.submitList(filtered) {
-            updatePickerHeight()
-            
+        submitCurrentList {
             // --- STAGGERED ENTRY ANIMATION FOR SEARCH RESULTS ---
             rvPickerGrid.post {
                 val layoutManager = rvPickerGrid.layoutManager ?: return@post
@@ -564,12 +635,78 @@ class AppPickerPanelView @JvmOverloads constructor(
         pickerPanelCard.getGlobalVisibleRect(outRect)
     }
 
-    inner class PickerAdapter : androidx.recyclerview.widget.ListAdapter<AppInfo, PickerViewHolder>(AppDiffCallback()) {
+    inner class NotificationAdapter : androidx.recyclerview.widget.ListAdapter<AppInfo, PickerViewHolder>(AppDiffCallback()) {
+        private var isLightMode: Boolean = false
+        private var forceFreeform: Boolean = false
+        private var isNotificationType: Boolean = true
+
+        fun setIsLightMode(isLight: Boolean) {
+            isLightMode = isLight
+            notifyDataSetChanged()
+        }
+
+        fun setForceFreeform(force: Boolean) {
+            forceFreeform = force
+        }
+
+        fun setIsNotificationType(value: Boolean) {
+            isNotificationType = value
+        }
+
+        fun refreshIcons() {
+            notifyDataSetChanged()
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PickerViewHolder {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_picker_notification, parent, false)
+            return PickerViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: PickerViewHolder, position: Int) {
+            val app = getItem(position)
+            val scale = context.getAutoScalingFactor() * panelPrefs.scaleFactor
+            val baseIconSize = 44
+            val baseTextSize = 10f
+
+            holder.ivIcon.layoutParams.let { lp ->
+                lp.width = (context.dpToPx(baseIconSize) * scale).toInt()
+                lp.height = (context.dpToPx(baseIconSize) * scale).toInt()
+                holder.ivIcon.layoutParams = lp
+            }
+            holder.tvName.textSize = baseTextSize * scale
+            holder.tvName.visibility = if (panelPrefs.showAppNamesDrawer) View.VISIBLE else View.GONE
+            holder.tvName.text = app.appName
+            holder.tvPackage?.visibility = View.GONE
+
+            val textColor = if (isLightMode) Color.parseColor("#1E293B") else Color.WHITE
+            holder.tvName.setTextColor(textColor)
+
+            Glide.with(holder.itemView.context).clear(holder.ivIcon)
+            Glide.with(holder.itemView.context)
+                .load(AppIconRequest(app.packageName, panelPrefs.appearanceKey))
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(android.R.drawable.sym_def_app_icon)
+                .error(android.R.drawable.sym_def_app_icon)
+                .override((120 * scale).toInt(), (120 * scale).toInt())
+                .into(holder.ivIcon)
+
+            IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
+            holder.ivCheck.visibility = View.GONE
+
+            holder.itemView.setOnClickListener {
+                if (panelPrefs.hapticEnabled) {
+                    it.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
+                }
+                adapter.launchApp(app)
+            }
+        }
+    }
+
+    inner class PickerAdapter : androidx.recyclerview.widget.ListAdapter<PickerItem, RecyclerView.ViewHolder>(PickerItemDiffCallback()) {
 
         private var accentColor: Int = Color.parseColor("#4DFFFFFF")
         private var accentColorStateList: android.content.res.ColorStateList = android.content.res.ColorStateList.valueOf(accentColor)
         private var forceFreeform: Boolean = false
-        private var isNotificationType: Boolean = false
         private var isLightMode: Boolean = false
 
         init {
@@ -584,10 +721,6 @@ class AppPickerPanelView @JvmOverloads constructor(
 
         fun setForceFreeform(force: Boolean) {
             forceFreeform = force
-        }
-
-        fun setIsNotificationType(value: Boolean) {
-            isNotificationType = value
         }
 
         fun updateAccentColor() {
@@ -607,110 +740,166 @@ class AppPickerPanelView @JvmOverloads constructor(
             notifyDataSetChanged()
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PickerViewHolder {
-            val layoutId = if (isNotificationType) {
-                R.layout.item_picker_notification
-            } else if (panelPrefs.uiTheme == PanelPreferences.THEME_RICH) {
-                R.layout.item_picker_app_rich
-            } else {
-                R.layout.item_picker_app_modern
+        override fun getItemViewType(position: Int): Int {
+            return when (getItem(position)) {
+                is PickerItem.App -> VIEW_TYPE_APP
+                is PickerItem.Header -> VIEW_TYPE_HEADER
+                is PickerItem.Divider -> VIEW_TYPE_DIVIDER
             }
-            
-            val view = LayoutInflater.from(parent.context).inflate(layoutId, parent, false)
-            return PickerViewHolder(view)
         }
 
-        override fun onBindViewHolder(holder: PickerViewHolder, position: Int) {
-            val app = getItem(position)
-            
-            val scale = context.getAutoScalingFactor() * panelPrefs.scaleFactor
-            val isRich = panelPrefs.uiTheme == PanelPreferences.THEME_RICH
-            
-            // Notification icons should be a bit more compact but still respect user scale
-            val baseIconSize = if (isNotificationType) 44 else (if (isRich) 48 else 44)
-            val baseTextSize = if (isNotificationType) 10f else (if (isRich) 11f else 10f)
-            val basePkgTextSize = if (isRich) 10f else 9f
-
-            holder.ivIcon.layoutParams.let { lp ->
-                lp.width = (context.dpToPx(baseIconSize) * scale).toInt()
-                lp.height = (context.dpToPx(baseIconSize) * scale).toInt()
-                holder.ivIcon.layoutParams = lp
-            }
-            holder.tvName.textSize = baseTextSize * scale
-            holder.tvPackage?.textSize = basePkgTextSize * scale
-
-            val showNames = panelPrefs.showAppNamesDrawer
-            if (showNames) {
-                holder.tvName.visibility = View.VISIBLE
-                holder.tvName.text = app.appName
-                if (!isNotificationType) {
-                    holder.tvPackage?.visibility = if (isRich) View.VISIBLE else View.GONE
-                    holder.tvPackage?.text = app.packageName
-                } else {
-                    holder.tvPackage?.visibility = View.GONE
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+            val inflater = LayoutInflater.from(parent.context)
+            return when (viewType) {
+                VIEW_TYPE_HEADER -> {
+                    val view = inflater.inflate(R.layout.item_picker_section_header, parent, false)
+                    HeaderViewHolder(view)
                 }
-            } else {
-                holder.tvName.visibility = View.GONE
-                holder.tvPackage?.visibility = View.GONE
+                VIEW_TYPE_DIVIDER -> {
+                    val view = inflater.inflate(R.layout.item_picker_divider, parent, false)
+                    DividerViewHolder(view)
+                }
+                else -> {
+                    val layoutId = if (panelPrefs.uiTheme == PanelPreferences.THEME_RICH) {
+                        R.layout.item_picker_app_rich
+                    } else {
+                        R.layout.item_picker_app_modern
+                    }
+                    val view = inflater.inflate(layoutId, parent, false)
+                    PickerViewHolder(view)
+                }
             }
-            
-            val textColor = if (isLightMode) Color.parseColor("#1E293B") else Color.WHITE
-            val subTextColor = if (isLightMode) Color.parseColor("#64748B") else Color.parseColor("#B3FFFFFF")
-            holder.tvName.setTextColor(textColor)
-            holder.tvPackage?.setTextColor(subTextColor)
+        }
 
-            // --- OPTIMIZED ICON LOADING WITH GLIDE ---
-            Glide.with(holder.itemView.context).clear(holder.ivIcon)
-            Glide.with(holder.itemView.context)
-                .load(AppIconRequest(app.packageName, panelPrefs.appearanceKey))
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .placeholder(android.R.drawable.sym_def_app_icon)
-                .error(android.R.drawable.sym_def_app_icon)
-                .override((120 * scale).toInt(), (120 * scale).toInt())
-                .into(holder.ivIcon)
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+            when (holder) {
+                is HeaderViewHolder -> {
+                    val headerItem = getItem(position) as PickerItem.Header
+                    holder.tvTitle.text = headerItem.title
+                    if (headerItem.actionText != null && headerItem.onAction != null) {
+                        holder.btnAction.visibility = View.VISIBLE
+                        holder.btnAction.text = headerItem.actionText
+                        holder.btnAction.setOnClickListener { headerItem.onAction.invoke() }
+                    } else {
+                        holder.btnAction.visibility = View.GONE
+                    }
+                }
+                is DividerViewHolder -> {
+                    // Divider line layout
+                }
+                is PickerViewHolder -> {
+                    val appItem = getItem(position) as PickerItem.App
+                    val app = appItem.app
+                    val scale = context.getAutoScalingFactor() * panelPrefs.scaleFactor
+                    val isRich = panelPrefs.uiTheme == PanelPreferences.THEME_RICH
+                    val cols = panelPrefs.pickerColumns
 
-            IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
+                    val baseIconSize = if (isRich) 48 else (if (cols == 3) 38 else 44)
+                    val baseTextSize = if (isRich) 11f else (if (cols == 3) 10f else 11f)
+                    val basePkgTextSize = if (isRich) 10f else 9f
 
-            // Click the whole item to toggle (if in edit mode) or launch (if not)
-            holder.itemView.setOnClickListener {
-                val currentPos = holder.bindingAdapterPosition
-                if (currentPos == RecyclerView.NO_POSITION) return@setOnClickListener
-                val currentApp = getItem(currentPos)
+                    holder.ivIcon.layoutParams.let { lp ->
+                        lp.width = (context.dpToPx(baseIconSize) * scale).toInt()
+                        lp.height = (context.dpToPx(baseIconSize) * scale).toInt()
+                        holder.ivIcon.layoutParams = lp
+                    }
+                    holder.tvName.textSize = baseTextSize * scale
+                    holder.tvPackage?.textSize = basePkgTextSize * scale
 
+                    val showNames = panelPrefs.showAppNamesDrawer
+                    if (showNames) {
+                        holder.tvName.visibility = View.VISIBLE
+                        holder.tvName.text = app.appName
+                        if (isRich) {
+                            holder.tvPackage?.visibility = View.VISIBLE
+                            holder.tvPackage?.text = app.packageName
+                        } else {
+                            holder.tvPackage?.visibility = View.GONE
+                        }
+                    } else {
+                        holder.tvName.visibility = View.GONE
+                        holder.tvPackage?.visibility = View.GONE
+                    }
+
+                    val textColor = if (isLightMode) Color.parseColor("#1E293B") else Color.WHITE
+                    val subTextColor = if (isLightMode) Color.parseColor("#64748B") else Color.parseColor("#B3FFFFFF")
+                    holder.tvName.setTextColor(textColor)
+                    holder.tvPackage?.setTextColor(subTextColor)
+
+                    Glide.with(holder.itemView.context).clear(holder.ivIcon)
+                    Glide.with(holder.itemView.context)
+                        .load(AppIconRequest(app.packageName, panelPrefs.appearanceKey))
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .placeholder(android.R.drawable.sym_def_app_icon)
+                        .error(android.R.drawable.sym_def_app_icon)
+                        .override((120 * scale).toInt(), (120 * scale).toInt())
+                        .into(holder.ivIcon)
+
+                    IconShapeHelper.applyShape(holder.ivIcon, panelPrefs.iconShape)
+
+                    holder.itemView.setOnClickListener {
+                        val currentPos = holder.bindingAdapterPosition
+                        if (currentPos == RecyclerView.NO_POSITION) return@setOnClickListener
+                        val currentItem = getItem(currentPos) as? PickerItem.App ?: return@setOnClickListener
+                        val currentApp = currentItem.app
+
+                        if (isEditMode) {
+                            if (panelPrefs.hapticEnabled) {
+                                it.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
+                            }
+                            toggleAppSelection(currentApp, currentPos, holder.ivCheck)
+                        } else {
+                            if (panelPrefs.hapticEnabled) {
+                                it.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
+                            }
+                            launchApp(currentApp)
+                        }
+                    }
+
+                    holder.ivCheck.setOnClickListener {
+                        val currentPos = holder.bindingAdapterPosition
+                        if (currentPos != RecyclerView.NO_POSITION && isEditMode) {
+                            val currentItem = getItem(currentPos) as? PickerItem.App ?: return@setOnClickListener
+                            if (panelPrefs.hapticEnabled) {
+                                it.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
+                            }
+                            toggleAppSelection(currentItem.app, currentPos, holder.ivCheck)
+                        }
+                    }
+
+                    val isSelected = panelPrefs.isInPanel(app.identifier)
+                    if (isEditMode) {
+                        holder.ivCheck.visibility = View.VISIBLE
+                        val iconTint = if (isSelected) accentColorStateList else android.content.res.ColorStateList.valueOf(Color.parseColor("#B3FFFFFF"))
+                        if (holder.ivCheck is ImageView) {
+                            holder.ivCheck.imageTintList = iconTint
+                        }
+                        holder.ivCheck.rotation = if (isSelected) 45f else 0f
+                    } else {
+                        holder.ivCheck.visibility = View.GONE
+                    }
+                }
+            }
+        }
+
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: List<Any>) {
+            if (payloads.isEmpty()) {
+                super.onBindViewHolder(holder, position, payloads)
+            } else if (holder is PickerViewHolder) {
+                val item = getItem(position) as? PickerItem.App ?: return
+                val app = item.app
                 if (isEditMode) {
-                    if (panelPrefs.hapticEnabled) {
-                        it.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
+                    holder.ivCheck.visibility = View.VISIBLE
+                    val isSelected = app.isInPanel
+                    val iconTint = if (isSelected) accentColorStateList else android.content.res.ColorStateList.valueOf(Color.parseColor("#B3FFFFFF"))
+                    if (holder.ivCheck is ImageView) {
+                        holder.ivCheck.imageTintList = iconTint
                     }
-                    toggleAppSelection(currentApp, currentPos, holder.ivCheck)
+                    holder.ivCheck.rotation = if (isSelected) 45f else 0f
                 } else {
-                    if (panelPrefs.hapticEnabled) {
-                        it.performHapticFeedback(android.view.HapticFeedbackConstants.CONTEXT_CLICK)
-                    }
-                    launchApp(currentApp)
+                    holder.ivCheck.visibility = View.GONE
                 }
-            }
-
-            // Reset listener before setting checked (avoid spurious callbacks)
-            holder.ivCheck.setOnClickListener {
-                val currentPos = holder.bindingAdapterPosition
-                if (currentPos != RecyclerView.NO_POSITION && isEditMode) {
-                    if (panelPrefs.hapticEnabled) {
-                        it.performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
-                    }
-                    toggleAppSelection(getItem(currentPos), currentPos, holder.ivCheck)
-                }
-            }
-
-            val isSelected = panelPrefs.isInPanel(app.identifier)
-            if (isEditMode) {
-                holder.ivCheck.visibility = View.VISIBLE
-                val iconTint = if (isSelected) accentColorStateList else android.content.res.ColorStateList.valueOf(Color.parseColor("#B3FFFFFF"))
-                if (holder.ivCheck is ImageView) {
-                    holder.ivCheck.imageTintList = iconTint
-                }
-                holder.ivCheck.rotation = if (isSelected) 45f else 0f
-            } else {
-                holder.ivCheck.visibility = View.GONE
+                holder.vHighlight.visibility = View.GONE
             }
         }
 
@@ -735,14 +924,18 @@ class AppPickerPanelView @JvmOverloads constructor(
         }
 
         fun launchFirstItem(): Boolean {
-            val firstApp = currentList.firstOrNull() ?: return false
-            launchApp(firstApp)
+            val firstAppItem = currentList.filterIsInstance<PickerItem.App>().firstOrNull() ?: return false
+            launchApp(firstAppItem.app)
             return true
         }
 
-        private fun launchApp(app: AppInfo) {
-            rvPickerGrid.findViewHolderForAdapterPosition(currentList.indexOf(app))?.itemView?.let {
-                SpringAnimator.scalePulse(it)
+        fun launchApp(app: AppInfo) {
+            panelPrefs.recordAppLaunch(app.packageName)
+            val index = currentList.indexOfFirst { it is PickerItem.App && it.app.identifier == app.identifier }
+            if (index != -1) {
+                rvPickerGrid.findViewHolderForAdapterPosition(index)?.itemView?.let {
+                    SpringAnimator.scalePulse(it)
+                }
             }
             
             val intent = if (app.intentUri != null) {
@@ -773,7 +966,6 @@ class AppPickerPanelView @JvmOverloads constructor(
         private fun launchFreeform(intent: android.content.Intent) {
             val pkg = intent.`package` ?: intent.component?.packageName ?: return
             
-            // Use Shell Launch engine if enabled and possible
             if (panelPrefs.useShellForFreeform && AutomationManager.isAutomationPossible()) {
                 val launched = AutomationManager.launchApp(context, pkg, panelPrefs.freeformWindowingModeInt)
                 if (launched) return
@@ -781,16 +973,13 @@ class AppPickerPanelView @JvmOverloads constructor(
 
             intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
             
-            // Some OEMs (like Vivo) glitch if MULTIPLE_TASK is used with their native modes
             if (panelPrefs.freeformWindowingModeInt == 5) {
                 intent.addFlags(android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
             }
 
-            // Add intent extras that some OEMs/ROMs respect for freeform launching
             intent.putExtra("android.intent.extra.WINDOWING_MODE", panelPrefs.freeformWindowingModeInt)
             intent.putExtra("android.intent.extra.LAUNCH_WINDOWING_MODE", panelPrefs.freeformWindowingModeInt)
             
-            // Vivo/OriginOS specific extras
             if (panelPrefs.freeformWindowingModeInt == 106) {
                 intent.putExtra("vivo_small_window", true)
                 intent.putExtra("is_vivo_freeform", true)
@@ -822,19 +1011,15 @@ class AppPickerPanelView @JvmOverloads constructor(
                         android.graphics.Rect(left, top, left + winW, top + winH)
                     }
                     else -> {
-                        // Use a slightly smaller centered Rect for custom modes (0.7 instead of 0.8)
-                        // This helps the OEM engine snap it correctly.
                         val factor = if (panelPrefs.freeformWindowingModeInt == 5) 0.8 else 0.7
                         
                         if (prefersLandscape) {
-                            // 16:9 wide aspect for games/landscape apps
                             val targetW = if (w > h) (w * factor).toInt() else (w * (factor + 0.1)).toInt()
                             val targetH = (targetW / 1.77).toInt().coerceAtMost((h * (factor + 0.05)).toInt())
                             val left = (w - targetW) / 2
                             val top = (h - targetH) / 2
                             android.graphics.Rect(left, top, left + targetW, top + targetH)
                         } else {
-                            // 9:16 portrait aspect for normal apps (fixed for landscape host)
                             val targetH = (h * (factor + 0.05)).toInt()
                             val targetW = (targetH * 9 / 16).toInt().coerceAtMost((w * factor).toInt())
                             val left = (w - targetW) / 2
@@ -847,7 +1032,6 @@ class AppPickerPanelView @JvmOverloads constructor(
                     options.launchBounds = bounds
                 }
 
-                // Use HiddenApiBypass instead of direct reflection to avoid F-Droid lint errors
                 try {
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
                         org.lsposed.hiddenapibypass.HiddenApiBypass.invoke(
@@ -887,24 +1071,42 @@ class AppPickerPanelView @JvmOverloads constructor(
                 false
             }
         }
+    }
 
-        override fun onBindViewHolder(holder: PickerViewHolder, position: Int, payloads: List<Any>) {
-            if (payloads.isEmpty()) {
-                super.onBindViewHolder(holder, position, payloads)
-            } else {
-                val app = getItem(position)
-                if (isEditMode) {
-                    holder.ivCheck.visibility = View.VISIBLE
-                    val isSelected = app.isInPanel
-                    val iconTint = if (isSelected) accentColorStateList else android.content.res.ColorStateList.valueOf(Color.parseColor("#B3FFFFFF"))
-                    if (holder.ivCheck is ImageView) {
-                        holder.ivCheck.imageTintList = iconTint
-                    }
-                    holder.ivCheck.rotation = if (isSelected) 45f else 0f
-                } else {
-                    holder.ivCheck.visibility = View.GONE
+    sealed class PickerItem(open val id: String) {
+        data class Header(
+            val title: String,
+            val actionText: String? = null,
+            val onAction: (() -> Unit)? = null
+        ) : PickerItem("header_$title")
+
+        data class Divider(
+            val dividerId: String
+        ) : PickerItem("divider_$dividerId")
+
+        data class App(
+            val app: AppInfo,
+            val isRecommended: Boolean = false
+        ) : PickerItem(if (isRecommended) "rec_${app.identifier}" else app.identifier)
+    }
+
+    private class PickerItemDiffCallback : androidx.recyclerview.widget.DiffUtil.ItemCallback<PickerItem>() {
+        override fun areItemsTheSame(oldItem: PickerItem, newItem: PickerItem): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: PickerItem, newItem: PickerItem): Boolean {
+            return when {
+                oldItem is PickerItem.App && newItem is PickerItem.App -> {
+                    oldItem.app.appName == newItem.app.appName &&
+                    oldItem.app.isInPanel == newItem.app.isInPanel &&
+                    oldItem.isRecommended == newItem.isRecommended
                 }
-                holder.vHighlight.visibility = View.GONE
+                oldItem is PickerItem.Header && newItem is PickerItem.Header -> {
+                    oldItem.title == newItem.title && oldItem.actionText == newItem.actionText
+                }
+                oldItem is PickerItem.Divider && newItem is PickerItem.Divider -> true
+                else -> false
             }
         }
     }
@@ -927,4 +1129,11 @@ class AppPickerPanelView @JvmOverloads constructor(
         val vHighlight: View = view.findViewById(R.id.vPickerBgHighlight)
         val tvPackage: TextView? = view.findViewById(R.id.tvPickerPackageName)
     }
+
+    inner class HeaderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val tvTitle: TextView = view.findViewById(R.id.tvSectionTitle)
+        val btnAction: TextView = view.findViewById(R.id.btnSectionAction)
+    }
+
+    inner class DividerViewHolder(view: View) : RecyclerView.ViewHolder(view)
 }

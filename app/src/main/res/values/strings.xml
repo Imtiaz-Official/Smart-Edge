@@ -361,6 +361,9 @@
     <string name="picker_btn_edit">EDIT</string>
     <string name="picker_btn_done">DONE</string>
     <string name="picker_active_notifications">Active Notifications</string>
+    <string name="picker_recommended_apps">Recommended</string>
+    <string name="feature_show_recommended_label">Show Recommended Apps</string>
+    <string name="feature_show_recommended_desc">Display most used apps at the top of the All Apps drawer</string>
     <string name="secure_dialog_title">Native Gesture Engine</string>
     <string name="secure_status_inactive">System automation is currently inactive</string>
     <string name="secure_status_active">System automation is active</string>

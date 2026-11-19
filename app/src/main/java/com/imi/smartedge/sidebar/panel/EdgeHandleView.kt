@@ -186,6 +186,23 @@ class EdgeHandleView @JvmOverloads constructor(
         tapCount = 0
     }
 
+    private val idleFadeRunnable = Runnable {
+        if (panelPrefs.handleAutoFade && !isTouchDown && !isDragMode) {
+            animate().alpha(0.20f).setDuration(400).start()
+        }
+    }
+
+    fun resetIdleFadeTimer() {
+        handler.removeCallbacks(idleFadeRunnable)
+        if (panelPrefs.handleAutoFade) {
+            val normalAlpha = panelPrefs.panelOpacity / 100f
+            if (alpha < normalAlpha) {
+                animate().alpha(normalAlpha).setDuration(150).start()
+            }
+            handler.postDelayed(idleFadeRunnable, 2500L)
+        }
+    }
+
     private val resetAlphaRunnable = Runnable {
         isTempHighAlpha = false
         alpha = panelPrefs.panelOpacity / 100f
@@ -237,7 +254,7 @@ class EdgeHandleView @JvmOverloads constructor(
         tapCount++
         handler.removeCallbacks(tapRunnable)
 
-        // If user reached triple tap, trigger immediately if configured
+        // Instant response on triple tap (no timeout wait required)
         if (tapCount >= 3) {
             if (panelPrefs.tripleTapAction != PanelPreferences.ACTION_NONE) {
                 performAction(panelPrefs.tripleTapAction)
@@ -329,49 +346,105 @@ class EdgeHandleView @JvmOverloads constructor(
         updatePill()
     }
 
+    private val arcPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+        style = android.graphics.Paint.Style.STROKE
+        strokeCap = android.graphics.Paint.Cap.ROUND
+    }
+    private val arcRectF = android.graphics.RectF()
+    private var arcStartAngle = 0f
+    private var arcSweepAngle = 100f
+
+    override fun onDraw(canvas: android.graphics.Canvas) {
+        super.onDraw(canvas)
+        if (showPill && panelPrefs.pillStyle == PanelPreferences.PILL_STYLE_ARC) {
+            val strokePx = (panelPrefs.pillWidth * density * 0.8f).coerceIn(2f * density, 8f * density)
+            arcPaint.strokeWidth = strokePx
+            try {
+                arcPaint.color = Color.parseColor(panelPrefs.pillColor)
+            } catch (e: Exception) {
+                arcPaint.color = Color.WHITE
+            }
+            canvas.drawArc(arcRectF, arcStartAngle, arcSweepAngle, false, arcPaint)
+        }
+    }
+
+    private fun updateArcBounds() {
+        val w = width.toFloat()
+        val h = height.toFloat()
+        if (w == 0f || h == 0f) return
+
+        val strokePx = (panelPrefs.pillWidth * density * 0.8f).coerceIn(2f * density, 8f * density)
+        val halfStroke = strokePx / 2f
+        val top = halfStroke
+        val bottom = h - halfStroke
+        val arcIndent = 40f
+        arcSweepAngle = 180f - (2f * arcIndent)
+
+        val visibleWidth = (panelPrefs.pillWidth * density * 2.5f).coerceAtLeast(10f * density)
+        if (isRightSide) {
+            val centerX = w
+            val left = w - visibleWidth
+            val right = 2f * centerX - left
+            arcRectF.set(left, top, right, bottom)
+            arcStartAngle = 90f + arcIndent
+        } else {
+            val centerX = 0f
+            val right = visibleWidth
+            val left = 2f * centerX - right
+            arcRectF.set(left, top, right, bottom)
+            arcStartAngle = 270f + arcIndent
+        }
+    }
+
     fun updatePill() {
         val currentPkg = panelPrefs.currentForegroundPackage
         val hidePillInCurrentApp = panelPrefs.autoHideInFullscreen && panelPrefs.isWhitelistedFromAutoHide(currentPkg)
         
         // Build a unique key for the current visual state to prevent redundant updates
-        val stateKey = "${isRightSide}_${showPill}_${hidePillInCurrentApp}_${panelPrefs.pillColor}_${panelPrefs.handleWidth}_${panelPrefs.pillWidth}_${panelPrefs.panelOpacity}_${isImmersiveMode}"
+        val stateKey = "${isRightSide}_${showPill}_${hidePillInCurrentApp}_${panelPrefs.pillColor}_${panelPrefs.pillStyle}_${panelPrefs.handleWidth}_${panelPrefs.pillWidth}_${panelPrefs.panelOpacity}_${isImmersiveMode}"
         if (stateKey == lastPillState) return
         lastPillState = stateKey
 
         if (showPill && !hidePillInCurrentApp) {
-            val cornerRadius = 12 * density
-            val shape = android.graphics.drawable.GradientDrawable().apply {
-                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
-                if (isRightSide) {
-                    cornerRadii = floatArrayOf(cornerRadius, cornerRadius, 0f, 0f, 0f, 0f, cornerRadius, cornerRadius)
-                } else {
-                    cornerRadii = floatArrayOf(0f, 0f, cornerRadius, cornerRadius, cornerRadius, cornerRadius, 0f, 0f)
-                }
-                
-                try {
-                    val color = Color.parseColor(panelPrefs.pillColor)
-                    setColor(color)
-                } catch (e: Exception) {
-                    setColor(Color.WHITE)
-                }
-                
-                setStroke((1 * density).toInt(), Color.parseColor("#4DFFFFFF"))
-            }
-
-            val triggerWidthDp = panelPrefs.handleWidth
-            val pillWidthDp = panelPrefs.pillWidth
-            val insetDp = (triggerWidthDp - pillWidthDp).coerceAtLeast(0)
-            val insetPx = (insetDp * density).toInt()
-
-            val newInset = if (isRightSide) {
-                android.graphics.drawable.InsetDrawable(shape, insetPx, 0, 0, 0)
+            if (panelPrefs.pillStyle == PanelPreferences.PILL_STYLE_ARC) {
+                background = null
+                updateArcBounds()
             } else {
-                android.graphics.drawable.InsetDrawable(shape, 0, 0, insetPx, 0)
+                val cornerRadius = 12 * density
+                val shape = android.graphics.drawable.GradientDrawable().apply {
+                    shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                    if (isRightSide) {
+                        cornerRadii = floatArrayOf(cornerRadius, cornerRadius, 0f, 0f, 0f, 0f, cornerRadius, cornerRadius)
+                    } else {
+                        cornerRadii = floatArrayOf(0f, 0f, cornerRadius, cornerRadius, cornerRadius, cornerRadius, 0f, 0f)
+                    }
+                    
+                    try {
+                        val color = Color.parseColor(panelPrefs.pillColor)
+                        setColor(color)
+                    } catch (e: Exception) {
+                        setColor(Color.WHITE)
+                    }
+                    
+                    setStroke((1 * density).toInt(), Color.parseColor("#4DFFFFFF"))
+                }
+
+                val triggerWidthDp = panelPrefs.handleWidth
+                val pillWidthDp = panelPrefs.pillWidth
+                val insetDp = (triggerWidthDp - pillWidthDp).coerceAtLeast(0)
+                val insetPx = (insetDp * density).toInt()
+
+                val newInset = if (isRightSide) {
+                    android.graphics.drawable.InsetDrawable(shape, insetPx, 0, 0, 0)
+                } else {
+                    android.graphics.drawable.InsetDrawable(shape, 0, 0, insetPx, 0)
+                }
+                background = newInset
             }
-            background = newInset
             
             if (!isTempHighAlpha) {
                 alpha = panelPrefs.panelOpacity / 100f
+                resetIdleFadeTimer()
             }
             
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -398,6 +471,7 @@ class EdgeHandleView @JvmOverloads constructor(
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 isTouchDown = true
+                resetIdleFadeTimer()
                 startX = event.rawX
                 startY = event.rawY
                 lastMoveRawX = event.rawX
@@ -599,7 +673,18 @@ class EdgeHandleView @JvmOverloads constructor(
                 if (isDragMode) {
                     saveFinalPosition()
                     isDragMode = false
-                    animate().scaleX(1f).scaleY(1f).setDuration(150).start()
+
+                    // Proportional snap-back easing (borrowed from QuickBall)
+                    val screenW = resources.displayMetrics.widthPixels.toFloat()
+                    val snapDistance = Math.abs(event.rawX - (if (isRightSide) screenW else 0f))
+                    val snapDuration = ((snapDistance / screenW) * 350f).coerceIn(180f, 320f).toLong()
+
+                    animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(snapDuration)
+                        .setInterpolator(android.view.animation.PathInterpolator(0.4f, 0f, 0.2f, 1f))
+                        .start()
                     return true
                 }
 
@@ -648,6 +733,7 @@ class EdgeHandleView @JvmOverloads constructor(
                 isSlidingVolume = false
                 isScrollingApp = false
                 hasPassedThreshold = false
+                resetIdleFadeTimer()
                 return true
             }
         }
@@ -682,6 +768,18 @@ class EdgeHandleView @JvmOverloads constructor(
         val offsetDp = (params.y / density).toInt()
         panelPrefs.handleVerticalOffset = offsetDp
 
+        // Compute Y fraction (0.0 to 1.0) based on screen height for orientation independence
+        val screenH = resources.displayMetrics.heightPixels
+        if (screenH > 0) {
+            val fraction = (params.y.toFloat() / screenH + 0.5f).coerceIn(0.05f, 0.95f)
+            val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            if (isLandscape) {
+                panelPrefs.handleYFractionLandscape = fraction
+            } else {
+                panelPrefs.handleYFraction = fraction
+            }
+        }
+
         val newSide = if (isRightSide) PanelPreferences.SIDE_RIGHT else PanelPreferences.SIDE_LEFT
         if (panelPrefs.panelSide != newSide) {
             panelPrefs.panelSide = newSide
@@ -690,13 +788,14 @@ class EdgeHandleView @JvmOverloads constructor(
     }
 
     private fun vibrateHaptic(durationMs: Long = 25) {
-        if (!panelPrefs.hapticEnabled) return
-        val v = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator ?: return
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            v.vibrate(VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE))
-        } else {
-            @Suppress("DEPRECATION")
-            v.vibrate(durationMs)
+        ActionDispatcher.vibrateHaptic(context, panelPrefs, durationMs)
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        if (panelPrefs.pillStyle == PanelPreferences.PILL_STYLE_ARC) {
+            updateArcBounds()
+            invalidate()
         }
     }
 
@@ -737,7 +836,14 @@ class EdgeHandleView @JvmOverloads constructor(
                     else (prefs.handleHeight * 1.5f * density).toInt()
 
             val maxOffset = ((screenH / 2) - (h / 2) - safeMargin).coerceAtLeast(0)
-            val requestedOffset = (prefs.handleVerticalOffset * density).toInt()
+            val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            val yFraction = if (isLandscape) prefs.handleYFractionLandscape else prefs.handleYFraction
+            val requestedOffset = if (prefs.handleVerticalOffset != PanelPreferences.DEFAULT_HANDLE_OFFSET) {
+                val computed = ((yFraction - 0.5f) * screenH).toInt()
+                if (Math.abs(computed) > 0 || yFraction != 0.5f) computed else (prefs.handleVerticalOffset * density).toInt()
+            } else {
+                ((yFraction - 0.5f) * screenH).toInt()
+            }
 
             params.y = requestedOffset.coerceIn(-maxOffset, maxOffset)
             params.width = (prefs.handleWidth * density).toInt()

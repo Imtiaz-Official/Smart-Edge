@@ -42,6 +42,8 @@ class HandleSettingsActivity : AppCompatActivity() {
 
     private fun loadCurrentSettings() {
         binding.featureShowPill.isChecked = panelPrefs.showPill
+        binding.featureAutoFade.isChecked = panelPrefs.handleAutoFade
+        binding.tvPillStyleValue.text = if (panelPrefs.pillStyle == PanelPreferences.PILL_STYLE_ARC) "Curved Arc" else "Modern Rounded"
         
         updatePillColorUI()
         
@@ -75,6 +77,28 @@ class HandleSettingsActivity : AppCompatActivity() {
         binding.featureShowPill.setOnCheckedChangeListener { _, isChecked ->
             panelPrefs.showPill = isChecked
             applyOnly()
+        }
+
+        binding.featureAutoFade.setOnCheckedChangeListener { _, isChecked ->
+            panelPrefs.handleAutoFade = isChecked
+            applyOnly()
+        }
+
+        binding.featurePillStyle.setOnClickListener {
+            val options = arrayOf("Modern Rounded (Default)", "Curved Arc (QuickBall)")
+            val values = arrayOf(PanelPreferences.PILL_STYLE_ROUNDED, PanelPreferences.PILL_STYLE_ARC)
+            val selectedIndex = values.indexOf(panelPrefs.pillStyle).coerceAtLeast(0)
+
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Pill Style")
+                .setSingleChoiceItems(options, selectedIndex) { dialog, which ->
+                    panelPrefs.pillStyle = values[which]
+                    binding.tvPillStyleValue.text = if (values[which] == PanelPreferences.PILL_STYLE_ARC) "Curved Arc" else "Modern Rounded"
+                    applyOnly()
+                    dialog.dismiss()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
         }
 
         binding.btnPickPillColor.setOnClickListener {

@@ -34,7 +34,7 @@
             android:layout_gravity="top|end"
             android:src="@drawable/ic_plus"
             android:visibility="gone"
-            app:tint="?attr/colorPrimary" />
+            app:tint="#4A9EFF" />
     </FrameLayout>
 
     <TextView

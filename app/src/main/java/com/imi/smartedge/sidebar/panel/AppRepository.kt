@@ -296,4 +296,70 @@ class AppRepository(context: Context) {
             .take(5)
             .map { it.activityInfo.packageName }
     }
+
+    suspend fun getRecommendedApps(limit: Int = 6): List<AppInfo> = withContext(Dispatchers.IO) {
+        val recommendedPackages = mutableListOf<String>()
+        val selfPkg = appContext.packageName
+
+        // 1. Internally tracked launches / recents first (tracks every open from drawer, sidebar, and accessibility)
+        val tracked = panelPrefs.getTopLaunchedPackages(limit)
+        for (pkg in tracked) {
+            if (!recommendedPackages.contains(pkg) && pkg != selfPkg) {
+                recommendedPackages.add(pkg)
+            }
+        }
+
+        // 2. Supplement with system UsageStatsManager if fewer than limit and permission is granted
+        if (recommendedPackages.size < limit) {
+            try {
+                val usageStatsManager = appContext.getSystemService(Context.USAGE_STATS_SERVICE) as? android.app.usage.UsageStatsManager
+                if (usageStatsManager != null) {
+                    val endTime = System.currentTimeMillis()
+                    val startTime = endTime - (1000L * 60 * 60 * 24 * 7) // Last 7 days
+                    val stats = usageStatsManager.queryUsageStats(
+                        android.app.usage.UsageStatsManager.INTERVAL_WEEKLY,
+                        startTime,
+                        endTime
+                    )
+                    if (!stats.isNullOrEmpty()) {
+                        val sortedStats = stats
+                            .filter { it.totalTimeInForeground > 0 && it.packageName != selfPkg }
+                            .sortedByDescending { it.lastTimeUsed }
+                            .map { it.packageName }
+                        for (pkg in sortedStats) {
+                            if (!recommendedPackages.contains(pkg)) {
+                                recommendedPackages.add(pkg)
+                            }
+                            if (recommendedPackages.size >= limit) break
+                        }
+                    }
+                }
+            } catch (e: Exception) {}
+        }
+
+        // 3. Fallback to top launcher activities to guarantee we always fill up to 6 apps
+        if (recommendedPackages.size < limit) {
+            val launcherIntent = android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
+                addCategory(android.content.Intent.CATEGORY_LAUNCHER)
+            }
+            val resolved = packageManager.queryIntentActivities(launcherIntent, 0)
+                .map { it.activityInfo.packageName }
+                .distinct()
+                .filter { it != selfPkg }
+            for (pkg in resolved) {
+                if (!recommendedPackages.contains(pkg)) {
+                    recommendedPackages.add(pkg)
+                }
+                if (recommendedPackages.size >= limit) break
+            }
+        }
+
+        val allApps = getAllApps()
+        val appMap = allApps.associateBy { it.packageName }
+
+        recommendedPackages
+            .mapNotNull { appMap[it] }
+            .distinctBy { it.packageName }
+            .take(limit)
+    }
 }

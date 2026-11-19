@@ -41,6 +41,11 @@ jobs:
       - name: Build Release APK
         run: ./gradlew assembleRelease
 
+      - name: Rename APK with Version
+        run: |
+          VERSION_NAME=$(grep "versionName = " app/build.gradle.kts | head -1 | awk -F'"' '{print $2}')
+          mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/Smart-Edge-v${VERSION_NAME}.apk
+
       - name: Extract Changelog
         id: changelog
         run: |
@@ -58,7 +63,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: app/build/outputs/apk/release/app-release.apk
+          files: app/build/outputs/apk/release/Smart-Edge-v*.apk
           body: ${{ steps.changelog.outputs.body }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

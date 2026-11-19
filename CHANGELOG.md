@@ -6,7 +6,31 @@
 
 ---
 
-### v1.3.8 (Latest)
+### v1.3.9 (Latest)
+- **feat(appearance)**: Added customizable column layout for All Apps Drawer with 3 Columns set as default.
+- **feat(drawer)**: Added Recommended section in All Apps drawer showing 6 most used / recently opened apps with real-time dynamic refresh.
+- **feat(search)**: Modernized drawer search bar with frosted capsule glass styling, crisp vector icon, and quick clear button.
+- **feat(appearance)**: Added "Show Recommended Apps" toggle setting in Appearance settings.
+- **fix(drawer)**: Responsive dynamic drawer sizing preventing panel overflow and screen edge clipping.
+- **feat(interaction)**: Added reset-to-default button for Picker Gap (Spacing) slider.
+- **fix(sidebar)**: Resolved drag & reorder lock — apps in the sidebar can now always be freely long-pressed and dragged into custom positions.
+- **perf(gestures)**: Instantaneous triple-tap trigger response — fires immediately on the 3rd touch event without waiting for the tap timeout window.
+- **feat(gestures)**: Added system media controls (`Media: Play / Pause`, `Media: Next Track`, `Media: Previous Track`) and Do Not Disturb (`DND Toggle`) to gesture options.
+- **feat(haptics)**: Added selectable multi-tier haptic feedback intensity: `Light (Tick)`, `Medium (Click)`, and `Strong (Heavy Click)` using modern `VibrationEffect.createPredefined()`.
+- **feat(handle)**: Added customizable Pill Styles in Handle Settings: `[Modern Rounded (Default) | Curved Arc]` with smooth `Canvas.drawArc()` curve geometry.
+- **feat(handle)**: Added "Auto Fade When Idle" option to dim the handle to 20% opacity after 2.5s of inactivity.
+- **feat(handle)**: Added distance-proportional snap animation with Material standard easing (`PathInterpolator(0.4f, 0f, 0.2f, 1f)`) for natural drag repositioning.
+- **fix(handle)**: Added normalized Y-fraction orientation position memory — handle automatically retains its relative vertical screen position across portrait and landscape rotations.
+- **perf(overlay)**: Instant touch pass-through (`FLAG_NOT_TOUCHABLE`) when closing the panel — touches pass immediately to underlying apps before the spring animation completes.
+- **fix(handle)**: Fixed handle intercepting background touches and animating scale on touch down when all tap & long-press gestures are disabled (#91).
+- **feat(appearance)**: Added independent customization toggles for custom Accent and Panel Background colors, including full custom color support on OriginOS.
+- **feat(localization)**: Added complete Bengali (বাংলা) and Hindi (हिंदी) language localization with updated in-app language picker.
+- **fix(animation)**: Corrected close animation slide-out direction when the sidebar is positioned on the left edge (#89).
+- **ci(release)**: Cleaned release workflow to upload exclusively the version-named APK (`Smart-Edge-v*.apk`).
+
+---
+
+### v1.3.8
 - **feat(appearance)**: Added independent "Show App Names" toggles for both Sidebar and App Drawer, allowing clean icon-only displays on tablets and compact setups.
 - **feat(search)**: Completely overhauled Settings Search with 65 indexed features covering all settings categories, permissions, and tools.
 - **feat(ui)**: Modernized search results with Material 3 elevated cards, dynamic category pills, instant clear button, and animated empty state.

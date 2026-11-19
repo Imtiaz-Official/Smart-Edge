@@ -286,6 +286,9 @@ class PanelAppsAdapter(
                                                (app.packageName == "smartedge.shortcut.one_hand" || 
                                                 app.packageName == "smartedge.shortcut.reboot")
                     
+                    if (app.type == AppInfo.Type.APP) {
+                        panelPrefs.recordAppLaunch(app.packageName)
+                    }
                     if (shouldFreeform && context.isFreeformEnabled() && app.type != AppInfo.Type.SHORTCUT) {
                         launchFreeform(launchIntent)
                     } else {
@@ -306,14 +309,16 @@ class PanelAppsAdapter(
 
             holder.itemView.setOnLongClickListener {
                 if (isEditMode) {
-                    return@setOnLongClickListener false // Let ItemTouchHelper handle it
+                    return@setOnLongClickListener false // Let ItemTouchHelper handle dragging
                 }
 
                 if (!panelPrefs.dragToSplit) {
-                    if (app.type != AppInfo.Type.TOOL) {
-                        showRemoveConfirmationDialog(app, holder.bindingAdapterPosition)
+                    // Enter re-order edit mode on long press so user can freely drag & sort
+                    isEditMode = true
+                    if (panelPrefs.hapticEnabled) {
+                        holder.itemView.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
                     }
-                    return@setOnLongClickListener true
+                    return@setOnLongClickListener false
                 }
 
                 // Drag to Split Logic

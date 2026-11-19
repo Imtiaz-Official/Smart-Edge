@@ -242,6 +242,12 @@ class PanelAccessibilityService : AccessibilityService() {
             if (packageName != "com.imi.smartedge.sidebar.panel" && packageName != imePackage) {
                 if (panelPrefs.serviceEnabled) {
                     if (!isSystemPkg) {
+                        try {
+                            if (packageManager.getLaunchIntentForPackage(packageName) != null) {
+                                panelPrefs.recordAppLaunch(packageName)
+                            }
+                        } catch (e: Exception) {}
+
                         val closeIntent = Intent(this, FloatingPanelService::class.java).apply {
                             action = FloatingPanelService.ACTION_CLOSE_PANEL
                         }

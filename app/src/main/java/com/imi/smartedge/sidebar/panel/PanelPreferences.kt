@@ -21,10 +21,14 @@ class PanelPreferences(context: Context) {
         private const val KEY_AUTO_START = "auto_start"
         private const val KEY_SHOW_PILL = "show_pill"
         private const val KEY_HAPTIC_ENABLED = "haptic_enabled"
+        private const val KEY_HAPTIC_INTENSITY = "haptic_intensity"
+        private const val KEY_HANDLE_AUTO_FADE = "handle_auto_fade"
         private const val KEY_PANEL_OPACITY = "panel_opacity"
         private const val KEY_HANDLE_HEIGHT = "handle_height"
         private const val KEY_HANDLE_WIDTH = "handle_width"
         private const val KEY_HANDLE_OFFSET = "handle_offset"
+        private const val KEY_HANDLE_Y_FRACTION = "handle_y_fraction"
+        private const val KEY_HANDLE_Y_FRACTION_LANDSCAPE = "handle_y_fraction_landscape"
         private const val KEY_ACCENT_COLOR = "accent_color"
         private const val KEY_USE_CUSTOM_ACCENT = "use_custom_accent"
         private const val KEY_PANEL_COLUMNS = "panel_columns"
@@ -42,6 +46,7 @@ class PanelPreferences(context: Context) {
 
         private const val KEY_PILL_WIDTH = "pill_width"
         private const val KEY_PILL_COLOR = "pill_color"
+        private const val KEY_PILL_STYLE = "pill_style"
         private const val KEY_TAP_TO_OPEN = "tap_to_open"
         private const val KEY_DOUBLE_TAP_TO_OPEN = "double_tap_to_open"
         private const val KEY_TRIPLE_TAP_TO_OPEN = "triple_tap_to_open"
@@ -53,6 +58,9 @@ class PanelPreferences(context: Context) {
         private const val KEY_ANIM_SPEED = "animation_speed"
         private const val KEY_PICKER_ANIM_TYPE = "picker_anim_type"
         private const val KEY_PICKER_GAP = "picker_gap"
+        private const val KEY_PICKER_COLUMNS = "picker_columns"
+        private const val KEY_SHOW_RECOMMENDED_APPS = "show_recommended_apps"
+        private const val KEY_APP_LAUNCH_COUNTS = "app_launch_counts"
         private const val KEY_SHOW_SYS_INFO = "show_sys_info"
         private const val KEY_SHOW_SCREENSHOT_TOOL = "show_screenshot_tool"
         private const val KEY_SHOW_TOOLS_PANEL_BUTTON = "show_tools_panel_button"
@@ -121,6 +129,10 @@ class PanelPreferences(context: Context) {
         const val ACTION_AUTO_ROTATION = 13
         const val ACTION_OPEN_FAVORITE_APP = 14
         const val ACTION_MOVE_HANDLE = 15
+        const val ACTION_MEDIA_PLAY_PAUSE = 16
+        const val ACTION_MEDIA_NEXT = 17
+        const val ACTION_MEDIA_PREV = 18
+        const val ACTION_DND_TOGGLE = 19
 
         const val ANIM_TYPE_SLIDE = "slide"
         const val ANIM_TYPE_POPUP = "popup"
@@ -142,6 +154,15 @@ class PanelPreferences(context: Context) {
 
         const val STYLE_POWER = "power"
         const val STYLE_CLASSIC = "classic"
+
+        // Pill visual styles
+        const val PILL_STYLE_ROUNDED = "rounded"
+        const val PILL_STYLE_ARC = "arc"
+
+        // Haptic intensity levels (borrowed from QuickBall)
+        const val HAPTIC_LIGHT = 0
+        const val HAPTIC_MEDIUM = 1
+        const val HAPTIC_STRONG = 2
 
         // Theme modes
         const val MODE_SYSTEM = 0
@@ -184,7 +205,9 @@ class PanelPreferences(context: Context) {
         const val DEFAULT_BLUR_AMOUNT = 15
         const val DEFAULT_ANIM_SPEED = 400
         const val DEFAULT_PICKER_ANIM = ANIM_TYPE_POPUP
-        const val DEFAULT_PICKER_GAP = 20
+        const val DEFAULT_PICKER_GAP = 12
+        const val DEFAULT_PICKER_COLUMNS = 3
+        const val DEFAULT_SHOW_RECOMMENDED = true
         const val DEFAULT_HOME_BUTTON_STYLE = STYLE_POWER
         const val DEFAULT_THEME_MODE = MODE_SYSTEM
         const val DEFAULT_SHOW_TOOLS = true
@@ -419,6 +442,8 @@ class PanelPreferences(context: Context) {
             putInt(KEY_ANIM_SPEED, DEFAULT_ANIM_SPEED)
             putString(KEY_PICKER_ANIM_TYPE, DEFAULT_PICKER_ANIM)
             putInt(KEY_PICKER_GAP, DEFAULT_PICKER_GAP)
+            putInt(KEY_PICKER_COLUMNS, DEFAULT_PICKER_COLUMNS)
+            putBoolean(KEY_SHOW_RECOMMENDED_APPS, DEFAULT_SHOW_RECOMMENDED)
             putBoolean(KEY_SHOW_SYS_INFO, false)
             putBoolean(KEY_SHOW_SCREENSHOT_TOOL, true)
             putBoolean(KEY_SHOW_POWER_MENU, false)
@@ -498,6 +523,10 @@ class PanelPreferences(context: Context) {
         get() = prefs.getString(KEY_PILL_COLOR, DEFAULT_PILL_COLOR) ?: DEFAULT_PILL_COLOR
         set(value) = prefs.edit { putString(KEY_PILL_COLOR, value) }
 
+    var pillStyle: String
+        get() = prefs.getString(KEY_PILL_STYLE, PILL_STYLE_ROUNDED) ?: PILL_STYLE_ROUNDED
+        set(value) = prefs.edit { putString(KEY_PILL_STYLE, value) }
+
     var freeformEnabled: Boolean
         get() = prefs.getBoolean(KEY_FREEFORM_ENABLED, false)
         set(value) = prefs.edit { putBoolean(KEY_FREEFORM_ENABLED, value) }
@@ -555,8 +584,8 @@ class PanelPreferences(context: Context) {
         set(value) = prefs.edit { putString(KEY_HOME_BUTTON_STYLE, value) }
 
     var pickerGap: Int
-        get() = prefs.getInt(KEY_PICKER_GAP, DEFAULT_PICKER_GAP)
-        set(value) = prefs.edit { putInt(KEY_PICKER_GAP, value) }
+        get() = prefs.getInt(KEY_PICKER_GAP, DEFAULT_PICKER_GAP).coerceIn(0, 36)
+        set(value) = prefs.edit { putInt(KEY_PICKER_GAP, value.coerceIn(0, 36)) }
 
     var useCustomAccent: Boolean
         get() = prefs.getBoolean(KEY_USE_CUSTOM_ACCENT, DEFAULT_USE_CUSTOM_ACCENT)
@@ -626,6 +655,14 @@ class PanelPreferences(context: Context) {
         get() = prefs.getBoolean(KEY_HAPTIC_ENABLED, DEFAULT_HAPTIC)
         set(value) = prefs.edit { putBoolean(KEY_HAPTIC_ENABLED, value) }
 
+    var hapticIntensity: Int
+        get() = prefs.getInt(KEY_HAPTIC_INTENSITY, HAPTIC_MEDIUM)
+        set(value) = prefs.edit { putInt(KEY_HAPTIC_INTENSITY, value) }
+
+    var handleAutoFade: Boolean
+        get() = prefs.getBoolean(KEY_HANDLE_AUTO_FADE, false)
+        set(value) = prefs.edit { putBoolean(KEY_HANDLE_AUTO_FADE, value) }
+
     var blurEnabled: Boolean
         get() = prefs.getBoolean(KEY_BLUR_ENABLED, false)
         set(value) = prefs.edit { putBoolean(KEY_BLUR_ENABLED, value) }
@@ -650,6 +687,14 @@ class PanelPreferences(context: Context) {
         get() = prefs.getInt(KEY_HANDLE_OFFSET, DEFAULT_HANDLE_OFFSET)
         set(value) = prefs.edit { putInt(KEY_HANDLE_OFFSET, value) }
 
+    var handleYFraction: Float
+        get() = prefs.getFloat(KEY_HANDLE_Y_FRACTION, 0.5f)
+        set(value) = prefs.edit { putFloat(KEY_HANDLE_Y_FRACTION, value) }
+
+    var handleYFractionLandscape: Float
+        get() = prefs.getFloat(KEY_HANDLE_Y_FRACTION_LANDSCAPE, 0.5f)
+        set(value) = prefs.edit { putFloat(KEY_HANDLE_Y_FRACTION_LANDSCAPE, value) }
+
     var accentColor: String
         get() = prefs.getString(KEY_ACCENT_COLOR, DEFAULT_ACCENT_COLOR) ?: DEFAULT_ACCENT_COLOR
         set(value) = prefs.edit { putString(KEY_ACCENT_COLOR, value) }
@@ -657,6 +702,63 @@ class PanelPreferences(context: Context) {
     var panelColumns: Int
         get() = (prefs.getInt(KEY_PANEL_COLUMNS, DEFAULT_PANEL_COLS)).coerceIn(1, 2)
         set(value) = prefs.edit { putInt(KEY_PANEL_COLUMNS, value.coerceIn(1, 2)) }
+
+    var pickerColumns: Int
+        get() = (prefs.getInt(KEY_PICKER_COLUMNS, DEFAULT_PICKER_COLUMNS)).coerceIn(2, 3)
+        set(value) = prefs.edit { putInt(KEY_PICKER_COLUMNS, value.coerceIn(2, 3)) }
+
+    var showRecommendedApps: Boolean
+        get() = prefs.getBoolean(KEY_SHOW_RECOMMENDED_APPS, DEFAULT_SHOW_RECOMMENDED)
+        set(value) = prefs.edit { putBoolean(KEY_SHOW_RECOMMENDED_APPS, value) }
+
+    fun recordAppLaunch(packageName: String) {
+        if (packageName.isBlank() || packageName.startsWith("smartedge.tool.")) return
+        try {
+            val raw = prefs.getString(KEY_APP_LAUNCH_COUNTS, "") ?: ""
+            val counts = mutableMapOf<String, Pair<Int, Long>>()
+            if (raw.isNotEmpty()) {
+                raw.split(";").forEach { entry ->
+                    val parts = entry.split("=")
+                    if (parts.size == 2) {
+                        val subParts = parts[1].split(":")
+                        val count = subParts[0].toIntOrNull() ?: 0
+                        val time = if (subParts.size > 1) subParts[1].toLongOrNull() ?: 0L else 0L
+                        counts[parts[0]] = count to time
+                    }
+                }
+            }
+            val currentCount = counts[packageName]?.first ?: 0
+            counts[packageName] = (currentCount + 1) to System.currentTimeMillis()
+            val sorted = counts.entries.sortedWith(
+                compareByDescending<Map.Entry<String, Pair<Int, Long>>> { it.value.second }
+                    .thenByDescending { it.value.first }
+            ).take(50)
+            val serialized = sorted.joinToString(";") { "${it.key}=${it.value.first}:${it.value.second}" }
+            prefs.edit { putString(KEY_APP_LAUNCH_COUNTS, serialized) }
+        } catch (e: Exception) {}
+    }
+
+    fun getTopLaunchedPackages(limit: Int = 6): List<String> {
+        return try {
+            val raw = prefs.getString(KEY_APP_LAUNCH_COUNTS, "") ?: ""
+            if (raw.isEmpty()) return emptyList()
+            raw.split(";")
+                .mapNotNull { entry ->
+                    val parts = entry.split("=")
+                    if (parts.size == 2) {
+                        val subParts = parts[1].split(":")
+                        val count = subParts[0].toIntOrNull() ?: 0
+                        val time = if (subParts.size > 1) subParts[1].toLongOrNull() ?: 0L else 0L
+                        Triple(parts[0], count, time)
+                    } else null
+                }
+                .sortedWith(compareByDescending<Triple<String, Int, Long>> { it.third }.thenByDescending { it.second })
+                .take(limit)
+                .map { it.first }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 
     var uiTheme: String
         get() = prefs.getString(KEY_UI_THEME, DEFAULT_THEME) ?: DEFAULT_THEME

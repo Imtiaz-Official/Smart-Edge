@@ -303,12 +303,29 @@ class FloatingPanelService : Service() {
                         if (lp != null) {
                             lp.gravity = if (isRightSide) Gravity.END or Gravity.CENTER_VERTICAL
                                          else Gravity.START or Gravity.CENTER_VERTICAL
+                            val displayMetrics = resources.displayMetrics
+                            val screenWidthDp = displayMetrics.widthPixels / displayMetrics.density
+                            val baseSideOccupiedDp = 72f + 12f
+                            val safeMarginDp = 8f
+                            val cols = panelPrefs.pickerColumns
+                            val desiredWidthDp = if (cols == 3) 256f else 220f
+                            val totalAvailableSpaceDp = (screenWidthDp - baseSideOccupiedDp - safeMarginDp).coerceAtLeast(180f)
+                            val requestedGapDp = panelPrefs.pickerGap.coerceIn(0, 36)
+                            val maxPossibleGapDp = (totalAvailableSpaceDp - desiredWidthDp).coerceAtLeast(0f)
+                            val effectiveGapDp = requestedGapDp.toFloat().coerceAtMost(maxPossibleGapDp)
+                            val sideOccupiedDp = baseSideOccupiedDp + effectiveGapDp
+                            val maxAvailableWidthDp = (screenWidthDp - sideOccupiedDp - safeMarginDp).coerceAtLeast(180f)
+                            val pickerWidthDp = desiredWidthDp.coerceAtMost(maxAvailableWidthDp).toInt()
+                            lp.width = dpToPx(pickerWidthDp)
+                            val gapPx = (sideOccupiedDp * displayMetrics.density).toInt()
+                            if (isRightSide) lp.marginEnd = gapPx else lp.marginStart = gapPx
                             picker.layoutParams = lp
                         }
                     }
 
                     pickerPanelView?.applyTheme()
                     pickerPanelView?.clearIcons()
+                    pickerPanelView?.updateColumns()
                     updateBlur(isPanelOpen)
                     
                     if (!isPanelOpen) {
@@ -591,7 +608,16 @@ class FloatingPanelService : Service() {
         val h = if (isPillVisible) (panelPrefs.handleHeight * density).toInt()
                 else (screenH * 0.60f).toInt()
         val maxOffset = ((screenH / 2) - (h / 2) - safeMargin).coerceAtLeast(0)
-        val requestedOffset = (panelPrefs.handleVerticalOffset * density).toInt()
+        val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+        val yFraction = if (isLandscape) panelPrefs.handleYFractionLandscape else panelPrefs.handleYFraction
+        val requestedOffset = if (panelPrefs.handleVerticalOffset != PanelPreferences.DEFAULT_HANDLE_OFFSET) {
+            // If user has a fraction saved or default
+            val computedFromFraction = ((yFraction - 0.5f) * screenH).toInt()
+            if (Math.abs(computedFromFraction) > 0 || yFraction != 0.5f) computedFromFraction
+            else (panelPrefs.handleVerticalOffset * density).toInt()
+        } else {
+            ((yFraction - 0.5f) * screenH).toInt()
+        }
         val handleWidth = (panelPrefs.handleWidth * density).toInt()
         val newGravity = if (isRight) Gravity.END or Gravity.CENTER_VERTICAL
                          else Gravity.START or Gravity.CENTER_VERTICAL
@@ -701,7 +727,8 @@ class FloatingPanelService : Service() {
     }
 
     private fun initSidePanel() {
-        sidePanelView = SidePanelView(this).apply {
+        val themedContext = android.view.ContextThemeWrapper(this, R.style.Theme_SidePanel_M3)
+        sidePanelView = SidePanelView(themedContext).apply {
             onClose = { closePanel() }
             onAppsChanged = {
                 refreshApps()
@@ -739,7 +766,8 @@ class FloatingPanelService : Service() {
     }
 
     private fun initPickerPanel() {
-        pickerPanelView = AppPickerPanelView(this).apply {
+        val themedContext = android.view.ContextThemeWrapper(this, R.style.Theme_SidePanel_M3)
+        pickerPanelView = AppPickerPanelView(themedContext).apply {
             onClose = { closePicker() }
             onAppLaunched = { closePanel() }
             onToggleApp = { app, isSelected ->
@@ -909,6 +937,7 @@ class FloatingPanelService : Service() {
         refreshApps() // Load apps in background while panel opens
         initRootLayout()
         rootParams?.let { params ->
+            params.flags = params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
             applyBlurToParams(params, true)
         }
         if (rootLayout?.parent == null) {
@@ -1027,6 +1056,14 @@ class FloatingPanelService : Service() {
 
         if (isPickerOpen) closePicker()
         sidePanelView?.let { panel ->
+            // Pass touches through immediately before collapse animation starts
+            rootParams?.let { params ->
+                params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                if (rootLayout?.parent != null) {
+                    try { windowManager.updateViewLayout(rootLayout, params) } catch (e: Exception) {}
+                }
+            }
+
             val isRight = isPanelOpenedFromRight
             val panelWidth = panel.width.toFloat()
             val fallbackWidth = if (panelWidth > 0f) panelWidth else 600f
@@ -1082,29 +1119,44 @@ class FloatingPanelService : Service() {
             picker.loadApps()
             picker.setOnClickListener { }
             val isRight = isPanelOpenedFromRight
-            val density = resources.displayMetrics.density
-            val sidePanelWidthDp = 72
-            val sidePanelMarginDp = 12
+            val sidePanelWidthDp = 72f
+            val sidePanelMarginDp = 12f
             
             // Dynamic Height calculation for Picker Panel based on Screen Height
             val displayMetrics = resources.displayMetrics
             val screenHeightPx = displayMetrics.heightPixels
-            val screenHeightDp = screenHeightPx / displayMetrics.density
+            val screenWidthPx = displayMetrics.widthPixels
+            val screenWidthDp = screenWidthPx / displayMetrics.density
             
             // Max height for picker: User preference, with a sane minimum for usability
             val maxAllowedHeightDp = Math.max(300f, panelPrefs.pickerMaxHeight.toFloat())
             val maxPickerHeightPx = (maxAllowedHeightDp * displayMetrics.density).toInt()
 
-            val lp = android.widget.FrameLayout.LayoutParams(dpToPx(240), android.widget.FrameLayout.LayoutParams.WRAP_CONTENT)
+            val safeMarginDp = 8f
+            val baseSideOccupiedDp = sidePanelWidthDp + sidePanelMarginDp
+
+            val cols = panelPrefs.pickerColumns
+            val desiredWidthDp = if (cols == 3) 256f else 220f
+            
+            val totalAvailableSpaceDp = (screenWidthDp - baseSideOccupiedDp - safeMarginDp).coerceAtLeast(180f)
+            val requestedGapDp = panelPrefs.pickerGap.coerceIn(0, 36)
+            val maxPossibleGapDp = (totalAvailableSpaceDp - desiredWidthDp).coerceAtLeast(0f)
+            val effectiveGapDp = requestedGapDp.toFloat().coerceAtMost(maxPossibleGapDp)
+            
+            val sideOccupiedDp = baseSideOccupiedDp + effectiveGapDp
+            val maxAvailableWidthDp = (screenWidthDp - sideOccupiedDp - safeMarginDp).coerceAtLeast(180f)
+            val pickerWidthDp = desiredWidthDp.coerceAtMost(maxAvailableWidthDp).toInt()
+            val lp = android.widget.FrameLayout.LayoutParams(dpToPx(pickerWidthDp), android.widget.FrameLayout.LayoutParams.WRAP_CONTENT)
             
             lp.gravity = if (isRight) Gravity.CENTER_VERTICAL or Gravity.END
                          else Gravity.CENTER_VERTICAL or Gravity.START
             
             // Fixed alignment calculation: Sidepanel occupies (margin + width) space
-            val gapPx = ((sidePanelWidthDp + sidePanelMarginDp + panelPrefs.pickerGap) * displayMetrics.density).toInt()
+            val gapPx = (sideOccupiedDp * displayMetrics.density).toInt()
             if (isRight) lp.marginEnd = gapPx else lp.marginStart = gapPx
             
             picker.layoutParams = lp
+            picker.updateColumns()
             // Force the internal RecyclerView to not exceed a certain height
             picker.setMaxRecyclerViewHeight(maxPickerHeightPx - dpToPx(80)) // Subtract header space (approx 80dp)
             

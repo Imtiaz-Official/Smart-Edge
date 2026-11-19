@@ -1,0 +1,17 @@
+- Added customizable column layout for All Apps Drawer (default 3 columns per line).
+- Added Recommended (6 most used / recently opened apps) section with real-time dynamic refresh.
+- Modernized drawer search bar with frosted capsule glass outline, crisp vector icon, and quick clear button.
+- Dynamic responsive layout calculation to prevent panel clipping or edge overflow on portrait screens.
+- Added quick reset button for Picker Gap (Spacing) in settings.
+- Fixed sidebar app dragging and re-ordering lock.
+- Instantaneous triple-tap trigger response without waiting for tap timeouts.
+- Added media control actions (Play/Pause, Next Track, Previous Track) and Do Not Disturb (DND) toggle to gesture actions.
+- Added multi-tier haptic intensity feedback: Light (Tick), Medium (Click), and Strong (Heavy Click) utilizing modern tactile vibration effects.
+- Added selectable pill styles in Handle Settings: Modern Rounded (Default) or Curved Arc (organic edge shape).
+- Added Auto Fade When Idle option to dim the handle to 20% opacity after 2.5s of inactivity.
+- Added normalized Y-fraction orientation position memory to prevent handle drift during screen rotation.
+- Added instant pre-collapse touch pass-through (FLAG_NOT_TOUCHABLE) to prevent touch drops during closing animations.
+- Fixed handle intercepting touches and animating when gestures are disabled (#91).
+- Added independent toggles for custom accent and background colors, and custom colors on OriginOS.
+- Added Bengali (বাংলা) and Hindi (हिंदी) language localization with in-app language switcher.
+- Fixed panel slide-out close animation direction when positioned on the left screen edge (#89).
